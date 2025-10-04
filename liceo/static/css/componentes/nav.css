@@ -38,6 +38,37 @@ html {
   transform: scale(1.2);
 }
 
+#btn-menu {
+  position: relative;
+  padding: .375rem;
+  border-radius: var(--radio-campo);
+  transition: background-color 0.2s ease-in-out;
+}
+
+#btn-menu::before {
+  content: "";
+  top: 0;
+  left: 0;
+  right: 0;
+  left: 0;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  transform: scale(1.4);
+}
+
+#btn-menu[aria-expanded="true"] {
+  background: var(--color-primario-600);
+}
+
+#btn-menu svg {
+  transition: transform 150ms ease-in-out;
+}
+
+#btn-menu[aria-expanded="true"] svg {
+  transform: rotate(-90deg);
+}
+
 #aside {
   position: fixed;
   z-index: 5;
@@ -153,6 +184,10 @@ html {
 
 @media only screen and (hover: none) and (pointer: coarse) {
 
+  #btn-menu:active {
+    background: var(--color-primario-600);
+  }
+
   #cerrar-sesion:active,
   #menu a:active {
     background-color: var(--color-primario-600);
@@ -164,6 +199,10 @@ html {
 }
 
 @media only screen and (hover: hover) and (pointer: fine) {
+
+  #btn-menu:hover {
+    background: var(--color-primario-600);
+  }
 
   #cerrar-sesion:hover,
   #menu a:hover {
