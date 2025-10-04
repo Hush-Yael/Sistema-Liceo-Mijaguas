@@ -13,7 +13,6 @@ from liceo.forms import FormularioRegistro
 
 @login_required
 def inicio(request: HttpRequest):
-    print(request.user.user_permissions.all())
     return render(request, "inicio.html")
 
 
