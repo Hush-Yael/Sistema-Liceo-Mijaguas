@@ -65,7 +65,7 @@
 
   <hr />
 
-  <nav id="menu">
+  <nav id="menu" data-path-actual="{{ request.path }}">
     <ul>
       <li>
         <a href="{% url 'inicio' %}">
@@ -162,23 +162,3 @@
     Liceo Mijaguas
   </h1>
 </aside>
-
-<link rel="stylesheet" href="{% static 'css/componentes/nav.css' %}" />
-
-<script defer>
-  let urlActual = " {{ request.path }} ";
-  urlActual = urlActual.trim();
-
-  const links = document.getElementById("menu").querySelectorAll("a");
-
-  links.forEach((link) => {
-    if (location.origin + urlActual.trim() === link.href)
-      link.setAttribute("aria-current", "page");
-  });
-
-  const btnMenu = document.getElementById("btn-menu");
-
-  btnMenu.addEventListener("click", () => {
-    document.getElementById("aside").classList.toggle("mostrar");
-  });
-</script>
