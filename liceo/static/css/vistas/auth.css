@@ -8,9 +8,9 @@ form {
   max-width: 350px;
   width: 90%;
   padding: 16px;
-  border: 1px solid #0001;
+  border: 1px solid #0002;
   border-radius: var(--radio-caja);
-  background: var(--color-fondo-300);
+  background: var(--color-fondo-500);
 }
 
 form h1 {
@@ -25,7 +25,7 @@ input {
   padding: 4px 8px;
   border: 1px solid #0001;
   border-radius: var(--radio-campo);
-  background-color: var(--color-fondo-600);
+  background-color: var(--color-fondo-700);
 }
 
 .error {
