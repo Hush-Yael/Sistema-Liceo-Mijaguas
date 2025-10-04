@@ -6,6 +6,7 @@ html {
   display: flex;
   position: sticky;
   top: 0;
+  z-index: 5;
   align-items: center;
   justify-content: space-between;
   padding: 0 1rem;
@@ -50,6 +51,7 @@ html {
   transition: transform 0.2s ease-in-out;
   order: 1;
 }
+
 
 #aside.mostrar,
 #aside:focus-within {
@@ -178,6 +180,11 @@ html {
     border-top: 1px solid #fff2;
   }
 
+  #aside.mostrar,
+  #aside:focus-within {
+    box-shadow: -4px 5px 16px 1px rgba(0, 0, 0, .3);
+  }
+
   #aside h1,
   #hr-img {
     display: none;
@@ -192,5 +199,6 @@ html {
   #aside {
     position: relative;
     transform: translateX(0);
+    box-shadow: -2px 0 6px rgba(0, 0, 0, .2);
   }
 }
