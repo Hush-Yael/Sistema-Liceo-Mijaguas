@@ -2,8 +2,10 @@
 
 <header id="header" class="primario">
   <h1>
-    <img src="{% static 'img/logo-sin-letras.png' %}" alt="logo" />
-    Liceo Mijaguas
+    <a href="{% url 'inicio' %}">
+      <img src="{% static 'img/logo-sin-letras.png' %}" alt="logo" />
+      Liceo Mijaguas
+    </a>
   </h1>
 
   <button aria-label="Abrir menú" id="btn-menu">

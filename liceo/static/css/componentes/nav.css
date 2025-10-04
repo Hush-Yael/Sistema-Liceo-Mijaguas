@@ -13,17 +13,17 @@ html {
   height: var(--altura-header);
 }
 
-#header h1 {
-  gap: 1rem;
-  font-size: 1.25rem;
-}
-
-#header h1,
+#header h1 a,
 #aside h1 {
   display: flex;
   align-items: center;
   font-weight: bold;
   text-align: center;
+}
+
+#header h1 a {
+  gap: 1rem;
+  font-size: 1.25rem;
 }
 
 #header h1 img {
