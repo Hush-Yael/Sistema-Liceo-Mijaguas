@@ -1,0 +1,25 @@
+.no-encontrado {
+  text-align: center;
+}
+
+.no-encontrado h1 {
+  font-size: 6rem;
+  font-weight: bold;
+  text-align: center;
+  line-height: 1;
+
+}
+
+.no-encontrado p {
+  font-size: 1.5rem;
+}
+
+.no-encontrado a {
+  margin-top: 2rem;
+}
+
+.no-encontrado a svg {
+  height: 1.25em;
+  width: 1.25em;
+  margin-right: .25em;
+}

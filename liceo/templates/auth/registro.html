@@ -1,0 +1,41 @@
+{% extends "base.html" %} {% block title %}Registro{% endblock %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block cabeza %}
+  <link rel="stylesheet" href="{% static 'css/vistas/auth.css' %}" />
+  <script defer src="{% static 'js/limpiar-errores.js' %}"></script>
+{% endblock %}
+
+{% block contenido %}
+  <main class="flex-center">
+    <form method="post">
+      <h1>Crear usuario</h1>
+      {% csrf_token %}
+
+      <div class="col" style="gap: 1rem">
+        {% for field in form %}
+          <div class="col" style="gap: 6px">
+            {{ field.label_tag }}
+
+            {% if field.errors %}
+              {% for error in field.errors %}
+                {% with error=field.id_for_label|add:'-error' %}
+                  {% render_field field aria-labelledby=error aria-invalid="true" %}
+                {% endwith %}
+
+                <p id="{{ field.id_for_label }}-error" class="error">
+                  {{ error }}
+                </p>
+              {% endfor %}
+            {% else %}
+              {% render_field field %}
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+
+      <button>Crear</button>
+    </form>
+  </main>
+{% endblock %}

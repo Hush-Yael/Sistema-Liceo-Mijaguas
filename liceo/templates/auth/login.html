@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block titulo %}
+  Iniciar Sesión
+{% endblock %}
+{% load static %}
+
+{% block cabeza %}
+  <link rel="stylesheet" href="{% static 'css/vistas/auth.css' %}" />
+{% endblock %}
+
+{% block contenido %}
+  <main class="flex-center" style="gap: 1rem;">
+    <img src="{% static 'img/logo.png' %}" alt="logo" />
+
+    <form action="{% url 'login' %}" method="post">
+      {% csrf_token %}
+
+      <h1>Iniciar sesión</h1>
+
+      <div class="col" style="gap: 1rem;">
+        {% for field in form %}
+          <div class="col" style="gap: 6px;">
+            {{ field.label_tag }}
+            {{ field }}
+          </div>
+        {% endfor %}
+      </div>
+
+      <button class="btn-primario btn-md w-100">Ingresar</button>
+
+      <p id="ir-registro">
+        ¿No tienes una cuenta?
+        <a class="link-primario" href="{% url 'registro' %}">Regístrate</a>
+      </p>
+
+      <input type="hidden" name="next" value="/" />
+    </form>
+
+    {% if form.errors %}
+      <p role="alert">
+        <svg
+          style="margin-right: .25rem;"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          class="icon icon-tabler icons-tabler-filled icon-tabler-exclamation-circle"
+        >
+          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+          <path
+            d="M17 3.34a10 10 0 1 1 -15 8.66l.005 -.324a10 10 0 0 1 14.995 -8.336m-5 11.66a1 1 0 0 0 -1 1v.01a1 1 0 0 0 2 0v-.01a1 1 0 0 0 -1 -1m0 -7a1 1 0 0 0 -1 1v4a1 1 0 0 0 2 0v-4a1 1 0 0 0 -1 -1"
+          />
+        </svg>
+        Los datos ingresados no son correctos
+      </p>
+    {% endif %}
+  </main>
+{% endblock %}

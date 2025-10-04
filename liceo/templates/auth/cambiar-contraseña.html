@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block titulo %}Cambiar contraseña{% endblock %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block cabeza %}
+  <link rel="stylesheet" href="{% static 'css/vistas/auth.css' %}" />
+  <script defer src="{% static 'js/limpiar-errores.js' %}"></script>
+{% endblock %}
+
+{% block contenido %}
+  <main class="flex-center">
+    <form method="post">
+      {% csrf_token %}
+
+      <h1>Cambiar contraseña</h1>
+
+      <div class="col" style="gap: 1rem;">
+        {% for field in form %}
+          <div class="col" style="gap: 6px;">
+            {{ field.label_tag }}
+
+            {% if field.errors %}
+              {% for error in field.errors %}
+
+                {% with error=field.id_for_label|add:'-error' %}
+                  {% render_field field aria-labelledby=error aria-invalid="true" %}
+                {% endwith %}
+
+                <p id="{{ field.id_for_label }}-error" class="error">
+                  {{ error }}
+                </p>
+              {% endfor %}
+            {% else %}
+              {{ field }}
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+
+      <button class="btn-primario btn-md w-100" style="margin-top: 1.75rem;">
+        Cambiar
+      </button>
+    </form>
+  </main>
+{% endblock %}

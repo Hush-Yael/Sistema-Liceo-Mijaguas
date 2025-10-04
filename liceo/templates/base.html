@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es-VE">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <meta name="theme-color" content="hsl(0, 100%, 21.5%)" />
+  <title>{% block titulo %} Sistema de Administración {% endblock %} - Liceo Mijaguas</title>
+
+  <link rel="icon" href="{% static 'favicon.ico' %}" />
+  <link rel="icon" href="{% static 'favicon-32x32.png' %}" type="image/png" sizes="32x32" />
+  <link rel="icon" href="{% static 'favicon-16x16.png' %}" type="image/png" sizes="16x16" />
+
+  <link rel="stylesheet" href={% static "css/reset.css" %} />
+  <link rel="stylesheet" href={% static "css/fuentes.css" %} />
+  <link rel="stylesheet" href={% static "css/tema.css" %} />
+  <link rel="stylesheet" href={% static "css/util.css" %} />
+  <link rel="stylesheet" href={% static "css/componentes/index.css" %} />
+  <link rel="stylesheet" href={% static "css/index.css" %} />
+
+  {% block cabeza %} {% endblock %}
+</head>
+
+<body>
+  <div class="contenido">
+    {% if request.user.is_authenticated %}
+      {% include 'nav.html' %}
+    {% endif %}
+
+    {% block contenido %} {% endblock %}
+  </div>
+
+  <footer class="col flex-center">
+    <h2 class="titulo">
+      Sistema de Administración - Liceo Mijaguas
+    </h2>
+    <hr class="w-100">
+    <figure class="fila-qr">
+      <img id="qr" src="{% static 'qr.svg' %}" alt="código qr" />
+      <figcaption>Escanea este código en otro dispositivo para acceder al sitio</figcaption>
+      <figure>
+  </footer>
+</body>
+
+</html>

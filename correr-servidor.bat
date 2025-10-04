@@ -1,0 +1,1 @@
+start "Servidor - Liceo Mijaguas" ".\manejo.exe" runserver 0.0.0.0:5000 --noreload --insecure

@@ -1,0 +1,53 @@
+.btn,
+.btn-primario {
+  border-radius: var(--radio-campo);
+  font-weight: 700;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, transform 50ms ease-in-out;
+}
+
+.btn-sm {
+  padding: 4px 8px;
+}
+
+.btn-md {
+  padding: 8px 16px;
+}
+
+.btn-primario {
+  background-color: var(--color-primario-500);
+  color: var(--color-texto-primario);
+}
+
+.btn-primario:active {
+  transform: scale(0.98);
+}
+
+.link-primario {
+  color: var(--color-primario-500);
+  text-decoration: 1px underline;
+  text-underline-offset: 2px;
+  transition: color 0.2s ease-in-out;
+}
+
+@media only screen and (hover: none) and (pointer: coarse) {
+  .btn-primario:active {
+    background-color: var(--color-primario-600);
+  }
+
+  .link-primario:active {
+    color: var(--color-primario-300);
+    text-decoration-thickness: 2px;
+  }
+
+}
+
+@media only screen and (hover: hover) and (pointer: fine) {
+  .btn-primario:hover {
+    background-color: var(--color-primario-600);
+  }
+
+  .link-primario:hover {
+    color: var(--color-primario-300);
+    text-decoration-thickness: 2px;
+  }
+}
