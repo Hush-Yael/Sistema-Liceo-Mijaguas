@@ -52,6 +52,8 @@ footer {
   padding: 16px 10px;
   background-color: var(--color-secundario-400);
   color: var(--color-texto-secundario);
+  border-top: 2px solid #fff5;
+  box-shadow: 0 -5px 24px 0 rgba(0, 0, 0, .15);
 }
 
 footer .titulo {
@@ -80,7 +82,8 @@ footer hr {
   filter: invert(100%);
 }
 
-button {
+button,
+summary {
   cursor: pointer;
 }
 
@@ -95,10 +98,4 @@ svg:not([fill=none]) {
 svg[stroke-width]:not([stroke=none]),
 svg *[stroke-width]:not([stroke=none]) {
   stroke: currentColor;
-}
-
-@media screen and (min-width: 768px) {
-  .contenido {
-    flex-direction: row
-  }
 }
