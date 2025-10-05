@@ -28,13 +28,11 @@
 </head>
 
 <body>
-  <div class="contenido">
-    {% if request.user.is_authenticated %}
-      {% include 'cabecera.html' %}
-    {% endif %}
+  {% if request.user.is_authenticated %}
+    {% include 'cabecera.html' %}
+  {% endif %}
 
-    {% block contenido %} {% endblock %}
-  </div>
+  {% block contenido %} {% endblock %}
 
   <footer class="col flex-center">
     <h2 class="titulo">

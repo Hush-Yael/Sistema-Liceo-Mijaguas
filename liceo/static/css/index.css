@@ -1,8 +1,7 @@
 /* asegurar que la pagina mida igual de alto que la ventana */
 html,
 body,
-main,
-.contenido {
+main {
   width: 100%;
   height: 100%;
 }
@@ -40,11 +39,9 @@ html::before {
       rgba(31, 41, 55, 0.03) 36px);
 }
 
-/* se vuelve la pagina completa una columna */
-.contenido,
 main {
-  display: flex;
-  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 footer {
