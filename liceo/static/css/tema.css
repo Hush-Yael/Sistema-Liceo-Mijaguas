@@ -106,3 +106,30 @@ html {
   background-color: var(--color-secundario-500);
   color: var(--color-texto-secundario);
 }
+
+.caja {
+  border: 1px solid #0002;
+  border-radius: var(--radio-caja);
+  background: var(--color-fondo-500);
+}
+
+.caja-input {
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid #0001;
+  border-radius: var(--radio-campo);
+  background-color: var(--color-fondo-700);
+}
+
+.caja-input[aria-invalid=true] {
+  border: 1px solid var(--color-error-500);
+}
+
+.caja-input-error {
+  color: var(--color-error-500);
+  font-size: .9rem;
+}
+
+input:not([aria-invalid=true])~.caja-input-error {
+  display: none;
+}

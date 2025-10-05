@@ -1,3 +1,10 @@
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
 img {
   height: 200px;
   width: 200px;
@@ -8,9 +15,6 @@ form {
   max-width: 350px;
   width: 90%;
   padding: 16px;
-  border: 1px solid #0002;
-  border-radius: var(--radio-caja);
-  background: var(--color-fondo-500);
 }
 
 form h1 {
@@ -20,27 +24,6 @@ form h1 {
   margin-bottom: 16px;
 }
 
-input {
-  width: 100%;
-  padding: 4px 8px;
-  border: 1px solid #0001;
-  border-radius: var(--radio-campo);
-  background-color: var(--color-fondo-700);
-}
-
-.error {
-  order: 1;
-  color: var(--color-error-500);
-  font-size: .9rem;
-}
-
-input[aria-invalid=true] {
-  border: 1px solid var(--color-error-500);
-}
-
-input:not([aria-invalid=true])~.error {
-  display: none;
-}
 
 [role=alert] {
   background: var(--color-error-500);
@@ -56,6 +39,7 @@ form button {
   border-radius: var(--radio-campo);
   border: none;
   width: 100%;
+  font-weight: 700;
   margin-top: 1.75rem;
 }
 
