@@ -41,6 +41,7 @@ html::before {
 }
 
 /* se vuelve la pagina completa una columna */
+.contenido,
 main {
   display: flex;
   flex-direction: column;
@@ -98,6 +99,6 @@ svg *[stroke-width]:not([stroke=none]) {
 
 @media screen and (min-width: 768px) {
   .contenido {
-    display: flex;
+    flex-direction: row
   }
 }

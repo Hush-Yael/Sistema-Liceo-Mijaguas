@@ -76,8 +76,7 @@ html {
   gap: 1rem;
   padding: 1em 0;
   width: 175px;
-  min-height: calc(100vh - var(--altura-header));
-  min-height: calc(100dvh - var(--altura-header));
+  min-height: calc(100% - var(--altura-header) + 10px);
   transform: translateX(100%);
   transition: transform 0.2s ease-in-out;
   order: 1;
@@ -181,7 +180,6 @@ html {
   width: 4.5rem;
 }
 
-
 @media only screen and (hover: none) and (pointer: coarse) {
 
   #btn-menu:active {
@@ -216,6 +214,8 @@ html {
 
 @media screen and (max-width: 768px) {
   #aside {
+    top: var(--altura-header);
+    margin-top: -5px;
     border-top: 1px solid #fff2;
   }
 
