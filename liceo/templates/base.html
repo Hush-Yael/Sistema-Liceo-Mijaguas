@@ -20,8 +20,8 @@
   <link rel="stylesheet" href={% static "css/index.css" %} />
 
   {% if request.user.is_authenticated %}
-    <link rel="stylesheet" href="{% static 'css/componentes/nav.css' %}" />
-    <script defer src="{% static 'js/componentes/nav.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/componentes/cabecera.css' %}" />
+    <script defer src="{% static 'js/componentes/cabecera.js' %}"></script>
   {% endif %}
 
   {% block cabeza %} {% endblock %}
@@ -30,7 +30,7 @@
 <body>
   <div class="contenido">
     {% if request.user.is_authenticated %}
-      {% include 'nav.html' %}
+      {% include 'cabecera.html' %}
     {% endif %}
 
     {% block contenido %} {% endblock %}
