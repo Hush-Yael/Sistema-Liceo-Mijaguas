@@ -28,6 +28,7 @@ def login(request: HttpRequest):
 def registro(request: HttpRequest):
     if request.method == "POST":
         user_form = FormularioRegistro(request.POST)
+
         if user_form.is_valid():
             nuevo_usuario = user_form.save(commit=False)
             nuevo_usuario.set_password(user_form.cleaned_data["password"])

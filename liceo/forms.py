@@ -14,6 +14,12 @@ class FormularioRegistro(forms.ModelForm):
 
     def clean_password2(self):
         datos = self.cleaned_data
+
         if datos["password"] != datos["password2"]:
-            return forms.ValidationError("Las contraseñas no son iguales")
+            raise forms.ValidationError(
+                "Las contraseñas no son iguales",
+                params={"value": datos["password2"]},
+                code="value",
+            )
+
         return datos["password2"]
