@@ -46,12 +46,14 @@ def cerrar_sesion(request: HttpRequest):
     )(request)
 
 
+@login_required
 def cambiar_contraseña(request: HttpRequest):
     return PasswordChangeView.as_view(
         template_name="auth/cambiar-contraseña.html",
     )(request)
 
 
+@login_required
 def contraseña_cambiada(request: HttpRequest):
     return PasswordChangeDoneView.as_view(
         template_name="auth/contraseña-cambiada.html",
