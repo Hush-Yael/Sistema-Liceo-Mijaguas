@@ -29,7 +29,7 @@
 
 <body>
   {% if request.user.is_authenticated %}
-    {% include 'cabecera.html' %}
+    {% include 'componentes/cabecera.html' %}
   {% endif %}
 
   <main>{% block contenido %} {% endblock %}</main>
