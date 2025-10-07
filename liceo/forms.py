@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.models import User
+from .models import User
 
 
 class FormularioRegistro(forms.ModelForm):
@@ -23,3 +23,22 @@ class FormularioRegistro(forms.ModelForm):
             )
 
         return datos["password2"]
+
+
+def validarTamaño(foto: forms.ImageField):
+    if foto.size > 5242880:  # type: ignore
+        raise forms.ValidationError("El archivo es demasiado grande.")
+    return foto
+
+
+class FormularioPerfil(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ["username", "first_name", "last_name", "email", "foto_perfil"]
+
+    email = forms.EmailField(required=False, label="Correo")
+    first_name = forms.CharField(required=False, label="Nombres")
+    last_name = forms.CharField(required=False, label="Apellidos")
+    foto_perfil = forms.ImageField(
+        required=False, widget=forms.FileInput(), validators=[validarTamaño]
+    )

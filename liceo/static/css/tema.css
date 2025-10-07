@@ -91,6 +91,12 @@ html {
 
   --radio-campo: 4px;
   --radio-caja: 1rem;
+
+  --texto-ligero: hsl(0, 0%, 35%);
+}
+
+.texto-ligero {
+  color: var(--texto-ligero);
 }
 
 html {

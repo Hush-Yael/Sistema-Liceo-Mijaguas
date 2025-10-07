@@ -19,7 +19,7 @@ from dotenv import dotenv_values
 BASE_DIR = RUTA_BASE
 
 try:
-    ruta_secretos = os.path.join(sys._MEIPASS, ".env") if not DEV else ".env"
+    ruta_secretos = os.path.join(sys._MEIPASS, ".env") if not DEV else ".env"  # type: ignore
     secretos = dotenv_values(ruta_secretos)
 
     SECRET_KEY = secretos["SECRET_KEY"]
@@ -113,3 +113,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 LOGIN_URL = "login"
 LOGOUT_URL = "logout"
+
+AUTH_USER_MODEL = "liceo.User"
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")

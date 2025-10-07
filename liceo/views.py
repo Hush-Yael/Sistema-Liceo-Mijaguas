@@ -8,7 +8,7 @@ from django.contrib.auth.views import (
 )
 from django.http import HttpRequest
 
-from liceo.forms import FormularioRegistro
+from liceo.forms import FormularioPerfil, FormularioRegistro
 
 
 @login_required
@@ -58,3 +58,20 @@ def contraseña_cambiada(request: HttpRequest):
     return PasswordChangeDoneView.as_view(
         template_name="auth/contraseña-cambiada.html",
     )(request)
+
+
+@login_required
+def perfil(request: HttpRequest):
+    if request.method == "POST":
+        form = FormularioPerfil(request.POST, request.FILES, instance=request.user)  # type: ignore
+
+        if form.is_valid():
+            form.save()
+    else:
+        form = FormularioPerfil(instance=request.user)  # type: ignore
+
+    return render(
+        request,
+        "perfil.html",
+        {"form": form},
+    )

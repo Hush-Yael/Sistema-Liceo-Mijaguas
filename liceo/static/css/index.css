@@ -96,3 +96,28 @@ svg[stroke-width]:not([stroke=none]),
 svg *[stroke-width]:not([stroke=none]) {
   stroke: currentColor;
 }
+
+dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  width: 90%;
+  max-width: 600px;
+  max-height: 100%;
+  overflow: auto;
+  animation: aparecer .2s ease-in-out;
+}
+
+dialog::backdrop {
+  background: #0005;
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: scale(.9);
+  }
+}

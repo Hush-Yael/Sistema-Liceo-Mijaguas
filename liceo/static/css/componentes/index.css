@@ -1,5 +1,6 @@
 .btn,
-.btn-primario {
+.btn-primario,
+.btn-borde-primario {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -22,8 +23,14 @@
   color: var(--color-texto-primario);
 }
 
-.btn-primario:active {
+.btn-primario:active,
+.btn-borde-primario:active {
   transform: scale(0.98);
+}
+
+.btn-borde-primario {
+  border: 2px solid;
+  color: var(--color-primario-500);
 }
 
 .link-primario {
@@ -38,6 +45,10 @@
     background-color: var(--color-primario-600);
   }
 
+  .btn-borde-primario:active {
+    color: var(--color-primario-400);
+  }
+
   .link-primario:active {
     color: var(--color-primario-300);
     text-decoration-thickness: 2px;
@@ -48,6 +59,10 @@
 @media only screen and (hover: hover) and (pointer: fine) {
   .btn-primario:hover {
     background-color: var(--color-primario-600);
+  }
+
+  .btn-borde-primario:hover {
+    color: var(--color-primario-400);
   }
 
   .link-primario:hover {

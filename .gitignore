@@ -41,3 +41,6 @@ pip-delete-this-directory.txt
 # archivo creados dinámicamente
 qr.png
 qr.svg
+
+# archivos del servidor
+media/

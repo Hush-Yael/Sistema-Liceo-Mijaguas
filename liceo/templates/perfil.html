@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Perfil{% endblock title %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block cabeza %}
+  <link rel="stylesheet" href="{% static 'css/vistas/perfil.css' %}" />
+  <script defer src="{% static 'js/limpiar-errores.js' %}"></script>
+  <script defer src="{% static 'js/vistas/perfil.js' %}"></script>
+{% endblock cabeza %}
+
+{% block contenido %}
+  <form class="col caja" method="post" enctype="multipart/form-data">
+    <div id="avatar-container" class="col flex-center">
+      <div class="img">
+        {% if request.user.foto_perfil %}
+          <img
+            id="avatar"
+            src="{{ request.user.foto_perfil.url }}"
+            alt="avatar"
+          />
+        {% else %}
+          <svg
+            id="avatar"
+            role="img"
+            viewBox="0 0 512 512"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256s256-114.6 256-256S397.4 0 256 0zM256 128c39.77 0 72 32.24 72 72S295.8 272 256 272c-39.76 0-72-32.24-72-72S216.2 128 256 128zM256 448c-52.93 0-100.9-21.53-135.7-56.29C136.5 349.9 176.5 320 224 320h64c47.54 0 87.54 29.88 103.7 71.71C356.9 426.5 308.9 448 256 448z"
+            />
+          </svg>
+        {% endif %}
+
+        <button type="button" id="ver-avatar" aria-label="Ver avatar"></button>
+
+        {% render_field form.foto_perfil class="sr-only" %}
+        <label
+          class="btn-primario"
+          for="{{ form.foto_perfil.id_for_label }}"
+          id="subir-avatar"
+          aria-label="Subir avatar"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="17"
+            height="17"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
+            <path d="M7 9l5 -5l5 5" />
+            <path d="M12 4l0 12" />
+          </svg>
+        </label>
+      </div>
+
+      {% with error=form.username.id_for_label|add:'-error' label="Nombre de usuario" %}
+        {% if form.username.errors %}
+          {% render_field form.username placeholder=label aria-label=label aria-labelledby=error aria-invalid="true" %}
+          {% for error in form.username.errors %}
+            <p id="{{ error }}" class="caja-input-error">{{ error }}</p>
+          {% endfor %}
+        {% else %}
+          {% render_field form.username placeholder=label aria-label=label %}
+        {% endif %}
+      {% endwith %}
+
+      <p class="flex texto-ligero" id="fecha-registro">
+        <span class="icono-redondo">
+          <svg
+            style="transform: scale(.9)"
+            viewBox="0 0 448 512"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M0 464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V192H0v272zm320-196c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12h-40c-6.6 0-12-5.4-12-12v-40zm0 128c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12h-40c-6.6 0-12-5.4-12-12v-40zM192 268c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12h-40c-6.6 0-12-5.4-12-12v-40zm0 128c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12h-40c-6.6 0-12-5.4-12-12v-40zM64 268c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12H76c-6.6 0-12-5.4-12-12v-40zm0 128c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12H76c-6.6 0-12-5.4-12-12v-40zM400 64h-48V16c0-8.8-7.2-16-16-16h-32c-8.8 0-16 7.2-16 16v48H160V16c0-8.8-7.2-16-16-16h-32c-8.8 0-16 7.2-16 16v48H48C21.5 64 0 85.5 0 112v48h448v-48c0-26.5-21.5-48-48-48z"
+            />
+          </svg>
+        </span>
+        Registrado el {{ request.user.date_joined }}
+      </p>
+    </div>
+
+    <hr />
+
+    <div role="group" class="campos">
+      {% csrf_token %}
+
+      {% for field in form %}
+        {% if field.id_for_label != 'id_foto_perfil' and field.id_for_label != 'id_username' %}
+          <div class="campo">
+            {{ field.label_tag }}
+            {% if field.errors %}
+              {% with error=field.id_for_label|add:'-error' %}
+                {% render_field field class="caja-input" aria-labelledby=error aria-invalid="true" %}
+              {% endwith %}
+            {% else %}
+              {% render_field field class="caja-input" %}
+            {% endif %}
+
+            {% if field.errors %}
+              {% for error in field.errors %}
+                <p id="{{ field.id_for_label }}-error" class="caja-input-error">
+                  {{ error }}
+                </p>
+              {% endfor %}
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <div id="acciones" class="col">
+      <button class="btn-primario btn-md">Guardar cambios</button>
+
+      <a
+        class="btn-borde-primario btn-md"
+        href="{% url 'cambiar-contraseña' %}"
+      >
+        Cambiar contraseña
+      </a>
+    </div>
+  </form>
+
+  <dialog id="img-dialog">
+    <div>
+      <img
+        {% if request.user.foto_perfil %}
+          src="{{ request.user.foto_perfil.url }}"
+        {% endif %}
+        alt="avatar"
+      />
+    </div>
+  </dialog>
+{% endblock contenido %}

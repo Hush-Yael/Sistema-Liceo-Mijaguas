@@ -75,9 +75,16 @@ html {
   gap: .75rem;
 }
 
-.perfil figure svg {
-  height: 3.5rem;
+.perfil figure svg,
+.perfil figure img {
+  height: 7rem;
+  width: 7rem;
   min-width: max-content;
+}
+
+.perfil figure img {
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .perfil figcaption {
