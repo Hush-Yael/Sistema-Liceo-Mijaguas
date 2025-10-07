@@ -16,8 +16,8 @@ urlpatterns = [
     ),
     path("cambiar-contraseña/", views.cambiar_contraseña, name="password_change"),
     path(
-        "cambiar-contraseña-change/done/",
+        "contraseña-cambiada/",
         views.contraseña_cambiada,
-        name="password_change_done",
-    ),
+        name="contraseña-cambiada",
+    )
 ]
