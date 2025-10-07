@@ -60,4 +60,10 @@
       Los datos ingresados no son correctos
     </p>
   {% endif %}
+
+  <script defer>
+    if (window.location.search.includes("next="))
+      document.querySelector("input[name=next]").value =
+        window.location.search.split("next=")[1];
+  </script>
 {% endblock %}
