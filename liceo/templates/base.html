@@ -24,6 +24,22 @@
     <script defer src="{% static 'js/componentes/cabecera.js' %}"></script>
   {% endif %}
 
+  {% if DEBUG %}
+    <script type="module">
+        if ((/Android|iPhone|iPad|iPod|BlackBerry|Windows Phone|webOS/i.test(
+            navigator.userAgent
+          ) ||
+            "ontouchstart" in window ||
+            navigator.maxTouchPoints > 0)
+        ) {
+          await import("/static/js/eruda.js");
+
+          if (window.eruda) window.eruda.init();
+          else throw new Error("eruda not found");
+        }
+    </script>
+  {% endif %}
+
   {% block cabeza %} {% endblock %}
 </head>
 
