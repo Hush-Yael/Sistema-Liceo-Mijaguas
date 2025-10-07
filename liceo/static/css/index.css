@@ -97,6 +97,11 @@ svg *[stroke-width]:not([stroke=none]) {
   stroke: currentColor;
 }
 
+:disabled {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+}
+
 dialog {
   position: fixed;
   top: 0;
