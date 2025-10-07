@@ -6,39 +6,6 @@ main {
   height: 100%;
 }
 
-html {
-  position: relative;
-}
-
-/* fondo geométrico */
-html::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background-image: repeating-linear-gradient(0deg,
-      transparent,
-      transparent 20px,
-      rgba(75, 85, 99, 0.07) 20px,
-      rgba(75, 85, 99, 0.07) 21px),
-    repeating-linear-gradient(90deg,
-      transparent,
-      transparent 30px,
-      rgba(107, 114, 128, 0.05) 30px,
-      rgba(107, 114, 128, 0.05) 31px),
-    repeating-linear-gradient(60deg,
-      transparent,
-      transparent 40px,
-      rgba(55, 65, 81, 0.04) 40px,
-      rgba(55, 65, 81, 0.04) 41px),
-    repeating-linear-gradient(150deg,
-      transparent,
-      transparent 35px,
-      rgba(31, 41, 55, 0.03) 35px,
-      rgba(31, 41, 55, 0.03) 36px);
-}
-
 main {
   min-height: 100vh;
   min-height: 100dvh;
