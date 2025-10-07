@@ -1,4 +1,5 @@
 from django.contrib import admin
-# from liceo.models import Usuario
+from django.contrib.auth.admin import UserAdmin
+from liceo.models import User
 
-# admin.site.register(Usuario)
+admin.site.register(User, UserAdmin)
