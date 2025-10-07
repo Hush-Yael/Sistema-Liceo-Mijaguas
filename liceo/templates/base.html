@@ -3,8 +3,8 @@
 <html lang="es-VE">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
   <meta name="theme-color" content="hsl(0, 100%, 21.5%)" />
   <title>{% block titulo %} Sistema de Administración {% endblock %} - Liceo Mijaguas</title>
 
@@ -12,12 +12,12 @@
   <link rel="icon" href="{% static 'favicon-32x32.png' %}" type="image/png" sizes="32x32" />
   <link rel="icon" href="{% static 'favicon-16x16.png' %}" type="image/png" sizes="16x16" />
 
-  <link rel="stylesheet" href={% static "css/reset.css" %} />
-  <link rel="stylesheet" href={% static "css/fuentes.css" %} />
-  <link rel="stylesheet" href={% static "css/tema.css" %} />
-  <link rel="stylesheet" href={% static "css/util.css" %} />
-  <link rel="stylesheet" href={% static "css/componentes/index.css" %} />
-  <link rel="stylesheet" href={% static "css/index.css" %} />
+  <link rel="stylesheet" href="{% static 'css/reset.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/fuentes.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/tema.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/util.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/componentes/index.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/index.css' %}" />
 
   {% if request.user.is_authenticated %}
     <link rel="stylesheet" href="{% static 'css/componentes/cabecera.css' %}" />
@@ -42,7 +42,7 @@
     <figure class="fila-qr">
       <img id="qr" src="{% static 'qr.svg' %}" alt="código qr" />
       <figcaption>Escanea este código en otro dispositivo para acceder al sitio</figcaption>
-      <figure>
+    <figure>
   </footer>
 </body>
 
