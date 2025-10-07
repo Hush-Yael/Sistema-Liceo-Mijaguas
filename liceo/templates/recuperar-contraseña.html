@@ -2,11 +2,9 @@
 
 {% block titulo %}Cambiar contraseña{% endblock %}
 {% load static %}
-{% load widget_tweaks %}
 
 {% block cabeza %}
-  <link rel="stylesheet" href="{% static 'css/vistas/auth.css' %}" />
-  <script defer src="{% static 'js/limpiar-errores.js' %}"></script>
+  <link rel="stylesheet" href="{% static 'css/index.css' %}" />
 {% endblock %}
 
 {% block contenido %}
@@ -19,21 +17,12 @@
       {% for field in form %}
         <div class="col" style="gap: 6px;">
           {{ field.label_tag }}
-
           {% if field.errors %}
             {% for error in field.errors %}
-
-              {% with error=field.id_for_label|add:'-error' %}
-                {% render_field field class="caja-input" aria-labelledby=error aria-invalid="true" %}
-              {% endwith %}
-
-              <p id="{{ field.id_for_label }}-error" class="caja-input-error">
-                {{ error }}
-              </p>
+              <p class="error">{{ error }}</p>
             {% endfor %}
-          {% else %}
-            {% render_field field class="caja-input" %}
           {% endif %}
+          {% render_field field class="caja-input" %}
         </div>
       {% endfor %}
     </div>

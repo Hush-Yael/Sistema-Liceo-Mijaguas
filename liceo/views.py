@@ -8,7 +8,7 @@ from django.contrib.auth.views import (
 )
 from django.http import HttpRequest, HttpResponse
 
-from liceo.forms import FormularioPerfil, FormularioRegistro
+from usuarios.forms import FormularioPerfil, FormularioRegistro
 
 
 @login_required
@@ -19,7 +19,7 @@ def inicio(request: HttpRequest):
 def login(request: HttpRequest):
     if not request.user.is_authenticated:
         return LoginView.as_view(
-            template_name="auth/login.html",
+            template_name="login.html",
         )(request)
     else:
         return redirect("/")
@@ -34,10 +34,10 @@ def registro(request: HttpRequest):
             nuevo_usuario.set_password(user_form.cleaned_data["password"])
             nuevo_usuario.save()
 
-            return render(request, "auth/registrado.html", {"new_user": nuevo_usuario})
+            return render(request, "registrado.html", {"new_user": nuevo_usuario})
     else:
         user_form = FormularioRegistro()
-    return render(request, "auth/registro.html", {"form": user_form})
+    return render(request, "registro.html", {"form": user_form})
 
 
 def cerrar_sesion(request: HttpRequest):
@@ -49,14 +49,14 @@ def cerrar_sesion(request: HttpRequest):
 @login_required
 def cambiar_contraseña(request: HttpRequest):
     return PasswordChangeView.as_view(
-        template_name="auth/cambiar-contraseña.html",
+        template_name="cambiar-contraseña.html",
     )(request)
 
 
 @login_required
 def contraseña_cambiada(request: HttpRequest):
     return PasswordChangeDoneView.as_view(
-        template_name="auth/contraseña-cambiada.html",
+        template_name="contraseña-cambiada.html",
     )(request)
 
 

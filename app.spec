@@ -5,7 +5,7 @@ a = Analysis(
     ['manage.py'],
     pathex=[],
     binaries=[],
-    datas=[('.env', '.'), ('liceo','liceo'), ('correr-servidor.bat','.'), ('migrar-db.bat','.')],
+    datas=[('.env', '.'), ('usuarios','usuarios'), ('correr-servidor.bat','.'), ('migrar-db.bat','.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

@@ -3,7 +3,7 @@ from django.urls import include, path
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", include("liceo.urls")),
+    path("", include("usuarios.urls")),
 ]
 
 admin.site.site_title = "Liceo Mijaguas"
