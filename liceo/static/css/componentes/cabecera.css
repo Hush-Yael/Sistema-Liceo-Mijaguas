@@ -75,14 +75,17 @@ html {
   gap: .75rem;
 }
 
-.perfil figure svg,
-.perfil figure img {
+#cabecera-avatar {
   height: 7rem;
   width: 7rem;
+  aspect-ratio: 1 / 1;
+}
+
+svg#cabecera-avatar {
   min-width: max-content;
 }
 
-.perfil figure img {
+img#cabecera-avatar {
   border-radius: 50%;
   object-fit: cover;
 }

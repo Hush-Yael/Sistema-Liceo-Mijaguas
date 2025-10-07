@@ -40,11 +40,15 @@ form {
   width: 100%;
 }
 
-#subir-avatar {
+#editar-avatar,
+#editar-avatar summary {
   position: absolute;
   z-index: 1;
   bottom: 0;
   right: 0;
+}
+
+#editar-avatar summary {
   height: 1.75rem;
   width: 1.75rem;
   border: 1px solid #fff5;
@@ -54,10 +58,116 @@ form {
   box-shadow: 0 0 0 3px var(--fondo);
 }
 
+#editar-avatar[open] summary {
+  background: var(--color-texto-primario);
+  color: var(--color-primario-500);
+  box-shadow: 0 0 0 2px var(--color-primario-500), 0 0 0 6px var(--fondo);
+}
+
+#editar-avatar summary svg {
+  height: 70%;
+  width: 70%;
+  object-fit: cover;
+}
+
+#editar-avatar .contenido {
+  position: absolute;
+  z-index: 1;
+  right: 0;
+  width: max-content;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
+  transform: translateY(.25rem);
+}
+
+#editar-avatar .contenido>* {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .5rem 1rem;
+  transition: background-color 0.2s ease-in-out;
+}
+
+#editar-avatar .contenido>label {
+  border-radius: var(--radio-caja) var(--radio-caja) 0 0;
+  cursor: pointer;
+}
+
+#editar-avatar .contenido> :last-child {
+  border-radius: 0 0 var(--radio-caja) var(--radio-caja);
+}
+
+#editar-avatar .contenido svg {
+  height: 1em;
+  width: 1em;
+}
+
+#borrar-avatar {
+  color: var(--color-error-600);
+}
+
+#borrar-avatar:not(.htmx-request) .htmx-indicator,
+#borrar-avatar.htmx-request svg {
+  display: none;
+}
+
+#borrar-avatar .htmx-indicator {
+  width: 1em;
+  height: 1em;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 3px solid #0003;
+  border-right-color: var(--color-primario-200);
+  animation: l2 600ms infinite linear;
+}
+
+@keyframes l2 {
+  to {
+    transform: rotate(1turn)
+  }
+}
+
+.eliminado {
+  text-align: center;
+}
+
+#editar-avatar .contenido>input:focus+label,
+#editar-avatar .contenido>:focus:not(:disabled) {
+  background-color: #0001;
+}
+
 @media only screen and (hover: hover) and (pointer: fine) {
-  input:focus+#subir-avatar {
+  #editar-avatar .contenido>input:focus+label {
+    outline: 2px solid;
+  }
+
+  #editar-avatar .contenido>*:not(:disabled):hover {
+    background-color: #0001;
+  }
+
+  #editar-avatar summary:focus {
     outline: 1px solid;
-    box-shadow: 0 0 0 3px var(--color-secundario-400);
+    box-shadow: 0 0 0 3px var(--color-secundario-400), 0 0 0 6px var(--fondo);
+  }
+
+  #editar-avatar[open] summary:focus {
+    color: var(--color-secundario-500);
+  }
+
+  #borrar-avatar:not(:disabled):hover,
+  #borrar-avatar:focus {
+    color: var(--color-error-500)
+  }
+}
+
+@media only screen and (hover: none) and (pointer: coarse) {
+
+
+  #editar-avatar .contenido>*:not(:disabled):active {
+    background-color: #0001;
+  }
+
+  #borrar-avatar:not(:disabled):active {
+    color: var(--color-error-500)
   }
 }
 

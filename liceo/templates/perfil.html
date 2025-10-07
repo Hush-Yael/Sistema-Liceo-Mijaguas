@@ -7,6 +7,7 @@
 {% block cabeza %}
   <link rel="stylesheet" href="{% static 'css/vistas/perfil.css' %}" />
   <script defer src="{% static 'js/limpiar-errores.js' %}"></script>
+  <script defer src="{% static 'js/htmx.min.js' %}"></script>
   <script defer src="{% static 'js/vistas/perfil.js' %}"></script>
 {% endblock cabeza %}
 
@@ -35,29 +36,80 @@
 
         <button type="button" id="ver-avatar" aria-label="Ver avatar"></button>
 
-        {% render_field form.foto_perfil class="sr-only" %}
-        <label
-          class="btn-primario"
-          for="{{ form.foto_perfil.id_for_label }}"
-          id="subir-avatar"
-          aria-label="Subir avatar"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="17"
-            height="17"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-            <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
-            <path d="M7 9l5 -5l5 5" />
-            <path d="M12 4l0 12" />
-          </svg>
-        </label>
+        <details id="editar-avatar">
+          <summary class="btn-primario" aria-label="Editar avatar">
+            <svg
+              style="enable-background:new 0 0 512 512;"
+              version="1.1"
+              viewBox="0 0 512 512"
+              xml:space="preserve"
+              xmlns="http://www.w3.org/2000/svg"
+              xmlns:xlink="http://www.w3.org/1999/xlink"
+            >
+              <polygon
+                points="263.75,145.68 43.5,365.92 43.5,466.5 152.04,466.5 368.31,250.23    "
+              />
+              <path
+                d="M458.07,139.61l-83.7-83.69c-5.76-5.76-15.1-5.76-20.86,0l-67.13,67.13l104.56,104.55l67.13-67.13     C463.83,154.71,463.83,145.37,458.07,139.61z"
+              />
+            </svg>
+          </summary>
+
+          <div class="contenido caja">
+            {% render_field form.foto_perfil class="sr-only" %}
+            <label for="{{ form.foto_perfil.id_for_label }}" id="subir-avatar">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="17"
+                height="17"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
+                <path d="M7 9l5 -5l5 5" />
+                <path d="M12 4l0 12" />
+              </svg>
+
+              Subir avatar
+            </label>
+
+            <button
+              {% if not request.user.foto_perfil %}
+                disabled
+              {% endif %}
+              id="borrar-avatar"
+              hx-delete="{% url 'perfil' %}"
+              hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+              hx-confirm="¿Seguro que quieres borrar tu avatar?"
+              hx-swap="outerHTML"
+            >
+              <span class="htmx-indicator"></span>
+              <svg
+                version="1.1"
+                viewBox="0 0 30 30"
+                xml:space="preserve"
+                xmlns="http://www.w3.org/2000/svg"
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+              >
+                <path
+                  d="M19.71,26h-9.42c-1.019,0-1.875-0.766-1.988-1.779L6.5,8h17l-1.802,16.221C21.585,25.234,20.729,26,19.71,26z"
+                />
+                <path
+                  d="M24,6H6C5.448,6,5,5.552,5,5v0c0-0.552,0.448-1,1-1h18c0.552,0,1,0.448,1,1v0C25,5.552,24.552,6,24,6z"
+                />
+                <path
+                  d="M18,5h-6V4c0-0.552,0.448-1,1-1h4c0.552,0,1,0.448,1,1V5z"
+                />
+              </svg>
+
+              Eliminar avatar
+            </button>
+          </div>
+        </details>
       </div>
 
       {% with error=form.username.id_for_label|add:'-error' label="Nombre de usuario" %}

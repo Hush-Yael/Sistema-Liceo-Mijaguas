@@ -2,9 +2,14 @@
   <figure class="avatar">
     <a href="{% url 'perfil' %}">
       {% if request.user.foto_perfil %}
-        <img src="{{ request.user.foto_perfil.url }}" alt="avatar" />
+        <img
+          src="{{ request.user.foto_perfil.url }}"
+          id="cabecera-avatar"
+          alt="avatar"
+        />
       {% else %}
         <svg
+          id="cabecera-avatar"
           role="img"
           viewBox="0 0 512 512"
           xmlns="http://www.w3.org/2000/svg"
