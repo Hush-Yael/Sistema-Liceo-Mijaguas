@@ -11,11 +11,6 @@ from django.http import HttpRequest, HttpResponse
 from usuarios.forms import FormularioPerfil, FormularioRegistro
 
 
-@login_required
-def inicio(request: HttpRequest):
-    return render(request, "inicio.html")
-
-
 def login(request: HttpRequest):
     if not request.user.is_authenticated:
         return LoginView.as_view(
