@@ -37,6 +37,7 @@ pip-delete-this-directory.txt
 # SQLite databases
 *.db
 *.sqlite3
+migrations/
 
 # archivo creados dinámicamente
 qr.png
