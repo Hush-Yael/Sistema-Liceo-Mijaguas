@@ -1,3 +1,90 @@
 from django.contrib import admin
+from .models import (
+    AñoAcademico,
+    Materia,
+    Profesor,
+    Estudiante,
+    LapsoAcademico,
+    AñoMateria,
+    ProfesorMateria,
+    Matricula,
+    Calificacion,
+)
 
-# Register your models here.
+
+@admin.register(AñoAcademico)
+class AñoAcademicoAdmin(admin.ModelAdmin):
+    list_display = ["numero_año", "nombre_año", "fecha_creacion"]
+    list_filter = ["numero_año"]
+    search_fields = ["nombre_año"]
+
+
+@admin.register(Materia)
+class MateriaAdmin(admin.ModelAdmin):
+    list_display = ["codigo_materia", "nombre_materia", "fecha_creacion"]
+    search_fields = ["codigo_materia", "nombre_materia"]
+
+
+@admin.register(Profesor)
+class ProfesorAdmin(admin.ModelAdmin):
+    list_display = [
+        "nombre",
+        "apellido",
+        "correo_electronico",
+        "esta_activo",
+    ]
+    list_filter = ["esta_activo"]
+    search_fields = ["nombre", "apellido"]
+
+
+@admin.register(Estudiante)
+class EstudianteAdmin(admin.ModelAdmin):
+    list_display = [
+        "nombre",
+        "apellido",
+        "fecha_nacimiento",
+        "esta_activo",
+    ]
+    list_filter = ["esta_activo"]
+    search_fields = ["nombre", "apellido"]
+
+
+@admin.register(LapsoAcademico)
+class LapsoAcademicoAdmin(admin.ModelAdmin):
+    list_display = ["año", "numero_lapso", "nombre_lapso", "fecha_inicio", "fecha_fin"]
+    list_filter = ["año"]
+    search_fields = ["nombre_lapso"]
+
+
+@admin.register(AñoMateria)
+class AñoMateriaAdmin(admin.ModelAdmin):
+    list_display = ["año", "materia", "horas_semanales"]
+    list_filter = ["año"]
+    search_fields = ["materia__nombre_materia"]
+
+
+@admin.register(ProfesorMateria)
+class ProfesorMateriaAdmin(admin.ModelAdmin):
+    list_display = ["profesor", "materia", "año", "es_profesor_principal"]
+    list_filter = ["año", "es_profesor_principal"]
+    search_fields = ["profesor__nombre", "materia__nombre_materia"]
+
+
+@admin.register(Matricula)
+class MatriculaAdmin(admin.ModelAdmin):
+    list_display = ["estudiante", "año", "fecha_matricula", "estado"]
+    list_filter = ["estado", "año"]
+    search_fields = ["estudiante__nombre", "estudiante__apellido"]
+
+
+@admin.register(Calificacion)
+class CalificacionAdmin(admin.ModelAdmin):
+    list_display = [
+        "estudiante",
+        "materia",
+        "lapso",
+        "valor_calificacion",
+        "fecha_calificacion",
+    ]
+    list_filter = ["lapso", "materia"]
+    search_fields = ["estudiante__nombre", "materia__nombre_materia"]
