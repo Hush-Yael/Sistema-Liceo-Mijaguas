@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block titulo %}
+  Matriculas de {{ materia.nombre_materia }}
+{% endblock titulo %}
+
+{% block cabeza %}
+  <link rel="stylesheet" href="{% static 'css/componentes/switch.css' %}" />
+  <link
+    rel="stylesheet"
+    href="{% static 'css/componentes/breadcrumbs.css' %}"
+  />
+  <link rel="stylesheet" href="{% static 'css/materia.css' %}" />
+{% endblock cabeza %}
+
+{% block contenido %}
+  <nav class="breadcrumbs">
+    <ol>
+      <li><a href="{% url 'materias' %}">Materias</a></li>
+      <li>
+        <a aria-current="page" href="{% url 'materia' materia.id %}"
+          >{{ materia.nombre_materia }}</a
+        >
+      </li>
+    </ol>
+  </nav>
+
+  <div class="contenido">
+    <hgroup>
+      <h1 id="titulo">{{ materia.nombre_materia }}</h1>
+      <p class="texto-ligero">Matrícula por años</p>
+    </hgroup>
+
+    <ul id="años">
+      {% for año, nombre in AÑOS %}
+        <li>
+          <article class="año caja">
+            <h2 class="nombre">{{ nombre }}</h2>
+
+            <label>
+              <span class="slider">Asignada para este año:</span>
+              <input
+                class="switch-en-caja"
+                type="checkbox"
+                {% if año in años_asignados %}
+                  checked
+                {% endif %}
+              />
+            </label>
+          </article>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endblock contenido %}

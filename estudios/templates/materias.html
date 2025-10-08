@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block titulo %}Materias{% endblock titulo %}
+{% load static %}
+
+{% block cabeza %}
+  <link rel="stylesheet" href="{% static 'css/materias.css' %}" />
+{% endblock cabeza %}
+
+{% block contenido %}
+  <section>
+    <h1 class="titulo">Lista de asignaturas</h1>
+
+    <ul id="materias">
+      {% for materia in materias %}
+        {% with nombre=materia.nombre_materia codigo=materia.codigo_materia fecha=materia.fecha_creacion %}
+          {% include "componentes/materia.html" %}
+        {% endwith %}
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section>
+    <h1 class="titulo">Opciones</h1>
+
+    <ul id="opciones">
+      <li>
+        <a class="enlace">
+          <div class="nombre">
+            Asignación múltiple
+
+            <svg
+              fill="none"
+              height="24"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M16 4H18V6H20V8H18V10H16V8H14V6H16V4Z"
+                fill="currentColor"
+              />
+              <path
+                clip-rule="evenodd"
+                d="M12 12V6H4V20H18V12H12ZM6 8H10V12H6V8ZM10 14V18H6V14H10ZM16 14V18H12V14H16Z"
+                fill="currentColor"
+                fill-rule="evenodd"
+              />
+            </svg>
+          </div>
+
+          <div class="info">
+            <span class="fecha"
+              >Asigna varias asignaturas a un mismo año a la vez</span
+            >
+          </div>
+        </a>
+      </li>
+
+      <li>
+        <a class="enlace">
+          <div class="nombre">
+            Crear materia
+
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path
+                d="M7 3m0 2.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z"
+              />
+              <path
+                d="M4.012 7.26a2.005 2.005 0 0 0 -1.012 1.737v10c0 1.1 .9 2 2 2h10c.75 0 1.158 -.385 1.5 -1"
+              />
+              <path d="M11 10h6" />
+              <path d="M14 7v6" />
+            </svg>
+          </div>
+
+          <div class="info">
+            <span class="fecha"
+              >Extiende la lista de asignaturas existentes</span
+            >
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+{% endblock contenido %}

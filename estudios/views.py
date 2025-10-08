@@ -3,6 +3,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg, Count, Q
 from .models import (
+    Materia,
     AñoMateria,
     ProfesorMateria,
     Matricula,
@@ -13,6 +14,33 @@ from .models import (
 @login_required
 def inicio(request: HttpRequest):
     return render(request, "inicio.html")
+
+
+@login_required
+def materias(request: HttpRequest):
+    materias = Materia.objects.all().order_by("nombre_materia")
+
+    return render(request, "materias.html", {"materias": materias})
+
+
+@login_required
+def materia(request: HttpRequest, materia_id: int):
+    try:
+        materia = Materia.objects.get(id=materia_id)
+    except Materia.DoesNotExist:
+        return render(request, "404.html")
+
+    materia_años = AñoMateria.objects.filter(materia=materia)
+    años_asignados = []
+
+    for materia_año in materia_años:
+        años_asignados.append(materia_año.año.numero_año)
+
+    return render(
+        request,
+        "[materia].html",
+        {"materia": materia, "años_asignados": años_asignados},
+    )
 
 
 @login_required
