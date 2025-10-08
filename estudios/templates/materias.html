@@ -13,7 +13,7 @@
 
     <ul id="materias">
       {% for materia in materias %}
-        {% with nombre=materia.nombre_materia codigo=materia.codigo_materia fecha=materia.fecha_creacion %}
+        {% with nombre=materia.nombre_materia fecha=materia.fecha_creacion %}
           {% include "componentes/materia.html" %}
         {% endwith %}
       {% endfor %}

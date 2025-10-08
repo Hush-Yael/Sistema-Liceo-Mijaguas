@@ -19,8 +19,7 @@ class AñoAcademico(models.Model):
 
 
 class Materia(models.Model):
-    codigo_materia = models.CharField(max_length=20, unique=True)
-    nombre_materia = models.CharField(max_length=200)
+    nombre_materia = models.CharField(max_length=200, unique=True)
     descripcion = models.TextField(blank=True, null=True)
     fecha_creacion = models.DateTimeField(default=timezone.now)
 

@@ -21,8 +21,8 @@ class AñoAcademicoAdmin(admin.ModelAdmin):
 
 @admin.register(Materia)
 class MateriaAdmin(admin.ModelAdmin):
-    list_display = ["codigo_materia", "nombre_materia", "fecha_creacion"]
-    search_fields = ["codigo_materia", "nombre_materia"]
+    list_display = ["nombre_materia", "fecha_creacion"]
+    search_fields = ["nombre_materia"]
 
 
 @admin.register(Profesor)

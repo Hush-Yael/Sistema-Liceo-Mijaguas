@@ -11,17 +11,17 @@ AÑOS = [
 ]
 
 MATERIAS = [
-    ("MAT", "Matemática"),
-    ("CAS", "Castellano"),
-    ("CIE", "Ciencias Naturales"),
-    ("ING", "Inglés"),
-    ("EDF", "Educación Física"),
-    ("GHC", "G.H.C"),
-    ("CRP", "C.R.P"),
-    ("QUI", "Química"),
-    ("ORI", "Orientación"),
-    ("FIS", "Física"),
-    ("PRE", "Premilitar"),
+    "Matemática",
+    "Castellano",
+    "Ciencias Naturales",
+    "Inglés",
+    "Educación Física",
+    "G.H.C",
+    "C.R.P",
+    "Química",
+    "Orientación",
+    "Física",
+    "Premilitar",
 ]
 
 
@@ -43,13 +43,13 @@ class Command(BaseCommand):
 
         materias_creadas = 0
 
-        for codigo, nombre in MATERIAS:
+        for materia in MATERIAS:
             _, created = Materia.objects.get_or_create(
-                codigo_materia=codigo, defaults={"nombre_materia": nombre}
+                defaults={"nombre_materia": materia}
             )
             if created:
                 materias_creadas += 1
-                self.stdout.write(f"✓ Materia creada: {nombre}")
+                self.stdout.write(f"✓ Materia creada: {materia}")
 
         self.stdout.write(
             self.style.SUCCESS(
