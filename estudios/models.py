@@ -5,10 +5,12 @@ from django.utils import timezone
 
 class AñoAcademico(models.Model):
     numero_año = models.IntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(5)]
+        validators=[MinValueValidator(1), MaxValueValidator(5)], verbose_name="Número"
     )
-    nombre_año = models.CharField(max_length=100)
-    fecha_creacion = models.DateTimeField(default=timezone.now)
+    nombre_año = models.CharField(max_length=100, verbose_name="Nombre")
+    fecha_creacion = models.DateTimeField(
+        default=timezone.now, verbose_name="Fecha de creación"
+    )
 
     class Meta:
         db_table = "años"
@@ -19,56 +21,67 @@ class AñoAcademico(models.Model):
 
 
 class Materia(models.Model):
-    nombre_materia = models.CharField(max_length=200, unique=True)
-    descripcion = models.TextField(blank=True, null=True)
-    fecha_creacion = models.DateTimeField(default=timezone.now)
+    nombre_materia = models.CharField(
+        max_length=200, unique=True, verbose_name="Nombre"
+    )
+    descripcion = models.TextField(blank=True, null=True, verbose_name="Descripción")
+    fecha_creacion = models.DateTimeField(
+        default=timezone.now, verbose_name="Fecha de creación"
+    )
 
     class Meta:
         db_table = "materias"
 
     def __str__(self):
-        return f"{self.codigo_materia} - {self.nombre_materia}"
+        return f"{self.nombre_materia}"
 
 
 class Profesor(models.Model):
-    nombre = models.CharField(max_length=100)
-    apellido = models.CharField(max_length=100)
-    correo_electronico = models.EmailField(unique=True)
-    telefono = models.CharField(max_length=15, blank=True, null=True)
-    fecha_ingreso = models.DateField(default=timezone.now)
-    esta_activo = models.BooleanField(default=True)
+    nombres = models.CharField(max_length=100, verbose_name="Nombres")
+    apellidos = models.CharField(max_length=100, verbose_name="Apellidos")
+    correo_electronico = models.EmailField(unique=True, verbose_name="Correo")
+    telefono = models.CharField(
+        max_length=15, blank=True, null=True, verbose_name="Teléfono"
+    )
+    fecha_ingreso = models.DateField(
+        default=timezone.now, verbose_name="Fecha de ingreso"
+    )
+    esta_activo = models.BooleanField(default=True, verbose_name="Activo")
 
     class Meta:
         db_table = "profesores"
         verbose_name_plural = "Profesores"
 
     def __str__(self):
-        return f"{self.nombre} {self.apellido}"
+        return f"{self.nombres} {self.apellidos}"
 
 
 class Estudiante(models.Model):
-    nombre = models.CharField(max_length=100)
-    apellido = models.CharField(max_length=100)
-    correo_electronico = models.EmailField(blank=True, null=True)
-    fecha_nacimiento = models.DateField()
-    fecha_matricula = models.DateField(default=timezone.now)
-    esta_activo = models.BooleanField(default=True)
+    nombres = models.CharField(max_length=100, verbose_name="Nombres")
+    apellidos = models.CharField(max_length=100, verbose_name="Apellidos")
+    correo_electronico = models.EmailField(blank=True, null=True, verbose_name="Correo")
+    fecha_nacimiento = models.DateField(verbose_name="Fecha de nacimiento")
+    fecha_matricula = models.DateField(
+        default=timezone.now, verbose_name="Fecha de matricula"
+    )
+    esta_activo = models.BooleanField(default=True, verbose_name="Activo")
 
     class Meta:
         db_table = "estudiantes"
 
     def __str__(self):
-        return f"{self.nombre} {self.apellido}"
+        return f"{self.nombres} {self.apellidos}"
 
 
 class LapsoAcademico(models.Model):
-    año = models.ForeignKey(AñoAcademico, on_delete=models.CASCADE)
+    año = models.ForeignKey(AñoAcademico, on_delete=models.CASCADE, verbose_name="Año")
     numero_lapso = models.IntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(3)]
+        validators=[MinValueValidator(1), MaxValueValidator(3)],
+        verbose_name="Número",
     )
-    nombre_lapso = models.CharField(max_length=100)
-    fecha_inicio = models.DateField()
-    fecha_fin = models.DateField()
+    nombre_lapso = models.CharField(max_length=100, verbose_name="Nombre")
+    fecha_inicio = models.DateField(verbose_name="Fecha de inicio")
+    fecha_fin = models.DateField(verbose_name="Fecha de fin")
 
     class Meta:
         db_table = "lapsos"

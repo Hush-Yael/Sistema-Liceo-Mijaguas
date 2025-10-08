@@ -28,25 +28,25 @@ class MateriaAdmin(admin.ModelAdmin):
 @admin.register(Profesor)
 class ProfesorAdmin(admin.ModelAdmin):
     list_display = [
-        "nombre",
-        "apellido",
+        "nombres",
+        "apellidos",
         "correo_electronico",
         "esta_activo",
     ]
     list_filter = ["esta_activo"]
-    search_fields = ["nombre", "apellido"]
+    search_fields = ["nombres", "apellidos"]
 
 
 @admin.register(Estudiante)
 class EstudianteAdmin(admin.ModelAdmin):
     list_display = [
-        "nombre",
-        "apellido",
+        "nombres",
+        "apellidos",
         "fecha_nacimiento",
         "esta_activo",
     ]
     list_filter = ["esta_activo"]
-    search_fields = ["nombre", "apellido"]
+    search_fields = ["nombres", "apellidos"]
 
 
 @admin.register(LapsoAcademico)
