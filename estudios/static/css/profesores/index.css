@@ -1,0 +1,216 @@
+main {
+  padding: 1rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+#profesores {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 0 auto;
+}
+
+#buscador {
+  display: flex;
+  margin-bottom: 1rem;
+  margin: 0 auto 1rem;
+}
+
+#buscador,
+.profesor {
+  max-width: 500px;
+}
+
+#buscador>* {
+  min-height: 100%;
+}
+
+#busqueda,
+#btn-buscar {
+  outline: 1px solid #0000;
+  transition: outline 0.1s ease-out, border 0.1s ease-out;
+}
+
+#busqueda {
+  flex: 1;
+  width: 100%;
+  outline: none;
+  border: none;
+  background: var(--color-fondo-500);
+  border: 1px solid #0002;
+  border-right: none;
+  border-radius: var(--radio-campo) 0 0 var(--radio-campo);
+  padding: .25rem .5rem;
+}
+
+#busqueda:focus {
+  caret-color: var(--color-primario-500);
+  border-color: var(--color-primario-500);
+}
+
+#busqueda:focus,
+#busqueda:focus+#btn-buscar {
+  outline: 1px solid var(--color-primario-500);
+}
+
+#btn-buscar {
+  width: 2rem;
+  border: 1px solid #0002;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+#btn-buscar:focus-visible {
+  outline: 1px solid var(--color-secundario-200);
+}
+
+#btn-buscar svg {
+  transform: scale(1.25);
+}
+
+#opciones-busqueda summary {
+  margin-left: .25rem;
+  padding: .25rem .125rem;
+  border: 1px solid #0003;
+  border-radius: var(--radio-campo);
+}
+
+#opciones-busqueda[open] summary {
+  background: var(--color-secundario-500);
+  color: var(--color-texto-secundario);
+}
+
+#opciones-busqueda .contenido {
+  z-index: 2;
+  top: 110%;
+  right: 0;
+  gap: 1rem;
+  padding: .75rem;
+  border-top-right-radius: 3px;
+}
+
+#opciones-busqueda .campo {
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+}
+
+#opciones-busqueda .campo label,
+.profesor .info>p>span {
+  color: var(--texto-ligero);
+}
+
+.profesor {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.profesor .icono {
+  display: inline-block;
+  min-height: 2.5rem;
+  min-width: 2.5rem;
+  background: #0001;
+  padding: .5rem;
+  margin-right: .75rem;
+  border-radius: 50%;
+  color: var(--texto-ligero);
+}
+
+.profesor .nombres {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.profesor .info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: .5rem;
+}
+
+.profesor .info p {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  column-gap: 1rem;
+}
+
+.profesor .info p:last-of-type {
+  margin-bottom: .5rem;
+}
+
+.profesor .estado {
+  margin-top: auto;
+  padding: .5rem;
+}
+
+.profesor .estado::before {
+  content: '';
+  border-radius: 50%;
+  width: .5rem;
+  height: .5rem;
+  margin-right: .5rem;
+  background: var(--color-secundario-500);
+}
+
+.profesor .estado[data-activo=True] {
+  background: var(--color-exito-100);
+  color: var(--color-exito-700);
+}
+
+.profesor .estado[data-activo=True]::before {
+  background: var(--color-exito-600);
+}
+
+.profesor .estado[data-activo=False] {
+  background: var(--color-peligro-100);
+  color: var(--color-peligro-700);
+}
+
+.profesor .estado[data-activo=False]::before {
+  background: var(--color-peligro-500);
+}
+
+@media screen and (min-width: 500px) {
+  main {
+    padding: 2rem;
+  }
+
+  #busqueda {
+    padding: .375rem 1rem;
+  }
+
+  #btn-buscar {
+    width: 2.5rem;
+  }
+
+  #btn-buscar svg {
+    transform: none;
+  }
+
+  #opciones-busqueda summary {
+    padding: .375rem;
+  }
+
+  #profesores {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+
+  @supports not(grid-template-columns: repeat(auto-fill, minmax(300px, 1fr))) {
+    #profesores {
+      flex-direction: row;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+  }
+}
+
+@media screen and (min-width: 700px) {
+  #buscador {
+    max-width: 600px;
+  }
+}

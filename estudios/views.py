@@ -4,11 +4,13 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Avg, Count, Q
 from .models import (
     Materia,
+    Profesor,
     AñoMateria,
     ProfesorMateria,
     Matricula,
     Calificacion,
 )
+from .forms import FormularioProfesorBusqueda
 
 
 @login_required
@@ -41,6 +43,65 @@ def materia(request: HttpRequest, materia_id: int):
         "[materia].html",
         {"materia": materia, "años_asignados": años_asignados},
     )
+
+
+@login_required
+def profesores(request: HttpRequest):
+    profesores = None
+
+    form = FormularioProfesorBusqueda()
+
+    columna_buscada = request.COOKIES.get("profesores_columna", "apellidos")
+    tipo_busqueda = request.COOKIES.get("profesores_tipo_busqueda", "icontains")
+    orden = request.COOKIES.get("profesores_orden", "apellidos")
+    orden_col = orden
+    direccion = request.COOKIES.get("profesores_direccion", "asc")
+
+    if request.method == "POST":
+        form = FormularioProfesorBusqueda(request.POST)
+
+        if form.is_valid():
+            busqueda = form.cleaned_data["busqueda"].strip()
+
+            columna_buscada = form.cleaned_data["columna_buscada"]
+            tipo_busqueda = form.cleaned_data["tipo_busqueda"]
+            orden = form.cleaned_data["ordenar_por"]
+            direccion = form.cleaned_data["direccion_de_orden"]
+
+            if busqueda != "":
+                columna_buscada_key = f"{columna_buscada}{tipo_busqueda}"
+                profesores = Profesor.objects.filter(**{columna_buscada_key: busqueda})
+
+    if direccion == "desc":
+        orden_col = f"-{orden}"
+
+    if profesores is None:
+        profesores = Profesor.objects
+
+    profesores = profesores.order_by(orden_col).all()
+
+    form.initial = {
+        "columna_buscada": columna_buscada,
+        "tipo_busqueda": tipo_busqueda,
+        "ordenar_por": orden,
+        "direccion_de_orden": direccion,
+    }
+
+    response = render(
+        request,
+        "profesores/index.html",
+        {
+            "form": form,
+            "profesores": profesores,
+        },
+    )
+
+    response.set_cookie("profesores_columna", columna_buscada)
+    response.set_cookie("profesores_tipo_busqueda", tipo_busqueda)
+    response.set_cookie("profesores_orden", orden)
+    response.set_cookie("profesores_direccion", direccion)
+
+    return response
 
 
 @login_required
