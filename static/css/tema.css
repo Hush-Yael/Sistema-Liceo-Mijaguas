@@ -76,18 +76,18 @@ html {
   --color-advertencia-900: hsl(24, 100%, 10.8%);
   --color-advertencia-950: hsl(21.1, 100%, 7.3%);
 
-  --color-error-50: hsl(356.8, 100%, 96.3%);
-  --color-error-100: hsl(0, 100%, 92.7%);
-  --color-error-200: hsl(0, 100%, 84.3%);
-  --color-error-300: hsl(0, 100%, 75.9%);
-  --color-error-400: hsl(359.7, 100%, 63.5%);
-  --color-error-500: hsl(358.4, 100%, 44.9%);
-  --color-error-600: hsl(358.7, 100%, 35.9%);
-  --color-error-700: hsl(359.2, 100%, 28%);
-  --color-error-800: hsl(359.4, 100%, 19.8%);
-  --color-error-900: hsl(0, 100%, 12.7%);
-  --color-error-950: hsl(0, 100%, 8.8%);
-  --color-texto-error: #fff;
+  --color-peligro-50: hsl(356.8, 100%, 96.3%);
+  --color-peligro-100: hsl(0, 100%, 92.7%);
+  --color-peligro-200: hsl(0, 100%, 84.3%);
+  --color-peligro-300: hsl(0, 100%, 75.9%);
+  --color-peligro-400: hsl(359.7, 100%, 63.5%);
+  --color-peligro-500: hsl(358.4, 100%, 44.9%);
+  --color-peligro-600: hsl(358.7, 100%, 35.9%);
+  --color-peligro-700: hsl(359.2, 100%, 28%);
+  --color-peligro-800: hsl(359.4, 100%, 19.8%);
+  --color-peligro-900: hsl(0, 100%, 12.7%);
+  --color-peligro-950: hsl(0, 100%, 8.8%);
+  --color-texto-peligro: #fff;
 
   --radio-campo: 4px;
   --radio-caja: 1rem;
@@ -128,11 +128,11 @@ html {
 }
 
 .caja-input[aria-invalid=true] {
-  border: 1px solid var(--color-error-500);
+  border: 1px solid var(--color-peligro-500);
 }
 
 .caja-input-error {
-  color: var(--color-error-500);
+  color: var(--color-peligro-500);
   font-size: .9rem;
 }
 

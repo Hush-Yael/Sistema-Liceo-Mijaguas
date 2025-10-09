@@ -26,8 +26,8 @@ form h1 {
 
 
 [role=alert] {
-  background: var(--color-error-500);
-  color: var(--color-texto-error);
+  background: var(--color-peligro-500);
+  color: var(--color-texto-peligro);
   padding: .5em 1em;
   border-radius: 4px;
 }

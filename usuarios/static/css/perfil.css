@@ -100,7 +100,7 @@ form {
 }
 
 #borrar-avatar {
-  color: var(--color-error-600);
+  color: var(--color-peligro-600);
 }
 
 #borrar-avatar:not(.htmx-request) .htmx-indicator,
@@ -153,7 +153,7 @@ form {
 
   #borrar-avatar:not(:disabled):hover,
   #borrar-avatar:focus {
-    color: var(--color-error-500)
+    color: var(--color-peligro-500)
   }
 }
 
@@ -165,7 +165,7 @@ form {
   }
 
   #borrar-avatar:not(:disabled):active {
-    color: var(--color-error-500)
+    color: var(--color-peligro-500)
   }
 }
 
@@ -198,7 +198,7 @@ form {
 }
 
 #id_username[aria-invalid="true"] {
-  border-bottom: 1px solid var(--color-error-500);
+  border-bottom: 1px solid var(--color-peligro-500);
 }
 
 #id_username::placeholder {
