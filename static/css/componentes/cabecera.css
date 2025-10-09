@@ -290,14 +290,13 @@ img#cabecera-avatar {
   }
 
   #perfil-menu .contenido {
-    position: absolute;
     top: 100%;
     right: 0;
-    width: max-content;
+    border: none;
     border-top: 1px solid #fff2;
+    border-radius: 0;
     border-bottom-left-radius: var(--radio-caja);
     background: var(--color-primario-500);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, .2);
   }
 }
 

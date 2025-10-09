@@ -93,3 +93,16 @@ dialog::backdrop {
     transform: scale(.9);
   }
 }
+
+.menu {
+  position: relative;
+}
+
+.menu .contenido {
+  position: absolute;
+  width: max-content;
+  border-radius: var(--radio-caja);
+  border: 1px solid #0002;
+  background: var(--color-fondo-500);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .2);
+}

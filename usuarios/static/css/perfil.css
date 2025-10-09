@@ -71,11 +71,9 @@ form {
 }
 
 #editar-avatar .contenido {
-  position: absolute;
   z-index: 1;
-  right: 0;
-  width: max-content;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
+  right: .25rem;
+  border-top-right-radius: 5px;
   transform: translateY(.25rem);
 }
 

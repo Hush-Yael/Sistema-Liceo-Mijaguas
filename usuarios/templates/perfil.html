@@ -36,7 +36,7 @@
 
         <button type="button" id="ver-avatar" aria-label="Ver avatar"></button>
 
-        <details id="editar-avatar">
+        <details class="menu" id="editar-avatar">
           <summary class="btn-primario" aria-label="Editar avatar">
             <svg
               style="enable-background:new 0 0 512 512;"
@@ -55,7 +55,7 @@
             </svg>
           </summary>
 
-          <div class="contenido caja">
+          <div class="contenido">
             {% render_field form.foto_perfil class="sr-only" %}
             <label for="{{ form.foto_perfil.id_for_label }}" id="subir-avatar">
               <svg
