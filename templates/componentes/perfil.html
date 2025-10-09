@@ -4,13 +4,12 @@
       {% if request.user.foto_perfil %}
         <img
           src="{{ request.user.foto_perfil.url }}"
-          id="cabecera-avatar"
+          class="cabecera-avatar"
           alt="avatar"
         />
       {% else %}
         <svg
-          id="cabecera-avatar"
-          role="img"
+          class="cabecera-avatar"
           viewBox="0 0 512 512"
           xmlns="http://www.w3.org/2000/svg"
         >

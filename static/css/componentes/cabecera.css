@@ -75,17 +75,17 @@ html {
   gap: .75rem;
 }
 
-#cabecera-avatar {
+.cabecera-avatar {
   height: 7rem;
   width: 7rem;
   aspect-ratio: 1 / 1;
 }
 
-svg#cabecera-avatar {
+svg.cabecera-avatar {
   min-width: max-content;
 }
 
-img#cabecera-avatar {
+img.cabecera-avatar {
   border-radius: 50%;
   object-fit: cover;
 }
