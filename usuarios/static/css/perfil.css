@@ -102,7 +102,7 @@ form {
 }
 
 #editar-avatar .contenido>label {
-  border-radius: var(--radio-caja) var(--radio-caja) 0 0;
+  border-radius: var(--radio-caja) 5px 0 0;
   cursor: pointer;
 }
 
