@@ -4,6 +4,8 @@
 import os
 import sys
 
+from constantes import DEV
+
 
 def main():
     """Run administrative tasks."""
@@ -20,8 +22,11 @@ def main():
 
 
 if __name__ == "__main__":
-    try:
+    if not DEV:
+        try:
+            main()
+        except Exception as e:
+            print("Error al correr el script: ", e.with_traceback(sys.exc_info()[2]))
+            input("Press enter to exit")
+    else:
         main()
-    except Exception as e:
-        print("Error al correr el script: ", e)
-        input("Press enter to exit")
