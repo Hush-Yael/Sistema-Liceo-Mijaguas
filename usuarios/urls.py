@@ -10,17 +10,10 @@ urlpatterns = [
         views.login,
         name="login",
     ),
-    path("registro/", views.registro, name="registro"),
     path(
         "cerrar-sesion/",
         views.cerrar_sesion,
         name="logout",
-    ),
-    path("cambiar-contraseña/", views.cambiar_contraseña, name="cambiar-contraseña"),
-    path(
-        "contraseña-cambiada/",
-        views.contraseña_cambiada,
-        name="contraseña-cambiada",
     ),
     path(
         "perfil",
