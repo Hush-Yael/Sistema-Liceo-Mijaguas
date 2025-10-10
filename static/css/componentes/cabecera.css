@@ -343,6 +343,10 @@ img.cabecera-avatar {
     height: 4rem;
   }
 
+  #perfil-menu .contenido {
+    border-bottom-right-radius: var(--radio-caja);
+  }
+
   .link {
     padding: .5rem 1rem;
   }
