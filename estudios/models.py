@@ -86,6 +86,8 @@ class LapsoAcademico(models.Model):
     class Meta:
         db_table = "lapsos"
         unique_together = ["año", "numero_lapso"]
+        verbose_name = "lapso académico"
+        verbose_name_plural = "Lapsos académicos"
 
     def __str__(self):
         return f"{self.año.nombre_año} - {self.nombre_lapso}"
@@ -99,7 +101,8 @@ class AñoMateria(models.Model):
     class Meta:
         db_table = "años_materias"
         unique_together = ["año", "materia"]
-        verbose_name_plural = "Años materias"
+        verbose_name = "año y materia"
+        verbose_name_plural = "Años y materias"
 
     def __str__(self):
         return f"{self.año.nombre_año} - {self.materia.nombre_materia}"
@@ -114,7 +117,8 @@ class ProfesorMateria(models.Model):
     class Meta:
         db_table = "profesores_materias"
         unique_together = ["profesor", "materia", "año"]
-        verbose_name_plural = "Profesores materias"
+        verbose_name = "profesor y materia"
+        verbose_name_plural = "Profesores y materias"
 
     def __str__(self):
         tipo = "Principal" if self.es_profesor_principal else "Secundario"
