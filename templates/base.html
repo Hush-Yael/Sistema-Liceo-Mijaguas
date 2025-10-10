@@ -18,11 +18,9 @@
   <link rel="stylesheet" href="{% static 'css/util.css' %}" />
   <link rel="stylesheet" href="{% static 'css/componentes/index.css' %}" />
   <link rel="stylesheet" href="{% static 'css/base.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/componentes/cabecera.css' %}" />
 
-  {% if request.user.is_authenticated %}
-    <link rel="stylesheet" href="{% static 'css/componentes/cabecera.css' %}" />
-    <script defer src="{% static 'js/componentes/cabecera.js' %}"></script>
-  {% endif %}
+  <script defer src="{% static 'js/componentes/cabecera.js' %}"></script>
 
   {% if DEBUG %}
     <script type="module">
@@ -44,9 +42,7 @@
 </head>
 
 <body>
-  {% if request.user.is_authenticated %}
-    {% include 'componentes/cabecera.html' %}
-  {% endif %}
+  {% include 'componentes/cabecera.html' %}
 
   <main>{% block contenido %} {% endblock %}</main>
 

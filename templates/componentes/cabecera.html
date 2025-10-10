@@ -32,9 +32,36 @@
   </button>
 
   <nav id="nav" data-path-actual="{{ request.path }}">
-    <div class="perfil" id="perfil-en-linea">
-      {% include 'componentes/perfil.html' %}
-    </div>
+    {% if request.user.is_authenticated %}
+      <div class="perfil" id="perfil-en-linea">
+        {% include 'componentes/perfil.html' %}
+      </div>
+    {% else %}
+      <a
+        id="iniciar-sesion-menu"
+        href="{% url 'login' %}"
+        class="iniciar-sesion flex-center"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+          <path
+            d="M9 8v-2a2 2 0 0 1 2 -2h7a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-7a2 2 0 0 1 -2 -2v-2"
+          />
+          <path d="M3 12h13l-3 -3" />
+          <path d="M13 15l3 -3" />
+        </svg>
+        Iniciar sesión
+      </a>
+    {% endif %}
 
     <ul>
       <li>
@@ -55,47 +82,31 @@
         </a>
       </li>
 
-      <li>
-        <a class="link" href="usuarios">
-          <svg
-            height="16"
-            viewBox="0 0 16 16"
-            width="16"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"
-            />
-            <path
-              d="M5.216 14A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216z"
-              fill-rule="evenodd"
-            />
-            <path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z" />
-          </svg>
-          <span>Usuarios</span>
-        </a>
-      </li>
+      {% if perms.usuarios.view_user %}
+        <li>
+          <a class="link" href="/admin/usuarios/user">
+            <svg
+              height="16"
+              viewBox="0 0 16 16"
+              width="16"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"
+              />
+              <path
+                d="M5.216 14A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216z"
+                fill-rule="evenodd"
+              />
+              <path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z" />
+            </svg>
+            <span>Usuarios</span>
+          </a>
+        </li>
+      {% endif %}
 
       <li>
-        <a class="link" href="cargar-notas">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-          >
-            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-            <path
-              d="M12 2l.117 .007a1 1 0 0 1 .876 .876l.007 .117v4l.005 .15a2 2 0 0 0 1.838 1.844l.157 .006h4l.117 .007a1 1 0 0 1 .876 .876l.007 .117v9a3 3 0 0 1 -2.824 2.995l-.176 .005h-10a3 3 0 0 1 -2.995 -2.824l-.005 -.176v-14a3 3 0 0 1 2.824 -2.995l.176 -.005zm1 10l-5 5v2h2l5 -5a1.414 1.414 0 0 0 -2 -2"
-            />
-            <path d="M19 7h-4l-.001 -4.001z" />
-          </svg>
-          <span>Carga de notas</span>
-        </a>
-      </li>
-
-      <li>
-        <a class="link" href="notas">
+        <a class="link" href="/admin/estudios/notas">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -108,12 +119,12 @@
             />
             <path d="M19 7h-4l-.001 -4.001z" />
           </svg>
-          <span>Ver notas</span>
+          <span>Notas</span>
         </a>
       </li>
 
       <li>
-        <a class="link" href="profesores">
+        <a class="link" href="/admin/estudios/profesor">
           <svg viewBox="0 0 640 512" xmlns="http://www.w3.org/2000/svg">
             <path
               d="M208 352c-2.39 0-4.78.35-7.06 1.09C187.98 357.3 174.35 360 160 360c-14.35 0-27.98-2.7-40.95-6.91-2.28-.74-4.66-1.09-7.05-1.09C49.94 352-.33 402.48 0 464.62.14 490.88 21.73 512 48 512h224c26.27 0 47.86-21.12 48-47.38.33-62.14-49.94-112.62-112-112.62zm-48-32c53.02 0 96-42.98 96-96s-42.98-96-96-96-96 42.98-96 96 42.98 96 96 96zM592 0H208c-26.47 0-48 22.25-48 49.59V96c23.42 0 45.1 6.78 64 17.8V64h352v288h-64v-64H384v64h-76.24c19.1 16.69 33.12 38.73 39.69 64H592c26.47 0 48-22.25 48-49.59V49.59C640 22.25 618.47 0 592 0z"
@@ -122,6 +133,20 @@
           <span>Profesores</span>
         </a>
       </li>
+
+      {% if perms.estudios.view_estudiante %}
+        <li>
+          <a class="link" href="/admin/estudios/profesor">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M12,9a6,6,0,0,0-5.91,5H2v2H4v6H6V16H18v6h2V16h2V14H17.91A6,6,0,0,0,12,9Z"
+              />
+              <circle cx="12" cy="5" r="3" />
+            </svg>
+            <span>Estudiantes</span>
+          </a>
+        </li>
+      {% endif %}
     </ul>
   </nav>
 
@@ -156,6 +181,35 @@
       </svg>
     </summary>
 
-    {% include 'componentes/perfil.html' %}
+    {% if request.user.is_authenticated %}
+      {% include 'componentes/perfil.html' %}
+    {% else %}
+      <div class="contenido">
+        <a
+          id="iniciar-sesion-fuera"
+          href="{% url 'login' %}"
+          class="iniciar-sesion flex-center"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path
+              d="M9 8v-2a2 2 0 0 1 2 -2h7a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-7a2 2 0 0 1 -2 -2v-2"
+            />
+            <path d="M3 12h13l-3 -3" />
+            <path d="M13 15l3 -3" />
+          </svg>
+          Iniciar sesión
+        </a>
+      </div>
+    {% endif %}
   </details>
 </header>
