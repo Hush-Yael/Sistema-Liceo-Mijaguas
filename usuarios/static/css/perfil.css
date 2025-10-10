@@ -71,6 +71,7 @@ form {
   object-fit: cover;
   cursor: pointer;
   box-shadow: 0 0 0 3px var(--fondo);
+  transition: box-shadow 0.1s ease-in-out, color 0.2s ease-in-out, background-color 0.2s ease-in-out;
 }
 
 #editar-avatar[open] summary {
