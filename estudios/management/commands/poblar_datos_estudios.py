@@ -16,11 +16,11 @@ from django.db.utils import IntegrityError
 
 
 AÑOS = [
-    (1, "Primer Año"),
-    (2, "Segundo Año"),
-    (3, "Tercer Año"),
-    (4, "Cuarto Año"),
-    (5, "Quinto Año"),
+    (1, "Primer Año", "1ero"),
+    (2, "Segundo Año", "2do"),
+    (3, "Tercer Año", "3ero"),
+    (4, "Cuarto Año", "4to"),
+    (5, "Quinto Año", "5to"),
 ]
 
 MATERIAS = [
@@ -46,9 +46,9 @@ class Command(BaseCommand):
 
         años_creados = 0
 
-        for num, nombre in AÑOS:
+        for num, nombre, nombre_corto in AÑOS:
             _, created = AñoAcademico.objects.get_or_create(
-                numero_año=num, defaults={"nombre_año": nombre}
+                numero_año=num, nombre_año=nombre, nombre_año_corto=nombre_corto
             )
             if created:
                 años_creados += 1

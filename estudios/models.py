@@ -8,6 +8,7 @@ class AñoAcademico(models.Model):
         validators=[MinValueValidator(1), MaxValueValidator(5)], verbose_name="Número"
     )
     nombre_año = models.CharField(max_length=100, verbose_name="Nombre")
+    nombre_año_corto = models.CharField(max_length=20, verbose_name="Nombre corto")
     fecha_creacion = models.DateTimeField(
         default=timezone.now, verbose_name="Fecha de creación"
     )
