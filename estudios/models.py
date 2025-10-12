@@ -46,6 +46,9 @@ class Profesor(models.Model):
         default=timezone.now, verbose_name="Fecha de ingreso"
     )
     esta_activo = models.BooleanField(default=True, verbose_name="Activo")
+    usuario = models.OneToOneField(
+        "usuarios.User", on_delete=models.CASCADE, verbose_name="Usuario"
+    )
 
     class Meta:
         db_table = "profesores"

@@ -14,6 +14,9 @@ from datetime import date
 from faker import Faker
 import random
 
+from usuarios.models import User
+from django.contrib.auth.models import Group
+
 
 class Command(BaseCommand):
     help = "LLena la base de datos con datos de ejemplo usando Faker"
@@ -197,11 +200,23 @@ class Command(BaseCommand):
             email = f"{nombre.lower()}.{apellido.lower()}@colegio.edu"
 
             # Asegurar que el email sea único
-            counter = 1
-            original_email = email
-            while Profesor.objects.filter(correo_electronico=email).exists():
-                email = f"{original_email.split('@')[0]}{counter}@colegio.edu"
-                counter += 1
+            contador_email = 1
+            email_original = email
+
+            while User.objects.filter(email=email).exists():
+                email = f"{email_original.split('@')[0]}{contador_email}@colegio.edu"
+                contador_email += 1
+
+            grupo_prof = Group.objects.get(name="Profesor")
+
+            prof_usuario = User.objects.create(
+                username=email.split("@")[0],
+                email=email,
+                is_staff=True,
+            )
+
+            prof_usuario.set_password("1234")
+            prof_usuario.save()
 
             Profesor.objects.create(
                 nombres=nombre,
@@ -213,7 +228,10 @@ class Command(BaseCommand):
                     start_date="-10y", end_date="today"
                 ),
                 esta_activo=self.faker.boolean(chance_of_getting_true=90),
+                usuario=prof_usuario,
             )
+
+            prof_usuario.groups.add(grupo_prof)
 
             profesores_creados += 1
             self.stdout.write(f"✓ Creado profesor: {nombre} {apellido} ({i})")
