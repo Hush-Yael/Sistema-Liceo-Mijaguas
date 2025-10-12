@@ -5,6 +5,8 @@ from dist.manejo._internal.django.db import models
 
 class User(AbstractUser):
     foto_perfil = models.ImageField(null=True, blank=True, upload_to="fotos_perfil/")
+    first_name = None
+    last_name = None
 
     def save(self, *args, **kwargs):
         try:

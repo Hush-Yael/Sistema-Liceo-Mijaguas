@@ -141,32 +141,30 @@
 
     <hr />
 
-    <div role="group" class="campos">
-      {% csrf_token %}
+    {% csrf_token %}
 
-      {% for field in form %}
-        {% if field.id_for_label != 'id_foto_perfil' and field.id_for_label != 'id_username' %}
-          <div class="campo">
-            {{ field.label_tag }}
-            {% if field.errors %}
-              {% with error=field.id_for_label|add:'-error' %}
-                {% render_field field class="caja-input" aria-labelledby=error aria-invalid="true" %}
-              {% endwith %}
-            {% else %}
-              {% render_field field class="caja-input" %}
-            {% endif %}
+    {% for field in form %}
+      {% if field.id_for_label != 'id_foto_perfil' and field.id_for_label != 'id_username' %}
+        <div class="col" style="gap: .25rem;">
+          {{ field.label_tag }}
+          {% if field.errors %}
+            {% with error=field.id_for_label|add:'-error' %}
+              {% render_field field class="caja-input" aria-labelledby=error aria-invalid="true" %}
+            {% endwith %}
+          {% else %}
+            {% render_field field class="caja-input" %}
+          {% endif %}
 
-            {% if field.errors %}
-              {% for error in field.errors %}
-                <p id="{{ field.id_for_label }}-error" class="caja-input-error">
-                  {{ error }}
-                </p>
-              {% endfor %}
-            {% endif %}
-          </div>
-        {% endif %}
-      {% endfor %}
-    </div>
+          {% if field.errors %}
+            {% for error in field.errors %}
+              <p id="{{ field.id_for_label }}-error" class="caja-input-error">
+                {{ error }}
+              </p>
+            {% endfor %}
+          {% endif %}
+        </div>
+      {% endif %}
+    {% endfor %}
 
     <div id="acciones" class="col">
       <button class="btn-primario btn-md">Guardar cambios</button>

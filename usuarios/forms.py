@@ -34,11 +34,9 @@ def validarTamaño(foto: forms.ImageField):
 class FormularioPerfil(forms.ModelForm):
     class Meta:
         model = User
-        fields = ["username", "first_name", "last_name", "email", "foto_perfil"]
+        fields = ["username", "email", "foto_perfil"]
 
     email = forms.EmailField(required=False, label="Correo")
-    first_name = forms.CharField(required=False, label="Nombres")
-    last_name = forms.CharField(required=False, label="Apellidos")
     foto_perfil = forms.ImageField(
         required=False, widget=forms.FileInput(), validators=[validarTamaño]
     )
