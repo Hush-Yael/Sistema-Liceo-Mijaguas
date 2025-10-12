@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
-from estudios.models import AñoAcademico, Materia
+from usuarios.models import User
+from django.db.utils import IntegrityError
 
 
 AÑOS = [
@@ -26,7 +27,7 @@ MATERIAS = [
 
 
 class Command(BaseCommand):
-    help = "Llena la base de datos con datos estáticos (años académicos y materias)"
+    help = "Llena la base de datos con datos estáticos (años académicos, materias y un usuario admin)"
 
     def handle(self, *args, **options):
         self.stdout.write("Creando datos estáticos...")
@@ -50,6 +51,19 @@ class Command(BaseCommand):
             if created:
                 materias_creadas += 1
                 self.stdout.write(f"✓ Materia creada: {materia}")
+
+        self.stdout.write("Creando admin...")
+
+        try:
+            User.objects.get_or_create(
+                username="admin",
+                email="",
+                is_superuser=True,
+                password="admin",
+            )
+            self.stdout.write(self.style.SUCCESS("✓ Admin creado"))
+        except IntegrityError:
+            self.stdout.write("Admin ya creado")
 
         self.stdout.write(
             self.style.SUCCESS(
