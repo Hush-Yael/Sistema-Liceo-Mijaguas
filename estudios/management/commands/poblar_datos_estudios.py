@@ -1,5 +1,17 @@
 from django.core.management.base import BaseCommand
 from usuarios.models import User
+from estudios.models import (
+    Calificacion,
+    AñoAcademico,
+    Materia,
+    Estudiante,
+    Profesor,
+    LapsoAcademico,
+    AñoMateria,
+    ProfesorMateria,
+)
+from django.contrib.auth.models import Group, Permission
+from django.contrib.contenttypes.models import ContentType
 from django.db.utils import IntegrityError
 
 
@@ -27,7 +39,7 @@ MATERIAS = [
 
 
 class Command(BaseCommand):
-    help = "Llena la base de datos con datos estáticos (años académicos, materias y un usuario admin)"
+    help = "Llena la base de datos con datos estáticos (años académicos, materias, grupos, y un usuario admin)"
 
     def handle(self, *args, **options):
         self.stdout.write("Creando datos estáticos...")
@@ -52,6 +64,48 @@ class Command(BaseCommand):
                 materias_creadas += 1
                 self.stdout.write(f"✓ Materia creada: {materia}")
 
+        grupos_creados = 0
+
+        self.stdout.write("Creando grupos...")
+
+        grupo_profesor, created = Group.objects.get_or_create(name="Profesor")
+
+        if created:
+            calificacion_content_type = ContentType.objects.get_for_model(Calificacion)
+
+            permisos_calificaciones = Permission.objects.filter(
+                content_type=calificacion_content_type,
+            ).all()
+
+            # todos los permisos de calificaciones
+            for permiso in permisos_calificaciones:
+                grupo_profesor.permissions.add(permiso)
+
+            tablas_solo_lectura = (
+                AñoAcademico,
+                Materia,
+                Estudiante,
+                Profesor,
+                LapsoAcademico,
+                AñoMateria,
+                ProfesorMateria,
+            )
+
+            # solo lectura para todas las demás tablas
+            for tabla in tablas_solo_lectura:
+                content_type = ContentType.objects.get_for_model(tabla)
+
+                permiso = Permission.objects.filter(
+                    content_type=content_type, codename__startswith="view_"
+                ).first()
+
+                if permiso:
+                    grupo_profesor.permissions.add(permiso)
+
+            grupos_creados += 1
+
+            self.stdout.write(f"✓ Grupo creado: {grupo_profesor.name}")
+
         self.stdout.write("Creando admin...")
 
         try:
@@ -68,6 +122,6 @@ class Command(BaseCommand):
         self.stdout.write(
             self.style.SUCCESS(
                 f"¡Datos estáticos creados exitosamente! "
-                f"({años_creados} años, {materias_creadas} materias)"
+                f"({años_creados} años, {materias_creadas} materias, {grupos_creados} grupos)"
             )
         )
