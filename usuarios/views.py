@@ -3,12 +3,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import (
     LoginView,
     LogoutView,
-    PasswordChangeView,
-    PasswordChangeDoneView,
 )
 from django.http import HttpRequest, HttpResponse
 
-from usuarios.forms import FormularioPerfil, FormularioRegistro
+from usuarios.forms import FormularioPerfil
 
 
 def login(request: HttpRequest):
