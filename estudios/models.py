@@ -39,7 +39,6 @@ class Materia(models.Model):
 class Profesor(models.Model):
     nombres = models.CharField(max_length=100, verbose_name="Nombres")
     apellidos = models.CharField(max_length=100, verbose_name="Apellidos")
-    correo_electronico = models.EmailField(unique=True, verbose_name="Correo")
     telefono = models.CharField(
         max_length=15, blank=True, null=True, verbose_name="Teléfono"
     )
@@ -59,7 +58,6 @@ class Profesor(models.Model):
 class Estudiante(models.Model):
     nombres = models.CharField(max_length=100, verbose_name="Nombres")
     apellidos = models.CharField(max_length=100, verbose_name="Apellidos")
-    correo_electronico = models.EmailField(blank=True, null=True, verbose_name="Correo")
     fecha_nacimiento = models.DateField(verbose_name="Fecha de nacimiento")
     fecha_matricula = models.DateField(
         default=timezone.now, verbose_name="Fecha de matricula"

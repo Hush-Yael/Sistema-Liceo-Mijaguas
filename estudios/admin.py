@@ -30,7 +30,6 @@ class ProfesorAdmin(admin.ModelAdmin):
     list_display = [
         "nombres",
         "apellidos",
-        "correo_electronico",
         "esta_activo",
     ]
     list_filter = ["esta_activo"]

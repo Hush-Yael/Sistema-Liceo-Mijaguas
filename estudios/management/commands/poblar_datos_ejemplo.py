@@ -206,7 +206,6 @@ class Command(BaseCommand):
             Profesor.objects.create(
                 nombres=nombre,
                 apellidos=apellido,
-                correo_electronico=email,
                 telefono=self.faker.random_element(
                     [None, "", self.faker.phone_number()]
                 ),
@@ -234,16 +233,6 @@ class Command(BaseCommand):
             # Generar datos con Faker (edades entre 13-18 años para secundaria)
             nombre = self.faker.first_name()
             apellido = self.faker.last_name()
-            email = f"{nombre.lower()}.{apellido.lower()}@estudiante.colegio.edu"
-
-            # Asegurar que el email sea único
-            counter = 1
-            original_email = email
-            while Estudiante.objects.filter(correo_electronico=email).exists():
-                email = (
-                    f"{original_email.split('@')[0]}{counter}@estudiante.colegio.edu"
-                )
-                counter += 1
 
             # Fecha de nacimiento para estudiantes de secundaria (13-18 años)
             fecha_nacimiento = self.faker.date_of_birth(minimum_age=13, maximum_age=18)
@@ -251,7 +240,6 @@ class Command(BaseCommand):
             Estudiante.objects.create(
                 nombres=nombre,
                 apellidos=apellido,
-                correo_electronico=email,
                 fecha_nacimiento=fecha_nacimiento,
                 fecha_matricula=self.faker.date_between(
                     start_date="-2y", end_date="today"
