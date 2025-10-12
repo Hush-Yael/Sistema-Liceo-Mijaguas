@@ -57,9 +57,8 @@ class Command(BaseCommand):
         materias_creadas = 0
 
         for materia in MATERIAS:
-            _, created = Materia.objects.get_or_create(
-                defaults={"nombre_materia": materia}
-            )
+            _, created = Materia.objects.get_or_create(nombre_materia=materia)
+
             if created:
                 materias_creadas += 1
                 self.stdout.write(f"✓ Materia creada: {materia}")
