@@ -42,17 +42,22 @@ def perfil(request: HttpRequest):
         except Exception as e:
             print("Error al eliminar la foto", e)
             return HttpResponse("Error al eliminar la foto", status=204)
-
-    elif request.method == "POST":
-        form = FormularioPerfil(request.POST, request.FILES, instance=request.user)  # type: ignore
-
-        if form.is_valid():
-            form.save()
     else:
-        form = FormularioPerfil(instance=request.user)  # type: ignore
+        # se guarda, para evitar que se muestre uno cambiado, a pesar de fallar la validación
+        usuario = request.user.username
 
-    return render(
-        request,
-        "perfil.html",
-        {"form": form},
-    )
+        if request.method == "POST":
+            form = FormularioPerfil(request.POST, request.FILES, instance=request.user)  # type: ignore
+
+            if form.is_valid():
+                form.save()
+                # se asegura de que se actualice el nombre de usuario
+                usuario = request.user.username
+        else:
+            form = FormularioPerfil(instance=request.user)  # type: ignore
+
+        return render(
+            request,
+            "perfil.html",
+            {"form": form, "usuario": usuario},
+        )

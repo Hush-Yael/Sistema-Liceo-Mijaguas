@@ -26,8 +26,8 @@ form {
 }
 
 #avatar {
-  height: 11rem;
-  width: 11rem;
+  height: 8rem;
+  width: 8rem;
   border-radius: 50%;
   object-fit: cover;
 }
@@ -197,7 +197,7 @@ form {
   object-fit: cover;
 }
 
-#id_username {
+#nombre-usuario {
   width: 100%;
   outline: none;
   border-bottom: 1px solid #0000;
@@ -207,21 +207,6 @@ form {
   font-weight: bold;
   text-align: center;
   transition: border-bottom .25s ease;
-}
-
-#id_username:focus,
-#id_username:placeholder-shown {
-  border-bottom: 1px solid #0002;
-}
-
-#id_username[aria-invalid="true"] {
-  border-bottom: 1px solid var(--color-peligro-500);
-}
-
-#id_username::placeholder {
-  font-style: italic;
-  font-size: 1.125rem;
-  font-weight: normal;
 }
 
 #fecha-registro {
@@ -240,6 +225,20 @@ form {
 form hr {
   border-top: #0001 solid 1px;
   margin: -1.25rem .5rem;
+}
+
+.campos {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: .25rem;
+  width: 100%;
 }
 
 #acciones {
@@ -284,5 +283,3 @@ form hr {
     flex: 1;
   }
 }
-
-@media screen and (min-width: 768px) {}

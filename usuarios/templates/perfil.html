@@ -112,16 +112,7 @@
         </details>
       </div>
 
-      {% with error=form.username.id_for_label|add:'-error' label="Nombre de usuario" %}
-        {% if form.username.errors %}
-          {% render_field form.username placeholder=label aria-label=label aria-labelledby=error aria-invalid="true" %}
-          {% for error in form.username.errors %}
-            <p id="{{ error }}" class="caja-input-error">{{ error }}</p>
-          {% endfor %}
-        {% else %}
-          {% render_field form.username placeholder=label aria-label=label %}
-        {% endif %}
-      {% endwith %}
+      <h1 id="nombre-usuario">{{ usuario }}</h1>
 
       <p class="flex texto-ligero" id="fecha-registro">
         <span class="icono-redondo">
@@ -141,30 +132,32 @@
 
     <hr />
 
-    {% csrf_token %}
+    <div role="group" class="campos">
+      {% csrf_token %}
 
-    {% for field in form %}
-      {% if field.id_for_label != 'id_foto_perfil' and field.id_for_label != 'id_username' %}
-        <div class="col" style="gap: .25rem;">
-          {{ field.label_tag }}
-          {% if field.errors %}
-            {% with error=field.id_for_label|add:'-error' %}
-              {% render_field field class="caja-input" aria-labelledby=error aria-invalid="true" %}
-            {% endwith %}
-          {% else %}
-            {% render_field field class="caja-input" %}
-          {% endif %}
+      {% for field in form %}
+        {% if field.id_for_label != 'id_foto_perfil' %}
+          <div class="campo">
+            {{ field.label_tag }}
+            {% if field.errors %}
+              {% with error=field.id_for_label|add:'-error' %}
+                {% render_field field class="caja-input" aria-labelledby=error aria-invalid="true" %}
+              {% endwith %}
+            {% else %}
+              {% render_field field class="caja-input" %}
+            {% endif %}
 
-          {% if field.errors %}
-            {% for error in field.errors %}
-              <p id="{{ field.id_for_label }}-error" class="caja-input-error">
-                {{ error }}
-              </p>
-            {% endfor %}
-          {% endif %}
-        </div>
-      {% endif %}
-    {% endfor %}
+            {% if field.errors %}
+              {% for error in field.errors %}
+                <p id="{{ field.id_for_label }}-error" class="caja-input-error">
+                  {{ error }}
+                </p>
+              {% endfor %}
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
 
     <div id="acciones" class="col">
       <button class="btn-primario btn-md">Guardar cambios</button>
