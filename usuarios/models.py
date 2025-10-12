@@ -2,6 +2,10 @@ from django.contrib.auth.models import AbstractUser
 
 from dist.manejo._internal.django.db import models
 
+AbstractUser._meta.get_field("email").verbose_name = "Correo"
+AbstractUser._meta.get_field("is_staff").verbose_name = "Puede ingresar"
+AbstractUser._meta.get_field("date_joined").verbose_name = "Fecha de ingreso"
+
 
 class User(AbstractUser):
     foto_perfil = models.ImageField(null=True, blank=True, upload_to="fotos_perfil/")
