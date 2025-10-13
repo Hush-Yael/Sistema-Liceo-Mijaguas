@@ -49,27 +49,6 @@ def materias(request: HttpRequest):
     )
 
 
-@login_required
-def materia(request: HttpRequest, materia_id: int):
-    try:
-        materia = Materia.objects.get(id=materia_id)
-    except Materia.DoesNotExist:
-        return render(request, "404.html")
-
-    materia_años = AñoMateria.objects.filter(materia=materia)
-    años_asignados = []
-
-    for materia_año in materia_años:
-        años_asignados.append(materia_año.año.numero_año)
-
-    return render(
-        request,
-        "[materia].html",
-        {"materia": materia, "años_asignados": años_asignados},
-    )
-
-
-@login_required
 def profesores(request: HttpRequest):
     profesores = None
 
