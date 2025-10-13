@@ -3,6 +3,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg, Count, Q
 from .models import (
+    Seccion,
     Año,
     Materia,
     Profesor,
@@ -120,6 +121,38 @@ def estudiantes_matriculados_por_año(request: HttpRequest):
     )
 
 
+def estudiantes_por_seccion(request, año_id):
+    """Consulta para ver estudiantes por sección"""
+    secciones = Seccion.objects.filter(año_id=año_id).prefetch_related(
+        "matricula_set__estudiante"
+    )
+
+    data = []
+    for seccion in secciones:
+        estudiantes = [
+            mat.estudiante for mat in seccion.matricula_set.filter(estado="activo")
+        ]
+        data.append(
+            {"seccion": seccion, "estudiantes": estudiantes, "total": len(estudiantes)}
+        )
+
+    return render(request, "consultas/estudiantes_por_seccion.html", {"data": data})
+
+
+def profesores_por_seccion(request, seccion_id):
+    """Consulta para ver profesores que enseñan en una sección"""
+    seccion = Seccion.objects.get(id=seccion_id)
+    profesores_materias = ProfesorMateria.objects.filter(
+        seccion=seccion
+    ).select_related("profesor", "materia")
+
+    return render(
+        request,
+        "consultas/profesores_seccion.html",
+        {"seccion": seccion, "profesores_materias": profesores_materias},
+    )
+
+
 @login_required
 def materias_por_año_con_profesores(request: HttpRequest):
     """Consulta para ver materias por año con sus profesores"""
@@ -211,7 +244,7 @@ def resumen_matriculas_por_año(request: HttpRequest):
         .annotate(
             total_estudiantes=Count("estudiante_id"),
             estudiantes_activos=Count(
-                "estudiante_id", filter=Q(estudiante__esta_activo=True)
+                "estudiante_id", filter=Q(estudiante__estado="activo"), distinct=True
             ),
         )
         .order_by("año__numero_año")

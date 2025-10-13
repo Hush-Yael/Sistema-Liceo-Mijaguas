@@ -1,5 +1,7 @@
+from typing import OrderedDict
 from django.core.management.base import BaseCommand
 from estudios.models import (
+    Seccion,
     Año,
     Materia,
     Profesor,
@@ -33,57 +35,80 @@ class Command(BaseCommand):
             default=1,
             help="Número del año para el cual crear los datos (1-5)",
         )
+
         parser.add_argument(
             "--limpiar-todo",
             action="store_true",
             help="Eliminar todos los datos de ejemplo existentes",
         )
+
         parser.add_argument(
             "--profesores",
             action="store_true",
             help="Crear solo profesores",
         )
+
         parser.add_argument(
             "--estudiantes",
             action="store_true",
             help="Crear solo estudiantes",
         )
+
         parser.add_argument(
             "--lapsos",
             action="store_true",
             help="Crear solo lapsos",
         )
+
         parser.add_argument(
             "--asignaciones",
             action="store_true",
             help="Crear solo asignaciones de materias y profesores",
         )
+
         parser.add_argument(
             "--matriculas",
             action="store_true",
             help="Crear solo matrículas",
         )
+
         parser.add_argument(
             "--notas",
             action="store_true",
             help="Crear solo notas",
         )
+
         parser.add_argument(
             "--todo",
             action="store_true",
             help="Crear todos los datos de ejemplo (por defecto si no se especifica nada)",
         )
+
         parser.add_argument(
             "--cantidad-estudiantes",
             type=int,
             default=20,
             help="Cantidad de estudiantes a crear (por defecto: 20)",
         )
+
         parser.add_argument(
             "--cantidad-profesores",
             type=int,
             default=8,
             help="Cantidad de profesores a crear (por defecto: 8)",
+        )
+
+        parser.add_argument(
+            "--secciones",
+            action="store_true",
+            help="Crear solo secciones",
+        )
+
+        parser.add_argument(
+            "--secciones-por-año",
+            type=int,
+            default=3,
+            help="Número de secciones a crear por año (por defecto: 3)",
         )
 
     def handle(self, *args, **options):
@@ -141,8 +166,12 @@ class Command(BaseCommand):
             estudiantes = Estudiante.objects.all()
             lapsos = Lapso.objects.filter(año=año)
             self.crear_notas(estudiantes, lapsos)
+        acciones["secciones"] = options["secciones"]
 
-        self.stdout.write(self.style.SUCCESS("¡Operación completada exitosamente!"))
+        if hacer_todo or acciones["secciones"]:
+            self.crear_secciones(año, options["secciones_por_año"])
+
+            self.stdout.write(self.style.SUCCESS("¡Operación completada exitosamente!"))
 
     def limpiar_todos_datos_ejemplo(self):
         """Elimina todos los datos de ejemplo existentes"""
@@ -320,82 +349,115 @@ class Command(BaseCommand):
         self.stdout.write(f"✓ Asignadas {asignaciones_creadas} materias al año")
 
     def asignar_profesores_a_materias(self, profesores, año):
-        """Asignar profesores a materias de manera aleatoria pero balanceada"""
-        self.stdout.write("Asignando profesores a materias...")
+        """Asignar profesores a materias por sección"""
+        self.stdout.write("Asignando profesores a materias por sección...")
 
         materias = Materia.objects.all()
+        secciones = Seccion.objects.filter(año=año)
         asignaciones_creadas = 0
 
-        # Para cada materia, asignar 1-2 profesores
+        # Para cada materia y sección, asignar 1-2 profesores
         for materia in materias:
-            # Seleccionar 1-2 profesores aleatorios
-            num_profesores = random.randint(1, 2)
-            profesores_asignados = random.sample(list(profesores), num_profesores)
-
-            for i, profesor in enumerate(profesores_asignados):
-                es_principal = i == 0  # El primero es principal
-
-                _, created = ProfesorMateria.objects.get_or_create(
-                    profesor=profesor,
-                    materia=materia,
-                    año=año,
-                    defaults={"es_profesor_principal": es_principal},
+            for seccion in secciones:
+                # Seleccionar 1-2 profesores aleatorios
+                num_profesores = random.randint(1, 2)
+                profesores_asignados = random.sample(
+                    list(profesores), min(num_profesores, len(profesores))
                 )
-                if created:
-                    asignaciones_creadas += 1
-                    tipo = "principal" if es_principal else "secundario"
-                    self.stdout.write(
-                        f"✓ {profesor} → {materia.nombre_materia} ({tipo})"
+
+                for i, profesor in enumerate(profesores_asignados):
+                    es_principal = i == 0  # El primero es principal
+
+                    _, created = ProfesorMateria.objects.get_or_create(
+                        profesor=profesor,
+                        materia=materia,
+                        año=año,
+                        seccion=seccion,
+                        defaults={"es_profesor_principal": es_principal},
                     )
+                    if created:
+                        asignaciones_creadas += 1
+                        tipo = "principal" if es_principal else "secundario"
+                        self.stdout.write(
+                            f"✓ {profesor} → {materia.nombre_materia} - {seccion.letra_seccion} ({tipo})"
+                        )
 
         self.stdout.write(f"✓ Total asignaciones creadas: {asignaciones_creadas}")
 
     def matricular_estudiantes(self, estudiantes, año):
-        """Matricular estudiantes en el año"""
-        self.stdout.write(f"Matriculando estudiantes en {año.nombre_año}...")
+        """Matricular estudiantes en secciones del año académico"""
+        self.stdout.write(
+            f"Matriculando estudiantes en secciones de {año.nombre_año}..."
+        )
+
+        secciones = Seccion.objects.filter(año=año)
+        if not secciones.exists():
+            self.stdout.write(
+                self.style.ERROR(
+                    "No hay secciones creadas para este año. Ejecuta --secciones primero."
+                )
+            )
+            return
 
         matriculas_creadas = 0
 
-        for estudiante in estudiantes:
-            _, created = Matricula.objects.get_or_create(
-                estudiante=estudiante,
-                año=año,
-                defaults={
-                    "fecha_matricula": self.faker.date_between(
-                        start_date="-1y", end_date="today"
-                    ),
-                },
-            )
-            if created:
-                matriculas_creadas += 1
+        # Distribuir estudiantes entre secciones
+        estudiantes_por_seccion = len(estudiantes) // len(secciones)
+
+        for i, seccion in enumerate(secciones):
+            inicio = i * estudiantes_por_seccion
+            fin = inicio + estudiantes_por_seccion
+
+            # Para la última sección, tomar todos los estudiantes restantes
+            if i == len(secciones) - 1:
+                estudiantes_seccion = estudiantes[inicio:]
+            else:
+                estudiantes_seccion = estudiantes[inicio:fin]
+
+            for estudiante in estudiantes_seccion:
+                _, created = Matricula.objects.get_or_create(
+                    estudiante=estudiante,
+                    año=año,
+                    defaults={
+                        "seccion": seccion,
+                        "fecha_matricula": self.faker.date_between(
+                            start_date="-1y", end_date="today"
+                        ),
+                    },
+                )
+                if created:
+                    matriculas_creadas += 1
 
         self.stdout.write(f"✓ Total matriculas creadas: {matriculas_creadas}")
 
     def crear_notas(self, estudiantes, lapsos):
-        """Crear notas realistas usando Faker"""
-        self.stdout.write("Creando notas...")
+        """Crear notas por sección"""
+        self.stdout.write("Creando notas por sección...")
 
         materias = Materia.objects.all()
         notas_creadas = 0
 
         for estudiante in estudiantes:
+            # Obtener la matrícula del estudiante para saber su sección
+            try:
+                matricula = Matricula.objects.get(
+                    estudiante=estudiante,
+                    año=lapsos[0].año,  # Usar el año del primer lapso
+                    estado="activo",
+                )
+                seccion_estudiante = matricula.seccion
+            except Matricula.DoesNotExist:
+                continue
+
             for lapso in lapsos:
                 for materia in materias:
-                    # Solo crear notas para estudiantes activos en ese año
-                    try:
-                        Matricula.objects.get(
-                            estudiante=estudiante, año=lapso.año, estado="activo"
-                        )
-                    except Matricula.DoesNotExist:
-                        continue
-
                     # Verificar si ya existe calificación
                     if Nota.objects.filter(
                         estudiante=estudiante, materia=materia, lapso=lapso
                     ).exists():
                         continue
 
-                    # Generar calificación realista (normalmente entre 10-20, ocasionalmente <10)
+                    # Generar calificación realista
                     if random.random() < 0.05:  # 5% de probabilidad de nota baja
                         nota = round(random.uniform(5.0, 9.9), 1)
                     else:
@@ -410,6 +472,7 @@ class Command(BaseCommand):
                         estudiante=estudiante,
                         materia=materia,
                         lapso=lapso,
+                        seccion=seccion_estudiante,
                         valor_nota=nota,
                         fecha_nota=self.faker.date_between(
                             start_date=lapso.fecha_inicio, end_date=lapso.fecha_fin
@@ -423,3 +486,28 @@ class Command(BaseCommand):
                         self.stdout.write(f"✓ Creadas {notas_creadas} notas...")
 
         self.stdout.write(f"✓ Total notas creadas: {notas_creadas}")
+
+    def crear_secciones(self, año, cantidad_secciones):
+        """Crear secciones para el año académico"""
+        self.stdout.write(
+            f"Creando {cantidad_secciones} secciones para {año.nombre_año}..."
+        )
+
+        letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        secciones_creadas = 0
+
+        for i in range(cantidad_secciones):
+            letra = letras[i]
+            nombre_seccion = f"{año.nombre_año} - Sección {letra}"
+
+            seccion, created = Seccion.objects.get_or_create(
+                año=año,
+                letra_seccion=letra,
+                defaults={"nombre_seccion": nombre_seccion, "capacidad_maxima": 30},
+            )
+
+            if created:
+                secciones_creadas += 1
+                self.stdout.write(f"✓ Creada sección: {nombre_seccion}")
+
+        self.stdout.write(f"✓ Total secciones creadas: {secciones_creadas}")

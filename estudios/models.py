@@ -21,6 +21,31 @@ class Año(models.Model):
         return self.nombre_año
 
 
+class Seccion(models.Model):
+    """Representa las secciones A, B, C, etc. de cada año"""
+
+    año = models.ForeignKey(Año, on_delete=models.CASCADE)
+    letra_seccion = models.CharField(max_length=1)  # A, B, C, etc.
+    nombre_seccion = models.CharField(max_length=100)  # Ej: "Primero A"
+    capacidad_maxima = models.IntegerField(default=30)
+    tutor = models.ForeignKey(
+        "Profesor",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="secciones_tutor",
+    )
+    fecha_creacion = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        db_table = "secciones"
+        unique_together = ["año", "letra_seccion"]
+        verbose_name_plural = "Secciones"
+
+    def __str__(self):
+        return f"{self.año.nombre_año} - Sección {self.letra_seccion}"
+
+
 class Materia(models.Model):
     nombre_materia = models.CharField(
         max_length=200, unique=True, verbose_name="Nombre"
@@ -120,22 +145,32 @@ class ProfesorMateria(models.Model):
     profesor = models.ForeignKey(Profesor, on_delete=models.CASCADE)
     materia = models.ForeignKey(Materia, on_delete=models.CASCADE)
     año = models.ForeignKey(Año, on_delete=models.CASCADE)
+    seccion = models.ForeignKey(
+        Seccion,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        help_text="Si no se especifica, se indicará que el profesor imparte la materia a todas las secciones del año",
+    )
     es_profesor_principal = models.BooleanField(default=False)
 
     class Meta:
         db_table = "profesores_materias"
-        unique_together = ["profesor", "materia", "año"]
-        verbose_name = "profesor y materia"
-        verbose_name_plural = "Profesores y materias"
+        unique_together = ["profesor", "materia", "año", "seccion"]
+        verbose_name_plural = "Profesores materias"
 
     def __str__(self):
         tipo = "Principal" if self.es_profesor_principal else "Secundario"
-        return f"{self.profesor} - {self.materia} ({tipo})"
+        seccion_info = (
+            f" - {self.seccion}" if self.seccion else " - Todas las secciones"
+        )
+        return f"{self.profesor} - {self.materia}{seccion_info} ({tipo})"
 
 
 class Matricula(models.Model):
     estudiante = models.ForeignKey(Estudiante, on_delete=models.CASCADE)
     año = models.ForeignKey(Año, on_delete=models.CASCADE)
+    seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE)
     fecha_matricula = models.DateField(default=timezone.now)
 
     class Meta:
@@ -143,13 +178,14 @@ class Matricula(models.Model):
         unique_together = ["estudiante", "año"]
 
     def __str__(self):
-        return f"{self.estudiante} - {self.año}"
+        return f"{self.estudiante} - {self.año} - {self.seccion.letra_seccion}"
 
 
 class Nota(models.Model):
     estudiante = models.ForeignKey(Estudiante, on_delete=models.CASCADE)
     materia = models.ForeignKey(Materia, on_delete=models.CASCADE)
     lapso = models.ForeignKey(Lapso, on_delete=models.CASCADE)
+    seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE)
     valor_nota = models.FloatField(
         validators=[MinValueValidator(0), MaxValueValidator(20)]
     )

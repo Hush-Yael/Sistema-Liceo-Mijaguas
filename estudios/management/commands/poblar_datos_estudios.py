@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from usuarios.models import User
 from estudios.models import (
     Nota,
+    Seccion,
     Año,
     Materia,
     Estudiante,
@@ -55,6 +56,26 @@ class Command(BaseCommand):
                 self.stdout.write(f"✓ Año creado: {nombre}")
 
         materias_creadas = 0
+
+        self.stdout.write("Creando secciones por defecto...")
+
+        años = Año.objects.all()
+        letras_secciones = ["A", "B", "C", "D", "E", "F", "G", "H", "U"]
+
+        secciones_creadas = 0
+        for año in años:
+            for letra in letras_secciones:
+                nombre_seccion = f"{año.nombre_año_corto} {letra}"
+                _, created = Seccion.objects.get_or_create(
+                    año=año,
+                    letra_seccion=letra,
+                    defaults={"nombre_seccion": nombre_seccion, "capacidad_maxima": 30},
+                )
+                if created:
+                    secciones_creadas += 1
+                    self.stdout.write(f"✓ Creada sección: {nombre_seccion}")
+
+        self.stdout.write(f"✓ Total secciones creadas: {secciones_creadas}")
 
         for materia in MATERIAS:
             _, created = Materia.objects.get_or_create(nombre_materia=materia)

@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import (
+    Seccion,
     Año,
     Materia,
     Profesor,
@@ -17,6 +18,20 @@ class AñoAdmin(admin.ModelAdmin):
     list_display = ["numero_año", "nombre_año", "fecha_creacion"]
     list_filter = ["numero_año"]
     search_fields = ["nombre_año", "numero_año"]
+
+
+@admin.register(Seccion)
+class SeccionAdmin(admin.ModelAdmin):
+    list_display = [
+        "nombre_seccion",
+        "año",
+        "letra_seccion",
+        "tutor",
+        "capacidad_maxima",
+    ]
+    list_filter = ["año", "letra_seccion"]
+    search_fields = ["nombre_seccion", "letra_seccion"]
+    autocomplete_fields = ["tutor"]
 
 
 @admin.register(Materia)
@@ -66,18 +81,18 @@ class AñoMateriaAdmin(admin.ModelAdmin):
 
 @admin.register(ProfesorMateria)
 class ProfesorMateriaAdmin(admin.ModelAdmin):
-    list_display = ["profesor", "materia", "año", "es_profesor_principal"]
-    list_filter = ["año", "es_profesor_principal"]
+    list_display = ["profesor", "materia", "año", "seccion", "es_profesor_principal"]
+    list_filter = ["año", "es_profesor_principal", "seccion"]
     search_fields = ["profesor__nombre", "materia__nombre_materia"]
-    autocomplete_fields = ["profesor", "materia", "año"]
+    autocomplete_fields = ["profesor", "materia", "año", "seccion"]
 
 
 @admin.register(Matricula)
 class MatriculaAdmin(admin.ModelAdmin):
-    list_display = ["estudiante", "año", "fecha_matricula"]
-    list_filter = ["año"]
+    list_display = ["estudiante", "año", "seccion", "fecha_matricula"]
+    list_filter = ["año", "seccion"]
     search_fields = ["estudiante__nombre", "estudiante__apellido"]
-    autocomplete_fields = ["estudiante"]
+    autocomplete_fields = ["estudiante", "seccion"]
 
 
 @admin.register(Nota)
@@ -86,9 +101,10 @@ class NotaAdmin(admin.ModelAdmin):
         "estudiante",
         "materia",
         "lapso",
+        "seccion",
         "valor_nota",
         "fecha_nota",
     ]
-    list_filter = ["lapso", "materia"]
+    list_filter = ["lapso", "materia", "seccion"]
     search_fields = ["estudiante__nombre", "materia__nombre_materia"]
-    autocomplete_fields = ["estudiante", "materia", "lapso"]
+    autocomplete_fields = ["estudiante", "materia", "lapso", "seccion"]
