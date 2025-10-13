@@ -99,9 +99,15 @@
             </svg>
           {% endif %}
 
-          <span class="nombres">
-            {{ profesor.apellidos }} {{ profesor.nombres }}
-          </span>
+          <a
+            {% if perms.estudios.change_profesor %}
+              href="/admin/estudios/profesor/{{ profesor.id }}/change/"
+            {% endif %}
+          >
+            <span class="nombres">
+              {{ profesor.apellidos }} {{ profesor.nombres }}
+            </span>
+          </a>
         </div>
 
         <div class="info">
