@@ -34,6 +34,7 @@ class ProfesorAdmin(admin.ModelAdmin):
     ]
     list_filter = ["esta_activo"]
     search_fields = ["nombres", "apellidos"]
+    autocomplete_fields = ["usuario"]
 
 
 @admin.register(Estudiante)
@@ -60,6 +61,7 @@ class AñoMateriaAdmin(admin.ModelAdmin):
     list_display = ["año", "materia", "horas_semanales"]
     list_filter = ["año", "materia"]
     search_fields = ["materia__nombre_materia"]
+    autocomplete_fields = ["materia"]
 
 
 @admin.register(ProfesorMateria)
@@ -67,6 +69,7 @@ class ProfesorMateriaAdmin(admin.ModelAdmin):
     list_display = ["profesor", "materia", "año", "es_profesor_principal"]
     list_filter = ["año", "es_profesor_principal"]
     search_fields = ["profesor__nombre", "materia__nombre_materia"]
+    autocomplete_fields = ["profesor", "materia", "año"]
 
 
 @admin.register(Matricula)
@@ -74,6 +77,7 @@ class MatriculaAdmin(admin.ModelAdmin):
     list_display = ["estudiante", "año", "fecha_matricula"]
     list_filter = ["año"]
     search_fields = ["estudiante__nombre", "estudiante__apellido"]
+    autocomplete_fields = ["estudiante"]
 
 
 @admin.register(Nota)
@@ -87,3 +91,4 @@ class NotaAdmin(admin.ModelAdmin):
     ]
     list_filter = ["lapso", "materia"]
     search_fields = ["estudiante__nombre", "materia__nombre_materia"]
+    autocomplete_fields = ["estudiante", "materia", "lapso"]
