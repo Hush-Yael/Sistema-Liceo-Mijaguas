@@ -58,7 +58,7 @@ class LapsoAcademicoAdmin(admin.ModelAdmin):
 @admin.register(AñoMateria)
 class AñoMateriaAdmin(admin.ModelAdmin):
     list_display = ["año", "materia", "horas_semanales"]
-    list_filter = ["año"]
+    list_filter = ["año", "materia"]
     search_fields = ["materia__nombre_materia"]
 
 
