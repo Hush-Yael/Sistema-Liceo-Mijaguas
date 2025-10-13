@@ -16,7 +16,7 @@ from .models import (
 class AñoAcademicoAdmin(admin.ModelAdmin):
     list_display = ["numero_año", "nombre_año", "fecha_creacion"]
     list_filter = ["numero_año"]
-    search_fields = ["nombre_año"]
+    search_fields = ["nombre_año", "numero_año"]
 
 
 @admin.register(Materia)
