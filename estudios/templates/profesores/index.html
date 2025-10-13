@@ -102,7 +102,14 @@
             {{ profesor.telefono|default:'no asignado' }}
           </p>
 
-          <p><span>Correo:</span> {{ profesor.correo_electronico }}</p>
+          <p>
+            <span>Correo:</span>
+            <a
+              class="link-secundario"
+              href="mailto:{{ profesor.usuario.email }}"
+              >{{ profesor.usuario.email|default:'no asignado' }}</a
+            >
+          </p>
 
           <div
             role="status"

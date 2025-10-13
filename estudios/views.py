@@ -105,7 +105,7 @@ def profesores(request: HttpRequest):
     if profesores is None:
         profesores = Profesor.objects
 
-    profesores = profesores.order_by(orden_col).all()
+    profesores = profesores.order_by(orden_col).select_related("usuario").all()
 
     form.initial = {
         "columna_buscada": columna_buscada,
