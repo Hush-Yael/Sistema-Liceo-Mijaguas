@@ -9,7 +9,11 @@ _campos_para_buscar = filter(
     Profesor._meta.get_fields(),
 )
 
-opciones_busqueda = [(f.name, f.verbose_name) for f in _campos_para_buscar]  # type: ignore
+opciones_busqueda = [
+    (f.name, f.verbose_name)  # type: ignore
+    for f in _campos_para_buscar
+    if hasattr(f, "verbose_name")  # type: ignore
+]
 
 
 class FormularioProfesorBusqueda(forms.Form):
