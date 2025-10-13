@@ -92,7 +92,7 @@ def profesores(request: HttpRequest):
 
     response = render(
         request,
-        "profesores/index.html",
+        "profesores.html",
         {
             "form": form,
             "profesores": profesores,
