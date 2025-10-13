@@ -1,4 +1,5 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin
 from .models import (
     Seccion,
     Año,
@@ -14,14 +15,14 @@ from .models import (
 
 
 @admin.register(Año)
-class AñoAdmin(admin.ModelAdmin):
+class AñoAdmin(ModelAdmin):
     list_display = ["numero_año", "nombre_año", "fecha_creacion"]
     list_filter = ["numero_año"]
     search_fields = ["nombre_año", "numero_año"]
 
 
 @admin.register(Seccion)
-class SeccionAdmin(admin.ModelAdmin):
+class SeccionAdmin(ModelAdmin):
     list_display = [
         "nombre_seccion",
         "año",
@@ -35,13 +36,13 @@ class SeccionAdmin(admin.ModelAdmin):
 
 
 @admin.register(Materia)
-class MateriaAdmin(admin.ModelAdmin):
+class MateriaAdmin(ModelAdmin):
     list_display = ["nombre_materia", "fecha_creacion"]
     search_fields = ["nombre_materia"]
 
 
 @admin.register(Profesor)
-class ProfesorAdmin(admin.ModelAdmin):
+class ProfesorAdmin(ModelAdmin):
     list_display = [
         "nombres",
         "apellidos",
@@ -53,7 +54,7 @@ class ProfesorAdmin(admin.ModelAdmin):
 
 
 @admin.register(Estudiante)
-class EstudianteAdmin(admin.ModelAdmin):
+class EstudianteAdmin(ModelAdmin):
     list_display = [
         "nombres",
         "apellidos",
@@ -65,14 +66,14 @@ class EstudianteAdmin(admin.ModelAdmin):
 
 
 @admin.register(Lapso)
-class LapsoAdmin(admin.ModelAdmin):
+class LapsoAdmin(ModelAdmin):
     list_display = ["año", "numero_lapso", "nombre_lapso", "fecha_inicio", "fecha_fin"]
     list_filter = ["año"]
     search_fields = ["nombre_lapso"]
 
 
 @admin.register(AñoMateria)
-class AñoMateriaAdmin(admin.ModelAdmin):
+class AñoMateriaAdmin(ModelAdmin):
     list_display = ["año", "materia", "horas_semanales"]
     list_filter = ["año", "materia"]
     search_fields = ["materia__nombre_materia"]
@@ -80,7 +81,7 @@ class AñoMateriaAdmin(admin.ModelAdmin):
 
 
 @admin.register(ProfesorMateria)
-class ProfesorMateriaAdmin(admin.ModelAdmin):
+class ProfesorMateriaAdmin(ModelAdmin):
     list_display = ["profesor", "materia", "año", "seccion", "es_profesor_principal"]
     list_filter = ["año", "es_profesor_principal", "seccion"]
     search_fields = ["profesor__nombre", "materia__nombre_materia"]
@@ -88,7 +89,7 @@ class ProfesorMateriaAdmin(admin.ModelAdmin):
 
 
 @admin.register(Matricula)
-class MatriculaAdmin(admin.ModelAdmin):
+class MatriculaAdmin(ModelAdmin):
     list_display = ["estudiante", "año", "seccion", "fecha_matricula"]
     list_filter = ["año", "seccion"]
     search_fields = ["estudiante__nombre", "estudiante__apellido"]
@@ -96,7 +97,7 @@ class MatriculaAdmin(admin.ModelAdmin):
 
 
 @admin.register(Nota)
-class NotaAdmin(admin.ModelAdmin):
+class NotaAdmin(ModelAdmin):
     list_display = [
         "estudiante",
         "materia",
