@@ -8,7 +8,7 @@ from .models import (
     AñoMateria,
     ProfesorMateria,
     Matricula,
-    Calificacion,
+    Nota,
 )
 
 
@@ -76,14 +76,14 @@ class MatriculaAdmin(admin.ModelAdmin):
     search_fields = ["estudiante__nombre", "estudiante__apellido"]
 
 
-@admin.register(Calificacion)
-class CalificacionAdmin(admin.ModelAdmin):
+@admin.register(Nota)
+class NotaAdmin(admin.ModelAdmin):
     list_display = [
         "estudiante",
         "materia",
         "lapso",
-        "valor_calificacion",
-        "fecha_calificacion",
+        "valor_nota",
+        "fecha_nota",
     ]
     list_filter = ["lapso", "materia"]
     search_fields = ["estudiante__nombre", "materia__nombre_materia"]

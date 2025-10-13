@@ -13,8 +13,8 @@ python manage.py poblar_datos_ejemplo --asignaciones
 # Solo matrículas
 python manage.py poblar_datos_ejemplo --matriculas
 
-# Solo calificaciones
-python manage.py poblar_datos_ejemplo --calificaciones
+# Solo notas
+python manage.py poblar_datos_ejemplo --notas
 
 # Combinaciones
 python manage.py poblar_datos_ejemplo --profesores --estudiantes --cantidad-profesores=12 --cantidad-estudiantes=50

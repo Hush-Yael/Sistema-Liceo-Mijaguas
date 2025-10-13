@@ -9,12 +9,11 @@ from .models import (
     AñoMateria,
     ProfesorMateria,
     Matricula,
-    Calificacion,
+    Nota,
 )
 from .forms import FormularioProfesorBusqueda
 
 
-@login_required
 def inicio(request: HttpRequest):
     return render(request, "inicio.html")
 
@@ -160,33 +159,33 @@ def materias_por_año_con_profesores(request: HttpRequest):
 
 
 @login_required
-def calificaciones_por_estudiante_lapso(request, estudiante_id):
-    """Consulta de calificaciones por estudiante y lapso"""
-    calificaciones = (
-        Calificacion.objects.filter(estudiante_id=estudiante_id)
+def notas_por_estudiante_lapso(request, estudiante_id):
+    """Consulta de notas por estudiante y lapso"""
+    notas = (
+        Nota.objects.filter(estudiante_id=estudiante_id)
         .select_related("estudiante", "materia", "lapso")
         .order_by("lapso__numero_lapso", "materia__nombre_materia")
     )
 
     return render(
         request,
-        "consultas/calificaciones_estudiante.html",
-        {"calificaciones": calificaciones},
+        "consultas/notas_estudiante.html",
+        {"notas": notas},
     )
 
 
 @login_required
-def promedio_calificaciones_estudiante_materia(request: HttpRequest):
-    """Promedio de calificaciones por estudiante y materia"""
+def promedio_notas_estudiante_materia(request: HttpRequest):
+    """Promedio de notas por estudiante y materia"""
     promedios = (
-        Calificacion.objects.values(
+        Nota.objects.values(
             "estudiante__id",
             "estudiante__nombre",
             "estudiante__apellido",
             "materia__id",
             "materia__nombre_materia",
         )
-        .annotate(promedio_calificacion=Avg("valor_calificacion"))
+        .annotate(promedio_nota=Avg("valor_nota"))
         .order_by("estudiante__apellido", "materia__nombre_materia")
     )
 
@@ -196,16 +195,16 @@ def promedio_calificaciones_estudiante_materia(request: HttpRequest):
 
 
 @login_required
-def calificaciones_promedio_por_año_materia(request: HttpRequest):
-    """Calificaciones promedio por año y materia"""
+def notas_promedio_por_año_materia(request: HttpRequest):
+    """Notas promedio por año y materia"""
     promedios = (
-        Calificacion.objects.values(
+        Nota.objects.values(
             "lapso__año__id",
             "lapso__año__nombre_año",
             "materia__id",
             "materia__nombre_materia",
         )
-        .annotate(promedio_general=Avg("valor_calificacion"))
+        .annotate(promedio_general=Avg("valor_nota"))
         .order_by("lapso__año__numero_año", "materia__nombre_materia")
     )
 

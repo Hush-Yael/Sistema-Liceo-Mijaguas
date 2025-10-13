@@ -147,20 +147,20 @@ class Matricula(models.Model):
         return f"{self.estudiante} - {self.año}"
 
 
-class Calificacion(models.Model):
+class Nota(models.Model):
     estudiante = models.ForeignKey(Estudiante, on_delete=models.CASCADE)
     materia = models.ForeignKey(Materia, on_delete=models.CASCADE)
     lapso = models.ForeignKey(LapsoAcademico, on_delete=models.CASCADE)
-    valor_calificacion = models.FloatField(
+    valor_nota = models.FloatField(
         validators=[MinValueValidator(0), MaxValueValidator(20)]
     )
-    fecha_calificacion = models.DateField(default=timezone.now)
+    fecha_nota = models.DateField(default=timezone.now)
     comentarios = models.TextField(blank=True, null=True)
 
     class Meta:
-        db_table = "calificaciones"
+        db_table = "notas"
         unique_together = ["estudiante", "materia", "lapso"]
-        verbose_name_plural = "Calificaciones"
+        verbose_name_plural = "Notas"
 
     def __str__(self):
-        return f"{self.estudiante} - {self.materia} - {self.valor_calificacion}"
+        return f"{self.estudiante} - {self.materia} - {self.valor_nota}"

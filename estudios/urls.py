@@ -17,18 +17,18 @@ urlpatterns = [
         name="materias_profesores",
     ),
     path(
-        "calificaciones-estudiante/<int:estudiante_id>/",
-        views.calificaciones_por_estudiante_lapso,
-        name="calificaciones_estudiante",
+        "notas-estudiante/<int:estudiante_id>/",
+        views.notas_por_estudiante_lapso,
+        name="notas_estudiante",
     ),
     path(
         "promedios-estudiantes/",
-        views.promedio_calificaciones_estudiante_materia,
+        views.promedio_notas_estudiante_materia,
         name="promedios_estudiantes",
     ),
     path(
         "promedios-año-materia/",
-        views.calificaciones_promedio_por_año_materia,
+        views.notas_promedio_por_año_materia,
         name="promedios_año_materia",
     ),
     path(

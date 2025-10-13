@@ -8,7 +8,7 @@ from estudios.models import (
     AñoMateria,
     ProfesorMateria,
     Matricula,
-    Calificacion,
+    Nota,
 )
 from datetime import date
 from faker import Faker
@@ -64,9 +64,9 @@ class Command(BaseCommand):
             help="Crear solo matrículas",
         )
         parser.add_argument(
-            "--calificaciones",
+            "--notas",
             action="store_true",
-            help="Crear solo calificaciones",
+            help="Crear solo notas",
         )
         parser.add_argument(
             "--todo",
@@ -97,7 +97,7 @@ class Command(BaseCommand):
             "lapsos": options["lapsos"],
             "asignaciones": options["asignaciones"],
             "matriculas": options["matriculas"],
-            "calificaciones": options["calificaciones"],
+            "notas": options["notas"],
         }
 
         # Si no se especifica ninguna acción particular, hacer todo
@@ -137,10 +137,10 @@ class Command(BaseCommand):
             estudiantes = Estudiante.objects.all()
             self.matricular_estudiantes(estudiantes, año_academico)
 
-        if hacer_todo or acciones["calificaciones"]:
+        if hacer_todo or acciones["notas"]:
             estudiantes = Estudiante.objects.all()
             lapsos = LapsoAcademico.objects.filter(año=año_academico)
-            self.crear_calificaciones(estudiantes, lapsos)
+            self.crear_notas(estudiantes, lapsos)
 
         self.stdout.write(self.style.SUCCESS("¡Operación completada exitosamente!"))
 
@@ -149,7 +149,7 @@ class Command(BaseCommand):
         self.stdout.write("Eliminando todos los datos de ejemplo existentes...")
 
         modelos_a_limpiar = [
-            Calificacion,
+            Nota,
             Matricula,
             ProfesorMateria,
             AñoMateria,
@@ -169,11 +169,11 @@ class Command(BaseCommand):
         """Elimina datos específicos por tipo"""
         modelos = {
             "profesores": [ProfesorMateria, Profesor],
-            "estudiantes": [Calificacion, Matricula, Estudiante],
-            "lapsos": [Calificacion, LapsoAcademico],
+            "estudiantes": [Nota, Matricula, Estudiante],
+            "lapsos": [Nota, LapsoAcademico],
             "asignaciones": [ProfesorMateria, AñoMateria],
-            "matriculas": [Calificacion, Matricula],
-            "calificaciones": [Calificacion],
+            "matriculas": [Nota, Matricula],
+            "notas": [Nota],
         }
 
         if tipo in modelos:
@@ -376,17 +376,17 @@ class Command(BaseCommand):
 
         self.stdout.write(f"✓ Total matriculas creadas: {matriculas_creadas}")
 
-    def crear_calificaciones(self, estudiantes, lapsos):
-        """Crear calificaciones realistas usando Faker"""
-        self.stdout.write("Creando calificaciones...")
+    def crear_notas(self, estudiantes, lapsos):
+        """Crear notas realistas usando Faker"""
+        self.stdout.write("Creando notas...")
 
         materias = Materia.objects.all()
-        calificaciones_creadas = 0
+        notas_creadas = 0
 
         for estudiante in estudiantes:
             for lapso in lapsos:
                 for materia in materias:
-                    # Solo crear calificaciones para estudiantes activos en ese año
+                    # Solo crear notas para estudiantes activos en ese año
                     try:
                         Matricula.objects.get(
                             estudiante=estudiante, año=lapso.año, estado="activo"
@@ -395,7 +395,7 @@ class Command(BaseCommand):
                         continue
 
                     # Verificar si ya existe calificación
-                    if Calificacion.objects.filter(
+                    if Nota.objects.filter(
                         estudiante=estudiante, materia=materia, lapso=lapso
                     ).exists():
                         continue
@@ -406,27 +406,25 @@ class Command(BaseCommand):
                     else:
                         nota = round(random.uniform(10.0, 19.9), 1)
 
-                    # Algunas calificaciones pueden tener comentarios
+                    # Algunas notas pueden tener comentarios
                     comentarios = None
                     if random.random() < 0.3:  # 30% de probabilidad de comentario
                         comentarios = self.faker.sentence()
 
-                    Calificacion.objects.create(
+                    Nota.objects.create(
                         estudiante=estudiante,
                         materia=materia,
                         lapso=lapso,
-                        valor_calificacion=nota,
-                        fecha_calificacion=self.faker.date_between(
+                        valor_nota=nota,
+                        fecha_nota=self.faker.date_between(
                             start_date=lapso.fecha_inicio, end_date=lapso.fecha_fin
                         ),
                         comentarios=comentarios,
                     )
 
-                    calificaciones_creadas += 1
+                    notas_creadas += 1
 
-                    if calificaciones_creadas % 100 == 0:  # Mostrar progreso
-                        self.stdout.write(
-                            f"✓ Creadas {calificaciones_creadas} calificaciones..."
-                        )
+                    if notas_creadas % 100 == 0:  # Mostrar progreso
+                        self.stdout.write(f"✓ Creadas {notas_creadas} notas...")
 
-        self.stdout.write(f"✓ Total calificaciones creadas: {calificaciones_creadas}")
+        self.stdout.write(f"✓ Total notas creadas: {notas_creadas}")

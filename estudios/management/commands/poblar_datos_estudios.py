@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from usuarios.models import User
 from estudios.models import (
-    Calificacion,
+    Nota,
     AñoAcademico,
     Materia,
     Estudiante,
@@ -70,14 +70,14 @@ class Command(BaseCommand):
         grupo_profesor, created = Group.objects.get_or_create(name="Profesor")
 
         if created or grupo_profesor.permissions.count() == 0:
-            calificacion_content_type = ContentType.objects.get_for_model(Calificacion)
+            nota_content_type = ContentType.objects.get_for_model(Nota)
 
-            permisos_calificaciones = Permission.objects.filter(
-                content_type=calificacion_content_type,
+            permisos_notas = Permission.objects.filter(
+                content_type=nota_content_type,
             ).all()
 
-            # todos los permisos de calificaciones
-            for permiso in permisos_calificaciones:
+            # todos los permisos de notas
+            for permiso in permisos_notas:
                 grupo_profesor.permissions.add(permiso)
 
             tablas_solo_lectura = (
