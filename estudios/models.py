@@ -3,7 +3,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
 
 
-class AñoAcademico(models.Model):
+class Año(models.Model):
     numero_año = models.IntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(5)], verbose_name="Número"
     )
@@ -15,7 +15,7 @@ class AñoAcademico(models.Model):
 
     class Meta:
         db_table = "años"
-        verbose_name_plural = "Años académicos"
+        verbose_name_plural = "Años"
 
     def __str__(self):
         return self.nombre_año
@@ -75,8 +75,8 @@ class Estudiante(models.Model):
         return f"{self.nombres} {self.apellidos}"
 
 
-class LapsoAcademico(models.Model):
-    año = models.ForeignKey(AñoAcademico, on_delete=models.CASCADE, verbose_name="Año")
+class Lapso(models.Model):
+    año = models.ForeignKey(Año, on_delete=models.CASCADE, verbose_name="Año")
     numero_lapso = models.IntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(3)],
         verbose_name="Número",
@@ -88,15 +88,15 @@ class LapsoAcademico(models.Model):
     class Meta:
         db_table = "lapsos"
         unique_together = ["año", "numero_lapso"]
-        verbose_name = "lapso académico"
-        verbose_name_plural = "Lapsos académicos"
+        verbose_name = "lapso"
+        verbose_name_plural = "Lapsos"
 
     def __str__(self):
         return f"{self.año.nombre_año} - {self.nombre_lapso}"
 
 
 class AñoMateria(models.Model):
-    año = models.ForeignKey(AñoAcademico, on_delete=models.CASCADE)
+    año = models.ForeignKey(Año, on_delete=models.CASCADE)
     materia = models.ForeignKey(Materia, on_delete=models.CASCADE)
     horas_semanales = models.IntegerField(default=4)
 
@@ -113,7 +113,7 @@ class AñoMateria(models.Model):
 class ProfesorMateria(models.Model):
     profesor = models.ForeignKey(Profesor, on_delete=models.CASCADE)
     materia = models.ForeignKey(Materia, on_delete=models.CASCADE)
-    año = models.ForeignKey(AñoAcademico, on_delete=models.CASCADE)
+    año = models.ForeignKey(Año, on_delete=models.CASCADE)
     es_profesor_principal = models.BooleanField(default=False)
 
     class Meta:
@@ -135,7 +135,7 @@ class Matricula(models.Model):
     ]
 
     estudiante = models.ForeignKey(Estudiante, on_delete=models.CASCADE)
-    año = models.ForeignKey(AñoAcademico, on_delete=models.CASCADE)
+    año = models.ForeignKey(Año, on_delete=models.CASCADE)
     fecha_matricula = models.DateField(default=timezone.now)
     estado = models.CharField(max_length=10, choices=ESTADO_CHOICES, default="activo")
 
@@ -150,7 +150,7 @@ class Matricula(models.Model):
 class Nota(models.Model):
     estudiante = models.ForeignKey(Estudiante, on_delete=models.CASCADE)
     materia = models.ForeignKey(Materia, on_delete=models.CASCADE)
-    lapso = models.ForeignKey(LapsoAcademico, on_delete=models.CASCADE)
+    lapso = models.ForeignKey(Lapso, on_delete=models.CASCADE)
     valor_nota = models.FloatField(
         validators=[MinValueValidator(0), MaxValueValidator(20)]
     )

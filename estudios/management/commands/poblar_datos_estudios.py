@@ -2,11 +2,11 @@ from django.core.management.base import BaseCommand
 from usuarios.models import User
 from estudios.models import (
     Nota,
-    AñoAcademico,
+    Año,
     Materia,
     Estudiante,
     Profesor,
-    LapsoAcademico,
+    Lapso,
     AñoMateria,
     ProfesorMateria,
 )
@@ -39,7 +39,7 @@ MATERIAS = [
 
 
 class Command(BaseCommand):
-    help = "Llena la base de datos con datos estáticos (años académicos, materias, grupos, y un usuario admin)"
+    help = "Llena la base de datos con datos estáticos (Años, materias, grupos, y un usuario admin)"
 
     def handle(self, *args, **options):
         self.stdout.write("Creando datos estáticos...")
@@ -47,7 +47,7 @@ class Command(BaseCommand):
         años_creados = 0
 
         for num, nombre, nombre_corto in AÑOS:
-            _, created = AñoAcademico.objects.get_or_create(
+            _, created = Año.objects.get_or_create(
                 numero_año=num, nombre_año=nombre, nombre_año_corto=nombre_corto
             )
             if created:
@@ -81,11 +81,11 @@ class Command(BaseCommand):
                 grupo_profesor.permissions.add(permiso)
 
             tablas_solo_lectura = (
-                AñoAcademico,
+                Año,
                 Materia,
                 Estudiante,
                 Profesor,
-                LapsoAcademico,
+                Lapso,
                 AñoMateria,
                 ProfesorMateria,
             )

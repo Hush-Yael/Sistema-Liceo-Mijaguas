@@ -1,10 +1,10 @@
 from django.core.management.base import BaseCommand
 from estudios.models import (
-    AñoAcademico,
+    Año,
     Materia,
     Profesor,
     Estudiante,
-    LapsoAcademico,
+    Lapso,
     AñoMateria,
     ProfesorMateria,
     Matricula,
@@ -31,7 +31,7 @@ class Command(BaseCommand):
             "--año",
             type=int,
             default=1,
-            help="Número del año académico para el cual crear los datos (1-5)",
+            help="Número del año para el cual crear los datos (1-5)",
         )
         parser.add_argument(
             "--limpiar-todo",
@@ -51,7 +51,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--lapsos",
             action="store_true",
-            help="Crear solo lapsos académicos",
+            help="Crear solo lapsos",
         )
         parser.add_argument(
             "--asignaciones",
@@ -87,7 +87,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        año_numero = options["año"]
+        añonumero = options["año"]
         limpiar_todo = options["limpiar_todo"]
 
         # Determinar qué acciones ejecutar
@@ -106,13 +106,13 @@ class Command(BaseCommand):
         if limpiar_todo:
             self.limpiar_todos_datos_ejemplo()
 
-        # Obtener el año académico
+        # Obtener el año
         try:
-            año_academico = AñoAcademico.objects.get(numero_año=año_numero)
-        except AñoAcademico.DoesNotExist:
+            año = Año.objects.get(numero_año=añonumero)
+        except Año.DoesNotExist:
             self.stdout.write(
                 self.style.ERROR(
-                    f"No existe el año académico número {año_numero}. "
+                    f"No existe el año número {añonumero}. "
                     f"Ejecuta primero poblar_datos_estudios"
                 )
             )
@@ -126,20 +126,20 @@ class Command(BaseCommand):
             self.crear_estudiantes(options["cantidad_estudiantes"])
 
         if hacer_todo or acciones["lapsos"]:
-            self.crear_lapsos(año_academico)
+            self.crear_lapsos(año)
 
         if hacer_todo or acciones["asignaciones"]:
-            self.asignar_materias_a_año(año_academico)
+            self.asignar_materias_a_año(año)
             profesores = Profesor.objects.all()
-            self.asignar_profesores_a_materias(profesores, año_academico)
+            self.asignar_profesores_a_materias(profesores, año)
 
         if hacer_todo or acciones["matriculas"]:
             estudiantes = Estudiante.objects.all()
-            self.matricular_estudiantes(estudiantes, año_academico)
+            self.matricular_estudiantes(estudiantes, año)
 
         if hacer_todo or acciones["notas"]:
             estudiantes = Estudiante.objects.all()
-            lapsos = LapsoAcademico.objects.filter(año=año_academico)
+            lapsos = Lapso.objects.filter(año=año)
             self.crear_notas(estudiantes, lapsos)
 
         self.stdout.write(self.style.SUCCESS("¡Operación completada exitosamente!"))
@@ -153,7 +153,7 @@ class Command(BaseCommand):
             Matricula,
             ProfesorMateria,
             AñoMateria,
-            LapsoAcademico,
+            Lapso,
             Estudiante,
             Profesor,
         ]
@@ -170,7 +170,7 @@ class Command(BaseCommand):
         modelos = {
             "profesores": [ProfesorMateria, Profesor],
             "estudiantes": [Nota, Matricula, Estudiante],
-            "lapsos": [Nota, LapsoAcademico],
+            "lapsos": [Nota, Lapso],
             "asignaciones": [ProfesorMateria, AñoMateria],
             "matriculas": [Nota, Matricula],
             "notas": [Nota],
@@ -271,14 +271,12 @@ class Command(BaseCommand):
 
         self.stdout.write(f"✓ Total estudiantes creados: {estudiantes_creados}")
 
-    def crear_lapsos(self, año_academico):
-        """Crear lapsos académicos para el año especificado"""
-        self.stdout.write(
-            f"Creando lapsos académicos para {año_academico.nombre_año}..."
-        )
+    def crear_lapsos(self, año):
+        """Crear lapsos para el año especificado"""
+        self.stdout.write(f"Creando lapsos para {año.nombre_año}...")
 
-        # Determinar el año base según el número del año académico
-        año_base = 2023 + año_academico.numero_año
+        # Determinar el año base según el número del año
+        año_base = 2023 + año.numero_año
 
         lapsos_data = [
             (1, "Primer Lapso", date(año_base, 9, 1), date(año_base, 11, 30)),
@@ -288,8 +286,8 @@ class Command(BaseCommand):
 
         lapsos_creados = 0
         for num, nombre, inicio, fin in lapsos_data:
-            _, created = LapsoAcademico.objects.get_or_create(
-                año=año_academico,
+            _, created = Lapso.objects.get_or_create(
+                año=año,
                 numero_lapso=num,
                 defaults={
                     "nombre_lapso": nombre,
@@ -303,23 +301,21 @@ class Command(BaseCommand):
 
         self.stdout.write(f"✓ Total lapsos creados: {lapsos_creados}")
 
-    def asignar_materias_a_año(self, año_academico):
-        """Asignar todas las materias al año académico"""
-        self.stdout.write(f"Asignando materias a {año_academico.nombre_año}...")
+    def asignar_materias_a_año(self, año):
+        """Asignar todas las materias al año"""
+        self.stdout.write(f"Asignando materias a {año.nombre_año}...")
 
         materias = Materia.objects.all()
         asignaciones_creadas = 0
 
         for materia in materias:
-            _, created = AñoMateria.objects.get_or_create(
-                año=año_academico, materia=materia
-            )
+            _, created = AñoMateria.objects.get_or_create(año=año, materia=materia)
             if created:
                 asignaciones_creadas += 1
 
         self.stdout.write(f"✓ Asignadas {asignaciones_creadas} materias al año")
 
-    def asignar_profesores_a_materias(self, profesores, año_academico):
+    def asignar_profesores_a_materias(self, profesores, año):
         """Asignar profesores a materias de manera aleatoria pero balanceada"""
         self.stdout.write("Asignando profesores a materias...")
 
@@ -338,7 +334,7 @@ class Command(BaseCommand):
                 _, created = ProfesorMateria.objects.get_or_create(
                     profesor=profesor,
                     materia=materia,
-                    año=año_academico,
+                    año=año,
                     defaults={"es_profesor_principal": es_principal},
                 )
                 if created:
@@ -350,9 +346,9 @@ class Command(BaseCommand):
 
         self.stdout.write(f"✓ Total asignaciones creadas: {asignaciones_creadas}")
 
-    def matricular_estudiantes(self, estudiantes, año_academico):
-        """Matricular estudiantes en el año académico"""
-        self.stdout.write(f"Matriculando estudiantes en {año_academico.nombre_año}...")
+    def matricular_estudiantes(self, estudiantes, año):
+        """Matricular estudiantes en el año"""
+        self.stdout.write(f"Matriculando estudiantes en {año.nombre_año}...")
 
         matriculas_creadas = 0
         estados = ["activo", "activo", "activo", "inactivo"]  # 75% activos
@@ -363,7 +359,7 @@ class Command(BaseCommand):
 
             _, created = Matricula.objects.get_or_create(
                 estudiante=estudiante,
-                año=año_academico,
+                año=año,
                 defaults={
                     "estado": estado,
                     "fecha_matricula": self.faker.date_between(

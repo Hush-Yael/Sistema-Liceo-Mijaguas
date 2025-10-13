@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg, Count, Q
 from .models import (
-    AñoAcademico,
+    Año,
     Materia,
     Profesor,
     AñoMateria,
@@ -21,9 +21,7 @@ def inicio(request: HttpRequest):
 @login_required
 def materias(request: HttpRequest):
     materias = Materia.objects.order_by("nombre_materia")
-    años = AñoAcademico.objects.values("numero_año", "nombre_año_corto").order_by(
-        "numero_año"
-    )
+    años = Año.objects.values("numero_año", "nombre_año_corto").order_by("numero_año")
 
     # se guarda cada materia por id, con una lista de los años en los que está asignada
     materias_años_asignaciones = {}

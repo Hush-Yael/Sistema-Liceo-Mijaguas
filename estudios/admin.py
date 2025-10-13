@@ -1,10 +1,10 @@
 from django.contrib import admin
 from .models import (
-    AñoAcademico,
+    Año,
     Materia,
     Profesor,
     Estudiante,
-    LapsoAcademico,
+    Lapso,
     AñoMateria,
     ProfesorMateria,
     Matricula,
@@ -12,8 +12,8 @@ from .models import (
 )
 
 
-@admin.register(AñoAcademico)
-class AñoAcademicoAdmin(admin.ModelAdmin):
+@admin.register(Año)
+class AñoAdmin(admin.ModelAdmin):
     list_display = ["numero_año", "nombre_año", "fecha_creacion"]
     list_filter = ["numero_año"]
     search_fields = ["nombre_año", "numero_año"]
@@ -48,8 +48,8 @@ class EstudianteAdmin(admin.ModelAdmin):
     search_fields = ["nombres", "apellidos"]
 
 
-@admin.register(LapsoAcademico)
-class LapsoAcademicoAdmin(admin.ModelAdmin):
+@admin.register(Lapso)
+class LapsoAdmin(admin.ModelAdmin):
     list_display = ["año", "numero_lapso", "nombre_lapso", "fecha_inicio", "fecha_fin"]
     list_filter = ["año"]
     search_fields = ["nombre_lapso"]
