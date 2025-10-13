@@ -60,13 +60,19 @@ class Profesor(models.Model):
 
 
 class Estudiante(models.Model):
+    ESTADOS = [
+        ("activo", "Activo"),
+        ("inactivo", "Inactivo"),
+        ("graduado", "Graduado"),
+    ]
+
     nombres = models.CharField(max_length=100, verbose_name="Nombres")
     apellidos = models.CharField(max_length=100, verbose_name="Apellidos")
     fecha_nacimiento = models.DateField(verbose_name="Fecha de nacimiento")
     fecha_matricula = models.DateField(
         default=timezone.now, verbose_name="Fecha de matricula"
     )
-    esta_activo = models.BooleanField(default=True, verbose_name="Activo")
+    estado = models.CharField(max_length=10, choices=ESTADOS, default="activo")
 
     class Meta:
         db_table = "estudiantes"
@@ -128,16 +134,9 @@ class ProfesorMateria(models.Model):
 
 
 class Matricula(models.Model):
-    ESTADO_CHOICES = [
-        ("activo", "Activo"),
-        ("inactivo", "Inactivo"),
-        ("graduado", "Graduado"),
-    ]
-
     estudiante = models.ForeignKey(Estudiante, on_delete=models.CASCADE)
     año = models.ForeignKey(Año, on_delete=models.CASCADE)
     fecha_matricula = models.DateField(default=timezone.now)
-    estado = models.CharField(max_length=10, choices=ESTADO_CHOICES, default="activo")
 
     class Meta:
         db_table = "matriculas"

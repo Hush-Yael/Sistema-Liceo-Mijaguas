@@ -262,7 +262,11 @@ class Command(BaseCommand):
                 fecha_matricula=self.faker.date_between(
                     start_date="-2y", end_date="today"
                 ),
-                esta_activo=self.faker.boolean(chance_of_getting_true=85),
+                estado=self.faker.random_element(
+                    OrderedDict(
+                        [("activo", 0.8), ("inactivo", 0.1), ("graduado", 0.1)]
+                    ),
+                ),
             )
 
             estudiantes_creados += 1
@@ -351,17 +355,12 @@ class Command(BaseCommand):
         self.stdout.write(f"Matriculando estudiantes en {año.nombre_año}...")
 
         matriculas_creadas = 0
-        estados = ["activo", "activo", "activo", "inactivo"]  # 75% activos
 
         for estudiante in estudiantes:
-            # Algunos estudiantes pueden estar inactivos
-            estado = random.choice(estados)
-
             _, created = Matricula.objects.get_or_create(
                 estudiante=estudiante,
                 año=año,
                 defaults={
-                    "estado": estado,
                     "fecha_matricula": self.faker.date_between(
                         start_date="-1y", end_date="today"
                     ),

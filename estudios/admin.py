@@ -42,9 +42,9 @@ class EstudianteAdmin(admin.ModelAdmin):
         "nombres",
         "apellidos",
         "fecha_nacimiento",
-        "esta_activo",
+        "estado",
     ]
-    list_filter = ["esta_activo"]
+    list_filter = ["estado"]
     search_fields = ["nombres", "apellidos"]
 
 
@@ -71,8 +71,8 @@ class ProfesorMateriaAdmin(admin.ModelAdmin):
 
 @admin.register(Matricula)
 class MatriculaAdmin(admin.ModelAdmin):
-    list_display = ["estudiante", "año", "fecha_matricula", "estado"]
-    list_filter = ["estado", "año"]
+    list_display = ["estudiante", "año", "fecha_matricula"]
+    list_filter = ["año"]
     search_fields = ["estudiante__nombre", "estudiante__apellido"]
 
 
