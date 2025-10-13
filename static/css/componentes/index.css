@@ -33,11 +33,19 @@
   color: var(--color-primario-500);
 }
 
+.link-secundario,
 .link-primario {
-  color: var(--color-primario-500);
   text-decoration: 1px underline;
   text-underline-offset: 2px;
   transition: color 0.2s ease-in-out;
+}
+
+.link-primario {
+  color: var(--color-primario-500);
+}
+
+.link-secundario {
+  color: var(--color-secundario-300);
 }
 
 @media only screen and (hover: none) and (pointer: coarse) {
@@ -49,11 +57,18 @@
     color: var(--color-primario-400);
   }
 
+  .link-secundario:active,
   .link-primario:active {
-    color: var(--color-primario-300);
     text-decoration-thickness: 2px;
   }
 
+  .link-primario:active {
+    color: var(--color-primario-300);
+  }
+
+  .link-secundario:active {
+    color: var(--color-secundario-200);
+  }
 }
 
 @media only screen and (hover: hover) and (pointer: fine) {
@@ -65,8 +80,16 @@
     color: var(--color-primario-400);
   }
 
+  .link-secundario:hover,
+  .link-primario:hover {
+    text-decoration-thickness: 2px;
+  }
+
   .link-primario:hover {
     color: var(--color-primario-300);
-    text-decoration-thickness: 2px;
+  }
+
+  .link-secundario:hover {
+    color: var(--color-secundario-200);
   }
 }
