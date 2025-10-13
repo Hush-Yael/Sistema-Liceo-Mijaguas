@@ -107,14 +107,16 @@ main {
   padding: 1rem;
 }
 
-.profesor .icono {
+.profesor .avatar {
   display: inline-block;
-  min-height: 2.5rem;
-  min-width: 2.5rem;
-  background: #0001;
-  padding: .5rem;
+  height: 3rem;
+  width: 3rem;
   margin-right: .75rem;
   border-radius: 50%;
+  object-fit: cover;
+}
+
+.profesor svg.avatar {
   color: var(--texto-ligero);
 }
 
