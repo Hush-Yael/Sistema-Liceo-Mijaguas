@@ -317,7 +317,7 @@ img.cabecera-avatar {
   }
 }
 
-@media screen and (min-width: 768px) and (max-width: 900px) {
+@media screen and (min-width: 768px) and (max-width: 1024px) {
   .link {
     position: relative;
   }
@@ -346,7 +346,7 @@ img.cabecera-avatar {
   }
 }
 
-@media screen and (min-width: 768px) and (max-width: 1024px) {
+@media screen and (min-width: 1024px) and (max-width: 1280px) {
 
   .link {
     padding: .5rem 1rem;
