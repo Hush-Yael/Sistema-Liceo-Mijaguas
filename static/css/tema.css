@@ -27,6 +27,19 @@ html {
   --color-secundario-950: hsl(211.8, 100%, 3.3%);
   --color-texto-secundario: #fff;
 
+  --color-acento-50: hsl(145.2 100% 90.2%);
+  --color-acento-100: hsl(148.2 100% 77.1%);
+  --color-acento-200: hsl(158.1 92.8% 49.2%);
+  --color-acento-300: hsl(158 93.8% 43.9%);
+  --color-acento-400: hsl(158.2 94.9% 38.6%);
+  --color-acento-500: hsl(158 95.4% 34.1%);
+  --color-acento-600: hsl(157.7 97.1% 26.7%);
+  --color-acento-700: hsl(157 98% 19.8%);
+  --color-acento-800: hsl(155.3 97.1% 13.7%);
+  --color-acento-900: hsl(152.4 100% 7.3%);
+  --color-acento-950: hsl(147.5 100% 4.7%);
+  --color-texto-acento: #fff;
+
   --color-fondo-50: hsl(0, 0%, 100%);
   --color-fondo-100: hsl(37.5, 100%, 98.4%);
   --color-fondo-200: hsl(41.2, 88.9%, 96.5%);
