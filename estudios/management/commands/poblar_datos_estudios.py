@@ -108,13 +108,16 @@ class Command(BaseCommand):
         self.stdout.write("Creando admin...")
 
         try:
-            User.objects.get_or_create(
+            admin, creado = User.objects.get_or_create(
                 username="admin",
                 email="",
+                is_staff=True,
                 is_superuser=True,
-                password="admin",
             )
-            self.stdout.write(self.style.SUCCESS("✓ Admin creado"))
+            if creado:
+                admin.set_password("admin")
+                admin.save()
+                self.stdout.write(self.style.SUCCESS("✓ Admin creado"))
         except IntegrityError:
             self.stdout.write("Admin ya creado")
 
