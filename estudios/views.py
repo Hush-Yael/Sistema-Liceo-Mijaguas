@@ -18,7 +18,6 @@ def inicio(request: HttpRequest):
     return render(request, "inicio.html")
 
 
-@login_required
 def materias(request: HttpRequest):
     materias = Materia.objects.order_by("nombre_materia")
     años = Año.objects.values("numero_año", "nombre_año_corto").order_by("numero_año")
