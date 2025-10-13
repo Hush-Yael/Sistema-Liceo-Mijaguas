@@ -3,6 +3,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg, Count, Q
 from .models import (
+    AñoAcademico,
     Materia,
     Profesor,
     AñoMateria,
@@ -20,9 +21,35 @@ def inicio(request: HttpRequest):
 
 @login_required
 def materias(request: HttpRequest):
-    materias = Materia.objects.all().order_by("nombre_materia")
+    materias = Materia.objects.order_by("nombre_materia")
+    años = AñoAcademico.objects.values("numero_año", "nombre_año_corto").order_by(
+        "numero_año"
+    )
 
-    return render(request, "materias.html", {"materias": materias})
+    # se guarda cada materia por id, con una lista de los años en los que está asignada
+    materias_años_asignaciones = {}
+
+    if materias.count() > 0:
+        for materia in materias:
+            materias_años_asignaciones[materia.pk] = []
+            materia_años = AñoMateria.objects.values("año__numero_año").filter(
+                materia=materia
+            )
+
+            for materia_año in materia_años:
+                materias_años_asignaciones[materia.pk].append(
+                    materia_año["año__numero_año"],
+                )
+
+    return render(
+        request,
+        "materias.html",
+        {
+            "materias": materias,
+            "años": años,
+            "asignaciones": materias_años_asignaciones,
+        },
+    )
 
 
 @login_required

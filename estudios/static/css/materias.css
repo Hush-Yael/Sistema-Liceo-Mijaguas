@@ -3,92 +3,65 @@ main {
   flex-direction: column;
   gap: 2rem;
   padding: 2rem 1rem;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
-.titulo {
+#titulo {
   text-align: center;
-  font-size: 1.75rem;
+  font-size: 1.6rem;
   font-weight: bold;
 }
 
-#materias {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+#titulo-container {
+  gap: 1rem;
+  margin-bottom: .75rem;
 }
 
-.enlace {
-  display: flex;
-  flex-direction: column;
-  margin: 10px;
-  border: 1px solid #0002;
-  border-radius: var(--radio-caja);
+#nueva-asignatura {
+  gap: .25rem;
+  font-size: .8em;
 }
 
-.enlace .nombre {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-weight: 500;
-  padding: .5rem 1rem;
-  font-size: 1.2rem;
-  background: var(--color-fondo-600);
-  border-radius: var(--radio-caja) var(--radio-caja) 0 0;
+.wrapper {
+  overflow: auto;
 }
 
-.enlace .info {
-  display: flex;
-  flex-direction: column;
-  font-size: 0.8rem;
-  padding: .75rem 1rem;
+caption {
+  caption-side: bottom !important;
   color: var(--texto-ligero);
+  text-align: left;
 }
 
-.enlace .nombre svg {
-  height: 1.25rem;
-  width: 1.25rem;
-  color: #0006;
+.contador {
+  width: 4ch;
 }
 
-@media screen and (min-width: 500px) {
+.contador,
+td:first-child {
+  text-align: right;
+}
 
-  @supports not (grid-template-columns: repeat(auto-fill, minmax(250px, 1fr))) {
-    #materias {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
+td:first-child {
+  font-variant-numeric: tabular-nums;
+}
 
-    #materias .enlace {
-      width: 90%;
-      max-width: 300px;
-    }
-  }
+.año {
+  text-align: center;
+}
 
-  .titulo {
-    margin-bottom: 1rem;
-  }
+.año svg {
+  height: 1.5em;
+  width: 1.5em;
+  margin-bottom: .125rem;
+}
 
-  #opciones {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-  }
+.año svg.si {
+  color: var(--color-exito-500);
+}
 
-  #opciones>*,
-  #opciones a {
-    flex: 1;
-    min-height: 100%;
-  }
-
-  #opciones>*,
-  #opciones .enlace {
-    max-width: 350px;
-  }
-
-  #opciones .enlace {
-    margin: 0;
-  }
+.año svg.no {
+  color: var(--color-peligro-400);
 }
 
 @media screen and (min-width: 768px) {
