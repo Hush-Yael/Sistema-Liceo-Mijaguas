@@ -2,7 +2,7 @@ from django import forms
 from .models import Profesor
 
 
-campos_a_evitar = ("id", "profesormateria", "esta_activo")
+campos_a_evitar = ("id", "profesormateria", "esta_activo", "usuario")
 
 _campos_para_buscar = filter(
     lambda f: f.name not in campos_a_evitar,
