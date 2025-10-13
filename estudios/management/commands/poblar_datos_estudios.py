@@ -69,7 +69,7 @@ class Command(BaseCommand):
 
         grupo_profesor, created = Group.objects.get_or_create(name="Profesor")
 
-        if created:
+        if created or grupo_profesor.permissions.count() == 0:
             calificacion_content_type = ContentType.objects.get_for_model(Calificacion)
 
             permisos_calificaciones = Permission.objects.filter(
