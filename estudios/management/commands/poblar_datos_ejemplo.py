@@ -189,7 +189,7 @@ class Command(BaseCommand):
         self.stdout.write(f"Creando {cantidad} profesores...")
 
         profesores_creados = 0
-        for i in range(cantidad):
+        for i in range(cantidad + 1):
             # Verificar si ya existe
             if Profesor.objects.filter(id=i).exists():
                 continue
@@ -243,7 +243,7 @@ class Command(BaseCommand):
         self.stdout.write(f"Creando {cantidad} estudiantes...")
 
         estudiantes_creados = 0
-        for i in range(cantidad):
+        for i in range(cantidad + 1):
             # Verificar si ya existe
             if Estudiante.objects.filter(id=i).exists():
                 continue
