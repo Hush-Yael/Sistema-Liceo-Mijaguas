@@ -129,7 +129,6 @@ class Lapso(models.Model):
 class AñoMateria(models.Model):
     año = models.ForeignKey(Año, on_delete=models.CASCADE)
     materia = models.ForeignKey(Materia, on_delete=models.CASCADE)
-    horas_semanales = models.IntegerField(default=4)
 
     class Meta:
         db_table = "años_materias"

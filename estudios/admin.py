@@ -74,7 +74,7 @@ class LapsoAdmin(ModelAdmin):
 
 @admin.register(AñoMateria)
 class AñoMateriaAdmin(ModelAdmin):
-    list_display = ["año", "materia", "horas_semanales"]
+    list_display = ["año", "materia"]
     list_filter = ["año", "materia"]
     search_fields = ["materia__nombre_materia"]
     autocomplete_fields = ["materia"]
