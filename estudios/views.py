@@ -208,13 +208,11 @@ def notas_promedio_por_año_materia(request: HttpRequest):
     """Notas promedio por año y materia"""
     promedios = (
         Nota.objects.values(
-            "lapso__año__id",
-            "lapso__año__nombre_año",
             "materia__id",
             "materia__nombre_materia",
         )
         .annotate(promedio_general=Avg("valor_nota"))
-        .order_by("lapso__año__numero_año", "materia__nombre_materia")
+        .order_by("materia__nombre_materia")
     )
 
     return render(

@@ -107,7 +107,6 @@ class Estudiante(models.Model):
 
 
 class Lapso(models.Model):
-    año = models.ForeignKey(Año, on_delete=models.CASCADE, verbose_name="Año")
     numero_lapso = models.IntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(3)],
         verbose_name="Número",
@@ -118,12 +117,11 @@ class Lapso(models.Model):
 
     class Meta:
         db_table = "lapsos"
-        unique_together = ["año", "numero_lapso"]
         verbose_name = "lapso"
         verbose_name_plural = "Lapsos"
 
     def __str__(self):
-        return f"{self.año.nombre_año} - {self.nombre_lapso}"
+        return f"{self.nombre_lapso} - {self.fecha_inicio} / {self.fecha_fin}"
 
 
 class AñoMateria(models.Model):

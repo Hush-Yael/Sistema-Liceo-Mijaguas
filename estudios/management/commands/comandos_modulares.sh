@@ -4,8 +4,8 @@ python manage.py poblar_datos_ejemplo --profesores
 # Solo estudiantes (30 estudiantes)
 python manage.py poblar_datos_ejemplo --estudiantes --cantidad-estudiantes=30
 
-# Solo lapsos para 2do año
-python manage.py poblar_datos_ejemplo --lapsos --año=2
+# Solo tres lapsos para el año actual
+python manage.py poblar_datos_ejemplo --lapsos
 
 # Solo asignaciones de materias
 python manage.py poblar_datos_ejemplo --asignaciones

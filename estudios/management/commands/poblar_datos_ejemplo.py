@@ -151,7 +151,7 @@ class Command(BaseCommand):
             self.crear_estudiantes(options["cantidad_estudiantes"])
 
         if hacer_todo or acciones["lapsos"]:
-            self.crear_lapsos(año)
+            self.crear_lapsos()
 
         if hacer_todo or acciones["asignaciones"]:
             self.asignar_materias_a_año(año)
@@ -164,7 +164,7 @@ class Command(BaseCommand):
 
         if hacer_todo or acciones["notas"]:
             estudiantes = Estudiante.objects.all()
-            lapsos = Lapso.objects.filter(año=año)
+            lapsos = Lapso.objects.all()
             self.crear_notas(estudiantes, lapsos)
         acciones["secciones"] = options["secciones"]
 
@@ -304,12 +304,9 @@ class Command(BaseCommand):
 
         self.stdout.write(f"✓ Total estudiantes creados: {estudiantes_creados}")
 
-    def crear_lapsos(self, año):
-        """Crear lapsos para el año especificado"""
-        self.stdout.write(f"Creando lapsos para {año.nombre_año}...")
-
+    def crear_lapsos(self):
         # Determinar el año base según el número del año
-        año_base = 2023 + año.numero_año
+        año_base = date.today().year
 
         lapsos_data = [
             (1, "Primer Lapso", date(año_base, 9, 1), date(año_base, 11, 30)),
@@ -320,7 +317,6 @@ class Command(BaseCommand):
         lapsos_creados = 0
         for num, nombre, inicio, fin in lapsos_data:
             _, created = Lapso.objects.get_or_create(
-                año=año,
                 numero_lapso=num,
                 defaults={
                     "nombre_lapso": nombre,
@@ -442,8 +438,6 @@ class Command(BaseCommand):
             try:
                 matricula = Matricula.objects.get(
                     estudiante=estudiante,
-                    año=lapsos[0].año,  # Usar el año del primer lapso
-                    estado="activo",
                 )
                 seccion_estudiante = matricula.seccion
             except Matricula.DoesNotExist:
@@ -500,13 +494,13 @@ class Command(BaseCommand):
             letra = letras[i]
             nombre_seccion = f"{año.nombre_año} - Sección {letra}"
 
-            seccion, created = Seccion.objects.get_or_create(
+            _, creada = Seccion.objects.get_or_create(
                 año=año,
                 letra_seccion=letra,
                 defaults={"nombre_seccion": nombre_seccion, "capacidad_maxima": 30},
             )
 
-            if created:
+            if creada:
                 secciones_creadas += 1
                 self.stdout.write(f"✓ Creada sección: {nombre_seccion}")
 

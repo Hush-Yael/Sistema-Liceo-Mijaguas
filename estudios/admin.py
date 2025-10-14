@@ -67,8 +67,7 @@ class EstudianteAdmin(ModelAdmin):
 
 @admin.register(Lapso)
 class LapsoAdmin(ModelAdmin):
-    list_display = ["año", "numero_lapso", "nombre_lapso", "fecha_inicio", "fecha_fin"]
-    list_filter = ["año"]
+    list_display = ["numero_lapso", "nombre_lapso", "fecha_inicio", "fecha_fin"]
     search_fields = ["nombre_lapso"]
 
 
