@@ -19,10 +19,6 @@ thead {
   border-radius: calc(var(--radio-campo) - 1px) calc(var(--radio-campo) - 1px) 0 0;
 }
 
-th:nth-child(n+3) {
-  text-align: center;
-}
-
 th,
 td {
   text-align: left;

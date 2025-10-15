@@ -29,6 +29,10 @@ caption {
   text-align: left;
 }
 
+th:nth-child(n+3) {
+  text-align: center;
+}
+
 .contador {
   width: 4ch;
 }
