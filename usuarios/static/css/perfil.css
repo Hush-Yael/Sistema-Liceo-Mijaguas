@@ -120,25 +120,8 @@ form {
   color: var(--color-peligro-600);
 }
 
-#borrar-avatar:not(.htmx-request) .htmx-indicator,
 #borrar-avatar.htmx-request svg {
   display: none;
-}
-
-#borrar-avatar .htmx-indicator {
-  width: 1em;
-  height: 1em;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  border: 3px solid #0003;
-  border-right-color: var(--color-primario-200);
-  animation: l2 600ms infinite linear;
-}
-
-@keyframes l2 {
-  to {
-    transform: rotate(1turn)
-  }
 }
 
 .eliminado {
