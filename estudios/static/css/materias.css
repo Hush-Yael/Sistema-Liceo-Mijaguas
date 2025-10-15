@@ -25,7 +25,7 @@ main {
 
 caption {
   caption-side: bottom !important;
-  color: var(--texto-ligero);
+  color: var(--texto-sutil);
   text-align: left;
 }
 

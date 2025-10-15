@@ -13,7 +13,7 @@
 }
 
 .breadcrumbs a:not([aria-current="page"]) {
-  color: var(--texto-ligero);
+  color: var(--texto-sutil);
   font-weight: 500;
 }
 
