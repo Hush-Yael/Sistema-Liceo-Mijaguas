@@ -58,3 +58,21 @@ tr:last-child td:first-child {
 tr:last-child td:last-child {
   border-bottom-right-radius: calc(var(--radio-campo) - 1px);
 }
+
+table .numeros {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+table td.numeros {
+  letter-spacing: 0.5px;
+  font-family: system-ui,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif,
+    "Apple Color Emoji",
+    "Segoe UI Emoji",
+    "Segoe UI Symbol";
+}

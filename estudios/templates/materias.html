@@ -47,7 +47,7 @@
         </caption>
         <thead>
           <tr>
-            <th class="contador">N°</th>
+            <th class="contador numeros">N°</th>
             <th>Nombre</th>
             {% for año in años %}
               <th>{{ año.nombre_año_corto }}</th>
@@ -58,7 +58,7 @@
         <tbody>
           {% for materia in materias %}
             <tr>
-              <td>{{ forloop.counter }}</td>
+              <td class="numeros">{{ forloop.counter }}</td>
               <td>{{ materia.nombre_materia }}</td>
               {% with id=materia.pk %}
                 {% for año in años %}

@@ -37,15 +37,6 @@ th:nth-child(n+3) {
   width: 4ch;
 }
 
-.contador,
-td:first-child {
-  text-align: right;
-}
-
-td:first-child {
-  font-variant-numeric: tabular-nums;
-}
-
 .año {
   text-align: center;
 }
