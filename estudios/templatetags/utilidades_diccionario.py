@@ -1,4 +1,3 @@
-from typing import List
 from django import template
 
 register = template.Library()
