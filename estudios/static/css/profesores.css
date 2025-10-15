@@ -198,15 +198,15 @@ main {
   }
 
   #profesores {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
   }
 
-  @supports not(grid-template-columns: repeat(auto-fill, minmax(300px, 1fr))) {
+  @supports (grid-template-columns: repeat(auto-fill, minmax(300px, 1fr))) {
     #profesores {
-      flex-direction: row;
-      justify-content: center;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     }
   }
 }
