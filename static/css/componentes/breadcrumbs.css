@@ -6,6 +6,7 @@
   list-style: none;
   background-color: var(--color-fondo-500);
   border-radius: 0.25rem;
+  font-size: 0.9rem;
 }
 
 .breadcrumbs a {
