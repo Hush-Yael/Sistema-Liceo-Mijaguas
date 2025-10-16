@@ -109,6 +109,7 @@ class Command(BaseCommand):
                 Lapso,
                 AñoMateria,
                 ProfesorMateria,
+                Seccion,
             )
 
             # solo lectura para todas las demás tablas
