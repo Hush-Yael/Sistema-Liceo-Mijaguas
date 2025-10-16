@@ -34,6 +34,9 @@ BaseUserAdmin.fieldsets = (
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin, ModelAdmin):
+    list_editable = ["is_staff", "is_active"]
+    readonly_fields = ["date_joined", "last_login", "is_superuser"]
+
     form = UserChangeForm
     add_form = UserCreationForm
     change_password_form = AdminPasswordChangeForm

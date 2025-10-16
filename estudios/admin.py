@@ -19,6 +19,7 @@ class AñoAdmin(ModelAdmin):
     list_display = ["numero_año", "nombre_año", "fecha_creacion"]
     list_filter = ["numero_año"]
     search_fields = ["nombre_año", "numero_año"]
+    readonly_fields = ["fecha_creacion"]
 
 
 @admin.register(Seccion)
@@ -33,12 +34,14 @@ class SeccionAdmin(ModelAdmin):
     list_filter = ["año", "letra_seccion"]
     search_fields = ["nombre_seccion", "letra_seccion"]
     autocomplete_fields = ["tutor"]
+    readonly_fields = ["fecha_creacion"]
 
 
 @admin.register(Materia)
 class MateriaAdmin(ModelAdmin):
     list_display = ["nombre_materia", "fecha_creacion"]
     search_fields = ["nombre_materia"]
+    readonly_fields = ["fecha_creacion"]
 
 
 @admin.register(Profesor)
@@ -51,6 +54,8 @@ class ProfesorAdmin(ModelAdmin):
     list_filter = ["esta_activo"]
     search_fields = ["nombres", "apellidos"]
     autocomplete_fields = ["usuario"]
+    list_editable = ["esta_activo"]
+    readonly_fields = ["fecha_ingreso"]
 
 
 @admin.register(Estudiante)
@@ -86,6 +91,7 @@ class ProfesorMateriaAdmin(ModelAdmin):
     list_filter = ["año", "es_profesor_principal", "seccion"]
     search_fields = ["profesor__nombre", "materia__nombre_materia"]
     autocomplete_fields = ["profesor", "materia", "año", "seccion"]
+    list_editable = ["es_profesor_principal"]
 
 
 @admin.register(Matricula)
