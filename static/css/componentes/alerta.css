@@ -1,0 +1,13 @@
+.alerta {
+  padding: 8px 16px;
+  max-width: 500px;
+  border-radius: var(--radio-campo);
+  background-color: var(--color-peligro-500);
+  color: var(--color-texto-peligro);
+}
+
+.alerta svg {
+  height: 1.25rem;
+  width: 1.25rem;
+  margin-right: .25rem;
+}
