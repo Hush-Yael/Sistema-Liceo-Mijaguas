@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block titulo %}
+  Notas por lapsos de {{ estudiante.apellidos }} {{ estudiante.nombres }}
+{% endblock titulo %}
+
+{% block cabeza %}
+  <link
+    rel="stylesheet"
+    href="{% static 'css/notas/[seccion]_[estudiante]_lapsos.css' %}"
+  />
+  <link rel="stylesheet" href="{% static 'css/notas/titulo.css' %}" />
+
+  <link rel="stylesheet" href="{% static 'css/componentes/tabla.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/componentes/alerta.css' %}" />
+  <link
+    rel="stylesheet"
+    href="{% static 'css/componentes/decoracion-circular.css' %}"
+  />
+  <link
+    rel="stylesheet"
+    href="{% static 'css/componentes/breadcrumbs.css' %}"
+  />
+{% endblock cabeza %}
+
+{% block contenido %}
+  <nav class="breadcrumbs">
+    <ol>
+      <li>
+        <a href="{% url 'notas' %}">Notas</a>
+      </li>
+      <li>
+        <a href="{% url 'notas__seccion_estudiantes' seccion.id %}">
+          {{ seccion }}
+        </a>
+      </li>
+      <li>
+        <a aria-current="page" href="">
+          {{ estudiante.apellidos }} {{ estudiante.nombres }}
+        </a>
+      </li>
+    </ol>
+  </nav>
+
+  {% if lapsos|length == 0 %}
+    {% with mensaje_alerta="No se encontraron lapsos." %}
+      {% include "componentes/alerta.html" %}
+    {% endwith %}
+  {% else %}
+    <h1 id="titulo">
+      <b>Notas por lapsos de:</b>
+      {{ estudiante.apellidos }} {{ estudiante.nombres }}
+    </h1>
+
+    <ul id="lapsos">
+      {% for lapso in lapsos %}
+        <li>
+          <a
+            class="lapso"
+            href="{% url 'notas__seccion_estudiante_lapso' seccion.id estudiante.id lapso.id %}"
+          >
+            <header>
+              <p class="decoracion-circular-contenedor">
+                <span class="decoracion-circular primario">
+                  {{ lapso.numero_lapso }}
+                </span>
+                <span class="nombre">{{ lapso.nombre_lapso }}</span>
+              </p>
+              {% include "componentes/caret.html" %}
+            </header>
+
+            <div class="fechas texto-sutil">
+              <p><span>Del:</span> {{ lapso.fecha_inicio }}</p>
+              <p><span>Al:</span> {{ lapso.fecha_fin }}</p>
+            </div>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endblock contenido %}

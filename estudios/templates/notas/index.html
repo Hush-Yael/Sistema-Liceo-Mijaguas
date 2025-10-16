@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block titulo %}
+  Notas
+{% endblock titulo %}
+{% load static %}
+{% load utilidades_diccionario %}
+
+{% block cabeza %}
+  <link rel="stylesheet" href="{% static 'css/componentes/alerta.css' %}" />
+  <link
+    rel="stylesheet"
+    href="{% static 'css/componentes/decoracion-circular.css' %}"
+  />
+  <link rel="stylesheet" href="{% static 'css/notas/details.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/notas/index.css' %}" />
+{% endblock cabeza %}
+
+{% block contenido %}
+
+  {% if es_profesor %}
+    <a id="mis-notas" class="enlace" href="">
+      <span class="decoracion-circular-contenedor">
+        <span class="decoracion-circular primario">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            class="icon icon-tabler icons-tabler-filled icon-tabler-file-pencil"
+          >
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path
+              d="M12 2l.117 .007a1 1 0 0 1 .876 .876l.007 .117v4l.005 .15a2 2 0 0 0 1.838 1.844l.157 .006h4l.117 .007a1 1 0 0 1 .876 .876l.007 .117v9a3 3 0 0 1 -2.824 2.995l-.176 .005h-10a3 3 0 0 1 -2.995 -2.824l-.005 -.176v-14a3 3 0 0 1 2.824 -2.995l.176 -.005zm1 10l-5 5v2h2l5 -5a1.414 1.414 0 0 0 -2 -2"
+            />
+            <path d="M19 7h-4l-.001 -4.001z" />
+          </svg>
+        </span>
+
+        Administrar las notas de mis estudiantes
+      </span>
+      {% include "componentes/caret.html" %}
+    </a>
+  {% endif %}
+
+  {% if años.keys|length == 0 %}
+    {% with mensaje_alerta="No se encontraron años académicos." %}
+      {% include "componentes/alerta.html" %}
+    {% endwith %}
+  {% else %}
+    <h1 id="titulo">Notas por año académico y sección</h1>
+
+    <ul id="años">
+      {% for id,datos in años.items %}
+        <li>
+          <details open class="año">
+            <summary>
+              <span class="decoracion-circular-contenedor">
+                <span class="decoracion-circular primario">
+                  {{ datos.numero }}
+                </span>
+                {{ datos.nombre }}
+              </span>
+              {% include "componentes/summary-flecha.html" %}
+            </summary>
+
+            <ul class="secciones">
+              {% for seccion in datos.secciones %}
+                <li>
+                  <a
+                    class="enlace"
+                    href="{% url 'notas__seccion_estudiantes' seccion.pk %}"
+                  >
+                    <p class="decoracion-circular-contenedor">
+                      <span class="decoracion-circular secundario">
+                        {{ seccion.letra_seccion }}
+                      </span>
+                      {{ seccion.nombre_seccion }}
+                    </p>
+                    {% include "componentes/caret.html" %}
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
+          </details>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endblock contenido %}

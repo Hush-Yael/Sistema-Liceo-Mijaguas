@@ -3,8 +3,10 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg, Count, Q
 from .models import (
+    Lapso,
     Seccion,
     Año,
+    Estudiante,
     Materia,
     Profesor,
     AñoMateria,
@@ -12,11 +14,31 @@ from .models import (
     Matricula,
     Nota,
 )
-from .forms import FormularioProfesorBusqueda
+from django.contrib.auth.models import Group
+from .forms import FormularioProfesorBusqueda, FormularioNotasBusqueda
 
 
 def inicio(request: HttpRequest):
-    return render(request, "inicio.html")
+    contexto = {
+        "cantidades": {
+            "materias": Materia.objects.count(),
+            "profesores": Profesor.objects.count(),
+            "estudiantes": Estudiante.objects.count(),
+        }
+    }
+
+    if request.user.is_superuser:
+        """ contexto["profesores"] = ProfesorMateria.objects.values(
+            "materia", "año", "profesor"
+        ) """
+        """ materias_año = (
+            AñoMateria.objects.select_related("año", "materia")
+            # .prefetch_related()
+            .order_by("año__numero_año", "materia__nombre_materia")
+        )
+        print(materias_año) """
+
+    return render(request, "inicio.html", contexto)
 
 
 def materias(request: HttpRequest):
@@ -107,6 +129,147 @@ def profesores(request: HttpRequest):
     return response
 
 
+def notas(request: HttpRequest):
+    años_list = Año.objects.values("nombre_año", "id", "numero_año").order_by(
+        "numero_año"
+    )
+    años = {}
+
+    for a in años_list:
+        años[a["id"]] = {
+            "nombre": a["nombre_año"],
+            "numero": a["numero_año"],
+            "secciones": [],
+        }
+
+    secciones = Seccion.objects.all().order_by("año", "letra_seccion")
+    es_profesor = Group.objects.get(name="Profesor") in request.user.groups.all()
+
+    for seccion in secciones:
+        años[seccion.año_id]["secciones"].append(seccion)  # type: ignore
+
+    return render(
+        request,
+        "notas/index.html",
+        {"es_profesor": es_profesor, "años": años},
+    )
+
+
+def notas__seccion_estudiantes(request: HttpRequest, seccion_id):
+    seccion = Seccion.objects.get(id=seccion_id)
+
+    estudiantes_notas_seccion = Matricula.objects.filter(seccion=seccion).values(
+        "estudiante__id",
+        "estudiante__apellidos",
+        "estudiante__nombres",
+    )
+
+    print(estudiantes_notas_seccion)
+
+    return render(
+        request,
+        "notas/[seccion]_estudiantes.html",
+        {"estudiantes_notas_seccion": estudiantes_notas_seccion, "seccion": seccion},
+    )
+
+
+def notas__seccion_estudiante_lapsos(
+    request: HttpRequest, seccion_id: int, estudiante_id: int
+):
+    seccion = Seccion.objects.get(id=seccion_id)
+
+    estudiante = Estudiante.objects.get(id=estudiante_id)
+
+    lapsos = Lapso.objects.order_by("numero_lapso").all().order_by("-fecha_inicio")
+
+    return render(
+        request,
+        "notas/[seccion]_[estudiante]_lapsos.html",
+        {
+            "seccion": seccion,
+            "estudiante": estudiante,
+            "notas": notas,
+            "lapsos": lapsos,
+        },
+    )
+
+
+def notas__seccion_estudiante_lapso(
+    request: HttpRequest, seccion_id: int, estudiante_id: int, lapso_id: int
+):
+    form = FormularioNotasBusqueda()
+
+    seccion = Seccion.objects.get(id=seccion_id)
+    estudiante = Estudiante.objects.get(id=estudiante_id)
+    lapso = Lapso.objects.get(id=lapso_id)
+    materias = Materia.objects.values("id", "nombre_materia").order_by("nombre_materia")
+
+    filtros = {"seccion": seccion, "estudiante": estudiante, "lapso": lapso}
+    columnas = [
+        "valor_nota",
+        "fecha_nota",
+        "comentarios",
+    ]
+    orden = ["-fecha_nota"]
+
+    id_materia_buscada = request.COOKIES.get(
+        "notas_materia_id", form.initial.get("materia_id", "")
+    )
+    maximo = request.COOKIES.get("maximo", form.initial.get("maximo", 20))
+    minimo = request.COOKIES.get("minimo", form.initial.get("minimo", 0))
+
+    if request.method == "POST":
+        form = FormularioNotasBusqueda(request.POST)
+
+        if form.is_valid():
+            id_materia_buscada = form.cleaned_data["materia_id"]
+            maximo = form.cleaned_data["maximo"]
+            minimo = form.cleaned_data["minimo"]
+
+    if id_materia_buscada:
+        if (materia := Materia.objects.get(id=id_materia_buscada)) is not None:
+            filtros["materia"] = materia
+
+    if filtros.get("materia", None) is None:
+        orden.insert(0, "materia__nombre_materia")
+        columnas.append("materia__nombre_materia")
+
+    promedio = Nota.objects.filter(**filtros).aggregate(promedio=Avg("valor_nota"))
+
+    filtros["valor_nota__range"] = (minimo, maximo)
+
+    notas = Nota.objects.filter(**filtros).values(*columnas).order_by(*orden)
+
+    form.initial = {
+        "materia_id": id_materia_buscada,
+        "notas_maximo": maximo,
+        "notas_minimo": minimo,
+    }
+
+    response = render(
+        request,
+        "notas/[seccion]_[estudiante]_[lapso].html",
+        {
+            "seccion": seccion,
+            "materia_buscada": filtros.get("materia", None),
+            "estudiante": estudiante,
+            "notas": notas,
+            "promedio": round(promedio["promedio"], 2)
+            if promedio["promedio"]
+            else None,
+            "materias": materias,
+            "lapso": lapso,
+            "form": form,
+        },
+    )
+
+    response.set_cookie("notas_materia_id", id_materia_buscada)  # type: ignore
+    response.set_cookie("notas_maximo", maximo)  # type: ignore
+    response.set_cookie("notas_minimo", minimo)  # type: ignore
+
+    return response
+
+
 @login_required
 def estudiantes_matriculados_por_año(request: HttpRequest):
     """Consulta para ver estudiantes matriculados por año"""
@@ -164,59 +327,6 @@ def materias_por_año_con_profesores(request: HttpRequest):
 
     return render(
         request, "consultas/materias_profesores.html", {"materias_año": materias_año}
-    )
-
-
-@login_required
-def notas_por_estudiante_lapso(request, estudiante_id):
-    """Consulta de notas por estudiante y lapso"""
-    notas = (
-        Nota.objects.filter(estudiante_id=estudiante_id)
-        .select_related("estudiante", "materia", "lapso")
-        .order_by("lapso__numero_lapso", "materia__nombre_materia")
-    )
-
-    return render(
-        request,
-        "consultas/notas_estudiante.html",
-        {"notas": notas},
-    )
-
-
-@login_required
-def promedio_notas_estudiante_materia(request: HttpRequest):
-    """Promedio de notas por estudiante y materia"""
-    promedios = (
-        Nota.objects.values(
-            "estudiante__id",
-            "estudiante__nombre",
-            "estudiante__apellido",
-            "materia__id",
-            "materia__nombre_materia",
-        )
-        .annotate(promedio_nota=Avg("valor_nota"))
-        .order_by("estudiante__apellido", "materia__nombre_materia")
-    )
-
-    return render(
-        request, "consultas/promedios_estudiantes.html", {"promedios": promedios}
-    )
-
-
-@login_required
-def notas_promedio_por_año_materia(request: HttpRequest):
-    """Notas promedio por año y materia"""
-    promedios = (
-        Nota.objects.values(
-            "materia__id",
-            "materia__nombre_materia",
-        )
-        .annotate(promedio_general=Avg("valor_nota"))
-        .order_by("materia__nombre_materia")
-    )
-
-    return render(
-        request, "consultas/promedios_año_materia.html", {"promedios": promedios}
     )
 
 

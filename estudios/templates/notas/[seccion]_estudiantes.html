@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block titulo %}
+  Notas de la sección: {{ seccion }}
+{% endblock titulo %}
+
+{% block cabeza %}
+  <link
+    rel="stylesheet"
+    href="{% static 'css/notas/[seccion]_estudiantes.css' %}"
+  />
+  <link rel="stylesheet" href="{% static 'css/componentes/tabla.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/notas/titulo.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/componentes/alerta.css' %}" />
+  <link
+    rel="stylesheet"
+    href="{% static 'css/componentes/breadcrumbs.css' %}"
+  />
+{% endblock cabeza %}
+
+{% block contenido %}
+  <nav class="breadcrumbs">
+    <ol>
+      <li>
+        <a href="{% url 'notas' %}">Notas</a>
+      </li>
+      <li>
+        <a aria-current="page" href="">{{ seccion }}</a>
+      </li>
+    </ol>
+  </nav>
+
+  {% if estudiantes_notas_seccion|length == 0 %}
+    {% with mensaje_alerta="No se encontraron estudiantes en esta sección." %}
+      {% include "componentes/alerta.html" %}
+    {% endwith %}
+  {% else %}
+    <h1 id="titulo"><b>Seleccionar alumno de la sección:</b> {{ seccion }}</h1>
+
+    <ul id="estudiantes">
+      {% for estudiante in estudiantes_notas_seccion %}
+        <li>
+          <a
+            class="estudiante caja"
+            href="{% url 'notas__seccion_estudiante_lapsos' seccion.id estudiante.estudiante__id %}"
+          >
+            <p>
+              {{ estudiante.estudiante__apellidos }}
+              {{ estudiante.estudiante__nombres }}
+            </p>
+            {% include "componentes/caret.html" %}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endblock contenido %}

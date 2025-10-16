@@ -1,5 +1,5 @@
 from django import forms
-from .models import Profesor
+from .models import Materia, Profesor
 
 
 campos_a_evitar = ("id", "profesormateria", "esta_activo", "usuario")
@@ -46,4 +46,30 @@ class FormularioProfesorBusqueda(forms.Form):
         label="Dirección de orden",
         choices=[("asc", "Ascendente"), ("desc", "Descendente")],
         required=False,
+    )
+
+
+opciones_materias = [("", "Todas")] + [
+    (m[0], m[1]) for m in Materia.objects.values_list("id", "nombre_materia")
+]
+
+
+class FormularioNotasBusqueda(forms.Form):
+    materia_id = forms.ChoiceField(
+        label="Mostrar por asignatura",
+        choices=opciones_materias,
+        initial="",
+        required=False,
+    )
+    maximo = forms.FloatField(
+        label="Nota máxima",
+        min_value=0,
+        max_value=20,
+        initial=20,
+    )
+    minimo = forms.FloatField(
+        label="Nota mínima",
+        min_value=0,
+        max_value=20,
+        initial=0,
     )
