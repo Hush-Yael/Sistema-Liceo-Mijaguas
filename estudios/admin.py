@@ -96,11 +96,19 @@ class ProfesorMateriaAdmin(ModelAdmin):
 
 @admin.register(Matricula)
 class MatriculaAdmin(ModelAdmin):
-    list_display = ["estudiante", "año", "seccion", "fecha_matricula"]
-    list_filter = ["año", "seccion"]
+    list_display = ["estudiante", "año", "get_seccion_letra", "fecha_matricula"]
+    list_filter = [
+        "año",
+        "seccion",
+    ]
     search_fields = ["estudiante__nombre", "estudiante__apellido"]
     autocomplete_fields = ["estudiante", "seccion"]
 
+    def get_seccion_letra(self, obj):
+        return obj.seccion.letra_seccion
+
+    get_seccion_letra.admin_order_field = "seccion"  # type: ignore
+    get_seccion_letra.short_description = "Sección"  # type: ignore
 
 @admin.register(Nota)
 class NotaAdmin(ModelAdmin):
