@@ -22,11 +22,9 @@ class Año(models.Model):
 
 
 class Seccion(models.Model):
-    """Representa las secciones A, B, C, etc. de cada año"""
-
     año = models.ForeignKey(Año, on_delete=models.CASCADE)
-    letra_seccion = models.CharField(max_length=1)  # A, B, C, etc.
-    nombre_seccion = models.CharField(max_length=100)  # Ej: "Primero A"
+    letra_seccion = models.CharField(max_length=1, verbose_name="Letra")
+    nombre_seccion = models.CharField(max_length=100, verbose_name="Nombre")
     capacidad_maxima = models.IntegerField(default=30)
     tutor = models.ForeignKey(
         "Profesor",
@@ -154,7 +152,8 @@ class ProfesorMateria(models.Model):
     class Meta:
         db_table = "profesores_materias"
         unique_together = ["profesor", "materia", "año", "seccion"]
-        verbose_name_plural = "Profesores materias"
+        verbose_name = "profesor y materia"
+        verbose_name_plural = "Profesores y materias"
 
     def __str__(self):
         tipo = "Principal" if self.es_profesor_principal else "Secundario"
