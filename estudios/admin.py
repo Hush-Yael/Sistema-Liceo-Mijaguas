@@ -223,17 +223,26 @@ class ProfesorPermissionMixin:
             return materias, secciones
         return [], []
 
-    # solo obtener los datos de las notas del profesor según lo que imparte
+    # solo obtener los datos de las notas del profesor según lo que imparte en el lapso actual
     def limitar_queryset_profesor(self, request, queryset):
-        """Limitar el queryset a las materias y secciones del profesor"""
         if hasattr(request.user, "profesor") and not request.user.is_superuser:
+            ultimo_lapso = Lapso.objects.last()
             materias, secciones = self.get_profesor_materias_secciones(request.user)
-            return queryset.filter(materia_id__in=materias, seccion_id__in=secciones)
+
+            return queryset.filter(
+                materia_id__in=materias,
+                seccion_id__in=secciones,
+                lapso__id=ultimo_lapso.id,  # type: ignore
+            )
         return queryset
 
     def profesor_tiene_acceso(self, user, obj):
-        """Verificar si un profesor tiene acceso a un objeto específico"""
+        """Verificar si el profesor tiene acceso a las materias y secciones del objeto, y si es el lapso actual"""
         if hasattr(user, "profesor") and not user.is_superuser:
+            lapso_actual = Lapso.objects.last()
+            if obj.lapso_id != lapso_actual.id:  # type: ignore
+                return False
+
             materias, secciones = self.get_profesor_materias_secciones(user)
             return obj.materia_id in materias and obj.seccion_id in secciones
         return True
@@ -267,6 +276,12 @@ class NotaAdmin(ProfesorPermissionMixin, ModelAdmin):
     def get_form(self, request, obj=None, *args, **kwargs):
         form = super().get_form(request, obj, *args, **kwargs)
         form.request = request  # type: ignore
+
+        # Desactivar el campo lapso y dejar un valor estático, ya que no se pueden editar notas de un lapso anterior o al momento de crear, no puede ser diferente al actual
+        form.base_fields["lapso"].disabled = True  # type: ignore
+        if not obj:
+            form.base_fields["lapso"].initial = Lapso.objects.last()  # type: ignore
+
         return form
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
@@ -295,6 +310,7 @@ class NotaAdmin(ProfesorPermissionMixin, ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         if hasattr(request.user, "profesor") and not request.user.is_superuser:
+            # no se pueden alterar notas de otro profesor o de un lapso anterior
             if not self.profesor_tiene_acceso(request.user, obj):
                 raise PermissionDenied(
                     "No tiene permisos para modificar esta calificación"

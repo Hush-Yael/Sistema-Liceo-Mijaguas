@@ -117,7 +117,6 @@ class Lapso(models.Model):
     fecha_fin = models.DateField(verbose_name="Fecha de fin")
 
     class Meta:
-        ordering = ["-fecha_inicio"]
         db_table = "lapsos"
         verbose_name = "lapso"
         verbose_name_plural = "Lapsos"
