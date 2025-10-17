@@ -36,6 +36,7 @@ class Seccion(models.Model):
     fecha_creacion = models.DateTimeField(default=timezone.now)
 
     class Meta:
+        ordering = ["año", "letra_seccion"]
         db_table = "secciones"
         unique_together = ["año", "letra_seccion"]
         verbose_name_plural = "Secciones"
@@ -54,6 +55,7 @@ class Materia(models.Model):
     )
 
     class Meta:
+        ordering = ["nombre_materia"]
         db_table = "materias"
 
     def __str__(self):
@@ -98,6 +100,7 @@ class Estudiante(models.Model):
     estado = models.CharField(max_length=10, choices=ESTADOS, default="activo")
 
     class Meta:
+        ordering = ["apellidos", "nombres"]
         db_table = "estudiantes"
 
     def __str__(self):
@@ -114,6 +117,7 @@ class Lapso(models.Model):
     fecha_fin = models.DateField(verbose_name="Fecha de fin")
 
     class Meta:
+        ordering = ["-fecha_inicio"]
         db_table = "lapsos"
         verbose_name = "lapso"
         verbose_name_plural = "Lapsos"
