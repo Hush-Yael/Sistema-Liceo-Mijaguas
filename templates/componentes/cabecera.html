@@ -34,7 +34,7 @@
   <nav id="nav" data-path-actual="{{ request.path }}">
     {% if request.user.is_authenticated %}
       <div class="perfil" id="perfil-en-linea">
-        {% include 'componentes/perfil.html' %}
+        {% include 'componentes/perfil/index.html' %}
       </div>
     {% else %}
       <a
@@ -193,7 +193,7 @@
     </summary>
 
     {% if request.user.is_authenticated %}
-      {% include 'componentes/perfil.html' %}
+      {% include 'componentes/perfil/index.html' %}
     {% else %}
       <div class="contenido">
         <a

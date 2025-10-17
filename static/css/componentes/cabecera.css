@@ -70,8 +70,23 @@ html {
   margin-right: .5em;
 }
 
+#perfil-en-linea {
+  margin-bottom: .5rem;
+}
+
 #perfil-en-linea .contenido {
-  padding: 1.5rem;
+  position: relative;
+  padding: 1rem;
+}
+
+#perfil-en-linea .contenido::after {
+  position: absolute;
+  content: '';
+  height: 1px;
+  left: 1em;
+  right: 1em;
+  background-color: #fff2;
+  bottom: 0;
 }
 
 #perfil-menu .contenido {
@@ -100,17 +115,13 @@ img.cabecera-avatar {
   object-fit: cover;
 }
 
-.perfil figcaption {
-  font-weight: bold;
-}
-
 #cerrar-sesion {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: .25rem;
   opacity: .8;
-  margin: .25em auto 0;
+  margin: 1em auto 0;
   padding: 0 .25rem;
   border-radius: var(--radio-campo);
   transition: background-color 0.2s ease-in-out;

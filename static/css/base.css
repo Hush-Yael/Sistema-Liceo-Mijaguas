@@ -119,3 +119,19 @@ select option:checked {
   background: var(--color-primario-500);
   color: var(--color-texto-primario);
 }
+
+.datos-usuario {
+  line-height: 1.6;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.datos-usuario h1 {
+  font-weight: bold;
+}
+
+.datos-usuario p {
+  font-size: .875em;
+  opacity: .7;
+  text-transform: lowercase;
+}

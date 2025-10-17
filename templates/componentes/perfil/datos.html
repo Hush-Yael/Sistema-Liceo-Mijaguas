@@ -1,0 +1,12 @@
+<hgroup class="datos-usuario">
+  <h1>{{ request.user.username }}</h1>
+  <p>
+    {% if request.user.is_superuser %}
+      superusuario
+    {% else %}
+      {% for grupo in request.user.groups.all %}
+        {{ grupo }}{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    {% endif %}
+  </p>
+</hgroup>

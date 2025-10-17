@@ -20,7 +20,7 @@
       {% endif %}
     </a>
 
-    <figcaption>{{ request.user.username }}</figcaption>
+    <figcaption>{% include "componentes/perfil/datos.html" %}</figcaption>
   </figure>
 
   <a id="cerrar-sesion" href="{% url 'logout' %}">

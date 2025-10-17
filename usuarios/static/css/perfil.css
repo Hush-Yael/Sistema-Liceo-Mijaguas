@@ -180,15 +180,11 @@ form {
   object-fit: cover;
 }
 
-#nombre-usuario {
+main .datos-usuario h1 {
   width: 100%;
   outline: none;
   border-bottom: 1px solid #0000;
-  text-align: center;
-  text-wrap: balance;
   font-size: 1.4rem;
-  font-weight: bold;
-  text-align: center;
   transition: border-bottom .25s ease;
 }
 
