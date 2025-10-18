@@ -119,4 +119,11 @@ class ProfesorMateriaAdminForm(forms.ModelForm):
         if seccion.id in secciones_profesor:  # type: ignore
             raise forms.ValidationError("El profesor ya tiene asignada esa sección")
 
+        # La sección debe pertenecer al mismo año
+        if (año := self.cleaned_data.get("año")) is not None:
+            año_de_seccion = Seccion.objects.get(id=seccion.id).año  # type: ignore
+
+            if año != año_de_seccion:  # type: ignore
+                raise forms.ValidationError("La sección debe pertenecer al mismo año")
+
         return seccion
