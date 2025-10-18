@@ -105,6 +105,7 @@ class EstudianteAdmin(ModelAdmin):
         "estado",
     ]
     list_filter = ["estado"]
+    list_editable = ["estado"]
     search_fields = ["nombres", "apellidos"]
 
     # Alterar los resultados del autocompletado
