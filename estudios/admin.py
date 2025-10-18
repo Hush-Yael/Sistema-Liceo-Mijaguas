@@ -187,6 +187,19 @@ class AñoMateriaAdmin(ModelAdmin):
     autocomplete_fields = ["materia"]
 
 
+class LetraSeccionModelo:
+    def get_seccion_letra(self, obj):
+        if obj is not None:
+            if hasattr(obj, "letra_seccion"):
+                return obj.letra_seccion
+            elif hasattr(obj, "seccion"):
+                if (seccion := obj.seccion) is not None:
+                    return seccion.letra_seccion
+
+    get_seccion_letra.admin_order_field = "seccion"  # type: ignore
+    get_seccion_letra.short_description = "Sección"  # type: ignore
+
+
 @admin.register(ProfesorMateria)
 class ProfesorMateriaAdmin(ModelAdmin):
     list_display = ["profesor", "materia", "año", "seccion", "es_profesor_principal"]
@@ -197,7 +210,7 @@ class ProfesorMateriaAdmin(ModelAdmin):
 
 
 @admin.register(Matricula)
-class MatriculaAdmin(ModelAdmin):
+class MatriculaAdmin(LetraSeccionModelo, ModelAdmin):
     list_display = ["estudiante", "año", "get_seccion_letra", "fecha_matricula"]
     list_filter = [
         "año",
@@ -205,12 +218,6 @@ class MatriculaAdmin(ModelAdmin):
     ]
     search_fields = ["estudiante__nombre", "estudiante__apellido"]
     autocomplete_fields = ["estudiante", "seccion"]
-
-    def get_seccion_letra(self, obj):
-        return obj.seccion.letra_seccion
-
-    get_seccion_letra.admin_order_field = "seccion"  # type: ignore
-    get_seccion_letra.short_description = "Sección"  # type: ignore
 
 
 class NotaAdminForm(forms.ModelForm):
@@ -295,13 +302,13 @@ class ProfesorPermissionMixin:
 
 
 @admin.register(Nota)
-class NotaAdmin(ProfesorPermissionMixin, ModelAdmin):
+class NotaAdmin(ProfesorPermissionMixin, LetraSeccionModelo, ModelAdmin):
     form = NotaAdminForm
     list_display = [
         "estudiante",
         "materia",
         "lapso",
-        "seccion",
+        "get_seccion_letra",
         "valor_nota",
         "fecha_nota",
     ]
