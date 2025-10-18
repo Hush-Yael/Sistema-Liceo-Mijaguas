@@ -92,3 +92,31 @@ class NotaAdminForm(forms.ModelForm):
             self.fields["estudiante"].queryset = Estudiante.objects.filter(  # pyright: ignore[reportAttributeAccessIssue]
                 matricula__seccion_id__in=secciones_profesor
             ).distinct()
+
+
+class ProfesorMateriaAdminForm(forms.ModelForm):
+    class Meta:
+        model = ProfesorMateria
+        fields = "__all__"
+
+    def clean_seccion(self):
+        profesor = self.cleaned_data.get("profesor")
+        seccion = self.cleaned_data.get("seccion")
+
+        if not profesor:
+            return seccion
+
+        secciones_profesor = ProfesorMateria.objects.filter(
+            profesor=profesor
+        ).values_list("seccion_id", flat=True)
+
+        # No se pueden asignar todas las secciones más de una vez, ni se pueden asignar secciones si ya se han asignado todas
+        if None in secciones_profesor:
+            raise forms.ValidationError(
+                "El profesor ya tiene asignada todas las secciones"
+            )
+
+        if seccion.id in secciones_profesor:  # type: ignore
+            raise forms.ValidationError("El profesor ya tiene asignada esa sección")
+
+        return seccion

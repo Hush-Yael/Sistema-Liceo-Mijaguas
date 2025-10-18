@@ -1,7 +1,7 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin
 
-from estudios.admin_forms import LapsoAdminForm, NotaAdminForm
+from estudios.admin_forms import LapsoAdminForm, NotaAdminForm, ProfesorMateriaAdminForm
 from .models import (
     Seccion,
     Año,
@@ -160,6 +160,7 @@ class LetraSeccionModelo:
 
 @admin.register(ProfesorMateria)
 class ProfesorMateriaAdmin(LetraSeccionModelo, ModelAdmin):
+    form = ProfesorMateriaAdminForm
     list_display = [
         "profesor",
         "materia",
