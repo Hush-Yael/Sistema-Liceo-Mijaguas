@@ -14,6 +14,7 @@ from .models import (
 )
 from django import forms
 from django.core.exceptions import PermissionDenied
+from django.utils.datetime_safe import datetime
 
 
 @admin.register(Año)
@@ -126,8 +127,51 @@ class EstudianteAdmin(ModelAdmin):
         return queryset, use_distinct
 
 
+class LapsoAdminForm(forms.ModelForm):
+    class Meta:
+        model = Lapso
+        fields = "__all__"
+
+    def clean_fecha_inicio(self):
+        fecha = self.cleaned_data.get("fecha_inicio")
+
+        if fecha is None:
+            return
+
+        if fecha < datetime.now().date():
+            raise forms.ValidationError(
+                "La fecha de inicio debe ser mayor o igual a la fecha actual"
+            )
+
+        return fecha
+
+    def clean_fecha_fin(self):
+        fecha = self.cleaned_data.get("fecha_fin")
+
+        if fecha is None:
+            return
+
+        if fecha < datetime.now().date():
+            raise forms.ValidationError(
+                "La fecha de fin debe ser mayor o igual al año actual"
+            )
+
+        fecha_inicio = self.cleaned_data.get("fecha_inicio")
+
+        if fecha_inicio is None:
+            return fecha
+
+        if fecha <= fecha_inicio:
+            raise forms.ValidationError(
+                "La fecha de fin debe ser mayor o igual a la fecha de inicio"
+            )
+
+        return fecha
+
+
 @admin.register(Lapso)
 class LapsoAdmin(ModelAdmin):
+    form = LapsoAdminForm
     list_display = ["numero_lapso", "nombre_lapso", "fecha_inicio", "fecha_fin"]
     list_filter = ["numero_lapso"]
     search_fields = ["nombre_lapso"]
