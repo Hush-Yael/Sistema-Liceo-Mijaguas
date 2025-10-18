@@ -288,7 +288,7 @@ class Command(BaseCommand):
                 nombres=nombre,
                 apellidos=apellido,
                 fecha_nacimiento=fecha_nacimiento,
-                fecha_matricula=self.faker.date_between(
+                fecha_ingreso=self.faker.date_between(
                     start_date="-2y", end_date="today"
                 ),
                 estado=self.faker.random_element(

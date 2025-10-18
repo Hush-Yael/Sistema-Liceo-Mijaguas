@@ -94,7 +94,7 @@ class Estudiante(models.Model):
     nombres = models.CharField(max_length=100, verbose_name="Nombres")
     apellidos = models.CharField(max_length=100, verbose_name="Apellidos")
     fecha_nacimiento = models.DateField(verbose_name="Fecha de nacimiento")
-    fecha_matricula = models.DateField(
+    fecha_ingreso = models.DateField(
         default=timezone.now, verbose_name="Fecha de matricula"
     )
     estado = models.CharField(max_length=10, choices=ESTADOS, default="activo")
