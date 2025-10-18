@@ -19,7 +19,7 @@ from django.utils.datetime_safe import datetime
 
 @admin.register(Año)
 class AñoAdmin(ModelAdmin):
-    list_display = ["numero_año", "nombre_año", "fecha_creacion"]
+    list_display = ["numero_año", "nombre_año", "nombre_año_corto", "fecha_creacion"]
     list_filter = ["numero_año"]
     search_fields = ["nombre_año", "numero_año"]
     readonly_fields = ["fecha_creacion"]
