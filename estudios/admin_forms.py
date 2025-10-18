@@ -7,6 +7,7 @@ from .models import (
     Lapso,
     ProfesorMateria,
     Nota,
+    AñoMateria,
 )
 
 
@@ -93,6 +94,26 @@ class NotaAdminForm(forms.ModelForm):
                 matricula__seccion_id__in=secciones_profesor
             ).distinct()
 
+    def clean_materia(self):
+        materia = self.cleaned_data.get("materia")
+
+        if materia is not None:
+            seccion = self.data.get("seccion")
+
+            if not seccion:
+                return materia
+
+            año = Seccion.objects.get(id=int(seccion)).año  # pyright: ignore[reportOptionalMemberAccess]
+
+            if not año or materia.id not in AñoMateria.objects.filter(
+                año=año
+            ).values_list("materia_id", flat=True):
+                raise forms.ValidationError(
+                    "La materia no está asignada para el año de la sección seleccionada"
+                )
+
+        return materia
+
 
 class ProfesorMateriaAdminForm(forms.ModelForm):
     class Meta:
@@ -127,3 +148,21 @@ class ProfesorMateriaAdminForm(forms.ModelForm):
                 raise forms.ValidationError("La sección debe pertenecer al mismo año")
 
         return seccion
+
+    def clean_materia(self):
+        materia = self.cleaned_data.get("materia")
+
+        if materia is not None:
+            año = self.data.get("año")
+
+            if año is not None and año is not int:
+                año = int(año)
+
+            if año is None or materia.id not in AñoMateria.objects.filter(
+                año=año
+            ).values_list("materia_id", flat=True):
+                raise forms.ValidationError(
+                    "La materia no está asignada para el año seleccionado"
+                )
+
+        return materia
