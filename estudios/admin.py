@@ -101,6 +101,7 @@ class EstudianteAdmin(ModelAdmin):
         "nombres",
         "apellidos",
         "fecha_nacimiento",
+        "fecha_ingreso",
         "estado",
     ]
     list_filter = ["estado"]
