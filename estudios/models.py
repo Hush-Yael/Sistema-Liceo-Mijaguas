@@ -167,7 +167,7 @@ class ProfesorMateria(models.Model):
 
 
 class Matricula(models.Model):
-    estudiante = models.ForeignKey(Estudiante, on_delete=models.CASCADE)
+    estudiante = models.OneToOneField(Estudiante, on_delete=models.CASCADE)
     año = models.ForeignKey(Año, on_delete=models.CASCADE)
     seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE)
     fecha_matricula = models.DateField(default=timezone.now)
