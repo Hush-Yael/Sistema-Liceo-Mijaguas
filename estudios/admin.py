@@ -194,6 +194,7 @@ class MatriculaAdmin(LetraSeccionModelo, ModelAdmin):
     ]
     search_fields = ["estudiante__nombre", "estudiante__apellido"]
     autocomplete_fields = ["estudiante", "seccion"]
+    ordering = ["-fecha_matricula"]
 
 
 class ProfesorPermissionMixin:
@@ -255,6 +256,7 @@ class NotaAdmin(ProfesorPermissionMixin, LetraSeccionModelo, ModelAdmin):
     autocomplete_fields = ["estudiante", "seccion", "materia"]
     list_editable = ["valor_nota"]
     readonly_fields = ["fecha_nota"]
+    ordering = ["-fecha_nota"]
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
