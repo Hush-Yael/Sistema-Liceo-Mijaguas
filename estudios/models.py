@@ -136,8 +136,8 @@ class AñoMateria(models.Model):
     class Meta:
         db_table = "años_materias"
         unique_together = ["año", "materia"]
-        verbose_name = "año y materia"
-        verbose_name_plural = "Años y materias"
+        verbose_name = "materia asignada a año"
+        verbose_name_plural = "Materias asignadas por años"
 
     def __str__(self):
         return f"{self.año.nombre_año} - {self.materia.nombre_materia}"
@@ -154,8 +154,8 @@ class ProfesorMateria(models.Model):
     class Meta:
         db_table = "profesores_materias"
         unique_together = ["profesor", "materia", "seccion"]
-        verbose_name = "profesor y materia"
-        verbose_name_plural = "Profesores y materias"
+        verbose_name = "materia impartida por profesor"
+        verbose_name_plural = "Materias impartidas por profesores"
 
     def __str__(self):
         seccion_info = (
