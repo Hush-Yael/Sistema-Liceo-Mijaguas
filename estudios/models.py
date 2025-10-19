@@ -73,7 +73,11 @@ class Profesor(models.Model):
     )
     esta_activo = models.BooleanField(default=True, verbose_name="Activo")
     usuario = models.OneToOneField(
-        "usuarios.User", on_delete=models.CASCADE, verbose_name="Usuario"
+        "usuarios.User",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        verbose_name="Usuario",
     )
 
     class Meta:
