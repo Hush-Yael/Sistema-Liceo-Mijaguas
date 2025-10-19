@@ -259,8 +259,8 @@ class NotaAdmin(ProfesorPermissionMixin, ModelAdmin):
     ]
     list_filter = ["lapso", "materia", NotaSeccionFiltro]
     search_fields = [
-        "estudiante__nombre",
-        "estudiante__apellido",
+        "estudiante__nombres",
+        "estudiante__apellidos",
         "materia__nombre_materia",
     ]
     autocomplete_fields = ["estudiante", "seccion", "materia"]
