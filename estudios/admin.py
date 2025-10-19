@@ -177,12 +177,7 @@ class ProfesorMateriaAdmin(LetraSeccionModelo, ModelAdmin):
     autocomplete_fields = ["profesor", "materia", "año", "seccion"]
 
     def get_seccion_letra(self, obj):
-        letra = super().get_seccion_letra(obj)
-
-        if letra is None:
-            return "todas"
-
-        return letra
+        return super().get_seccion_letra(obj)
 
     get_seccion_letra.admin_order_field = "seccion"  # type: ignore
     get_seccion_letra.short_description = "Sección"  # type: ignore

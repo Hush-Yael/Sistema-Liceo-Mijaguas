@@ -146,9 +146,6 @@ class ProfesorMateria(models.Model):
     seccion = models.ForeignKey(
         Seccion,
         on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        help_text="Si no se especifica, se indicará que el profesor imparte la materia a todas las secciones del año",
     )
 
     class Meta:
