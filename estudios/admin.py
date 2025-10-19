@@ -45,7 +45,7 @@ class SeccionAdmin(ModelAdmin):
     autocomplete_fields = ["tutor"]
     readonly_fields = ["fecha_creacion"]
 
-    # Alterar los resultados del autocompletado
+    # Alterar los resultados del autocompletado para solo mostrar las secciones del profesor (si están pidiendo desde ProfesorMateria)
     def get_search_results(self, request, queryset, search_term):
         queryset, use_distinct = super().get_search_results(
             request, queryset, search_term
@@ -62,6 +62,17 @@ class SeccionAdmin(ModelAdmin):
 
         return queryset, use_distinct
 
+    def get_list_display(self, request: HttpRequest):
+        columnas = [*super().get_list_display(request)]
+
+        if "año__id__exact" in request.GET:
+            columnas.remove("año")
+
+        if "letra_seccion" in request.GET:
+            columnas.remove("letra_seccion")
+
+        return columnas
+
 
 @admin.register(Materia)
 class MateriaAdmin(ModelAdmin):
@@ -69,7 +80,7 @@ class MateriaAdmin(ModelAdmin):
     search_fields = ["nombre_materia"]
     readonly_fields = ["fecha_creacion"]
 
-    # Alterar los resultados del autocompletado
+    # Alterar los resultados del autocompletado para solo mostrar las secciones del profesor (si están pidiendo desde ProfesorMateria)
     def get_search_results(self, request, queryset, search_term):
         queryset, use_distinct = super().get_search_results(
             request, queryset, search_term
@@ -114,7 +125,7 @@ class EstudianteAdmin(ModelAdmin):
     list_editable = ["estado"]
     search_fields = ["nombres", "apellidos"]
 
-    # Alterar los resultados del autocompletado
+    # Alterar los resultados del autocompletado para solo mostrar las secciones del profesor (si están pidiendo desde ProfesorMateria)
     def get_search_results(self, request, queryset, search_term):
         queryset, use_distinct = super().get_search_results(
             request, queryset, search_term
@@ -203,6 +214,18 @@ class MatriculaAdmin(LetraSeccionModelo, ModelAdmin):
     search_fields = ["estudiante__nombres", "estudiante__apellidos"]
     autocomplete_fields = ["estudiante", "seccion"]
     ordering = ["-fecha_matricula"]
+
+    def get_list_display(self, request: HttpRequest):
+        columnas = [*super().get_list_display(request)]
+        filtros = request.GET
+
+        if "seccion" in filtros:
+            columnas.remove("get_seccion_letra")
+
+        if "año__id__exact" in filtros:
+            columnas.remove("año")
+
+        return columnas
 
 
 class ProfesorPermissionMixin:
