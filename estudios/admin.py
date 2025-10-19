@@ -5,6 +5,7 @@ from estudios.admin_filtros import (
     NotaLapsoFiltro,
     NotaSeccionFiltro,
     SeccionLetraFiltro,
+    ProfesorMateriaAñoFiltro,
 )
 from estudios.admin_forms import LapsoAdminForm, NotaAdminForm, ProfesorMateriaAdminForm
 from .models import (
@@ -166,16 +167,30 @@ class LetraSeccionModelo:
 @admin.register(ProfesorMateria)
 class ProfesorMateriaAdmin(LetraSeccionModelo, ModelAdmin):
     form = ProfesorMateriaAdminForm
-    list_display = ["profesor", "materia", "get_seccion_letra"]
-    list_filter = [SeccionLetraFiltro, "materia"]
+    list_display = [
+        "profesor",
+        "materia",
+        "seccion",
+    ]
+    list_filter = [
+        "materia",
+        ProfesorMateriaAñoFiltro,
+        SeccionLetraFiltro,
+    ]
     search_fields = ["profesor__nombres", "profesor__apellidos"]
     autocomplete_fields = ["profesor", "materia", "seccion"]
 
-    def get_seccion_letra(self, obj):
-        return super().get_seccion_letra(obj)
+    def get_list_display(self, request: HttpRequest):
+        filtros = request.GET
+        columnas = [*super().get_list_display(request)]
 
-    get_seccion_letra.admin_order_field = "seccion"  # type: ignore
-    get_seccion_letra.short_description = "Sección"  # type: ignore
+        if "anio" in filtros and "seccion" in filtros:
+            columnas.remove("seccion")
+
+        if "materia__id__exact" in filtros:
+            columnas.remove("materia")
+
+        return columnas
 
 
 @admin.register(Matricula)

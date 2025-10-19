@@ -1,5 +1,5 @@
 from django.contrib import admin
-from estudios.models import Lapso, Seccion
+from estudios.models import Lapso, Seccion, Año
 
 
 class SeccionLetraFiltro(admin.SimpleListFilter):
@@ -73,3 +73,19 @@ class NotaLapsoFiltro(admin.SimpleListFilter):
         ) or self.value() is None:
             return queryset
         return queryset.filter(lapso__id=self.value())
+
+
+class ProfesorMateriaAñoFiltro(admin.SimpleListFilter):
+    title = "Año"
+    parameter_name = "anio"
+
+    def lookups(self, request, model_admin):
+        años = Año.objects.values("id", "nombre_año_corto")
+
+        return [(a["id"], a["nombre_año_corto"]) for a in años]
+
+    def queryset(self, request, queryset):
+        if self.value() is None:
+            return queryset
+
+        return queryset.filter(seccion__año_id=self.value())
