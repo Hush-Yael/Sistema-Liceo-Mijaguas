@@ -9,6 +9,7 @@ from .models import (
     Nota,
     AñoMateria,
 )
+from django.db.models import Q
 
 
 class LapsoAdminForm(forms.ModelForm):
@@ -147,14 +148,36 @@ class ProfesorMateriaAdminForm(forms.ModelForm):
                     "El profesor seleccionado ya tiene asignada esa sección para ese año y materia"
                 )
 
-            # La sección debe pertenecer al mismo año
-            if (año := self.cleaned_data.get("año")) is not None:
-                año_de_seccion = Seccion.objects.get(id=seccion.id).año  # type: ignore
+            año_de_seccion = Seccion.objects.get(id=seccion.id).año  # type: ignore
 
-                if año != año_de_seccion:  # type: ignore
-                    raise forms.ValidationError(
-                        "La sección debe pertenecer al mismo año"
+            if año != año_de_seccion:  # type: ignore
+                raise forms.ValidationError("La sección debe pertenecer al mismo año")
+
+            # no se pueden asignar dos profesores para la misma materia en el mismo año
+            try:
+                if (
+                    ProfesorMateria.objects.filter(
+                        Q(año=año)
+                        & Q(materia=materia)
+                        # todas las secciones o la seleccionada
+                        & (Q(seccion=None) | Q(seccion=seccion))
                     )
+                    .exclude(profesor=profesor)
+                    .exists()
+                ):
+                    raise forms.ValidationError(
+                        "Ya existe un profesor asignado para la materia en ese año y sección"
+                    )
+            except ProfesorMateria.DoesNotExist:
+                pass
+        elif (
+            ProfesorMateria.objects.filter(año=año, materia=materia)
+            .exclude(profesor=profesor, seccion=None)
+            .exists()
+        ):
+            raise forms.ValidationError(
+                "Este profesor no puede ser asignado a todas las secciones, porque ya existe otro asignado a alguna sección específica para esa materia en ese año"
+            )
 
         return seccion
 
