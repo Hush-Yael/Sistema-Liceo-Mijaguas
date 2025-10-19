@@ -1,6 +1,11 @@
 from django.contrib import admin
+from django.http import HttpRequest
 from unfold.admin import ModelAdmin
-from estudios.admin_filtros import NotaSeccionFiltro, SeccionLetraFiltro
+from estudios.admin_filtros import (
+    NotaLapsoFiltro,
+    NotaSeccionFiltro,
+    SeccionLetraFiltro,
+)
 from estudios.admin_forms import LapsoAdminForm, NotaAdminForm, ProfesorMateriaAdminForm
 from .models import (
     Seccion,
@@ -252,12 +257,11 @@ class NotaAdmin(ProfesorPermissionMixin, ModelAdmin):
     list_display = [
         "estudiante",
         "materia",
-        "lapso",
         "seccion",
         "valor_nota",
         "fecha_nota",
     ]
-    list_filter = ["lapso", "materia", NotaSeccionFiltro]
+    list_filter = [NotaLapsoFiltro, "materia", NotaSeccionFiltro]
     search_fields = [
         "estudiante__nombres",
         "estudiante__apellidos",
@@ -282,6 +286,14 @@ class NotaAdmin(ProfesorPermissionMixin, ModelAdmin):
             form.base_fields["lapso"].initial = Lapso.objects.last()  # type: ignore
 
         return form
+
+    def get_list_display(self, request: HttpRequest):
+        columnas = super().get_list_display(request)
+
+        if hasattr(request.user, "profesor") and not request.user.is_superuser:
+            return columnas
+
+        return [*columnas, "lapso"]
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "materia":
