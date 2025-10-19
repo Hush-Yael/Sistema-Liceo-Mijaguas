@@ -1,7 +1,6 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin
-
-from estudios.admin_filtros import  SeccionLetraFiltro
+from estudios.admin_filtros import NotaSeccionFiltro, SeccionLetraFiltro
 from estudios.admin_forms import LapsoAdminForm, NotaAdminForm, ProfesorMateriaAdminForm
 from .models import (
     Seccion,
@@ -197,24 +196,34 @@ class MatriculaAdmin(LetraSeccionModelo, ModelAdmin):
 
 
 class ProfesorPermissionMixin:
-    def get_profesor_materias_secciones(self, user):
-        """Obtener las materias y secciones del profesor"""
+    @staticmethod
+    def get_profesor_secciones(user):
+        """Obtener secciones del profesor"""
+        if hasattr(user, "profesor"):
+            profesor = user.profesor
+            secciones = ProfesorMateria.objects.filter(profesor=profesor).values_list(
+                "seccion_id", flat=True
+            )
+            return secciones
+        return []
+
+    @staticmethod
+    def get_profesor_materias(user):
+        """Obtener las materias del profesor"""
         if hasattr(user, "profesor"):
             profesor = user.profesor
             materias = ProfesorMateria.objects.filter(profesor=profesor).values_list(
                 "materia_id", flat=True
             )
-            secciones = ProfesorMateria.objects.filter(profesor=profesor).values_list(
-                "seccion_id", flat=True
-            )
-            return materias, secciones
-        return [], []
+            return materias
+        return []
 
     # solo obtener los datos de las notas del profesor según lo que imparte en el lapso actual
     def limitar_queryset_profesor(self, request, queryset):
         if hasattr(request.user, "profesor") and not request.user.is_superuser:
             ultimo_lapso = Lapso.objects.last()
-            materias, secciones = self.get_profesor_materias_secciones(request.user)
+            materias = self.get_profesor_materias(request.user)
+            secciones = self.get_profesor_secciones(request.user)
 
             return queryset.filter(
                 materia_id__in=materias,
@@ -230,23 +239,25 @@ class ProfesorPermissionMixin:
             if obj.lapso_id != lapso_actual.id:  # type: ignore
                 return False
 
-            materias, secciones = self.get_profesor_materias_secciones(user)
+            materias = self.get_profesor_materias(user)
+            secciones = self.get_profesor_secciones(user)
+
             return obj.materia_id in materias and obj.seccion_id in secciones
         return True
 
 
 @admin.register(Nota)
-class NotaAdmin(ProfesorPermissionMixin, LetraSeccionModelo, ModelAdmin):
+class NotaAdmin(ProfesorPermissionMixin, ModelAdmin):
     form = NotaAdminForm
     list_display = [
         "estudiante",
         "materia",
         "lapso",
-        "get_seccion_letra",
+        "seccion",
         "valor_nota",
         "fecha_nota",
     ]
-    list_filter = ["lapso", "materia", "seccion"]
+    list_filter = ["lapso", "materia", NotaSeccionFiltro]
     search_fields = [
         "estudiante__nombre",
         "estudiante__apellido",
