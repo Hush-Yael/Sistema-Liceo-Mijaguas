@@ -200,7 +200,7 @@ class MatriculaAdmin(LetraSeccionModelo, ModelAdmin):
         "año",
         SeccionLetraFiltro,
     ]
-    search_fields = ["estudiante__nombre", "estudiante__apellido"]
+    search_fields = ["estudiante__nombres", "estudiante__apellidos"]
     autocomplete_fields = ["estudiante", "seccion"]
     ordering = ["-fecha_matricula"]
 
