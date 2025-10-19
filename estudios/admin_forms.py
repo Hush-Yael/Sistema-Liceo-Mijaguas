@@ -130,18 +130,22 @@ class ProfesorMateriaAdminForm(forms.ModelForm):
             return seccion
 
         secciones_profesor = ProfesorMateria.objects.filter(
-            profesor=profesor
+            profesor=profesor,
+            año=año,
+            materia=materia,
         ).values_list("seccion_id", flat=True)
 
         # No se pueden asignar todas las secciones más de una vez, ni se pueden asignar secciones si ya se han asignado todas
         if None in secciones_profesor:
             raise forms.ValidationError(
-                "El profesor ya tiene asignadas todas las secciones"
+                "El profesor seleccionado ya tiene asignadas todas las secciones para ese año y materia"
             )
 
         if seccion is not None:
             if seccion.id in secciones_profesor:  # type: ignore
-                raise forms.ValidationError("El profesor ya tiene asignada esa sección")
+                raise forms.ValidationError(
+                    "El profesor seleccionado ya tiene asignada esa sección para ese año y materia"
+                )
 
             # La sección debe pertenecer al mismo año
             if (año := self.cleaned_data.get("año")) is not None:
