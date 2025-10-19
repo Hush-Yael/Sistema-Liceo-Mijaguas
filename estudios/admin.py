@@ -37,12 +37,12 @@ class SeccionAdmin(ModelAdmin):
         "nombre_seccion",
         "año",
         "letra_seccion",
-        "tutor",
+        "vocero",
         "capacidad_maxima",
     ]
     list_filter = ["año", "letra_seccion"]
     search_fields = ["nombre_seccion", "letra_seccion"]
-    autocomplete_fields = ["tutor"]
+    autocomplete_fields = ["vocero"]
     readonly_fields = ["fecha_creacion"]
 
     # Alterar los resultados del autocompletado para solo mostrar las secciones del profesor (si están pidiendo desde ProfesorMateria)

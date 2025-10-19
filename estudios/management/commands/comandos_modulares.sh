@@ -22,8 +22,8 @@ python manage.py poblar_datos_ejemplo --secciones --secciones-por-año=4
 # Datos completos con secciones específicas
 python manage.py poblar_datos_ejemplo --año=2 --todo --secciones-por-año=4 --cantidad-estudiantes=80
 
-# Solo asignar tutores a secciones
-python manage.py poblar_datos_ejemplo --asignar-tutores
+# Solo asignar voceros a secciones
+python manage.py poblar_datos_ejemplo --asignar-voceros
 
 # Ver distribución de estudiantes por sección
 python manage.py poblar_datos_ejemplo --ver-distribucion

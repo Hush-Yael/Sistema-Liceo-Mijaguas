@@ -26,12 +26,12 @@ class Seccion(models.Model):
     letra_seccion = models.CharField(max_length=1, verbose_name="Letra")
     nombre_seccion = models.CharField(max_length=100, verbose_name="Nombre")
     capacidad_maxima = models.IntegerField(default=30)
-    tutor = models.ForeignKey(
-        "Profesor",
+    vocero = models.ForeignKey(
+        "Estudiante",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="secciones_tutor",
+        related_name="secciones_vocero",
     )
     fecha_creacion = models.DateTimeField(default=timezone.now)
 
