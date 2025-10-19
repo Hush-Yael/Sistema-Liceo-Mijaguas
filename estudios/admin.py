@@ -1,6 +1,7 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin
 
+from estudios.admin_filtros import  SeccionLetraFiltro
 from estudios.admin_forms import LapsoAdminForm, NotaAdminForm, ProfesorMateriaAdminForm
 from .models import (
     Seccion,
@@ -167,7 +168,7 @@ class ProfesorMateriaAdmin(LetraSeccionModelo, ModelAdmin):
         "año",
         "get_seccion_letra",
     ]
-    list_filter = ["año", "seccion"]
+    list_filter = ["año", SeccionLetraFiltro]
     search_fields = ["profesor__nombre", "materia__nombre_materia"]
     autocomplete_fields = ["profesor", "materia", "año", "seccion"]
 
@@ -188,7 +189,7 @@ class MatriculaAdmin(LetraSeccionModelo, ModelAdmin):
     list_display = ["estudiante", "año", "get_seccion_letra", "fecha_matricula"]
     list_filter = [
         "año",
-        "seccion",
+        SeccionLetraFiltro,
     ]
     search_fields = ["estudiante__nombre", "estudiante__apellido"]
     autocomplete_fields = ["estudiante", "seccion"]
