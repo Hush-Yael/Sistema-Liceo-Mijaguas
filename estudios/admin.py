@@ -169,7 +169,7 @@ class ProfesorMateriaAdmin(LetraSeccionModelo, ModelAdmin):
         "get_seccion_letra",
     ]
     list_filter = ["año", SeccionLetraFiltro, "materia"]
-    search_fields = ["profesor__nombre"]
+    search_fields = ["profesor__nombres", "profesor__apellidos"]
     autocomplete_fields = ["profesor", "materia", "año", "seccion"]
 
     def get_seccion_letra(self, obj):
