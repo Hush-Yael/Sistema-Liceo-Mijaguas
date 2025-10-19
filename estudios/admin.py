@@ -166,15 +166,10 @@ class LetraSeccionModelo:
 @admin.register(ProfesorMateria)
 class ProfesorMateriaAdmin(LetraSeccionModelo, ModelAdmin):
     form = ProfesorMateriaAdminForm
-    list_display = [
-        "profesor",
-        "materia",
-        "año",
-        "get_seccion_letra",
-    ]
-    list_filter = ["año", SeccionLetraFiltro, "materia"]
+    list_display = ["profesor", "materia", "get_seccion_letra"]
+    list_filter = [SeccionLetraFiltro, "materia"]
     search_fields = ["profesor__nombres", "profesor__apellidos"]
-    autocomplete_fields = ["profesor", "materia", "año", "seccion"]
+    autocomplete_fields = ["profesor", "materia", "seccion"]
 
     def get_seccion_letra(self, obj):
         return super().get_seccion_letra(obj)

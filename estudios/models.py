@@ -142,7 +142,6 @@ class AñoMateria(models.Model):
 class ProfesorMateria(models.Model):
     profesor = models.ForeignKey(Profesor, on_delete=models.CASCADE)
     materia = models.ForeignKey(Materia, on_delete=models.CASCADE)
-    año = models.ForeignKey(Año, on_delete=models.CASCADE)
     seccion = models.ForeignKey(
         Seccion,
         on_delete=models.CASCADE,
@@ -150,7 +149,7 @@ class ProfesorMateria(models.Model):
 
     class Meta:
         db_table = "profesores_materias"
-        unique_together = ["profesor", "materia", "año", "seccion"]
+        unique_together = ["profesor", "materia", "seccion"]
         verbose_name = "profesor y materia"
         verbose_name_plural = "Profesores y materias"
 

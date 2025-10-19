@@ -367,7 +367,6 @@ class Command(BaseCommand):
                     _, created = ProfesorMateria.objects.get_or_create(
                         profesor=profesor,
                         materia=materia,
-                        año=año,
                         seccion=seccion,
                     )
                     if created:

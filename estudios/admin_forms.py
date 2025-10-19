@@ -124,18 +124,12 @@ class ProfesorMateriaAdminForm(forms.ModelForm):
     def clean_seccion(self):
         profesor = self.cleaned_data.get("profesor")
         seccion = self.cleaned_data.get("seccion")
-        año = self.cleaned_data.get("año")
         materia = self.cleaned_data.get("materia")
 
-        if not profesor or not materia or not año:
+        if not profesor or not materia:
             return seccion
 
         if seccion is not None:
-            año_de_seccion = Seccion.objects.get(id=seccion.id).año  # type: ignore
-
-            if año != año_de_seccion:  # type: ignore
-                raise forms.ValidationError("La sección debe pertenecer al mismo año")
-
             try:
                 ya_asignada = ProfesorMateria.objects.get(
                     seccion=seccion,
@@ -144,9 +138,11 @@ class ProfesorMateriaAdminForm(forms.ModelForm):
 
                 if ya_asignada:  # type: ignore
                     raise forms.ValidationError(
-                        "El profesor seleccionado ya tiene asignada esa sección para ese año y materia"
-                        if ya_asignada.profesor == profesor
-                        else "Ya existe un profesor asignado para la materia en ese año y sección"
+                        f"""{
+                            "El profesor seleccionado ya tiene asignada"
+                            if ya_asignada.profesor == profesor
+                            else "Ya existe un profesor asignado para"
+                        } esa materia en esa sección"""
                     )
             except ProfesorMateria.DoesNotExist:
                 pass
@@ -157,16 +153,18 @@ class ProfesorMateriaAdminForm(forms.ModelForm):
         materia = self.cleaned_data.get("materia")
 
         if materia is not None:
-            año = self.data.get("año")
+            seccion_id = self.data.get("seccion")
 
-            if año is not None and año is not int:
-                año = int(año)
+            if seccion_id is not None and seccion_id is not int:
+                seccion_id = int(seccion_id)
+
+            año = Seccion.objects.get(id=seccion_id).año
 
             if año is None or materia.id not in AñoMateria.objects.filter(
                 año=año
             ).values_list("materia_id", flat=True):
                 raise forms.ValidationError(
-                    "La materia no está asignada para el año seleccionado"
+                    "La materia no está asignada para el año de la sección seleccionada"
                 )
 
         return materia
