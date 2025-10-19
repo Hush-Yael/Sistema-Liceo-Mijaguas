@@ -150,7 +150,6 @@ class ProfesorMateria(models.Model):
         blank=True,
         help_text="Si no se especifica, se indicará que el profesor imparte la materia a todas las secciones del año",
     )
-    es_profesor_principal = models.BooleanField(default=False)
 
     class Meta:
         db_table = "profesores_materias"
@@ -159,11 +158,10 @@ class ProfesorMateria(models.Model):
         verbose_name_plural = "Profesores y materias"
 
     def __str__(self):
-        tipo = "Principal" if self.es_profesor_principal else "Secundario"
         seccion_info = (
             f" - {self.seccion}" if self.seccion else " - Todas las secciones"
         )
-        return f"{self.profesor} - {self.materia}{seccion_info} ({tipo})"
+        return f"{self.profesor} - {self.materia}{seccion_info}"
 
 
 class Matricula(models.Model):

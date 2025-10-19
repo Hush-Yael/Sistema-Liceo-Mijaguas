@@ -369,7 +369,6 @@ class Command(BaseCommand):
                         materia=materia,
                         año=año,
                         seccion=seccion,
-                        defaults={"es_profesor_principal": es_principal},
                     )
                     if created:
                         asignaciones_creadas += 1
