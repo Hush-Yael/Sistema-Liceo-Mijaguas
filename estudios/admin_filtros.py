@@ -41,7 +41,9 @@ class NotaSeccionFiltro(admin.SimpleListFilter):
 
         return [
             (seccion.id, str(seccion))  # pyright: ignore[reportAttributeAccessIssue]
-            for seccion in Seccion.objects.all().order_by("letra_seccion")
+            for seccion in Seccion.objects.all().order_by(
+                "año__numero_año", "letra_seccion"
+            )
         ]
 
     def queryset(self, request, queryset):
