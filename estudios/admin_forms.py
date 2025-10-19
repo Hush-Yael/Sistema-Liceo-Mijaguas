@@ -123,8 +123,10 @@ class ProfesorMateriaAdminForm(forms.ModelForm):
     def clean_seccion(self):
         profesor = self.cleaned_data.get("profesor")
         seccion = self.cleaned_data.get("seccion")
+        año = self.cleaned_data.get("año")
+        materia = self.cleaned_data.get("materia")
 
-        if not profesor:
+        if not profesor or not materia or not año:
             return seccion
 
         secciones_profesor = ProfesorMateria.objects.filter(
