@@ -288,12 +288,22 @@ class NotaAdmin(ProfesorPermissionMixin, ModelAdmin):
         return form
 
     def get_list_display(self, request: HttpRequest):
-        columnas = super().get_list_display(request)
+        columnas = [*super().get_list_display(request)]
+        filtros = request.GET
+
+        if "materia__id__exact" in filtros:
+            columnas.remove("materia")
+
+        if "seccion" in filtros:
+            columnas.remove("seccion")
 
         if hasattr(request.user, "profesor") and not request.user.is_superuser:
             return columnas
 
-        return [*columnas, "lapso"]
+        if "lapso" not in filtros:
+            return columnas + ["lapso"]
+
+        return columnas
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "materia":
