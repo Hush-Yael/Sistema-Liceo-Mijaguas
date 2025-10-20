@@ -7,6 +7,7 @@ from estudios.admin_filtros import (
     NotaMateriaFiltro,
     SeccionLetraFiltro,
     AñoNombreCortoFiltro,
+    NotaAñoNombreCortoFiltro,
 )
 from estudios.admin_forms import (
     MatriculaAdminForm,
@@ -295,8 +296,7 @@ class NotaAdmin(ProfesorPermissionMixin, ModelAdmin):
     list_filter = [
         NotaLapsoFiltro,
         NotaMateriaFiltro,
-        AñoNombreCortoFiltro,
-        SeccionLetraFiltro,
+        NotaAñoNombreCortoFiltro,
         NotaSeccionFiltro,
     ]
     search_fields = [
@@ -331,7 +331,7 @@ class NotaAdmin(ProfesorPermissionMixin, ModelAdmin):
         if "materia__id__exact" in filtros:
             columnas.remove("materia")
 
-        if "seccion" in filtros:
+        if "anio" in filtros and "letra_seccion" in filtros:
             columnas.remove("seccion")
 
         if hasattr(request.user, "profesor") and not request.user.is_superuser:

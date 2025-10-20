@@ -21,35 +21,47 @@ class SeccionLetraFiltro(admin.SimpleListFilter):
         return queryset.filter(seccion__letra_seccion=self.value())
 
 
+class AñoNombreCortoFiltro(admin.SimpleListFilter):
+    title = "Año"
+    parameter_name = "anio"
+
+    def lookups(self, request, model_admin):
+        años = Año.objects.values("id", "nombre_año_corto")
+
+        return [(a["id"], a["nombre_año_corto"]) for a in años]
+
+    def queryset(self, request, queryset):
+        if self.value() is None:
+            return queryset
+
+        return queryset.filter(seccion__año_id=self.value())
+
+
 class NotaSeccionFiltro(admin.SimpleListFilter):
-    title = "Sección"
-    parameter_name = "seccion"
+    title = "Letra de la sección"
+    parameter_name = "letra_seccion"
 
     def lookups(self, request, model_admin):
         if hasattr(request.user, "profesor") and not request.user.is_superuser:
-            from estudios.admin import ProfesorPermissionMixin
-
-            secciones_profesor = ProfesorPermissionMixin.get_profesor_secciones(
-                request.user
+            secciones_letras = (
+                ProfesorMateria.objects.filter(profesor=request.user.profesor)
+                .values_list("seccion__letra_seccion", flat=True)
+                .order_by("seccion__letra_seccion")
+                .distinct()
             )
-
-            secciones = Seccion.objects.filter(id__in=secciones_profesor).order_by(
-                "letra_seccion"
-            )
-
-            return [(seccion.id, str(seccion)) for seccion in secciones]  # pyright: ignore[reportAttributeAccessIssue]
+            return [(letra, letra) for letra in secciones_letras]  # pyright: ignore[reportAttributeAccessIssue]
 
         return [
-            (seccion.id, str(seccion))  # pyright: ignore[reportAttributeAccessIssue]
-            for seccion in Seccion.objects.all().order_by(
-                "año__numero_año", "letra_seccion"
-            )
+            (letra, letra)  # pyright: ignore[reportAttributeAccessIssue]
+            for letra in Seccion.objects.values_list("letra_seccion", flat=True)
+            .order_by("letra_seccion")
+            .distinct()
         ]
 
     def queryset(self, request, queryset):
         if self.value() is None:
             return queryset
-        return queryset.filter(seccion__id=self.value())
+        return queryset.filter(seccion__letra_seccion=self.value())
 
 
 class NotaLapsoFiltro(admin.SimpleListFilter):
@@ -75,14 +87,28 @@ class NotaLapsoFiltro(admin.SimpleListFilter):
         return queryset.filter(lapso__id=self.value())
 
 
-class AñoNombreCortoFiltro(admin.SimpleListFilter):
+class NotaAñoNombreCortoFiltro(admin.SimpleListFilter):
     title = "Año"
     parameter_name = "anio"
 
     def lookups(self, request, model_admin):
-        años = Año.objects.values("id", "nombre_año_corto")
+        if hasattr(request.user, "profesor") and not request.user.is_superuser:
+            años = ProfesorMateria.objects.filter(
+                profesor=request.user.profesor
+            ).values("seccion__año__id", "seccion__año__nombre_año_corto")
 
-        return [(a["id"], a["nombre_año_corto"]) for a in años]
+            return [
+                (año["seccion__año__id"], año["seccion__año__nombre_año_corto"])
+                for año in años
+            ]
+        # todos los lapsos
+        else:
+            años = Año.objects.values("id", "nombre_año_corto").order_by("numero_año")
+
+            return [
+                (año["id"], año["nombre_año_corto"])  # pyright: ignore[reportAttributeAccessIssue]
+                for año in años
+            ]
 
     def queryset(self, request, queryset):
         if self.value() is None:
