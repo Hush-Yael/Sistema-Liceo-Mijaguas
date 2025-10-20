@@ -91,7 +91,7 @@ class AñosAPartirSeccionesFiltro(admin.SimpleListFilter):
         return queryset.filter(seccion__año_id=self.value())
 
 
-class ProfesorMateriaFiltro(admin.SimpleListFilter):
+class NotaMateriaFiltro(admin.SimpleListFilter):
     title = "Materia"
     parameter_name = "materia"
 
