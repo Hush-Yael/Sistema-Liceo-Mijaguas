@@ -5,7 +5,7 @@ from estudios.admin_filtros import (
     NotaLapsoFiltro,
     NotaSeccionFiltro,
     SeccionLetraFiltro,
-    ProfesorMateriaAñoFiltro,
+    AñosAPartirSeccionesFiltro,
 )
 from estudios.admin_forms import LapsoAdminForm, NotaAdminForm, ProfesorMateriaAdminForm
 from .models import (
@@ -35,7 +35,6 @@ class AñoAdmin(ModelAdmin):
 class SeccionAdmin(ModelAdmin):
     list_display = [
         "nombre_seccion",
-        "año",
         "letra_seccion",
         "vocero",
         "capacidad_maxima",
@@ -185,7 +184,7 @@ class ProfesorMateriaAdmin(LetraSeccionModelo, ModelAdmin):
     ]
     list_filter = [
         "materia",
-        ProfesorMateriaAñoFiltro,
+        AñosAPartirSeccionesFiltro,
         SeccionLetraFiltro,
     ]
     search_fields = ["profesor__nombres", "profesor__apellidos"]
@@ -205,10 +204,10 @@ class ProfesorMateriaAdmin(LetraSeccionModelo, ModelAdmin):
 
 
 @admin.register(Matricula)
-class MatriculaAdmin(LetraSeccionModelo, ModelAdmin):
-    list_display = ["estudiante", "año", "get_seccion_letra", "fecha_matricula"]
+class MatriculaAdmin(ModelAdmin):
+    list_display = ["estudiante", "seccion", "fecha_matricula"]
     list_filter = [
-        "año",
+        AñosAPartirSeccionesFiltro,
         SeccionLetraFiltro,
     ]
     search_fields = ["estudiante__nombres", "estudiante__apellidos"]
@@ -220,10 +219,7 @@ class MatriculaAdmin(LetraSeccionModelo, ModelAdmin):
         filtros = request.GET
 
         if "seccion" in filtros:
-            columnas.remove("get_seccion_letra")
-
-        if "año__id__exact" in filtros:
-            columnas.remove("año")
+            columnas.remove("seccion")
 
         return columnas
 

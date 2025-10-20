@@ -75,7 +75,7 @@ class NotaLapsoFiltro(admin.SimpleListFilter):
         return queryset.filter(lapso__id=self.value())
 
 
-class ProfesorMateriaAñoFiltro(admin.SimpleListFilter):
+class AñosAPartirSeccionesFiltro(admin.SimpleListFilter):
     title = "Año"
     parameter_name = "anio"
 

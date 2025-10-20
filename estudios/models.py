@@ -178,16 +178,15 @@ class ProfesorMateria(models.Model):
 
 class Matricula(models.Model):
     estudiante = models.OneToOneField(Estudiante, on_delete=models.CASCADE)
-    año = models.ForeignKey(Año, on_delete=models.CASCADE)
     seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE)
     fecha_matricula = models.DateTimeField(default=timezone.now)
 
     class Meta:
         db_table = "matriculas"
-        unique_together = ["estudiante", "año"]
+        unique_together = ["estudiante", "seccion"]
 
     def __str__(self):
-        return f"{self.estudiante} - {self.año} - {self.seccion.letra_seccion}"
+        return f"{self.estudiante} - {self.seccion}"
 
 
 class Nota(models.Model):

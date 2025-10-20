@@ -413,7 +413,6 @@ class Command(BaseCommand):
             for estudiante in estudiantes_seccion:
                 _, created = Matricula.objects.get_or_create(
                     estudiante=estudiante,
-                    año=año,
                     defaults={
                         "seccion": seccion,
                         "fecha_matricula": self.faker.date_between(
