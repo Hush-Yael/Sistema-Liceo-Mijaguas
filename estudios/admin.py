@@ -213,6 +213,7 @@ class MatriculaAdmin(ModelAdmin):
     search_fields = ["estudiante__nombres", "estudiante__apellidos"]
     autocomplete_fields = ["estudiante", "seccion"]
     ordering = ["-fecha_matricula"]
+    readonly_fields = ["fecha_matricula"]
 
     def get_list_display(self, request: HttpRequest):
         columnas = [*super().get_list_display(request)]
