@@ -7,7 +7,12 @@ from estudios.admin_filtros import (
     SeccionLetraFiltro,
     AñosAPartirSeccionesFiltro,
 )
-from estudios.admin_forms import LapsoAdminForm, NotaAdminForm, ProfesorMateriaAdminForm
+from estudios.admin_forms import (
+    MatriculaAdminForm,
+    LapsoAdminForm,
+    NotaAdminForm,
+    ProfesorMateriaAdminForm,
+)
 from .models import (
     Seccion,
     Año,
@@ -205,6 +210,7 @@ class ProfesorMateriaAdmin(LetraSeccionModelo, ModelAdmin):
 
 @admin.register(Matricula)
 class MatriculaAdmin(ModelAdmin):
+    form = MatriculaAdminForm
     list_display = ["estudiante", "seccion", "fecha_matricula"]
     list_filter = [
         AñosAPartirSeccionesFiltro,

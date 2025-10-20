@@ -1,6 +1,7 @@
 from django import forms
 from django.utils.datetime_safe import datetime
 from .models import (
+    Matricula,
     Seccion,
     Materia,
     Estudiante,
@@ -9,7 +10,26 @@ from .models import (
     Nota,
     AñoMateria,
 )
-from django.db.models import Q
+
+
+class MatriculaAdminForm(forms.ModelForm):
+    class Meta:
+        model = Matricula
+        fields = "__all__"
+
+    def clean_estudiante(self):
+        estudiante_cedula = self.data.get("estudiante")
+
+        if estudiante_cedula is not None:
+            estudiante_cedula = int(estudiante_cedula)
+            estado = Estudiante.objects.get(cedula=estudiante_cedula).estado  # pyright: ignore[reportOptionalMemberAccess]
+
+            if estado != "activo":
+                raise forms.ValidationError(
+                    f"El estudiante {'no se encuentra activo' if estado == 'inactivo' else 'se encuentra graduado'}"
+                )
+
+        return estudiante_cedula
 
 
 class LapsoAdminForm(forms.ModelForm):
