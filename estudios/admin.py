@@ -202,6 +202,9 @@ class ProfesorMateriaAdmin(LetraSeccionModelo, ModelAdmin):
         if "materia__id__exact" in filtros:
             columnas.remove("materia")
 
+        if "anio" in filtros and "letra_seccion" in filtros:
+            columnas.remove("seccion")
+
         return columnas
 
 
@@ -222,7 +225,7 @@ class MatriculaAdmin(ModelAdmin):
         columnas = [*super().get_list_display(request)]
         filtros = request.GET
 
-        if "letra_seccion" in filtros:
+        if "anio" in filtros and "letra_seccion" in filtros:
             columnas.remove("seccion")
 
         return columnas
