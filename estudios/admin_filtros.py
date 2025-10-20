@@ -1,5 +1,5 @@
 from django.contrib import admin
-from estudios.models import Lapso, Seccion, Año
+from estudios.models import Lapso, Materia, ProfesorMateria, Seccion, Año
 
 
 class SeccionLetraFiltro(admin.SimpleListFilter):
@@ -89,3 +89,29 @@ class AñosAPartirSeccionesFiltro(admin.SimpleListFilter):
             return queryset
 
         return queryset.filter(seccion__año_id=self.value())
+
+
+class ProfesorMateriaFiltro(admin.SimpleListFilter):
+    title = "Materia"
+    parameter_name = "materia"
+
+    def lookups(self, request, model_admin):
+        if hasattr(request.user, "profesor") and not request.user.is_superuser:
+            materias = ProfesorMateria.objects.filter(
+                profesor=request.user.profesor
+            ).values("materia__id", "materia__nombre_materia")
+
+            return [
+                (materia["materia__id"], materia["materia__nombre_materia"])
+                for materia in materias
+            ]
+
+        return [
+            (materia.id, str(materia))  # pyright: ignore[reportAttributeAccessIssue]
+            for materia in Materia.objects.all().order_by("nombre_materia")
+        ]
+
+    def queryset(self, request, queryset):
+        if self.value() is None:
+            return queryset
+        return queryset.filter(materia__id=self.value())

@@ -4,6 +4,7 @@ from unfold.admin import ModelAdmin
 from estudios.admin_filtros import (
     NotaLapsoFiltro,
     NotaSeccionFiltro,
+    ProfesorMateriaFiltro,
     SeccionLetraFiltro,
     AñosAPartirSeccionesFiltro,
 )
@@ -292,7 +293,7 @@ class NotaAdmin(ProfesorPermissionMixin, ModelAdmin):
         "valor_nota",
         "fecha_nota",
     ]
-    list_filter = [NotaLapsoFiltro, "materia", NotaSeccionFiltro]
+    list_filter = [NotaLapsoFiltro, ProfesorMateriaFiltro, NotaSeccionFiltro]
     search_fields = [
         "estudiante__nombres",
         "estudiante__apellidos",
