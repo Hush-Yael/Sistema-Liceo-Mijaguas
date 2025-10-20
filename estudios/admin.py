@@ -6,7 +6,7 @@ from estudios.admin_filtros import (
     NotaSeccionFiltro,
     NotaMateriaFiltro,
     SeccionLetraFiltro,
-    AñosAPartirSeccionesFiltro,
+    AñoNombreCortoFiltro,
 )
 from estudios.admin_forms import (
     MatriculaAdminForm,
@@ -188,11 +188,7 @@ class ProfesorMateriaAdmin(LetraSeccionModelo, ModelAdmin):
         "materia",
         "seccion",
     ]
-    list_filter = [
-        "materia",
-        AñosAPartirSeccionesFiltro,
-        SeccionLetraFiltro,
-    ]
+    list_filter = ["materia", AñoNombreCortoFiltro, SeccionLetraFiltro]
     search_fields = ["profesor__nombres", "profesor__apellidos"]
     autocomplete_fields = ["profesor", "materia", "seccion"]
 
@@ -214,7 +210,7 @@ class MatriculaAdmin(ModelAdmin):
     form = MatriculaAdminForm
     list_display = ["estudiante", "seccion", "fecha_matricula"]
     list_filter = [
-        AñosAPartirSeccionesFiltro,
+        AñoNombreCortoFiltro,
         SeccionLetraFiltro,
     ]
     search_fields = ["estudiante__nombres", "estudiante__apellidos"]
@@ -296,7 +292,7 @@ class NotaAdmin(ProfesorPermissionMixin, ModelAdmin):
     list_filter = [
         NotaLapsoFiltro,
         NotaMateriaFiltro,
-        AñosAPartirSeccionesFiltro,
+        AñoNombreCortoFiltro,
         SeccionLetraFiltro,
         NotaSeccionFiltro,
     ]
