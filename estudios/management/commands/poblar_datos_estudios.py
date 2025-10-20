@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from usuarios.models import User
 from estudios.models import (
+    Matricula,
     Nota,
     Seccion,
     Año,
@@ -94,6 +95,7 @@ class Command(BaseCommand):
             Año,
             Materia,
             Estudiante,
+            Matricula,
             Profesor,
             Lapso,
             AñoMateria,
