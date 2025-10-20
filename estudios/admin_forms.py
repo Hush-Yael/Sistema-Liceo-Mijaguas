@@ -135,6 +135,35 @@ class NotaAdminForm(forms.ModelForm):
 
         return materia
 
+    def clean_estudiante(self):
+        estudiante = self.cleaned_data["estudiante"]
+
+        if estudiante is not None:
+            if estudiante.estado != "activo":
+                raise forms.ValidationError(
+                    f"El estudiante {'no se encuentra activo' if estudiante.estado == 'inactivo' else 'se encuentra graduado'}"
+                )
+
+            matricula = Matricula.objects.get(estudiante=estudiante)
+            estudiante_seccion = matricula.seccion
+
+            if estudiante_seccion is None:
+                raise forms.ValidationError(
+                    "El estudiante no se encuentra matriculado en ninguna sección"
+                )
+
+            seccion_id = self.data.get("seccion")
+
+            if seccion_id is not None:
+                seccion_id = int(seccion_id)
+
+                if seccion_id != estudiante_seccion.id:  # pyright: ignore[reportAttributeAccessIssue]
+                    raise forms.ValidationError(
+                        "El estudiante no se encuentra matriculado en la sección seleccionada"
+                    )
+
+        return estudiante
+
 
 class ProfesorMateriaAdminForm(forms.ModelForm):
     class Meta:
