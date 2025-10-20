@@ -74,7 +74,7 @@ class Profesor(models.Model):
     telefono = models.CharField(
         max_length=15, blank=True, null=True, verbose_name="Teléfono"
     )
-    fecha_ingreso = models.DateField(
+    fecha_ingreso = models.DateTimeField(
         default=timezone.now, verbose_name="Fecha de ingreso"
     )
     esta_activo = models.BooleanField(default=True, verbose_name="Activo")
@@ -180,7 +180,7 @@ class Matricula(models.Model):
     estudiante = models.OneToOneField(Estudiante, on_delete=models.CASCADE)
     año = models.ForeignKey(Año, on_delete=models.CASCADE)
     seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE)
-    fecha_matricula = models.DateField(default=timezone.now)
+    fecha_matricula = models.DateTimeField(default=timezone.now)
 
     class Meta:
         db_table = "matriculas"
@@ -198,7 +198,7 @@ class Nota(models.Model):
     valor_nota = models.FloatField(
         validators=[MinValueValidator(0), MaxValueValidator(20)]
     )
-    fecha_nota = models.DateField(default=timezone.now)
+    fecha_nota = models.DateTimeField(default=timezone.now)
     comentarios = models.TextField(blank=True, null=True)
 
     class Meta:
