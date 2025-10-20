@@ -342,9 +342,6 @@ class NotaAdmin(ProfesorPermissionMixin, ModelAdmin):
 
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
-    def has_view_permission(self, request, obj=None):
-        return request.user.is_superuser or hasattr(request.user, "profesor")
-
     def has_add_permission(self, request):
         return request.user.is_superuser or hasattr(request.user, "profesor")
 
@@ -352,6 +349,7 @@ class NotaAdmin(ProfesorPermissionMixin, ModelAdmin):
         if not (request.user.is_superuser or hasattr(request.user, "profesor")):
             return False
 
+        # se verifica el permiso para cada nota individual
         if obj:
             return self.profesor_tiene_acceso(request.user, obj)
 
