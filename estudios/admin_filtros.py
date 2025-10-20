@@ -3,8 +3,8 @@ from estudios.models import Lapso, Materia, ProfesorMateria, Seccion, Año
 
 
 class SeccionLetraFiltro(admin.SimpleListFilter):
-    title = "Sección"
-    parameter_name = "seccion"
+    title = "Letra de la sección"
+    parameter_name = "letra_seccion"
 
     def lookups(self, request, model_admin):
         letras = (

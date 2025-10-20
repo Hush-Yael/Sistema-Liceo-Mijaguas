@@ -222,7 +222,7 @@ class MatriculaAdmin(ModelAdmin):
         columnas = [*super().get_list_display(request)]
         filtros = request.GET
 
-        if "seccion" in filtros:
+        if "letra_seccion" in filtros:
             columnas.remove("seccion")
 
         return columnas
