@@ -202,7 +202,6 @@ class Nota(models.Model):
 
     class Meta:
         db_table = "notas"
-        unique_together = ["estudiante", "materia", "lapso"]
         verbose_name_plural = "Notas"
 
     def __str__(self):
