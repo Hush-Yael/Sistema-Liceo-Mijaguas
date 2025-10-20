@@ -39,6 +39,8 @@ MATERIAS = [
     "Premilitar",
 ]
 
+MATERIAS_PUNTUALES = {"Premilitar": (5,), "Física": (3, 4, 5), "Química": (3, 4, 5)}
+
 
 class Command(BaseCommand):
     help = "Llena la base de datos con datos estáticos (Años, materias, grupos, y un usuario admin)"
@@ -85,9 +87,33 @@ class Command(BaseCommand):
                 materias_creadas += 1
                 self.stdout.write(f"✓ Materia creada: {materia}")
 
-        grupos_creados = 0
+        self.stdout.write("Asignando materias a años...")
+
+        materias_asignadas = 0
+
+        for materia in MATERIAS:
+            for num, _, _ in AÑOS:
+                # evitar asignar ciertas materias a todos los años, solo a algunos
+                if (
+                    materia in MATERIAS_PUNTUALES
+                    and num not in MATERIAS_PUNTUALES[materia]
+                ):
+                    continue
+
+                _, asignada = AñoMateria.objects.get_or_create(
+                    materia=Materia.objects.get(nombre_materia=materia),
+                    año=Año.objects.get(numero_año=num),
+                )
+
+                if asignada:
+                    self.stdout.write(f"✓ Asignada materia {materia} al año {num}")
+                    materias_asignadas += 1
+
+        self.stdout.write(f"✓ Total materias asignadas: {materias_asignadas}")
 
         self.stdout.write("Creando grupos...")
+
+        grupos_creados = 0
 
         tablas_admin = [
             User,
@@ -168,6 +194,6 @@ class Command(BaseCommand):
         self.stdout.write(
             self.style.SUCCESS(
                 f"¡Datos estáticos creados exitosamente! "
-                f"({años_creados} años, {materias_creadas} materias, {grupos_creados} grupos)"
+                f"({años_creados} años, {materias_creadas} materias creadas, {materias_asignadas} materias asignadas, {secciones_creadas} secciones, {grupos_creados} grupos)"
             )
         )
