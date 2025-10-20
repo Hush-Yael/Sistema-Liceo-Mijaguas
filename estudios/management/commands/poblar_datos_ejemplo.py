@@ -220,7 +220,7 @@ class Command(BaseCommand):
         profesores_creados = 0
         for i in range(cantidad + 1):
             # Verificar si ya existe
-            if Profesor.objects.filter(id=i).exists():
+            if Profesor.objects.filter(cedula=i).exists():
                 continue
 
             # Generar datos con Faker
@@ -248,6 +248,7 @@ class Command(BaseCommand):
             prof_usuario.save()
 
             Profesor.objects.create(
+                cedula=i,
                 nombres=nombre,
                 apellidos=apellido,
                 telefono=self.faker.random_element(
@@ -274,7 +275,7 @@ class Command(BaseCommand):
         estudiantes_creados = 0
         for i in range(cantidad + 1):
             # Verificar si ya existe
-            if Estudiante.objects.filter(id=i).exists():
+            if Estudiante.objects.filter(cedula=i).exists():
                 continue
 
             # Generar datos con Faker (edades entre 13-18 años para secundaria)
@@ -285,6 +286,7 @@ class Command(BaseCommand):
             fecha_nacimiento = self.faker.date_of_birth(minimum_age=13, maximum_age=18)
 
             Estudiante.objects.create(
+                cedula=i,
                 nombres=nombre,
                 apellidos=apellido,
                 fecha_nacimiento=fecha_nacimiento,

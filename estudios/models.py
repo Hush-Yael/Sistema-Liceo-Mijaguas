@@ -63,6 +63,12 @@ class Materia(models.Model):
 
 
 class Profesor(models.Model):
+    cedula = models.IntegerField(
+        validators=[MinValueValidator(1)],
+        unique=True,
+        primary_key=True,
+        verbose_name="Cédula",
+    )
     nombres = models.CharField(max_length=100, verbose_name="Nombres")
     apellidos = models.CharField(max_length=100, verbose_name="Apellidos")
     telefono = models.CharField(
@@ -95,6 +101,12 @@ class Estudiante(models.Model):
         ("graduado", "Graduado"),
     ]
 
+    cedula = models.IntegerField(
+        validators=[MinValueValidator(1)],
+        unique=True,
+        primary_key=True,
+        verbose_name="Cédula",
+    )
     nombres = models.CharField(max_length=100, verbose_name="Nombres")
     apellidos = models.CharField(max_length=100, verbose_name="Apellidos")
     fecha_nacimiento = models.DateField(verbose_name="Fecha de nacimiento")

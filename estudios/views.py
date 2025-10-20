@@ -159,7 +159,7 @@ def notas__seccion_estudiantes(request: HttpRequest, seccion_id):
     seccion = Seccion.objects.get(id=seccion_id)
 
     estudiantes_notas_seccion = Matricula.objects.filter(seccion=seccion).values(
-        "estudiante__id",
+        "estudiante__cedula",
         "estudiante__apellidos",
         "estudiante__nombres",
     )
@@ -174,11 +174,11 @@ def notas__seccion_estudiantes(request: HttpRequest, seccion_id):
 
 
 def notas__seccion_estudiante_lapsos(
-    request: HttpRequest, seccion_id: int, estudiante_id: int
+    request: HttpRequest, seccion_id: int, estudiante_cedula: int
 ):
     seccion = Seccion.objects.get(id=seccion_id)
 
-    estudiante = Estudiante.objects.get(id=estudiante_id)
+    estudiante = Estudiante.objects.get(cedula=estudiante_cedula)
 
     lapsos = Lapso.objects.order_by("numero_lapso").all().order_by("-fecha_inicio")
 
@@ -195,12 +195,12 @@ def notas__seccion_estudiante_lapsos(
 
 
 def notas__seccion_estudiante_lapso(
-    request: HttpRequest, seccion_id: int, estudiante_id: int, lapso_id: int
+    request: HttpRequest, seccion_id: int, estudiante_cedula: int, lapso_id: int
 ):
     form = FormularioNotasBusqueda()
 
     seccion = Seccion.objects.get(id=seccion_id)
-    estudiante = Estudiante.objects.get(id=estudiante_id)
+    estudiante = Estudiante.objects.get(cedula=estudiante_cedula)
     lapso = Lapso.objects.get(id=lapso_id)
     materias = Materia.objects.values("id", "nombre_materia").order_by("nombre_materia")
 
@@ -350,9 +350,11 @@ def resumen_matriculas_por_año(request: HttpRequest):
     resumen = (
         Matricula.objects.values("año__id", "año__nombre_año", "año__numero_año")
         .annotate(
-            total_estudiantes=Count("estudiante_id"),
+            total_estudiantes=Count("estudiante_cedula"),
             estudiantes_activos=Count(
-                "estudiante_id", filter=Q(estudiante__estado="activo"), distinct=True
+                "estudiante_cedula",
+                filter=Q(estudiante__estado="activo"),
+                distinct=True,
             ),
         )
         .order_by("año__numero_año")

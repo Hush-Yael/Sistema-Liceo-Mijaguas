@@ -16,32 +16,57 @@
 {% endblock cabeza %}
 
 {% block contenido %}
+  <nav>
+    <ul id="enlaces-especiales">
+      <li>
+        <a id="mis-notas" class="enlace" href="/admin/estudios/nota/">
+          <span class="decoracion-circular-contenedor">
+            <span class="decoracion-circular primario">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                class="icon icon-tabler icons-tabler-filled icon-tabler-file-pencil"
+              >
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path
+                  d="M12 2l.117 .007a1 1 0 0 1 .876 .876l.007 .117v4l.005 .15a2 2 0 0 0 1.838 1.844l.157 .006h4l.117 .007a1 1 0 0 1 .876 .876l.007 .117v9a3 3 0 0 1 -2.824 2.995l-.176 .005h-10a3 3 0 0 1 -2.995 -2.824l-.005 -.176v-14a3 3 0 0 1 2.824 -2.995l.176 -.005zm1 10l-5 5v2h2l5 -5a1.414 1.414 0 0 0 -2 -2"
+                />
+                <path d="M19 7h-4l-.001 -4.001z" />
+              </svg>
+            </span>
 
-  {% if es_profesor %}
-    <a id="mis-notas" class="enlace" href="/admin/estudios/nota/">
-      <span class="decoracion-circular-contenedor">
-        <span class="decoracion-circular primario">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            class="icon icon-tabler icons-tabler-filled icon-tabler-file-pencil"
-          >
-            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-            <path
-              d="M12 2l.117 .007a1 1 0 0 1 .876 .876l.007 .117v4l.005 .15a2 2 0 0 0 1.838 1.844l.157 .006h4l.117 .007a1 1 0 0 1 .876 .876l.007 .117v9a3 3 0 0 1 -2.824 2.995l-.176 .005h-10a3 3 0 0 1 -2.995 -2.824l-.005 -.176v-14a3 3 0 0 1 2.824 -2.995l.176 -.005zm1 10l-5 5v2h2l5 -5a1.414 1.414 0 0 0 -2 -2"
-            />
-            <path d="M19 7h-4l-.001 -4.001z" />
-          </svg>
-        </span>
+            Administrar las notas de mis estudiantes
+          </span>
+          {% include "componentes/caret.html" %}
+        </a>
+      </li>
 
-        Administrar las notas de mis estudiantes
-      </span>
-      {% include "componentes/caret.html" %}
-    </a>
-  {% endif %}
+      <li>
+        <a class="enlace">
+          <span class="decoracion-circular-contenedor">
+            <span class="decoracion-circular primario">
+              <svg
+                enable-background="new 0 0 24 24"
+                version="1.0"
+                viewBox="0 0 24 24"
+                xml:space="preserve"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <polygon points="12,3 1,9 12,15 23,9 " />
+                <polygon points="19,12.8 12,17 5,12.8 5,17.2 12,21 19,17.2 " />
+                <rect height="8" width="2" x="21" y="9" />
+              </svg>
+            </span>
+            Notas de estudiantes graduados
+          </span>
+          {% include "componentes/caret.html" %}
+        </a>
+      </li>
+    </ul>
+  </nav>
 
   {% if años.keys|length == 0 %}
     {% with mensaje_alerta="No se encontraron años académicos." %}

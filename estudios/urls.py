@@ -13,12 +13,12 @@ urlpatterns = [
         name="notas__seccion_estudiantes",
     ),
     path(
-        "notas/<int:seccion_id>/<int:estudiante_id>/",
+        "notas/<int:seccion_id>/<int:estudiante_cedula>/",
         views.notas__seccion_estudiante_lapsos,
         name="notas__seccion_estudiante_lapsos",
     ),
     path(
-        "notas/<int:seccion_id>/<int:estudiante_id>/<int:lapso_id>/",
+        "notas/<int:seccion_id>/<int:estudiante_cedula>/<int:lapso_id>/",
         views.notas__seccion_estudiante_lapso,
         name="notas__seccion_estudiante_lapso",
     ),
