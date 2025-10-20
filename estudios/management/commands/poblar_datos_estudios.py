@@ -88,6 +88,34 @@ class Command(BaseCommand):
 
         self.stdout.write("Creando grupos...")
 
+        tablas_admin = [
+            User,
+            Nota,
+            Año,
+            Materia,
+            Estudiante,
+            Profesor,
+            Lapso,
+            AñoMateria,
+            ProfesorMateria,
+            Seccion,
+        ]
+
+        grupo_admin, creado = Group.objects.get_or_create(name="Admin")
+
+        if creado or grupo_admin.permissions.count() == 0:
+            for tabla in tablas_admin:
+                content_type = ContentType.objects.get_for_model(tabla)
+
+                permisos = Permission.objects.filter(content_type=content_type)
+
+                for permiso in permisos:
+                    grupo_admin.permissions.add(permiso)
+
+            grupos_creados += 1
+
+            self.stdout.write(f"✓ Grupo creado: {grupo_admin.name}")
+
         grupo_profesor, created = Group.objects.get_or_create(name="Profesor")
 
         if created or grupo_profesor.permissions.count() == 0:
@@ -101,19 +129,11 @@ class Command(BaseCommand):
             for permiso in permisos_notas:
                 grupo_profesor.permissions.add(permiso)
 
-            tablas_solo_lectura = (
-                Año,
-                Materia,
-                Estudiante,
-                Profesor,
-                Lapso,
-                AñoMateria,
-                ProfesorMateria,
-                Seccion,
-            )
+            tablas_admin.remove(User)
+            tablas_admin.remove(Nota)
 
             # solo lectura para todas las demás tablas
-            for tabla in tablas_solo_lectura:
+            for tabla in tablas_admin:
                 content_type = ContentType.objects.get_for_model(tabla)
 
                 permiso = Permission.objects.filter(
@@ -134,10 +154,10 @@ class Command(BaseCommand):
                 username="admin",
                 email="",
                 is_staff=True,
-                is_superuser=True,
             )
             if creado:
                 admin.set_password("admin")
+                admin.groups.add(grupo_admin)
                 admin.save()
                 self.stdout.write(self.style.SUCCESS("✓ Admin creado"))
         except IntegrityError:
