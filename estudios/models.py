@@ -95,12 +95,6 @@ class Profesor(models.Model):
 
 
 class Estudiante(models.Model):
-    ESTADOS = [
-        ("activo", "Activo"),
-        ("inactivo", "Inactivo"),
-        ("graduado", "Graduado"),
-    ]
-
     cedula = models.IntegerField(
         validators=[MinValueValidator(1)],
         unique=True,
@@ -113,7 +107,6 @@ class Estudiante(models.Model):
     fecha_ingreso = models.DateField(
         default=timezone.now, verbose_name="Fecha de matricula"
     )
-    estado = models.CharField(max_length=10, choices=ESTADOS, default="activo")
 
     class Meta:
         ordering = ["apellidos", "nombres"]
@@ -177,9 +170,15 @@ class ProfesorMateria(models.Model):
 
 
 class Matricula(models.Model):
+    ESTADOS = [
+        ("activo", "Activo"),
+        ("inactivo", "Inactivo"),
+    ]
+
     estudiante = models.OneToOneField(Estudiante, on_delete=models.CASCADE)
     seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE)
     fecha_matricula = models.DateTimeField(default=timezone.now)
+    estado = models.CharField(max_length=10, choices=ESTADOS, default="activo")
 
     class Meta:
         db_table = "matriculas"
@@ -187,6 +186,22 @@ class Matricula(models.Model):
 
     def __str__(self):
         return f"{self.estudiante} - {self.seccion}"
+
+
+class Bachiller(models.Model):
+    promocion = models.CharField(
+        max_length=50, verbose_name="Promoción", primary_key=True
+    )
+    estudiante = models.OneToOneField(Estudiante, on_delete=models.CASCADE)
+    fecha_graduacion = models.DateField(default=timezone.now)
+
+    class Meta:
+        db_table = "bachilleres"
+        verbose_name = "bachiller"
+        verbose_name_plural = "Bachilleres"
+
+    def __str__(self):
+        return f"Bachiller {self.estudiante} - promo. {self.promocion} ({self.fecha_graduacion.strftime('%d/%m/%Y')})"
 
 
 class Nota(models.Model):

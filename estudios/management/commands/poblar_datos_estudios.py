@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from usuarios.models import User
 from estudios.models import (
+    Bachiller,
     Matricula,
     Nota,
     Seccion,
@@ -127,6 +128,7 @@ class Command(BaseCommand):
             AñoMateria,
             ProfesorMateria,
             Seccion,
+            Bachiller,
         ]
 
         grupo_admin, creado = Group.objects.get_or_create(name="Admin")
@@ -147,6 +149,11 @@ class Command(BaseCommand):
         grupo_profesor, created = Group.objects.get_or_create(name="Profesor")
 
         if created or grupo_profesor.permissions.count() == 0:
+            # no pueden ver usuarios
+            tablas_admin.remove(User)
+            # se añaden todos los permisos de notas manualmente abajo
+            tablas_admin.remove(Nota)
+
             nota_content_type = ContentType.objects.get_for_model(Nota)
 
             permisos_notas = Permission.objects.filter(
@@ -156,9 +163,6 @@ class Command(BaseCommand):
             # todos los permisos de notas
             for permiso in permisos_notas:
                 grupo_profesor.permissions.add(permiso)
-
-            tablas_admin.remove(User)
-            tablas_admin.remove(Nota)
 
             # solo lectura para todas las demás tablas
             for tabla in tablas_admin:

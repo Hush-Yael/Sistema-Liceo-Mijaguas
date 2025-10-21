@@ -25,8 +25,5 @@ python manage.py poblar_datos_ejemplo --año=2 --todo --secciones-por-año=4 --c
 # Solo asignar voceros a secciones
 python manage.py poblar_datos_ejemplo --asignar-voceros
 
-# Ver distribución de estudiantes por sección
-python manage.py poblar_datos_ejemplo --ver-distribucion
-
 # Combinaciones
 python manage.py poblar_datos_ejemplo --profesores --estudiantes --cantidad-profesores=12 --cantidad-estudiantes=50

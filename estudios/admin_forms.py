@@ -1,6 +1,7 @@
 from django import forms
 from django.utils.datetime_safe import datetime
 from .models import (
+    Bachiller,
     Matricula,
     Seccion,
     Materia,
@@ -8,8 +9,10 @@ from .models import (
     Lapso,
     ProfesorMateria,
     Nota,
+    Año,
     AñoMateria,
 )
+from django.db.models import Avg
 
 
 class MatriculaAdminForm(forms.ModelForm):
@@ -18,18 +21,15 @@ class MatriculaAdminForm(forms.ModelForm):
         fields = "__all__"
 
     def clean_estudiante(self):
-        estudiante_cedula = self.data.get("estudiante")
+        estudiante = self.cleaned_data.get("estudiante")
 
-        if estudiante_cedula is not None:
-            estudiante_cedula = int(estudiante_cedula)
-            estado = Estudiante.objects.get(cedula=estudiante_cedula).estado  # pyright: ignore[reportOptionalMemberAccess]
+        if estudiante is not None:
+            es_bachiller = Bachiller.objects.filter(estudiante=estudiante).exists()
 
-            if estado != "activo":
-                raise forms.ValidationError(
-                    f"El estudiante {'no se encuentra activo' if estado == 'inactivo' else 'se encuentra graduado'}"
-                )
+            if es_bachiller:
+                raise forms.ValidationError("El estudiante ya es bachiller")
 
-        return estudiante_cedula
+        return estudiante
 
     def clean_seccion(self):
         seccion = self.cleaned_data.get("seccion")
@@ -153,9 +153,14 @@ class NotaAdminForm(forms.ModelForm):
         estudiante = self.cleaned_data["estudiante"]
 
         if estudiante is not None:
-            if estudiante.estado != "activo":
+            inactivo = Matricula.objects.filter(
+                estudiante=estudiante, estado="inactivo"
+            ).exists()
+            es_bachiller = Bachiller.objects.filter(estudiante=estudiante).exists()
+
+            if inactivo or es_bachiller:
                 raise forms.ValidationError(
-                    f"El estudiante {'no se encuentra activo' if estudiante.estado == 'inactivo' else 'se encuentra graduado'}"
+                    f"El estudiante {'no se encuentra activo' if inactivo else 'ya es bachiller'}"
                 )
 
             matricula = Matricula.objects.get(estudiante=estudiante)
@@ -231,3 +236,50 @@ class ProfesorMateriaAdminForm(forms.ModelForm):
                 )
 
         return materia
+
+
+class BachillerAdminForm(forms.ModelForm):
+    class Meta:
+        model = Bachiller
+        fields = "__all__"
+
+    def clean_estudiante(self):
+        estudiante = self.cleaned_data.get("estudiante")
+
+        if estudiante is not None:
+            es_bachiller = Bachiller.objects.filter(estudiante=estudiante).exists()  # pyright: ignore[reportOptionalMemberAccess]
+
+            if es_bachiller:
+                raise forms.ValidationError("El estudiante ya es bachiller")
+
+            try:
+                matricula = Matricula.objects.get(estudiante=estudiante)
+
+                ultimo_año = Año.objects.last()
+
+                if ultimo_año is None:
+                    raise forms.ValidationError("No se encontró el último año")
+
+                if matricula.seccion.año.numero_año < ultimo_año.numero_año:
+                    raise forms.ValidationError(
+                        f"El estudiante debe estar matriculado en {ultimo_año.nombre_año}"
+                    )
+
+                promedio = (
+                    Nota.objects.filter(estudiante=estudiante)
+                    .aggregate(promedio=Avg("valor_nota"))
+                    .get("promedio")
+                )
+
+                if promedio is None:
+                    promedio = 0
+
+                if promedio:
+                    raise forms.ValidationError(
+                        "El promedio total del estudiante es menor a 10"
+                    )
+
+            except Matricula.DoesNotExist:
+                raise forms.ValidationError("El estudiante no se encuentra matriculado")
+
+        return estudiante

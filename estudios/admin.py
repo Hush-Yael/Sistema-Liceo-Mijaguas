@@ -10,12 +10,14 @@ from estudios.admin_filtros import (
     NotaAñoNombreCortoFiltro,
 )
 from estudios.admin_forms import (
+    BachillerAdminForm,
     MatriculaAdminForm,
     LapsoAdminForm,
     NotaAdminForm,
     ProfesorMateriaAdminForm,
 )
 from .models import (
+    Bachiller,
     Seccion,
     Año,
     Materia,
@@ -125,10 +127,7 @@ class EstudianteAdmin(ModelAdmin):
         "apellidos",
         "fecha_nacimiento",
         "fecha_ingreso",
-        "estado",
     ]
-    list_filter = ["estado"]
-    list_editable = ["estado"]
     search_fields = ["nombres", "apellidos"]
 
     # Alterar los resultados del autocompletado para solo mostrar las secciones del profesor (si están pidiendo desde ProfesorMateria)
@@ -145,7 +144,7 @@ class EstudianteAdmin(ModelAdmin):
             ).values_list("seccion_id", flat=True)
 
             queryset = queryset.filter(
-                estado="activo",
+                matricula__estado="activo",
                 matricula__seccion_id__in=secciones_profesor,
             ).distinct()
 
@@ -373,3 +372,9 @@ class NotaAdmin(ProfesorPermissionMixin, ModelAdmin):
                 )
 
         super().save_model(request, obj, form, change)
+
+
+@admin.register(Bachiller)
+class BachillerAdmin(ModelAdmin):
+    form = BachillerAdminForm
+    list_display = ["estudiante", "promocion", "fecha_graduacion"]

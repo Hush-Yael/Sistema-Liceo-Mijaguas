@@ -293,11 +293,6 @@ class Command(BaseCommand):
                 fecha_ingreso=self.faker.date_between(
                     start_date="-2y", end_date="today"
                 ),
-                estado=self.faker.random_element(
-                    OrderedDict(
-                        [("activo", 0.8), ("inactivo", 0.1), ("graduado", 0.1)]
-                    ),
-                ),
             )
 
             estudiantes_creados += 1
@@ -417,6 +412,14 @@ class Command(BaseCommand):
                         "seccion": seccion,
                         "fecha_matricula": self.faker.date_between(
                             start_date="-1y", end_date="today"
+                        ),
+                        "estado": self.faker.random_element(
+                            OrderedDict(
+                                [
+                                    ("activo", 0.9),
+                                    ("inactivo", 0.1),
+                                ]
+                            ),
                         ),
                     },
                 )
