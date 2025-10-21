@@ -4,6 +4,12 @@ main {
   margin: 0 auto;
 }
 
+#enlaces-especiales {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
 #titulo {
   text-align: center;
   font-size: 1.25rem;
@@ -43,7 +49,7 @@ main {
 }
 
 #años>:last-child .secciones::before {
-  height: calc(100% - .25rem);
+  height: calc(100% + .375rem);
 }
 
 main .enlace {
@@ -87,6 +93,10 @@ main .enlace svg {
     margin: 2.25rem 0 .5rem;
   }
 
+  #años>:last-child .secciones::before {
+    height: 100%;
+  }
+
   .secciones {
     display: flex;
     flex-wrap: wrap;
@@ -108,7 +118,14 @@ main .enlace svg {
 }
 
 @media screen and (min-width: 600px) {
-  #mis-notas {
-    max-width: max-content;
+  #enlaces-especiales {
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+@media screen and (min-width: 800px) {
+  #enlaces-especiales {
+    flex-direction: row;
   }
 }
