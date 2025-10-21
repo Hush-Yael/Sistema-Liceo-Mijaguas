@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.forms import ValidationError
 from django.utils import timezone
 
 
@@ -175,17 +176,29 @@ class Matricula(models.Model):
         ("inactivo", "Inactivo"),
     ]
 
-    estudiante = models.OneToOneField(Estudiante, on_delete=models.CASCADE)
+    estudiante = models.ForeignKey(Estudiante, on_delete=models.CASCADE)
     seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE)
     fecha_matricula = models.DateTimeField(default=timezone.now)
     estado = models.CharField(max_length=10, choices=ESTADOS, default="activo")
+    lapso = models.ForeignKey(
+        Lapso,
+        on_delete=models.CASCADE,
+    )
 
     class Meta:
         db_table = "matriculas"
-        unique_together = ["estudiante", "seccion"]
+        unique_together = ["estudiante", "lapso"]
+
+    def unique_error_message(self, model_class, unique_check, *args, **kwargs):
+        if model_class is type(self) and unique_check == ("estudiante", "lapso"):
+            raise ValidationError(
+                "El estudiante ya se encuentra matriculado en este lapso"
+            )
+        else:
+            return super().unique_error_message(model_class, unique_check)
 
     def __str__(self):
-        return f"{self.estudiante} - {self.seccion}"
+        return f"{self.estudiante} - {self.seccion} ({self.lapso.nombre_lapso})"
 
 
 class Bachiller(models.Model):
@@ -205,19 +218,29 @@ class Bachiller(models.Model):
 
 
 class Nota(models.Model):
-    estudiante = models.ForeignKey(Estudiante, on_delete=models.CASCADE)
+    matricula = models.ForeignKey(Matricula, on_delete=models.CASCADE)
     materia = models.ForeignKey(Materia, on_delete=models.CASCADE)
-    lapso = models.ForeignKey(Lapso, on_delete=models.CASCADE)
-    seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE)
     valor_nota = models.FloatField(
         validators=[MinValueValidator(0), MaxValueValidator(20)]
     )
     fecha_nota = models.DateTimeField(default=timezone.now)
     comentarios = models.TextField(blank=True, null=True)
 
+    @property
+    def estudiante(self):
+        return self.matricula.estudiante
+
+    @property
+    def seccion(self):
+        return self.matricula.seccion
+
+    @property
+    def lapso(self):
+        return self.matricula.lapso
+
     class Meta:
         db_table = "notas"
         verbose_name_plural = "Notas"
 
     def __str__(self):
-        return f"{self.estudiante} - {self.materia} - {self.valor_nota}"
+        return f"{self.estudiante} - {self.seccion.nombre_seccion} - {self.materia} - {self.valor_nota}"

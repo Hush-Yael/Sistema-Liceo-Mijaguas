@@ -5,7 +5,6 @@ from .models import (
     Matricula,
     Seccion,
     Materia,
-    Estudiante,
     Lapso,
     ProfesorMateria,
     Nota,
@@ -44,6 +43,17 @@ class MatriculaAdminForm(forms.ModelForm):
                 )
 
         return seccion
+
+    def clean_lapso(self):
+        lapso = self.cleaned_data.get("lapso")
+
+        if lapso is not None:
+            if lapso != Lapso.objects.last():
+                raise forms.ValidationError(
+                    "Solo se pueden matricular estudiantes al lapso actual"
+                )
+
+        return lapso
 
 
 class LapsoAdminForm(forms.ModelForm):
@@ -97,91 +107,81 @@ class NotaAdminForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         # Cambiar los widgets para autocompletado nativo de Django
-        self.fields["estudiante"].widget.attrs["data-ajax--url"] = (
-            "/admin/sistema_escolar/estudiante/autocomplete/"
+        self.fields["matricula"].widget.attrs["data-ajax--url"] = (
+            "/admin/sistema_escolar/matricula/autocomplete/"
         )
 
         self.fields["materia"].widget.attrs["data-ajax--url"] = (
             "/admin/sistema_escolar/materia/autocomplete/"
         )
 
-        self.fields["seccion"].widget.attrs["data-ajax--url"] = (
-            "/admin/sistema_escolar/seccion/autocomplete/"
-        )
-
         # Limitar los querysets como antes
         if hasattr(self.request.user, "profesor"):  # pyright: ignore[reportAttributeAccessIssue]
             profesor = self.request.user.profesor  # pyright: ignore[reportAttributeAccessIssue]
+
             secciones_profesor = ProfesorMateria.objects.filter(
                 profesor=profesor
             ).values_list("seccion_id", flat=True)
+
+            self.fields["matricula"].queryset = Matricula.objects.filter(  # pyright: ignore[reportAttributeAccessIssue]
+                seccion__id__in=secciones_profesor
+            )
+
             materias_profesor = ProfesorMateria.objects.filter(
                 profesor=profesor
             ).values_list("materia_id", flat=True)
 
-            self.fields["seccion"].queryset = Seccion.objects.filter(  # pyright: ignore[reportAttributeAccessIssue]
-                id__in=secciones_profesor
-            )
             self.fields["materia"].queryset = Materia.objects.filter(  # pyright: ignore[reportAttributeAccessIssue]
                 id__in=materias_profesor
             )
-            self.fields["estudiante"].queryset = Estudiante.objects.filter(  # pyright: ignore[reportAttributeAccessIssue]
-                matricula__seccion_id__in=secciones_profesor
-            ).distinct()
 
     def clean_materia(self):
-        materia = self.cleaned_data.get("materia")
+        materia: Materia = self.cleaned_data["materia"]
 
         if materia is not None:
-            seccion = self.data.get("seccion")
+            matricula: Matricula = self.cleaned_data["matricula"]
+
+            if not matricula:
+                return materia
+
+            seccion = matricula.seccion
 
             if not seccion:
                 return materia
 
-            año = Seccion.objects.get(id=int(seccion)).año  # pyright: ignore[reportOptionalMemberAccess]
+            año = seccion.año  # pyright: ignore[reportOptionalMemberAccess]
 
-            if not año or materia.id not in AñoMateria.objects.filter(
+            if not año or materia.pk not in AñoMateria.objects.filter(
                 año=año
             ).values_list("materia_id", flat=True):
                 raise forms.ValidationError(
-                    "La materia no está asignada para el año de la sección seleccionada"
+                    "La materia no está asignada para el año de matrícula seleccionada"
                 )
 
         return materia
 
-    def clean_estudiante(self):
-        estudiante = self.cleaned_data["estudiante"]
+    def clean_matricula(self):
+        matricula: Matricula = self.cleaned_data["matricula"]
 
-        if estudiante is not None:
-            inactivo = Matricula.objects.filter(
-                estudiante=estudiante, estado="inactivo"
+        if matricula is not None:
+            inactivo = matricula.estado == "inactivo"
+            es_bachiller = Bachiller.objects.filter(
+                estudiante=matricula.estudiante
             ).exists()
-            es_bachiller = Bachiller.objects.filter(estudiante=estudiante).exists()
 
             if inactivo or es_bachiller:
                 raise forms.ValidationError(
                     f"El estudiante {'no se encuentra activo' if inactivo else 'ya es bachiller'}"
                 )
 
-            matricula = Matricula.objects.get(estudiante=estudiante)
-            estudiante_seccion = matricula.seccion
+            lapso = matricula.lapso
 
-            if estudiante_seccion is None:
+            if lapso != Lapso.objects.last():
                 raise forms.ValidationError(
-                    "El estudiante no se encuentra matriculado en ninguna sección"
+                    "La matrícula seleccionada no pertenece al lapso actual"
                 )
 
-            seccion_id = self.data.get("seccion")
-
-            if seccion_id is not None:
-                seccion_id = int(seccion_id)
-
-                if seccion_id != estudiante_seccion.id:  # pyright: ignore[reportAttributeAccessIssue]
-                    raise forms.ValidationError(
-                        "El estudiante no se encuentra matriculado en la sección seleccionada"
-                    )
-
-        return estudiante
+        return matricula
 
 
 class ProfesorMateriaAdminForm(forms.ModelForm):

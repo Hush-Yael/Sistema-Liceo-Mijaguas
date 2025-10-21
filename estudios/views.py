@@ -204,7 +204,11 @@ def notas__seccion_estudiante_lapso(
     lapso = Lapso.objects.get(id=lapso_id)
     materias = Materia.objects.values("id", "nombre_materia").order_by("nombre_materia")
 
-    filtros = {"seccion": seccion, "estudiante": estudiante, "lapso": lapso}
+    filtros = {
+        "matricula__seccion": seccion,
+        "matricula__estudiante": estudiante,
+        "matricula__lapso": lapso,
+    }
     columnas = [
         "valor_nota",
         "fecha_nota",

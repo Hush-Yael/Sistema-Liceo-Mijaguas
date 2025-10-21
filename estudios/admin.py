@@ -53,23 +53,6 @@ class SeccionAdmin(ModelAdmin):
     autocomplete_fields = ["vocero"]
     readonly_fields = ["fecha_creacion"]
 
-    # Alterar los resultados del autocompletado para solo mostrar las secciones del profesor (si están pidiendo desde ProfesorMateria)
-    def get_search_results(self, request, queryset, search_term):
-        queryset, use_distinct = super().get_search_results(
-            request, queryset, search_term
-        )
-
-        # Si es profesor, solo retornar sus secciones asignadas
-        if hasattr(request.user, "profesor") and not request.user.is_superuser:
-            profesor = request.user.profesor  # pyright: ignore[reportAttributeAccessIssue]
-            secciones_profesor = ProfesorMateria.objects.filter(
-                profesor=profesor
-            ).values_list("seccion_id", flat=True)
-
-            queryset = queryset.filter(id__in=secciones_profesor)
-
-        return queryset, use_distinct
-
     def get_list_display(self, request: HttpRequest):
         columnas = [*super().get_list_display(request)]
 
@@ -129,26 +112,6 @@ class EstudianteAdmin(ModelAdmin):
         "fecha_ingreso",
     ]
     search_fields = ["nombres", "apellidos"]
-
-    # Alterar los resultados del autocompletado para solo mostrar las secciones del profesor (si están pidiendo desde ProfesorMateria)
-    def get_search_results(self, request, queryset, search_term):
-        queryset, use_distinct = super().get_search_results(
-            request, queryset, search_term
-        )
-
-        # Si es profesor, solo retornar sus estudiantes asignados
-        if hasattr(request.user, "profesor") and not request.user.is_superuser:
-            profesor = request.user.profesor  # pyright: ignore[reportAttributeAccessIssue]
-            secciones_profesor = ProfesorMateria.objects.filter(
-                profesor=profesor
-            ).values_list("seccion_id", flat=True)
-
-            queryset = queryset.filter(
-                matricula__estado="activo",
-                matricula__seccion_id__in=secciones_profesor,
-            ).distinct()
-
-        return queryset, use_distinct
 
 
 @admin.register(Lapso)
@@ -211,15 +174,23 @@ class ProfesorMateriaAdmin(LetraSeccionModelo, ModelAdmin):
 @admin.register(Matricula)
 class MatriculaAdmin(ModelAdmin):
     form = MatriculaAdminForm
-    list_display = ["estudiante", "seccion", "fecha_matricula"]
-    list_filter = [
-        AñoNombreCortoFiltro,
-        SeccionLetraFiltro,
-    ]
+    list_display = ["estudiante", "seccion", "fecha_matricula", "estado", "lapso"]
+    list_filter = [AñoNombreCortoFiltro, SeccionLetraFiltro, "lapso"]
     search_fields = ["estudiante__nombres", "estudiante__apellidos"]
     autocomplete_fields = ["estudiante", "seccion"]
     ordering = ["-fecha_matricula"]
-    readonly_fields = ["fecha_matricula"]
+
+    def get_form(self, request, obj=None, *args, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+
+        # Desactivar el campo lapso y dejar un valor estático, ya que no se matricular a un lapso diferente al actual
+        form.base_fields["lapso"].disabled = True  # type: ignore
+        if not obj:
+            valor_lapso = form.base_fields["lapso"].initial  # pyright: ignore[reportAttributeAccessIssue]
+            if valor_lapso is None:
+                form.base_fields["lapso"].initial = Lapso.objects.last()  # pyright: ignore[reportAttributeAccessIssue]
+
+        return form
 
     def get_list_display(self, request: HttpRequest):
         columnas = [*super().get_list_display(request)]
@@ -229,6 +200,28 @@ class MatriculaAdmin(ModelAdmin):
             columnas.remove("seccion")
 
         return columnas
+
+    # Si están pidiendo autocompletado desde el formulario de NotaAdmin, alterar los resultados para solo mostrar los estudiantes de las secciones del profesor
+    def get_search_results(self, request, queryset, search_term):
+        queryset, use_distinct = super().get_search_results(
+            request, queryset, search_term
+        )
+
+        # Si es profesor, limitar a lo ya mencionado
+        if hasattr(request.user, "profesor") and not request.user.is_superuser:
+            profesor = request.user.profesor  # pyright: ignore[reportAttributeAccessIssue]
+            secciones_profesor = ProfesorMateria.objects.filter(
+                profesor=profesor
+            ).values_list("seccion_id", flat=True)
+            lapso_actual = Lapso.objects.last()
+
+            queryset = queryset.filter(
+                estado="activo",
+                lapso=lapso_actual,
+                seccion_id__in=secciones_profesor,
+            ).distinct()
+
+        return queryset, use_distinct
 
 
 class ProfesorPermissionMixin:
@@ -244,14 +237,14 @@ class ProfesorPermissionMixin:
         return []
 
     @staticmethod
-    def get_profesor_materias(user):
+    def get_profesor_materias(user) -> "list[int]":
         """Obtener las materias del profesor"""
         if hasattr(user, "profesor"):
             profesor = user.profesor
             materias = ProfesorMateria.objects.filter(profesor=profesor).values_list(
                 "materia_id", flat=True
             )
-            return materias
+            return materias  # pyright: ignore[reportReturnType]
         return []
 
     # solo obtener los datos de las notas del profesor según lo que imparte en el lapso actual
@@ -263,22 +256,27 @@ class ProfesorPermissionMixin:
 
             return queryset.filter(
                 materia_id__in=materias,
-                seccion_id__in=secciones,
-                lapso__id=ultimo_lapso.id,  # type: ignore
+                matricula__seccion_id__in=secciones,
+                matricula__lapso__id=ultimo_lapso.id,  # type: ignore
             )
         return queryset
 
-    def profesor_tiene_acceso(self, user, obj):
+    def profesor_tiene_acceso(self, user, obj: Nota):
         """Verificar si el profesor tiene acceso a las materias y secciones del objeto, y si es el lapso actual"""
         if hasattr(user, "profesor") and not user.is_superuser:
             lapso_actual = Lapso.objects.last()
-            if obj.lapso_id != lapso_actual.id:  # type: ignore
+            if lapso_actual is None:
+                return False
+
+            # nota no pertenece al lapso actual
+            if obj.matricula.lapso.pk != lapso_actual.pk:
                 return False
 
             materias = self.get_profesor_materias(user)
             secciones = self.get_profesor_secciones(user)
 
-            return obj.materia_id in materias and obj.seccion_id in secciones
+            # es del lapso actual, pero la materia y seccion debe pertenecer a las materias y secciones del profesor
+            return obj.materia.pk in materias and obj.matricula.seccion.pk in secciones
         return True
 
 
@@ -287,8 +285,8 @@ class NotaAdmin(ProfesorPermissionMixin, ModelAdmin):
     form = NotaAdminForm
     list_display = [
         "estudiante",
-        "materia",
         "seccion",
+        "materia",
         "valor_nota",
         "fecha_nota",
     ]
@@ -299,11 +297,10 @@ class NotaAdmin(ProfesorPermissionMixin, ModelAdmin):
         NotaSeccionFiltro,
     ]
     search_fields = [
-        "estudiante__nombres",
-        "estudiante__apellidos",
-        "materia__nombre_materia",
+        "matricula__estudiante__nombres",
+        "matricula__estudiante__apellidos",
     ]
-    autocomplete_fields = ["estudiante", "seccion", "materia"]
+    autocomplete_fields = ["matricula", "materia"]
     list_editable = ["valor_nota"]
     readonly_fields = ["fecha_nota"]
     ordering = ["-fecha_nota"]
@@ -315,11 +312,6 @@ class NotaAdmin(ProfesorPermissionMixin, ModelAdmin):
     def get_form(self, request, obj=None, *args, **kwargs):
         form = super().get_form(request, obj, *args, **kwargs)
         form.request = request  # type: ignore
-
-        # Desactivar el campo lapso y dejar un valor estático, ya que no se pueden editar notas de un lapso anterior o al momento de crear, no puede ser diferente al actual
-        form.base_fields["lapso"].disabled = True  # type: ignore
-        if not obj:
-            form.base_fields["lapso"].initial = Lapso.objects.last()  # type: ignore
 
         return form
 
@@ -366,7 +358,7 @@ class NotaAdmin(ProfesorPermissionMixin, ModelAdmin):
     def save_model(self, request, obj, form, change):
         if hasattr(request.user, "profesor") and not request.user.is_superuser:
             # no se pueden alterar notas de otro profesor o de un lapso anterior
-            if not self.profesor_tiene_acceso(request.user, obj):
+            if not self.profesor_tiene_acceso(request.user, obj):  # pyright: ignore[reportArgumentType]
                 raise PermissionDenied(
                     "No tiene permisos para modificar esta calificación"
                 )

@@ -61,7 +61,7 @@ class NotaSeccionFiltro(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         if self.value() is None:
             return queryset
-        return queryset.filter(seccion__letra_seccion=self.value())
+        return queryset.filter(matricula__seccion__letra_seccion=self.value())
 
 
 class NotaLapsoFiltro(admin.SimpleListFilter):
@@ -84,7 +84,7 @@ class NotaLapsoFiltro(admin.SimpleListFilter):
             hasattr(request.user, "profesor") and not request.user.is_superuser
         ) or self.value() is None:
             return queryset
-        return queryset.filter(lapso__id=self.value())
+        return queryset.filter(matricula__lapso__id=self.value())
 
 
 class NotaAñoNombreCortoFiltro(admin.SimpleListFilter):
@@ -93,15 +93,24 @@ class NotaAñoNombreCortoFiltro(admin.SimpleListFilter):
 
     def lookups(self, request, model_admin):
         if hasattr(request.user, "profesor") and not request.user.is_superuser:
-            años = ProfesorMateria.objects.filter(
-                profesor=request.user.profesor
-            ).values("seccion__año__id", "seccion__año__nombre_año_corto")
+            años_profesor = (
+                ProfesorMateria.objects.filter(profesor=request.user.profesor)
+                .values_list("seccion__año__id", flat=True)
+                .distinct()
+            )
+
+            años = (
+                Año.objects.filter(id__in=años_profesor)
+                .values("seccion__año__id", "seccion__año__nombre_año_corto")
+                .order_by("seccion__año__numero_año")
+                .distinct()
+            )
 
             return [
                 (año["seccion__año__id"], año["seccion__año__nombre_año_corto"])
                 for año in años
             ]
-        # todos los lapsos
+        # todos los años
         else:
             años = Año.objects.values("id", "nombre_año_corto").order_by("numero_año")
 
@@ -114,7 +123,7 @@ class NotaAñoNombreCortoFiltro(admin.SimpleListFilter):
         if self.value() is None:
             return queryset
 
-        return queryset.filter(seccion__año_id=self.value())
+        return queryset.filter(matricula__seccion__año_id=self.value())
 
 
 class NotaMateriaFiltro(admin.SimpleListFilter):
@@ -123,9 +132,11 @@ class NotaMateriaFiltro(admin.SimpleListFilter):
 
     def lookups(self, request, model_admin):
         if hasattr(request.user, "profesor") and not request.user.is_superuser:
-            materias = ProfesorMateria.objects.filter(
-                profesor=request.user.profesor
-            ).values("materia__id", "materia__nombre_materia")
+            materias = (
+                ProfesorMateria.objects.filter(profesor=request.user.profesor)
+                .values("materia__id", "materia__nombre_materia")
+                .distinct()
+            )
 
             return [
                 (materia["materia__id"], materia["materia__nombre_materia"])
@@ -133,7 +144,7 @@ class NotaMateriaFiltro(admin.SimpleListFilter):
             ]
 
         return [
-            (materia.id, str(materia))  # pyright: ignore[reportAttributeAccessIssue]
+            (materia.pk, str(materia))
             for materia in Materia.objects.all().order_by("nombre_materia")
         ]
 

@@ -441,7 +441,6 @@ class Command(BaseCommand):
                 matricula = Matricula.objects.get(
                     estudiante=estudiante,
                 )
-                seccion_estudiante = matricula.seccion
             except Matricula.DoesNotExist:
                 continue
 
@@ -449,7 +448,7 @@ class Command(BaseCommand):
                 for materia in materias:
                     # Verificar si ya existe calificación
                     if Nota.objects.filter(
-                        estudiante=estudiante, materia=materia, lapso=lapso
+                        matricula__estudiante=estudiante, materia=materia, lapso=lapso
                     ).exists():
                         continue
 
@@ -465,10 +464,9 @@ class Command(BaseCommand):
                         comentarios = self.faker.sentence()
 
                     Nota.objects.create(
-                        estudiante=estudiante,
+                        matricula=matricula,
                         materia=materia,
                         lapso=lapso,
-                        seccion=seccion_estudiante,
                         valor_nota=nota,
                         fecha_nota=self.faker.date_between(
                             start_date=lapso.fecha_inicio, end_date=lapso.fecha_fin
