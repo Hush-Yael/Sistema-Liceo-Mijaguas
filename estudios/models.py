@@ -226,7 +226,7 @@ class Matricula(models.Model):
     def unique_error_message(self, model_class, unique_check, *args, **kwargs):
         if model_class is type(self) and unique_check == ("estudiante", "lapso"):
             raise ValidationError(
-                "El estudiante ya se encuentra matriculado en este lapso",
+                "El estudiante ya se encuentra matriculado en el lapso actual",
                 code="unique",
             )
         else:
