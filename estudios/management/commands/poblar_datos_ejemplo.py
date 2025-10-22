@@ -106,18 +106,6 @@ class Command(BaseCommand):
             help="Cantidad de profesores a crear (por defecto: 8)",
         )
 
-        parser.add_argument(
-            "--secciones",
-            action="store_true",
-            help="Crear solo secciones",
-        )
-
-        parser.add_argument(
-            "--cantidad-secciones",
-            type=int,
-            help="Número de secciones a crear para el año objetivo",
-        )
-
     def handle(self, *args, **options):
         año_objetivo = options["año"]
         limpiar_todo = options["limpiar_todo"]
@@ -164,12 +152,6 @@ class Command(BaseCommand):
             estudiantes = Estudiante.objects.all()
             lapsos = Lapso.objects.all()
             self.crear_notas(estudiantes, lapsos)
-        acciones["secciones"] = options["secciones"]
-
-        if hacer_todo or acciones["secciones"]:
-            self.crear_secciones(año_objetivo, options["cantidad_secciones"])
-
-            self.stdout.write(self.style.SUCCESS("¡Operación completada exitosamente!"))
 
     def obtener_año_objetivo(self, año_objetivo: int):
         if año_objetivo is None:
@@ -495,45 +477,3 @@ class Command(BaseCommand):
                         self.stdout.write(f"✓ Creadas {notas_creadas} notas...")
 
         self.stdout.write(f"✓ Total notas creadas: {notas_creadas}")
-
-    def crear_secciones(self, año_objetivo: int, cantidad_secciones: int):
-        año = self.obtener_año_objetivo(año_objetivo)
-
-        if cantidad_secciones is None:
-            self.stdout.write(
-                self.style.ERROR(
-                    "No has proporcionado el número de secciones para esta operación."
-                )
-            )
-
-        if cantidad_secciones <= 0:
-            self.stdout.write(
-                self.style.ERROR(
-                    "Debes proporcionar un número de secciones positivo para esta operación."
-                )
-            )
-            sys.exit(1)
-
-        """Crear secciones para el año académico"""
-        self.stdout.write(
-            f"Creando {cantidad_secciones} secciones para {año.nombre_año}..."
-        )
-
-        letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        secciones_creadas = 0
-
-        for i in range(cantidad_secciones):
-            letra = letras[i]
-            nombre_seccion = f"{año.nombre_año} - Sección {letra}"
-
-            _, creada = Seccion.objects.get_or_create(
-                año=año,
-                letra_seccion=letra,
-                defaults={"nombre_seccion": nombre_seccion, "capacidad_maxima": 30},
-            )
-
-            if creada:
-                secciones_creadas += 1
-                self.stdout.write(f"✓ Creada sección: {nombre_seccion}")
-
-        self.stdout.write(f"✓ Total secciones creadas: {secciones_creadas}")
