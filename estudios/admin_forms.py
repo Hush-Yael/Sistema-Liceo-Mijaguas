@@ -246,7 +246,7 @@ class BachillerAdminForm(forms.ModelForm):
                 if promedio is None:
                     promedio = 0
 
-                if promedio:
+                if promedio < 10:
                     raise forms.ValidationError(
                         "El promedio total del estudiante es menor a 10"
                     )
