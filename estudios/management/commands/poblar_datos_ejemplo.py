@@ -1,6 +1,7 @@
 from typing import OrderedDict
 from django.core.management.base import BaseCommand
 from estudios.models import (
+    Bachiller,
     Seccion,
     Año,
     Materia,
@@ -15,7 +16,6 @@ from estudios.models import (
 from datetime import date
 from faker import Faker
 import random
-
 from usuarios.models import User
 from django.contrib.auth.models import Group
 import sys
@@ -124,7 +124,7 @@ class Command(BaseCommand):
         hacer_todo = options["todo"]
 
         if limpiar_todo:
-            self.limpiar_todos_datos_ejemplo()
+            self.limpiar_datos()
 
         # Determinar qué acciones ejecutar
         acciones = {
@@ -191,18 +191,18 @@ class Command(BaseCommand):
             )
             sys.exit(1)
 
-    def limpiar_todos_datos_ejemplo(self):
+    def limpiar_datos(self):
         """Elimina todos los datos de ejemplo existentes"""
-        self.stdout.write("Eliminando todos los datos de ejemplo existentes...")
+        self.stdout.write("Eliminando todos los datos no requeridos existentes...")
 
         modelos_a_limpiar = [
             Nota,
             Matricula,
             ProfesorMateria,
-            AñoMateria,
             Lapso,
             Estudiante,
             Profesor,
+            Bachiller,
         ]
 
         for modelo in modelos_a_limpiar:
