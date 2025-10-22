@@ -61,7 +61,7 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
-            "--asignaciones",
+            "--asignar-materias",
             action="store_true",
             help="Crear solo asignaciones de materias y profesores",
         )
@@ -124,7 +124,7 @@ class Command(BaseCommand):
             "profesores": options["profesores"],
             "estudiantes": options["estudiantes"],
             "lapsos": options["lapsos"],
-            "asignaciones": options["asignaciones"],
+            "asignar-materias": options["asignar_materias"],
             "matriculas": options["matriculas"],
             "notas": options["notas"],
         }
@@ -156,8 +156,7 @@ class Command(BaseCommand):
         if hacer_todo or acciones["lapsos"]:
             self.crear_lapsos()
 
-        if hacer_todo or acciones["asignaciones"]:
-            self.asignar_materias_a_año(año)
+        if hacer_todo or acciones["asignar-materias"]:
             profesores = Profesor.objects.all()
             self.asignar_profesores_a_materias(profesores, año)
 
@@ -203,7 +202,7 @@ class Command(BaseCommand):
             "profesores": [ProfesorMateria, Profesor],
             "estudiantes": [Nota, Matricula, Estudiante],
             "lapsos": [Nota, Lapso],
-            "asignaciones": [ProfesorMateria, AñoMateria],
+            "asignar-materias": [ProfesorMateria, AñoMateria],
             "matriculas": [Nota, Matricula],
             "notas": [Nota],
         }
@@ -329,20 +328,6 @@ class Command(BaseCommand):
                 self.stdout.write(f"✓ Creado lapso: {nombre}")
 
         self.stdout.write(f"✓ Total lapsos creados: {lapsos_creados}")
-
-    def asignar_materias_a_año(self, año):
-        """Asignar todas las materias al año"""
-        self.stdout.write(f"Asignando materias a {año.nombre_año}...")
-
-        materias = Materia.objects.all()
-        asignaciones_creadas = 0
-
-        for materia in materias:
-            _, created = AñoMateria.objects.get_or_create(año=año, materia=materia)
-            if created:
-                asignaciones_creadas += 1
-
-        self.stdout.write(f"✓ Asignadas {asignaciones_creadas} materias al año")
 
     def asignar_profesores_a_materias(self, profesores, año):
         """Asignar profesores a materias por sección"""
