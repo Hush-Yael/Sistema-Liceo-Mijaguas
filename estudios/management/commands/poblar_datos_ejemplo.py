@@ -18,6 +18,7 @@ import random
 
 from usuarios.models import User
 from django.contrib.auth.models import Group
+import sys
 
 
 class Command(BaseCommand):
@@ -32,7 +33,6 @@ class Command(BaseCommand):
         parser.add_argument(
             "--año",
             type=int,
-            default=1,
             help="Número del año objetivo, al cual asignar datos específicos",
         )
 
@@ -135,17 +135,6 @@ class Command(BaseCommand):
                 self.style.ERROR("No se especificaron acciones a ejecutar.")
             )
 
-        # Obtener el año objetivo
-        try:
-            año = Año.objects.get(numero_año=año_objetivo)
-        except Año.DoesNotExist:
-            return self.stdout.write(
-                self.style.ERROR(
-                    f"No existe el año número {año_objetivo}. "
-                    f"Ejecuta primero poblar_datos_estudios para crear los años por defecto."
-                )
-            )
-
         # Ejecutar acciones
         if hacer_todo or acciones["profesores"]:
             self.crear_profesores(options["cantidad_profesores"])
@@ -158,11 +147,11 @@ class Command(BaseCommand):
 
         if hacer_todo or acciones["asignar-materias"]:
             profesores = Profesor.objects.all()
-            self.asignar_profesores_a_materias(profesores, año)
+            self.asignar_profesores_a_materias(profesores, año_objetivo)
 
         if hacer_todo or acciones["matriculas"]:
             estudiantes = Estudiante.objects.all()
-            self.matricular_estudiantes(estudiantes, año)
+            self.matricular_estudiantes(estudiantes, año_objetivo)
 
         if hacer_todo or acciones["notas"]:
             estudiantes = Estudiante.objects.all()
@@ -171,9 +160,29 @@ class Command(BaseCommand):
         acciones["secciones"] = options["secciones"]
 
         if hacer_todo or acciones["secciones"]:
-            self.crear_secciones(año, options["secciones_por_año"])
+            self.crear_secciones(año_objetivo, options["secciones_por_año"])
 
             self.stdout.write(self.style.SUCCESS("¡Operación completada exitosamente!"))
+
+    def obtener_año_objetivo(self, año_objetivo: int):
+        if año_objetivo is None:
+            self.stdout.write(
+                self.style.ERROR(
+                    "Debes proporcionar el número del año objetivo para esta operación."
+                )
+            )
+            sys.exit(1)
+
+        try:
+            return Año.objects.get(numero_año=año_objetivo)
+        except Año.DoesNotExist:
+            self.stdout.write(
+                self.style.ERROR(
+                    f"No existe el año número {año_objetivo}. "
+                    f"Ejecuta primero poblar_datos_estudios para crear los años por defecto."
+                )
+            )
+            sys.exit(1)
 
     def limpiar_todos_datos_ejemplo(self):
         """Elimina todos los datos de ejemplo existentes"""
@@ -329,7 +338,9 @@ class Command(BaseCommand):
 
         self.stdout.write(f"✓ Total lapsos creados: {lapsos_creados}")
 
-    def asignar_profesores_a_materias(self, profesores, año):
+    def asignar_profesores_a_materias(self, profesores, año_objetivo: int):
+        año = self.obtener_año_objetivo(año_objetivo)
+
         """Asignar profesores a materias por sección"""
         self.stdout.write("Asignando profesores a materias por sección...")
 
@@ -363,7 +374,9 @@ class Command(BaseCommand):
 
         self.stdout.write(f"✓ Total asignaciones creadas: {asignaciones_creadas}")
 
-    def matricular_estudiantes(self, estudiantes, año):
+    def matricular_estudiantes(self, estudiantes, año_objetivo: int):
+        año = self.obtener_año_objetivo(año_objetivo)
+
         """Matricular estudiantes en secciones del año académico"""
         self.stdout.write(
             f"Matriculando estudiantes en secciones de {año.nombre_año}..."
@@ -469,7 +482,9 @@ class Command(BaseCommand):
 
         self.stdout.write(f"✓ Total notas creadas: {notas_creadas}")
 
-    def crear_secciones(self, año, cantidad_secciones):
+    def crear_secciones(self, año_objetivo: int, cantidad_secciones):
+        año = self.obtener_año_objetivo(año_objetivo)
+
         """Crear secciones para el año académico"""
         self.stdout.write(
             f"Creando {cantidad_secciones} secciones para {año.nombre_año}..."
