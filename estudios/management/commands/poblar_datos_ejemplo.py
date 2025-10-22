@@ -125,7 +125,7 @@ class Command(BaseCommand):
         }
 
         # no se indicaron acciones
-        if not hacer_todo and not any(acciones.values()):
+        if not limpiar_todo and not hacer_todo and not any(acciones.values()):
             return self.stdout.write(
                 self.style.ERROR("No se especificaron acciones a ejecutar.")
             )
@@ -175,7 +175,7 @@ class Command(BaseCommand):
 
     def limpiar_datos(self):
         """Elimina todos los datos de ejemplo existentes"""
-        self.stdout.write("Eliminando todos los datos no requeridos existentes...")
+        self.stdout.write("Eliminando todos los datos dinámicos existentes...")
 
         modelos_a_limpiar = [
             Nota,
