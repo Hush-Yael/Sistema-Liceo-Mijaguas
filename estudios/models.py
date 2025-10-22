@@ -237,9 +237,7 @@ class Matricula(models.Model):
 
 
 class Bachiller(models.Model):
-    promocion = models.CharField(
-        max_length=50, verbose_name="promoción", primary_key=True
-    )
+    promocion = models.CharField(max_length=50, verbose_name="promoción")
     estudiante = models.OneToOneField(Estudiante, on_delete=models.CASCADE)
     fecha_graduacion = models.DateField(default=timezone.now)
 
