@@ -238,7 +238,7 @@ class BachillerAdminForm(forms.ModelForm):
                     )
 
                 promedio = (
-                    Nota.objects.filter(estudiante=estudiante)
+                    Nota.objects.filter(matricula=matricula)
                     .aggregate(promedio=Avg("valor_nota"))
                     .get("promedio")
                 )
