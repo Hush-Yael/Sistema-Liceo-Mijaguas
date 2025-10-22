@@ -42,6 +42,14 @@ class Seccion(models.Model):
         unique_together = ["año", "letra_seccion"]
         verbose_name_plural = "Secciones"
 
+    def unique_error_message(self, model_class, unique_check, *args, **kwargs):
+        if model_class is type(self) and unique_check == ("año", "letra_seccion"):
+            raise ValidationError(
+                "Ya existe una sección con el año y letra indicados", code="unique"
+            )
+        else:
+            return super().unique_error_message(model_class, unique_check)
+
     def __str__(self):
         return f"{self.año.nombre_año} - Sección {self.letra_seccion}"
 
@@ -145,6 +153,15 @@ class AñoMateria(models.Model):
         verbose_name = "materia asignada a año"
         verbose_name_plural = "Materias asignadas por años"
 
+    def unique_error_message(self, model_class, unique_check, *args, **kwargs):
+        if model_class is type(self) and unique_check == ("año", "materia"):
+            raise ValidationError(
+                "La materia ya está asignada en el año seleccionado",
+                code="unique",
+            )
+        else:
+            return super().unique_error_message(model_class, unique_check)
+
     def __str__(self):
         return f"{self.año.nombre_año} - {self.materia.nombre_materia}"
 
@@ -205,7 +222,8 @@ class Matricula(models.Model):
     def unique_error_message(self, model_class, unique_check, *args, **kwargs):
         if model_class is type(self) and unique_check == ("estudiante", "lapso"):
             raise ValidationError(
-                "El estudiante ya se encuentra matriculado en este lapso"
+                "El estudiante ya se encuentra matriculado en este lapso",
+                code="unique",
             )
         else:
             return super().unique_error_message(model_class, unique_check)
