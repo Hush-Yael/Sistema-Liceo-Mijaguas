@@ -61,6 +61,14 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
+            "--lapsos-año",
+            type=int,
+            # año actual
+            default=date.today().year,
+            help="El año (fecha) para crear los lapsos",
+        )
+
+        parser.add_argument(
             "--asignar-materias",
             action="store_true",
             help="Crear solo asignaciones de materias y profesores",
@@ -143,7 +151,7 @@ class Command(BaseCommand):
             self.crear_estudiantes(options["cantidad_estudiantes"])
 
         if hacer_todo or acciones["lapsos"]:
-            self.crear_lapsos()
+            self.crear_lapsos(options["lapsos_año"])
 
         if hacer_todo or acciones["asignar-materias"]:
             profesores = Profesor.objects.all()
@@ -312,10 +320,7 @@ class Command(BaseCommand):
 
         self.stdout.write(f"✓ Total estudiantes creados: {estudiantes_creados}")
 
-    def crear_lapsos(self):
-        # Determinar el año base según el número del año
-        año_base = date.today().year
-
+    def crear_lapsos(self, año):
         lapsos_data = [
             (1, "Primer Lapso", date(año_base, 9, 1), date(año_base, 11, 30)),
             (2, "Segundo Lapso", date(año_base, 12, 1), date(año_base + 1, 2, 28)),
@@ -324,7 +329,7 @@ class Command(BaseCommand):
 
         lapsos_creados = 0
         for num, nombre, inicio, fin in lapsos_data:
-            _, created = Lapso.objects.get_or_create(
+            _, creado = Lapso.objects.get_or_create(
                 numero_lapso=num,
                 defaults={
                     "nombre_lapso": nombre,
@@ -332,7 +337,7 @@ class Command(BaseCommand):
                     "fecha_fin": fin,
                 },
             )
-            if created:
+            if creado:
                 lapsos_creados += 1
                 self.stdout.write(f"✓ Creado lapso: {nombre}")
 
