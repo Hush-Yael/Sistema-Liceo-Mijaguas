@@ -136,10 +136,10 @@ class NotaAdminForm(forms.ModelForm):
             )
 
     def clean_materia(self):
-        materia: Materia = self.cleaned_data["materia"]
+        materia: Materia = self.cleaned_data.get("materia")  # pyright: ignore[reportAssignmentType]
 
         if materia is not None:
-            matricula: Matricula = self.cleaned_data["matricula"]
+            matricula: Matricula = self.cleaned_data.get("matricula")  # pyright: ignore[reportAssignmentType]
 
             if not matricula:
                 return materia
@@ -161,7 +161,7 @@ class NotaAdminForm(forms.ModelForm):
         return materia
 
     def clean_matricula(self):
-        matricula: Matricula = self.cleaned_data["matricula"]
+        matricula: Matricula = self.cleaned_data.get("matricula")  # pyright: ignore[reportAssignmentType]
 
         if matricula is not None:
             inactivo = matricula.estado == "inactivo"
