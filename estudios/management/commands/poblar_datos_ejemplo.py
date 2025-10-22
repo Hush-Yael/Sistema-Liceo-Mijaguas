@@ -114,6 +114,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         año_objetivo = options["año"]
         limpiar_todo = options["limpiar_todo"]
+        hacer_todo = options["todo"]
 
         if limpiar_todo:
             self.limpiar_todos_datos_ejemplo()
@@ -128,20 +129,22 @@ class Command(BaseCommand):
             "notas": options["notas"],
         }
 
-        # Si no se especifica ninguna acción particular, hacer todo
-        hacer_todo = options["todo"] or not any(acciones.values())
+        # no se indicaron acciones
+        if not hacer_todo and not any(acciones.values()):
+            return self.stdout.write(
+                self.style.ERROR("No se especificaron acciones a ejecutar.")
+            )
 
-        # Obtener el año
+        # Obtener el año objetivo
         try:
             año = Año.objects.get(numero_año=año_objetivo)
         except Año.DoesNotExist:
-            self.stdout.write(
+            return self.stdout.write(
                 self.style.ERROR(
                     f"No existe el año número {año_objetivo}. "
                     f"Ejecuta primero poblar_datos_estudios para crear los años por defecto."
                 )
             )
-            return
 
         # Ejecutar acciones
         if hacer_todo or acciones["profesores"]:
