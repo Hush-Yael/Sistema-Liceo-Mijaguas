@@ -6,10 +6,14 @@ from django.utils import timezone
 
 class Año(models.Model):
     numero_año = models.IntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(5)], verbose_name="Número"
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        verbose_name="Número",
+        unique=True,
     )
-    nombre_año = models.CharField(max_length=100, verbose_name="Nombre")
-    nombre_año_corto = models.CharField(max_length=20, verbose_name="Nombre corto")
+    nombre_año = models.CharField(max_length=100, verbose_name="Nombre", unique=True)
+    nombre_año_corto = models.CharField(
+        max_length=20, verbose_name="Nombre corto", unique=True
+    )
     fecha_creacion = models.DateTimeField(
         default=timezone.now, verbose_name="Fecha de creación"
     )
