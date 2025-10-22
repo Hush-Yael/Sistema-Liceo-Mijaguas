@@ -33,7 +33,7 @@ class Command(BaseCommand):
             "--año",
             type=int,
             default=1,
-            help="Número del año para el cual crear los datos (1-5)",
+            help="Número del año objetivo, al cual asignar datos específicos",
         )
 
         parser.add_argument(
@@ -112,8 +112,11 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        añonumero = options["año"]
+        año_objetivo = options["año"]
         limpiar_todo = options["limpiar_todo"]
+
+        if limpiar_todo:
+            self.limpiar_todos_datos_ejemplo()
 
         # Determinar qué acciones ejecutar
         acciones = {
@@ -128,17 +131,14 @@ class Command(BaseCommand):
         # Si no se especifica ninguna acción particular, hacer todo
         hacer_todo = options["todo"] or not any(acciones.values())
 
-        if limpiar_todo:
-            self.limpiar_todos_datos_ejemplo()
-
         # Obtener el año
         try:
-            año = Año.objects.get(numero_año=añonumero)
+            año = Año.objects.get(numero_año=año_objetivo)
         except Año.DoesNotExist:
             self.stdout.write(
                 self.style.ERROR(
-                    f"No existe el año número {añonumero}. "
-                    f"Ejecuta primero poblar_datos_estudios"
+                    f"No existe el año número {año_objetivo}. "
+                    f"Ejecuta primero poblar_datos_estudios para crear los años por defecto."
                 )
             )
             return
