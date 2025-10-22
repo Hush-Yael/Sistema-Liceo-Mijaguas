@@ -189,34 +189,6 @@ class ProfesorMateriaAdminForm(forms.ModelForm):
         model = ProfesorMateria
         fields = "__all__"
 
-    def clean_seccion(self):
-        profesor = self.cleaned_data.get("profesor")
-        seccion = self.cleaned_data.get("seccion")
-        materia = self.cleaned_data.get("materia")
-
-        if not profesor or not materia:
-            return seccion
-
-        if seccion is not None:
-            try:
-                ya_asignada = ProfesorMateria.objects.get(
-                    seccion=seccion,
-                    materia=materia,
-                )
-
-                if ya_asignada:  # type: ignore
-                    raise forms.ValidationError(
-                        f"""{
-                            "El profesor seleccionado ya tiene asignada"
-                            if ya_asignada.profesor == profesor
-                            else "Ya existe un profesor asignado para"
-                        } esa materia en esa sección"""
-                    )
-            except ProfesorMateria.DoesNotExist:
-                pass
-
-        return seccion
-
     def clean_materia(self):
         materia = self.cleaned_data.get("materia")
 

@@ -163,6 +163,19 @@ class ProfesorMateria(models.Model):
         verbose_name = "materia impartida por profesor"
         verbose_name_plural = "Materias impartidas por profesores"
 
+    def unique_error_message(self, model_class, unique_check, *args, **kwargs):
+        if model_class is type(self) and unique_check == (
+            "profesor",
+            "materia",
+            "seccion",
+        ):
+            raise ValidationError(
+                "El profesor ya imparte la materia en la sección seleccionada",
+                code="unique",
+            )
+        else:
+            return super().unique_error_message(model_class, unique_check)
+
     def __str__(self):
         seccion_info = (
             f" - {self.seccion}" if self.seccion else " - Todas las secciones"
