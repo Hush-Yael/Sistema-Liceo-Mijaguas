@@ -224,17 +224,26 @@ class BachillerAdminForm(forms.ModelForm):
             if es_bachiller:
                 raise forms.ValidationError("El estudiante ya es bachiller")
 
+            ultimo_año = Año.objects.last()
+
+            if ultimo_año is None:
+                raise forms.ValidationError(
+                    "No se encontró el último año académico disponible"
+                )
+
+            lapso_anterior = Lapso.objects.order_by("-id")[1:2]
+
+            if len(lapso_anterior) == 0:
+                raise forms.ValidationError("No se encontró el lapso anterior")
+
             try:
-                matricula = Matricula.objects.get(estudiante=estudiante)
-
-                ultimo_año = Año.objects.last()
-
-                if ultimo_año is None:
-                    raise forms.ValidationError("No se encontró el último año")
+                matricula = Matricula.objects.get(
+                    estudiante=estudiante, lapso=lapso_anterior
+                )
 
                 if matricula.seccion.año.numero_año < ultimo_año.numero_año:
                     raise forms.ValidationError(
-                        f"El estudiante debe estar matriculado en {ultimo_año.nombre_año}"
+                        f"El estudiante debe haberse matriculado en {ultimo_año.nombre_año} en el lapso anterior"
                     )
 
                 promedio = (
@@ -250,8 +259,9 @@ class BachillerAdminForm(forms.ModelForm):
                     raise forms.ValidationError(
                         "El promedio total del estudiante es menor a 10"
                     )
-
             except Matricula.DoesNotExist:
-                raise forms.ValidationError("El estudiante no se encuentra matriculado")
+                raise forms.ValidationError(
+                    "El estudiante no se encontró matriculado en el lapso anterior"
+                )
 
         return estudiante
