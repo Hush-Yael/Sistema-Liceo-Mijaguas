@@ -134,7 +134,7 @@ class Lapso(models.Model):
         validators=[MinValueValidator(1), MaxValueValidator(3)],
         verbose_name="número",
     )
-    nombre_lapso = models.CharField(max_length=100, verbose_name="nombre")
+    nombre_lapso = models.CharField(max_length=50, verbose_name="nombre", unique=True)
     fecha_inicio = models.DateField(verbose_name="fecha de inicio")
     fecha_fin = models.DateField(verbose_name="fecha de fin")
 
