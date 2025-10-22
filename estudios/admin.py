@@ -71,14 +71,19 @@ class MateriaAdmin(ModelAdmin):
     search_fields = ["nombre_materia"]
     readonly_fields = ["fecha_creacion"]
 
-    # Alterar los resultados del autocompletado para solo mostrar las secciones del profesor (si están pidiendo desde ProfesorMateria)
+    # Alterar los resultados del autocompletado
     def get_search_results(self, request, queryset, search_term):
         queryset, use_distinct = super().get_search_results(
             request, queryset, search_term
         )
+        modelo = request.GET.get("model_name")
 
-        # Si es profesor, solo retornar sus materias asignadas
-        if hasattr(request.user, "profesor") and not request.user.is_superuser:
+        # Si se pide desde notas y es profesor, solo retornar sus materias asignadas
+        if (
+            modelo == "nota"
+            and hasattr(request.user, "profesor")
+            and not request.user.is_superuser
+        ):
             profesor = request.user.profesor  # pyright: ignore[reportAttributeAccessIssue]
             materias_profesor = ProfesorMateria.objects.filter(
                 profesor=profesor
@@ -206,9 +211,14 @@ class MatriculaAdmin(ModelAdmin):
         queryset, use_distinct = super().get_search_results(
             request, queryset, search_term
         )
+        modelo = request.GET.get("model_name")
 
         # Si es profesor, limitar a lo ya mencionado
-        if hasattr(request.user, "profesor") and not request.user.is_superuser:
+        if (
+            modelo == "nota"
+            and hasattr(request.user, "profesor")
+            and not request.user.is_superuser
+        ):
             profesor = request.user.profesor  # pyright: ignore[reportAttributeAccessIssue]
             secciones_profesor = ProfesorMateria.objects.filter(
                 profesor=profesor
