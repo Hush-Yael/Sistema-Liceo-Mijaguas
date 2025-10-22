@@ -322,9 +322,19 @@ class Command(BaseCommand):
 
     def crear_lapsos(self, año):
         lapsos_data = [
-            (1, "Primer Lapso", date(año_base, 9, 1), date(año_base, 11, 30)),
-            (2, "Segundo Lapso", date(año_base, 12, 1), date(año_base + 1, 2, 28)),
-            (3, "Tercer Lapso", date(año_base + 1, 3, 1), date(año_base + 1, 6, 30)),
+            (1, f"{año}-I", date(año, 1, 9), date(año, 3, 31)),
+            (
+                2,
+                f"{año}-II",
+                date(año, 4, 1),
+                date(año, 5, 28),
+            ),
+            (
+                3,
+                f"{año}-III",
+                date(año, 5, 29),
+                date(año, 6, 30),
+            ),
         ]
 
         lapsos_creados = 0
