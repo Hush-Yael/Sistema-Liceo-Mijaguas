@@ -113,10 +113,9 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
-            "--secciones-por-año",
+            "--cantidad-secciones",
             type=int,
-            default=3,
-            help="Número de secciones a crear por año (por defecto: 3)",
+            help="Número de secciones a crear para el año objetivo",
         )
 
     def handle(self, *args, **options):
@@ -168,7 +167,7 @@ class Command(BaseCommand):
         acciones["secciones"] = options["secciones"]
 
         if hacer_todo or acciones["secciones"]:
-            self.crear_secciones(año_objetivo, options["secciones_por_año"])
+            self.crear_secciones(año_objetivo, options["cantidad_secciones"])
 
             self.stdout.write(self.style.SUCCESS("¡Operación completada exitosamente!"))
 
@@ -497,8 +496,23 @@ class Command(BaseCommand):
 
         self.stdout.write(f"✓ Total notas creadas: {notas_creadas}")
 
-    def crear_secciones(self, año_objetivo: int, cantidad_secciones):
+    def crear_secciones(self, año_objetivo: int, cantidad_secciones: int):
         año = self.obtener_año_objetivo(año_objetivo)
+
+        if cantidad_secciones is None:
+            self.stdout.write(
+                self.style.ERROR(
+                    "No has proporcionado el número de secciones para esta operación."
+                )
+            )
+
+        if cantidad_secciones <= 0:
+            self.stdout.write(
+                self.style.ERROR(
+                    "Debes proporcionar un número de secciones positivo para esta operación."
+                )
+            )
+            sys.exit(1)
 
         """Crear secciones para el año académico"""
         self.stdout.write(
