@@ -159,7 +159,17 @@ class Command(BaseCommand):
 
         if hacer_todo or acciones["matriculas"]:
             estudiantes = Estudiante.objects.all()
-            self.matricular_estudiantes(estudiantes, año_objetivo, options["lapso"])
+
+            if estudiantes.first() is None:
+                return self.stdout.write(
+                    self.style.ERROR("No se han añadido estudiantes")
+                )
+
+            self.matricular_estudiantes(
+                estudiantes,
+                año_objetivo,
+                options["lapso"],
+            )
 
         if hacer_todo or acciones["notas"]:
             estudiantes = Estudiante.objects.all()
