@@ -253,7 +253,9 @@ class BachillerAdminForm(forms.ModelForm):
                 )
 
                 if promedio is None:
-                    promedio = 0
+                    raise forms.ValidationError(
+                        "No se encontraron notas asociadas al estudiante"
+                    )
 
                 if promedio < 10:
                     raise forms.ValidationError(
