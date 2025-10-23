@@ -412,9 +412,6 @@ class Command(BaseCommand):
                     estudiante=estudiante,
                     defaults={
                         "seccion": seccion,
-                        "fecha_matricula": self.faker.date_between(
-                            start_date="-1y", end_date="today"
-                        ),
                         "estado": self.faker.random_element(
                             OrderedDict(
                                 [
@@ -470,9 +467,6 @@ class Command(BaseCommand):
                         materia=materia,
                         lapso=lapso,
                         valor_nota=nota,
-                        fecha_nota=self.faker.date_between(
-                            start_date=lapso.fecha_inicio, end_date=lapso.fecha_fin
-                        ),
                         comentarios=comentarios,
                     )
 
