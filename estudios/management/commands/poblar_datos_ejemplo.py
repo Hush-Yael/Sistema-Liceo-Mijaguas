@@ -19,6 +19,7 @@ import random
 from usuarios.models import User
 from django.contrib.auth.models import Group
 import sys
+from django.db import connection
 
 
 class Command(BaseCommand):
@@ -193,6 +194,10 @@ class Command(BaseCommand):
                 self.stdout.write(
                     f"✓ Eliminados {count} registros de {modelo.__name__}"
                 )
+
+            connection.cursor().execute(
+                f"UPDATE SQLITE_SEQUENCE SET seq=0 WHERE name='{modelo._meta.db_table}';",
+            )
 
     def limpiar_por_tipo(self, tipo):
         """Elimina datos específicos por tipo"""
