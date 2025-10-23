@@ -99,6 +99,12 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
+            "--seccion",
+            type=int,
+            help="Indicar el id de la sección para las acciones que lo requieran",
+        )
+
+        parser.add_argument(
             "--cantidad-notas",
             type=int,
             default=1,
@@ -183,6 +189,7 @@ class Command(BaseCommand):
                 estudiantes,
                 año_objetivo,
                 options["lapso"],
+                options["seccion"],
             )
 
         if hacer_todo or acciones["notas"]:
@@ -441,50 +448,44 @@ class Command(BaseCommand):
         self.stdout.write(f"✓ Total asignaciones creadas: {asignaciones_creadas}")
 
     def matricular_estudiantes(
-        self, estudiantes, año_objetivo: int, lapso_objetivo: int
+        self,
+        estudiantes,
+        año_objetivo: int,
+        lapso_objetivo: int,
+        seccion_objetivo: int,
     ):
         """Matricular estudiantes en secciones del año académico"""
         self.stdout.write(
-            f"Matriculando estudiantes en secciones del año {año_objetivo}..."
+            f"Matriculando estudiantes {f'en todas las secciones del año {año_objetivo}...' if seccion_objetivo is None else f'en la sección {seccion_objetivo}...'}"
         )
 
-        año = self.obtener_año_objetivo(año_objetivo)
-        lapso = self.obtener_lapso_objetivo(lapso_objetivo)
-
-        if año is None or lapso is None:
-            return
-
-        secciones = Seccion.objects.filter(año=año)
-        if not secciones.exists():
-            self.stdout.write(
-                self.style.ERROR(
-                    "No hay secciones creadas para este año. Ejecuta --secciones primero."
-                )
-            )
+        if (lapso := self.obtener_lapso_objetivo(lapso_objetivo)) is None:
             return
 
         matriculas_creadas = 0
         ya_matriculados = 0
 
-        # Distribuir estudiantes entre secciones
-        estudiantes_por_seccion = len(estudiantes) // len(secciones)
+        if seccion_objetivo is not None:
+            if año_objetivo is not None:
+                self.stdout.write(
+                    self.style.WARNING(
+                        "Advertencia: al indicar la sección, el año indicado es ignorado."
+                    )
+                )
 
-        for i, seccion in enumerate(secciones):
-            inicio = i * estudiantes_por_seccion
-            fin = inicio + estudiantes_por_seccion
+            seccion = Seccion.objects.filter(id=seccion_objetivo).first()
 
-            # Para la última sección, tomar todos los estudiantes restantes
-            if i == len(secciones) - 1:
-                estudiantes_seccion = estudiantes[inicio:]
-            else:
-                estudiantes_seccion = estudiantes[inicio:fin]
+            if seccion is None:
+                return self.stdout.write(
+                    self.style.ERROR("No se encontró la sección proporcionada.")
+                )
 
-            for estudiante in estudiantes_seccion:
+            for estudiante in estudiantes:
                 _, creada = Matricula.objects.get_or_create(
                     estudiante=estudiante,
+                    seccion=seccion,
                     lapso=lapso,
                     defaults={
-                        "seccion": seccion,
                         "estado": self.faker.random_element(
                             OrderedDict(
                                 [
@@ -495,10 +496,57 @@ class Command(BaseCommand):
                         ),
                     },
                 )
+
                 if creada:
                     matriculas_creadas += 1
+                    self.stdout.write(f"✓ Matriculado: {estudiante}")
                 else:
                     ya_matriculados += 1
+        else:
+            if (año := self.obtener_año_objetivo(año_objetivo)) is None:
+                return
+
+            secciones = Seccion.objects.filter(año=año)
+
+            if not secciones.exists():
+                self.stdout.write(
+                    self.style.ERROR("No hay secciones creadas para este año.")
+                )
+                return
+
+            # Distribuir estudiantes entre secciones de manera equitativa
+            estudiantes_por_seccion = len(estudiantes) // len(secciones)
+
+            for i, seccion in enumerate(secciones):
+                inicio = i * estudiantes_por_seccion
+                fin = inicio + estudiantes_por_seccion
+
+                # Para la última sección, tomar todos los estudiantes restantes
+                if i == len(secciones) - 1:
+                    estudiantes_seccion = estudiantes[inicio:]
+                else:
+                    estudiantes_seccion = estudiantes[inicio:fin]
+
+                for estudiante in estudiantes_seccion:
+                    _, creada = Matricula.objects.get_or_create(
+                        estudiante=estudiante,
+                        lapso=lapso,
+                        seccion=seccion,
+                        defaults={
+                            "estado": self.faker.random_element(
+                                OrderedDict(
+                                    [
+                                        ("activo", 0.9),
+                                        ("inactivo", 0.1),
+                                    ]
+                                ),
+                            ),
+                        },
+                    )
+                    if creada:
+                        matriculas_creadas += 1
+                    else:
+                        ya_matriculados += 1
 
         if ya_matriculados > 0:
             self.stdout.write(
