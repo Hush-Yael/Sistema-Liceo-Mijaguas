@@ -429,6 +429,7 @@ class Command(BaseCommand):
             return
 
         matriculas_creadas = 0
+        ya_matriculados = 0
 
         # Distribuir estudiantes entre secciones
         estudiantes_por_seccion = len(estudiantes) // len(secciones)
@@ -461,8 +462,15 @@ class Command(BaseCommand):
                 )
                 if creada:
                     matriculas_creadas += 1
+                else:
+                    ya_matriculados += 1
 
-        self.stdout.write(f"✓ Total matriculas creadas: {matriculas_creadas}")
+        if ya_matriculados > 0:
+            self.stdout.write(
+                f"Ya matriculados con los parámetros indicados: {ya_matriculados}"
+            )
+        if matriculas_creadas > 0:
+            self.stdout.write(f"✓ Total matriculas creadas: {matriculas_creadas}")
 
     def crear_notas(
         self, estudiantes, año_objetivo: int, cantidad_notas: int, lapso_objetivo: int
