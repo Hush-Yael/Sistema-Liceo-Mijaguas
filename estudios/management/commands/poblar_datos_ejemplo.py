@@ -499,14 +499,14 @@ class Command(BaseCommand):
             for materia in materias:
                 for _ in range(cantidad_notas):
                     # Generar calificación realista
-                    if random.random() < 0.05:  # 5% de probabilidad de nota baja
-                        nota = round(random.uniform(5.0, 9.9), 1)
+                    if random.random() < 0.1:  # 10% de probabilidad de nota baja
+                        nota = round(random.uniform(1.0, 9.0), 1)
                     else:
-                        nota = round(random.uniform(10.0, 19.9), 1)
+                        nota = round(random.uniform(10.0, 20.0), 1)
 
                     # Algunas notas pueden tener comentarios
                     comentarios = None
-                    if random.random() < 0.3:  # 30% de probabilidad de comentario
+                    if random.random() < 0.1:  # 10% de probabilidad de comentario
                         comentarios = self.faker.sentence()
 
                     Nota.objects.create(
