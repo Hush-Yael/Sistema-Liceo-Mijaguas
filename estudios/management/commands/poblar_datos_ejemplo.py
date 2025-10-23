@@ -70,6 +70,12 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
+            "--lapso",
+            type=int,
+            help="Indicar el id del lapso para las acciones que lo requieran",
+        )
+
+        parser.add_argument(
             "--asignar-materias",
             action="store_true",
             help="Crear solo asignaciones de materias y profesores",
@@ -147,12 +153,11 @@ class Command(BaseCommand):
 
         if hacer_todo or acciones["matriculas"]:
             estudiantes = Estudiante.objects.all()
-            self.matricular_estudiantes(estudiantes, año_objetivo)
+            self.matricular_estudiantes(estudiantes, año_objetivo, options["lapso"])
 
         if hacer_todo or acciones["notas"]:
             estudiantes = Estudiante.objects.all()
-            lapsos = Lapso.objects.all()
-            self.crear_notas(estudiantes, lapsos)
+            self.crear_notas(estudiantes, año_objetivo, options["lapso"])
 
     def obtener_año_objetivo(self, año_objetivo: int):
         if año_objetivo is None:
@@ -173,6 +178,19 @@ class Command(BaseCommand):
                 )
             )
             sys.exit(1)
+
+    def obtener_lapso_objetivo(self, lapso_objetivo: int):
+        if lapso_objetivo is None:
+            return self.stdout.write(
+                self.style.ERROR("No se proporcionó un lapso para la operación.")
+            )
+
+        try:
+            return Lapso.objects.get(pk=lapso_objetivo)
+        except Lapso.DoesNotExist:
+            return self.stdout.write(
+                self.style.ERROR("No se encontró el lapso con el id proporcionado.")
+            )
 
     def limpiar_datos(self):
         """Elimina todos los datos de ejemplo existentes"""
@@ -375,13 +393,17 @@ class Command(BaseCommand):
 
         self.stdout.write(f"✓ Total asignaciones creadas: {asignaciones_creadas}")
 
-    def matricular_estudiantes(self, estudiantes, año_objetivo: int):
+    def matricular_estudiantes(
+        self, estudiantes, año_objetivo: int, lapso_objetivo: int
+    ):
         año = self.obtener_año_objetivo(año_objetivo)
 
         """Matricular estudiantes en secciones del año académico"""
         self.stdout.write(
             f"Matriculando estudiantes en secciones de {año.nombre_año}..."
         )
+
+        lapso = self.obtener_lapso_objetivo(lapso_objetivo)
 
         secciones = Seccion.objects.filter(año=año)
         if not secciones.exists():
@@ -408,8 +430,9 @@ class Command(BaseCommand):
                 estudiantes_seccion = estudiantes[inicio:fin]
 
             for estudiante in estudiantes_seccion:
-                _, created = Matricula.objects.get_or_create(
+                _, creada = Matricula.objects.get_or_create(
                     estudiante=estudiante,
+                    lapso=lapso,
                     defaults={
                         "seccion": seccion,
                         "estado": self.faker.random_element(
@@ -422,14 +445,18 @@ class Command(BaseCommand):
                         ),
                     },
                 )
-                if created:
+                if creada:
                     matriculas_creadas += 1
 
         self.stdout.write(f"✓ Total matriculas creadas: {matriculas_creadas}")
 
-    def crear_notas(self, estudiantes, lapsos):
-        """Crear notas por sección"""
+    def crear_notas(
+        self, estudiantes, año_objetivo: int, lapso_objetivo: int
+    ):
         self.stdout.write("Creando notas por sección...")
+
+        año = self.obtener_año_objetivo(año_objetivo)
+        lapso = self.obtener_lapso_objetivo(lapso_objetivo)
 
         materias = Materia.objects.all()
         notas_creadas = 0
@@ -439,6 +466,8 @@ class Command(BaseCommand):
             try:
                 matricula = Matricula.objects.get(
                     estudiante=estudiante,
+                    seccion__año=año,
+                    lapso=lapso,
                 )
             except Matricula.DoesNotExist:
                 continue
