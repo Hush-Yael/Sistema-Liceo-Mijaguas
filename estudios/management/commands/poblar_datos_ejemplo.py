@@ -43,6 +43,12 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
+            "--limpiar",
+            type=str,
+            help="Eliminar todos los datos del modelo indicado",
+        )
+
+        parser.add_argument(
             "--profesores",
             action="store_true",
             help="Crear solo profesores",
@@ -120,12 +126,15 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        año_objetivo = options["año"]
-        limpiar_todo = options["limpiar_todo"]
-        hacer_todo = options["todo"]
+        año_objetivo: int = options["año"]
+        limpiar_todo: bool = options["limpiar_todo"]
+        limpiar_modelo: str = options["limpiar"]
+        hacer_todo: bool = options["todo"]
 
         if limpiar_todo:
             self.limpiar_datos()
+        elif limpiar_modelo is not None:
+            self.limpiar_por_tipo(limpiar_modelo)
 
         # Determinar qué acciones ejecutar
         acciones = {
@@ -138,7 +147,12 @@ class Command(BaseCommand):
         }
 
         # no se indicaron acciones
-        if not limpiar_todo and not hacer_todo and not any(acciones.values()):
+        if (
+            not limpiar_todo
+            and limpiar_modelo is None
+            and hacer_todo is None
+            and not any(acciones.values())
+        ):
             return self.stdout.write(
                 self.style.ERROR("No se especificaron acciones a ejecutar.")
             )
@@ -238,24 +252,34 @@ class Command(BaseCommand):
                 f"UPDATE SQLITE_SEQUENCE SET seq=0 WHERE name='{modelo._meta.db_table}';",
             )
 
-    def limpiar_por_tipo(self, tipo):
-        """Elimina datos específicos por tipo"""
+    def limpiar_por_tipo(self, nombre_modelo: str):
         modelos = {
-            "profesores": [ProfesorMateria, Profesor],
-            "estudiantes": [Nota, Matricula, Estudiante],
-            "lapsos": [Nota, Lapso],
-            "asignar-materias": [ProfesorMateria, AñoMateria],
-            "matriculas": [Nota, Matricula],
-            "notas": [Nota],
+            "profesores": Profesor,
+            "estudiantes": Estudiante,
+            "lapsos": Lapso,
+            "profesores-materias": ProfesorMateria,
+            "matriculas": Matricula,
+            "notas": Nota,
+            "bachilleres": Bachiller,
         }
 
-        if tipo in modelos:
-            for modelo in modelos[tipo]:
-                count, _ = modelo.objects.all().delete()
-                if count > 0:
-                    self.stdout.write(
-                        f"✓ Eliminados {count} registros de {modelo.__name__}"
-                    )
+        if nombre_modelo in modelos:
+            modelo = modelos[nombre_modelo]
+
+            cantidad, _ = modelo.objects.all().delete()
+
+            if cantidad > 0:
+                self.stdout.write(
+                    f"✓ Eliminados {cantidad} registros de {modelo.__name__}"
+                )
+
+            connection.cursor().execute(
+                f"UPDATE SQLITE_SEQUENCE SET seq=0 WHERE name='{modelo._meta.db_table}';",
+            )
+        else:
+            self.stdout.write(
+                self.style.ERROR("No se encontró un modelo para el tipo indicado.")
+            )
 
     def crear_profesores(self, cantidad):
         """Crear profesores usando Faker"""
