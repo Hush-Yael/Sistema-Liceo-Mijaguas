@@ -465,7 +465,6 @@ class Command(BaseCommand):
                     Nota.objects.create(
                         matricula=matricula,
                         materia=materia,
-                        lapso=lapso,
                         valor_nota=nota,
                         comentarios=comentarios,
                     )
