@@ -94,6 +94,13 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
+            "--cantidad-notas",
+            type=int,
+            default=1,
+            help="Cantidad de notas a crear (por defecto: 1)",
+        )
+
+        parser.add_argument(
             "--todo",
             action="store_true",
             help="Crear todos los datos de ejemplo (por defecto si no se especifica nada)",
@@ -157,7 +164,14 @@ class Command(BaseCommand):
 
         if hacer_todo or acciones["notas"]:
             estudiantes = Estudiante.objects.all()
-            self.crear_notas(estudiantes, año_objetivo, options["lapso"])
+
+            if estudiantes.first() is None:
+                return self.stdout.write(
+                    self.style.ERROR("No se han añadido estudiantes")
+                )
+
+            cantidad = options["cantidad_notas"]
+            self.crear_notas(estudiantes, año_objetivo, cantidad, options["lapso"])
 
     def obtener_año_objetivo(self, año_objetivo: int):
         if año_objetivo is None:
@@ -451,7 +465,7 @@ class Command(BaseCommand):
         self.stdout.write(f"✓ Total matriculas creadas: {matriculas_creadas}")
 
     def crear_notas(
-        self, estudiantes, año_objetivo: int, lapso_objetivo: int
+        self, estudiantes, año_objetivo: int, cantidad_notas: int, lapso_objetivo: int
     ):
         self.stdout.write("Creando notas por sección...")
 
@@ -460,6 +474,7 @@ class Command(BaseCommand):
 
         materias = Materia.objects.all()
         notas_creadas = 0
+        no_matriculados = 0
 
         for estudiante in estudiantes:
             # Obtener la matrícula del estudiante para saber su sección
@@ -470,16 +485,11 @@ class Command(BaseCommand):
                     lapso=lapso,
                 )
             except Matricula.DoesNotExist:
+                no_matriculados += 1
                 continue
 
-            for lapso in lapsos:
-                for materia in materias:
-                    # Verificar si ya existe calificación
-                    if Nota.objects.filter(
-                        matricula__estudiante=estudiante, materia=materia, lapso=lapso
-                    ).exists():
-                        continue
-
+            for materia in materias:
+                for _ in range(cantidad_notas):
                     # Generar calificación realista
                     if random.random() < 0.05:  # 5% de probabilidad de nota baja
                         nota = round(random.uniform(5.0, 9.9), 1)
@@ -503,4 +513,13 @@ class Command(BaseCommand):
                     if notas_creadas % 100 == 0:  # Mostrar progreso
                         self.stdout.write(f"✓ Creadas {notas_creadas} notas...")
 
-        self.stdout.write(f"✓ Total notas creadas: {notas_creadas}")
+        if no_matriculados > 0:
+            mensaje = f"No se pudieron crear notas para los {no_matriculados} estudiantes, pues no se encontraron matriculados con los parámetros proporcionados."
+            self.stdout.write(
+                self.style.ERROR(mensaje)
+                if notas_creadas < 1
+                else self.style.WARNING(mensaje)
+            )
+
+        if notas_creadas > 0:
+            self.stdout.write(f"✓ Total notas creadas: {notas_creadas}")
