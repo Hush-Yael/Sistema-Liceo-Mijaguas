@@ -18,7 +18,6 @@ from faker import Faker
 import random
 from usuarios.models import User
 from django.contrib.auth.models import Group
-import sys
 from django.db import connection
 
 
@@ -175,23 +174,21 @@ class Command(BaseCommand):
 
     def obtener_año_objetivo(self, año_objetivo: int):
         if año_objetivo is None:
-            self.stdout.write(
+            return self.stdout.write(
                 self.style.ERROR(
                     "Debes proporcionar el número del año objetivo para esta operación."
                 )
             )
-            sys.exit(1)
 
         try:
             return Año.objects.get(numero_año=año_objetivo)
         except Año.DoesNotExist:
-            self.stdout.write(
+            return self.stdout.write(
                 self.style.ERROR(
                     f"No existe el año número {año_objetivo}. "
                     f"Ejecuta primero poblar_datos_estudios para crear los años por defecto."
                 )
             )
-            sys.exit(1)
 
     def obtener_lapso_objetivo(self, lapso_objetivo: int):
         if lapso_objetivo is None:
@@ -373,6 +370,8 @@ class Command(BaseCommand):
 
     def asignar_profesores_a_materias(self, profesores, año_objetivo: int):
         año = self.obtener_año_objetivo(año_objetivo)
+        if año is None:
+            return
 
         """Asignar profesores a materias por sección"""
         self.stdout.write("Asignando profesores a materias por sección...")
@@ -410,14 +409,16 @@ class Command(BaseCommand):
     def matricular_estudiantes(
         self, estudiantes, año_objetivo: int, lapso_objetivo: int
     ):
-        año = self.obtener_año_objetivo(año_objetivo)
-
         """Matricular estudiantes en secciones del año académico"""
         self.stdout.write(
-            f"Matriculando estudiantes en secciones de {año.nombre_año}..."
+            f"Matriculando estudiantes en secciones del año {año_objetivo}..."
         )
 
+        año = self.obtener_año_objetivo(año_objetivo)
         lapso = self.obtener_lapso_objetivo(lapso_objetivo)
+
+        if año is None or lapso is None:
+            return
 
         secciones = Seccion.objects.filter(año=año)
         if not secciones.exists():
@@ -479,6 +480,9 @@ class Command(BaseCommand):
 
         año = self.obtener_año_objetivo(año_objetivo)
         lapso = self.obtener_lapso_objetivo(lapso_objetivo)
+
+        if año is None or lapso is None:
+            return
 
         materias = Materia.objects.all()
         notas_creadas = 0
