@@ -246,6 +246,8 @@ class Command(BaseCommand):
             Bachiller,
         ]
 
+        self.eliminar_usuarios_profesores()
+
         for modelo in modelos_a_limpiar:
             count, _ = modelo.objects.all().delete()
             if count > 0:
@@ -271,6 +273,9 @@ class Command(BaseCommand):
         if nombre_modelo in modelos:
             modelo = modelos[nombre_modelo]
 
+            if nombre_modelo == "profesores":
+                self.eliminar_usuarios_profesores()
+
             cantidad, _ = modelo.objects.all().delete()
 
             if cantidad > 0:
@@ -285,6 +290,14 @@ class Command(BaseCommand):
             self.stdout.write(
                 self.style.ERROR("No se encontró un modelo para el tipo indicado.")
             )
+
+    def eliminar_usuarios_profesores(self):
+        usuarios_profesores = Profesor.objects.values_list("usuario", flat=True)
+
+        if len(usuarios_profesores) > 0:
+            self.stdout.write("Eliminando usuarios de profesores...")
+            User.objects.filter(id__in=usuarios_profesores).delete()
+            self.stdout.write("✓ Usuarios de profesores eliminados")
 
     def crear_profesores(self, cantidad):
         self.stdout.write(f"Creando {cantidad} profesores...")
@@ -325,9 +338,6 @@ class Command(BaseCommand):
                 apellidos=apellido,
                 telefono=self.faker.random_element(
                     [None, "", self.faker.phone_number()]
-                ),
-                fecha_ingreso=self.faker.date_between(
-                    start_date="-10y", end_date="today"
                 ),
                 esta_activo=self.faker.boolean(chance_of_getting_true=90),
                 usuario=prof_usuario,
