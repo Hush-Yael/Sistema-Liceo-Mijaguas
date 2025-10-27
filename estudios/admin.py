@@ -363,6 +363,17 @@ class NotaAdmin(MixinNotaPermisos, ModelAdmin):
         return True
 
     def has_delete_permission(self, request, obj=None):
+        # al eliminar matriculas y tratarse de un admin se debe hacer una excepción, ya que esto requiere eliminar notas, y por defecto solo los profesores pueden hacerlo
+        if (
+            request.method == "POST"
+            and request.path.endswith("/matricula/")
+            and (
+                request.user.is_superuser
+                or request.user.groups.filter(name="Admin").exists()
+            )
+        ):
+            return True
+
         return self.has_change_permission(request, obj)
 
     def save_model(self, request, obj, form, change):
