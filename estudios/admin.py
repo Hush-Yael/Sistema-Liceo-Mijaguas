@@ -118,6 +118,30 @@ class EstudianteAdmin(ModelAdmin):
     ]
     search_fields = ["nombres", "apellidos"]
 
+    def get_search_results(self, request: HttpRequest, queryset, search_term: str):
+        queryset, use_distinct = super().get_search_results(
+            request, queryset, search_term
+        )
+        modelo = request.GET.get("model_name")
+
+        # evitar mostrar alumnos ya matriculados
+        if modelo == "matricula":
+            lapso_actual = Lapso.objects.last()
+            matriculados = Matricula.objects.filter(lapso=lapso_actual).values_list(
+                "estudiante__cedula", flat=True
+            )
+
+            queryset = queryset.exclude(cedula__in=matriculados)
+        # evitar mostrar alumnos ya bachilleres
+        elif modelo == "bachiller":
+            queryset = queryset.exclude(
+                cedula__in=Bachiller.objects.values_list(
+                    "estudiante__cedula", flat=True
+                )
+            )
+
+        return queryset, use_distinct
+
 
 @admin.register(Lapso)
 class LapsoAdmin(ModelAdmin):
@@ -391,3 +415,4 @@ class NotaAdmin(MixinNotaPermisos, ModelAdmin):
 class BachillerAdmin(ModelAdmin):
     form = BachillerAdminForm
     list_display = ["estudiante", "promocion", "fecha_graduacion"]
+    autocomplete_fields = ["estudiante"]
