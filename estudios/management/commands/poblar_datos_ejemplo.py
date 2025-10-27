@@ -416,8 +416,7 @@ class Command(BaseCommand):
         self.stdout.write(f"✓ Total lapsos creados: {lapsos_creados}")
 
     def asignar_profesores_a_materias(self, profesores, año_objetivo: int):
-        año = self.obtener_año_objetivo(año_objetivo)
-        if año is None:
+        if (año := self.obtener_año_objetivo(año_objetivo)) is None:
             return
 
         self.stdout.write("Asignando profesores a materias por sección...")
@@ -477,9 +476,7 @@ class Command(BaseCommand):
                     )
                 )
 
-            seccion = Seccion.objects.filter(id=seccion_objetivo).first()
-
-            if seccion is None:
+            if (seccion := Seccion.objects.filter(id=seccion_objetivo).first()) is None:
                 return self.stdout.write(
                     self.style.ERROR("No se encontró la sección proporcionada.")
                 )
@@ -564,10 +561,9 @@ class Command(BaseCommand):
     ):
         self.stdout.write("Creando notas por sección...")
 
-        año = self.obtener_año_objetivo(año_objetivo)
-        lapso = self.obtener_lapso_objetivo(lapso_objetivo)
-
-        if año is None or lapso is None:
+        if (año := self.obtener_año_objetivo(año_objetivo)) is None or (
+            lapso := self.obtener_lapso_objetivo(lapso_objetivo)
+        ) is None:
             return
 
         materias = Materia.objects.all()
