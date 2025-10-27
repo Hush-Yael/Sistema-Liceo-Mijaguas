@@ -234,7 +234,7 @@ class MatriculaAdmin(ModelAdmin):
         return queryset, use_distinct
 
 
-class ProfesorPermissionMixin:
+class MixinNotaPermisos:
     @staticmethod
     def get_profesor_secciones(user):
         """Obtener secciones del profesor"""
@@ -291,7 +291,7 @@ class ProfesorPermissionMixin:
 
 
 @admin.register(Nota)
-class NotaAdmin(ProfesorPermissionMixin, ModelAdmin):
+class NotaAdmin(MixinNotaPermisos, ModelAdmin):
     form = NotaAdminForm
     list_display = [
         "estudiante",
