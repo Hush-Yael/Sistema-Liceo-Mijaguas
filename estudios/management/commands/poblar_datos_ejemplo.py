@@ -8,7 +8,6 @@ from estudios.models import (
     Profesor,
     Estudiante,
     Lapso,
-    AñoMateria,
     ProfesorMateria,
     Matricula,
     Nota,
@@ -235,7 +234,6 @@ class Command(BaseCommand):
             )
 
     def limpiar_datos(self):
-        """Elimina todos los datos de ejemplo existentes"""
         self.stdout.write("Eliminando todos los datos dinámicos existentes...")
 
         modelos_a_limpiar = [
@@ -289,7 +287,6 @@ class Command(BaseCommand):
             )
 
     def crear_profesores(self, cantidad):
-        """Crear profesores usando Faker"""
         self.stdout.write(f"Creando {cantidad} profesores...")
 
         profesores_creados = 0
@@ -344,7 +341,6 @@ class Command(BaseCommand):
         self.stdout.write(f"✓ Total profesores creados: {profesores_creados}")
 
     def crear_estudiantes(self, cantidad):
-        """Crear estudiantes usando Faker"""
         self.stdout.write(f"Creando {cantidad} estudiantes...")
 
         estudiantes_creados = 0
@@ -414,7 +410,6 @@ class Command(BaseCommand):
         if año is None:
             return
 
-        """Asignar profesores a materias por sección"""
         self.stdout.write("Asignando profesores a materias por sección...")
 
         materias = Materia.objects.all()
@@ -454,7 +449,6 @@ class Command(BaseCommand):
         lapso_objetivo: int,
         seccion_objetivo: int,
     ):
-        """Matricular estudiantes en secciones del año académico"""
         self.stdout.write(
             f"Matriculando estudiantes {f'en todas las secciones del año {año_objetivo}...' if seccion_objetivo is None else f'en la sección {seccion_objetivo}...'}"
         )
