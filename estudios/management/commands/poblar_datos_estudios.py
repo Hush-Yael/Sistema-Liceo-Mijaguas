@@ -53,7 +53,7 @@ class Command(BaseCommand):
 
         for num, nombre, nombre_corto in AÑOS:
             _, created = Año.objects.get_or_create(
-                numero_año=num, nombre_año=nombre, nombre_año_corto=nombre_corto
+                numero=num, nombre=nombre, nombre_corto=nombre_corto
             )
             if created:
                 años_creados += 1
@@ -69,20 +69,20 @@ class Command(BaseCommand):
         secciones_creadas = 0
         for año in años:
             for letra in letras_secciones:
-                nombre_seccion = f"{año.nombre_año_corto} {letra}"
+                nombre = f"{año.nombre_corto} {letra}"
                 _, created = Seccion.objects.get_or_create(
                     año=año,
-                    letra_seccion=letra,
-                    defaults={"nombre_seccion": nombre_seccion, "capacidad_maxima": 30},
+                    letra=letra,
+                    defaults={"nombre": nombre, "capacidad_maxima": 30},
                 )
                 if created:
                     secciones_creadas += 1
-                    self.stdout.write(f"✓ Creada sección: {nombre_seccion}")
+                    self.stdout.write(f"✓ Creada sección: {nombre}")
 
         self.stdout.write(f"✓ Total secciones creadas: {secciones_creadas}")
 
         for materia in MATERIAS:
-            _, created = Materia.objects.get_or_create(nombre_materia=materia)
+            _, created = Materia.objects.get_or_create(nombre=materia)
 
             if created:
                 materias_creadas += 1
@@ -102,8 +102,8 @@ class Command(BaseCommand):
                     continue
 
                 _, asignada = AñoMateria.objects.get_or_create(
-                    materia=Materia.objects.get(nombre_materia=materia),
-                    año=Año.objects.get(numero_año=num),
+                    materia=Materia.objects.get(nombre=materia),
+                    año=Año.objects.get(numero=num),
                 )
 
                 if asignada:

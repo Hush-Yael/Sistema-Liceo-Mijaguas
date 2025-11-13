@@ -34,7 +34,7 @@ def inicio(request: HttpRequest):
         """ materias_año = (
             AñoMateria.objects.select_related("año", "materia")
             # .prefetch_related()
-            .order_by("año__numero_año", "materia__nombre_materia")
+            .order_by("año__numero", "materia__nombre")
         )
         print(materias_año) """
 
@@ -42,8 +42,8 @@ def inicio(request: HttpRequest):
 
 
 def materias(request: HttpRequest):
-    materias = Materia.objects.order_by("nombre_materia")
-    años = Año.objects.values("numero_año", "nombre_año_corto").order_by("numero_año")
+    materias = Materia.objects.order_by("nombre")
+    años = Año.objects.values("numero", "nombre_corto").order_by("numero")
 
     # se guarda cada materia por id, con una lista de los años en los que está asignada
     materias_años_asignaciones = {}
@@ -51,13 +51,13 @@ def materias(request: HttpRequest):
     if materias.count() > 0:
         for materia in materias:
             materias_años_asignaciones[materia.pk] = []
-            materia_años = AñoMateria.objects.values("año__numero_año").filter(
+            materia_años = AñoMateria.objects.values("año__numero").filter(
                 materia=materia
             )
 
             for materia_año in materia_años:
                 materias_años_asignaciones[materia.pk].append(
-                    materia_año["año__numero_año"],
+                    materia_año["año__numero"],
                 )
 
     return render(
@@ -180,7 +180,7 @@ def notas__seccion_estudiante_lapsos(
 
     estudiante = Estudiante.objects.get(cedula=estudiante_cedula)
 
-    lapsos = Lapso.objects.order_by("numero_lapso").all().order_by("-fecha_inicio")
+    lapsos = Lapso.objects.order_by("numero").all().order_by("-fecha_inicio")
 
     return render(
         request,
@@ -202,7 +202,7 @@ def notas__seccion_estudiante_lapso(
     seccion = Seccion.objects.get(id=seccion_id)
     estudiante = Estudiante.objects.get(cedula=estudiante_cedula)
     lapso = Lapso.objects.get(id=lapso_id)
-    materias = Materia.objects.values("id", "nombre_materia").order_by("nombre_materia")
+    materias = Materia.objects.values("id", "nombre").order_by("nombre")
 
     filtros = {
         "matricula__seccion": seccion,
@@ -210,11 +210,11 @@ def notas__seccion_estudiante_lapso(
         "matricula__lapso": lapso,
     }
     columnas = [
-        "valor_nota",
-        "fecha_nota",
+        "valor",
+        "fecha",
         "comentarios",
     ]
-    orden = ["-fecha_nota"]
+    orden = ["-fecha"]
 
     id_materia_buscada = request.COOKIES.get(
         "notas_materia_id", form.initial.get("materia_id", "")
@@ -235,12 +235,12 @@ def notas__seccion_estudiante_lapso(
             filtros["materia"] = materia
 
     if filtros.get("materia", None) is None:
-        orden.insert(0, "materia__nombre_materia")
-        columnas.append("materia__nombre_materia")
+        orden.insert(0, "materia__nombre")
+        columnas.append("materia__nombre")
 
-    promedio = Nota.objects.filter(**filtros).aggregate(promedio=Avg("valor_nota"))
+    promedio = Nota.objects.filter(**filtros).aggregate(promedio=Avg("valor"))
 
-    filtros["valor_nota__range"] = (minimo, maximo)
+    filtros["valor__range"] = (minimo, maximo)
 
     notas = Nota.objects.filter(**filtros).values(*columnas).order_by(*orden)
 
@@ -280,7 +280,7 @@ def estudiantes_matriculados_por_año(request: HttpRequest):
     matriculas = (
         Matricula.objects.filter(estado="activo")
         .select_related("estudiante", "año")
-        .order_by("año__numero_año", "estudiante__apellido")
+        .order_by("año__numero", "estudiante__apellido")
     )
 
     return render(
@@ -326,7 +326,7 @@ def materias_por_año_con_profesores(request: HttpRequest):
     materias_año = (
         AñoMateria.objects.select_related("año", "materia")
         .prefetch_related("profesormateria_set__profesor")
-        .order_by("año__numero_año", "materia__nombre_materia")
+        .order_by("año__numero", "materia__nombre")
     )
 
     return render(
@@ -339,7 +339,7 @@ def profesores_y_materias(request: HttpRequest):
     """Profesores y las materias que imparten"""
     profesores_materias = ProfesorMateria.objects.select_related(
         "profesor", "materia", "año"
-    ).order_by("profesor__apellido", "año__nombre_año")
+    ).order_by("profesor__apellido", "año__nombre")
 
     return render(
         request,
@@ -352,7 +352,7 @@ def profesores_y_materias(request: HttpRequest):
 def resumen_matriculas_por_año(request: HttpRequest):
     """Resumen de matrículas por año"""
     resumen = (
-        Matricula.objects.values("año__id", "año__nombre_año", "año__numero_año")
+        Matricula.objects.values("año__id", "año__nombre", "año__numero")
         .annotate(
             total_estudiantes=Count("estudiante_cedula"),
             estudiantes_activos=Count(
@@ -361,7 +361,7 @@ def resumen_matriculas_por_año(request: HttpRequest):
                 distinct=True,
             ),
         )
-        .order_by("año__numero_año")
+        .order_by("año__numero")
     )
 
     return render(request, "consultas/resumen_matriculas.html", {"resumen": resumen})

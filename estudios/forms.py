@@ -50,7 +50,7 @@ class FormularioProfesorBusqueda(forms.Form):
 
 
 opciones_materias = [("", "Todas")] + [
-    (m[0], m[1]) for m in Materia.objects.values_list("id", "nombre_materia")
+    (m[0], m[1]) for m in Materia.objects.values_list("id", "nombre")
 ]
 
 

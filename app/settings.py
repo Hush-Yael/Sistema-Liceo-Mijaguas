@@ -16,6 +16,7 @@ except Exception as E:
     print("Error al leer el archivo .env", E)
 
 DEBUG = DEV
+# DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 

@@ -211,7 +211,7 @@ class Command(BaseCommand):
             )
 
         try:
-            return Año.objects.get(numero_año=año_objetivo)
+            return Año.objects.get(numero=año_objetivo)
         except Año.DoesNotExist:
             return self.stdout.write(
                 self.style.ERROR(
@@ -402,9 +402,9 @@ class Command(BaseCommand):
         lapsos_creados = 0
         for num, nombre, inicio, fin in lapsos_data:
             _, creado = Lapso.objects.get_or_create(
-                numero_lapso=num,
+                numero=num,
                 defaults={
-                    "nombre_lapso": nombre,
+                    "nombre": nombre,
                     "fecha_inicio": inicio,
                     "fecha_fin": fin,
                 },
@@ -446,7 +446,7 @@ class Command(BaseCommand):
                         asignaciones_creadas += 1
                         tipo = "principal" if es_principal else "secundario"
                         self.stdout.write(
-                            f"✓ {profesor} → {materia.nombre_materia} - {seccion.letra_seccion} ({tipo})"
+                            f"✓ {profesor} → {materia.nombre} - {seccion.letra} ({tipo})"
                         )
 
         self.stdout.write(f"✓ Total asignaciones creadas: {asignaciones_creadas}")
@@ -598,7 +598,7 @@ class Command(BaseCommand):
                     Nota.objects.create(
                         matricula=matricula,
                         materia=materia,
-                        valor_nota=nota,
+                        valor=nota,
                         comentarios=comentarios,
                     )
 

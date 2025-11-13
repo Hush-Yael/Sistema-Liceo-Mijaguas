@@ -34,22 +34,22 @@ from django.core.exceptions import PermissionDenied
 
 @admin.register(Año)
 class AñoAdmin(ModelAdmin):
-    list_display = ["numero_año", "nombre_año", "nombre_año_corto", "fecha_creacion"]
-    list_filter = ["numero_año"]
-    search_fields = ["nombre_año", "numero_año"]
+    list_display = ["numero", "nombre", "nombre_corto", "fecha_creacion"]
+    list_filter = ["numero"]
+    search_fields = ["nombre", "numero"]
     readonly_fields = ["fecha_creacion"]
 
 
 @admin.register(Seccion)
 class SeccionAdmin(ModelAdmin):
     list_display = [
-        "nombre_seccion",
-        "letra_seccion",
+        "nombre",
+        "letra",
         "vocero",
         "capacidad_maxima",
     ]
-    list_filter = ["año", "letra_seccion"]
-    search_fields = ["nombre_seccion", "letra_seccion"]
+    list_filter = ["año", "letra"]
+    search_fields = ["nombre", "letra"]
     autocomplete_fields = ["vocero"]
     readonly_fields = ["fecha_creacion"]
 
@@ -59,16 +59,16 @@ class SeccionAdmin(ModelAdmin):
         if "año__id__exact" in request.GET:
             columnas.remove("año")
 
-        if "letra_seccion" in request.GET:
-            columnas.remove("letra_seccion")
+        if "letra" in request.GET:
+            columnas.remove("letra")
 
         return columnas
 
 
 @admin.register(Materia)
 class MateriaAdmin(ModelAdmin):
-    list_display = ["nombre_materia", "fecha_creacion"]
-    search_fields = ["nombre_materia"]
+    list_display = ["nombre", "fecha_creacion"]
+    search_fields = ["nombre"]
     readonly_fields = ["fecha_creacion"]
 
     # Alterar los resultados del autocompletado
@@ -146,27 +146,27 @@ class EstudianteAdmin(ModelAdmin):
 @admin.register(Lapso)
 class LapsoAdmin(ModelAdmin):
     form = LapsoAdminForm
-    list_display = ["numero_lapso", "nombre_lapso", "fecha_inicio", "fecha_fin"]
-    list_filter = ["numero_lapso"]
-    search_fields = ["nombre_lapso"]
+    list_display = ["numero", "nombre", "fecha_inicio", "fecha_fin"]
+    list_filter = ["numero"]
+    search_fields = ["nombre"]
 
 
 @admin.register(AñoMateria)
 class AñoMateriaAdmin(ModelAdmin):
     list_display = ["año", "materia"]
     list_filter = ["año", "materia"]
-    search_fields = ["materia__nombre_materia"]
+    search_fields = ["materia__nombre"]
     autocomplete_fields = ["materia"]
 
 
 class LetraSeccionModelo:
     def get_seccion_letra(self, obj):
         if obj is not None:
-            if hasattr(obj, "letra_seccion"):
-                return obj.letra_seccion
+            if hasattr(obj, "letra"):
+                return obj.letra
             elif hasattr(obj, "seccion"):
                 if (seccion := obj.seccion) is not None:
-                    return seccion.letra_seccion
+                    return seccion.letra
 
     get_seccion_letra.admin_order_field = "seccion"  # type: ignore
     get_seccion_letra.short_description = "Sección"  # type: ignore
@@ -194,7 +194,7 @@ class ProfesorMateriaAdmin(LetraSeccionModelo, ModelAdmin):
         if "materia__id__exact" in filtros:
             columnas.remove("materia")
 
-        if "anio" in filtros and "letra_seccion" in filtros:
+        if "anio" in filtros and "letra" in filtros:
             columnas.remove("seccion")
 
         return columnas
@@ -225,7 +225,7 @@ class MatriculaAdmin(ModelAdmin):
         columnas = [*super().get_list_display(request)]
         filtros = request.GET
 
-        if "anio" in filtros and "letra_seccion" in filtros:
+        if "anio" in filtros and "letra" in filtros:
             columnas.remove("seccion")
 
         return columnas
@@ -321,8 +321,8 @@ class NotaAdmin(MixinNotaPermisos, ModelAdmin):
         "estudiante",
         "seccion",
         "materia",
-        "valor_nota",
-        "fecha_nota",
+        "valor",
+        "fecha",
     ]
     list_filter = [
         NotaLapsoFiltro,
@@ -335,9 +335,9 @@ class NotaAdmin(MixinNotaPermisos, ModelAdmin):
         "matricula__estudiante__apellidos",
     ]
     autocomplete_fields = ["matricula", "materia"]
-    list_editable = ["valor_nota"]
-    readonly_fields = ["fecha_nota"]
-    ordering = ["-fecha_nota"]
+    list_editable = ["valor"]
+    readonly_fields = ["fecha"]
+    ordering = ["-fecha"]
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -356,7 +356,7 @@ class NotaAdmin(MixinNotaPermisos, ModelAdmin):
         if "materia__id__exact" in filtros:
             columnas.remove("materia")
 
-        if "anio" in filtros and "letra_seccion" in filtros:
+        if "anio" in filtros and "letra" in filtros:
             columnas.remove("seccion")
 
         if hasattr(request.user, "profesor") and not request.user.is_superuser:

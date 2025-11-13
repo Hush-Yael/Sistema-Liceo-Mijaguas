@@ -241,14 +241,14 @@ class BachillerAdminForm(forms.ModelForm):
                     estudiante=estudiante, lapso=lapso_anterior
                 )
 
-                if matricula.seccion.año.numero_año < ultimo_año.numero_año:
+                if matricula.seccion.año.numero < ultimo_año.numero:
                     raise forms.ValidationError(
-                        f"El estudiante debe haberse matriculado en {ultimo_año.nombre_año} en el lapso anterior"
+                        f"El estudiante debe haberse matriculado en {ultimo_año.nombre} en el lapso anterior"
                     )
 
                 promedio = (
                     Nota.objects.filter(matricula__estudiante=estudiante)
-                    .aggregate(promedio=Avg("valor_nota"))
+                    .aggregate(promedio=Avg("valor"))
                     .get("promedio")
                 )
 

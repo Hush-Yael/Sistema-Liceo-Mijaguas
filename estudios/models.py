@@ -5,13 +5,13 @@ from django.utils import timezone
 
 
 class Año(models.Model):
-    numero_año = models.IntegerField(
+    numero = models.IntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(5)],
         verbose_name="número",
         unique=True,
     )
-    nombre_año = models.CharField(max_length=100, verbose_name="nombre", unique=True)
-    nombre_año_corto = models.CharField(
+    nombre = models.CharField(max_length=100, unique=True)
+    nombre_corto = models.CharField(
         max_length=20, verbose_name="nombre corto", unique=True
     )
     fecha_creacion = models.DateTimeField(
@@ -23,13 +23,13 @@ class Año(models.Model):
         verbose_name_plural = "Años"
 
     def __str__(self):
-        return self.nombre_año
+        return self.nombre
 
 
 class Seccion(models.Model):
     año = models.ForeignKey(Año, on_delete=models.CASCADE)
-    letra_seccion = models.CharField(max_length=1, verbose_name="letra")
-    nombre_seccion = models.CharField(max_length=100, verbose_name="nombre")
+    letra = models.CharField(max_length=1)
+    nombre = models.CharField(max_length=100)
     capacidad_maxima = models.IntegerField(default=30)
     vocero = models.ForeignKey(
         "Estudiante",
@@ -41,13 +41,13 @@ class Seccion(models.Model):
     fecha_creacion = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        ordering = ["año", "letra_seccion"]
+        ordering = ["año", "letra"]
         db_table = "secciones"
-        unique_together = ["año", "letra_seccion"]
+        unique_together = ["año", "letra"]
         verbose_name_plural = "Secciones"
 
     def unique_error_message(self, model_class, unique_check, *args, **kwargs):
-        if model_class is type(self) and unique_check == ("año", "letra_seccion"):
+        if model_class is type(self) and unique_check == ("año", "letra"):
             raise ValidationError(
                 "Ya existe una sección con el año y letra indicados", code="unique"
             )
@@ -55,24 +55,22 @@ class Seccion(models.Model):
             return super().unique_error_message(model_class, unique_check)
 
     def __str__(self):
-        return f"{self.año.nombre_año} - Sección {self.letra_seccion}"
+        return f"{self.año.nombre} - Sección {self.letra}"
 
 
 class Materia(models.Model):
-    nombre_materia = models.CharField(
-        max_length=200, unique=True, verbose_name="nombre"
-    )
+    nombre = models.CharField(max_length=200, unique=True)
     descripcion = models.TextField(blank=True, null=True, verbose_name="descripción")
     fecha_creacion = models.DateTimeField(
         default=timezone.now, verbose_name="fecha de creación"
     )
 
     class Meta:
-        ordering = ["nombre_materia"]
+        ordering = ["nombre"]
         db_table = "materias"
 
     def __str__(self):
-        return f"{self.nombre_materia}"
+        return f"{self.nombre}"
 
 
 class Profesor(models.Model):
@@ -130,11 +128,11 @@ class Estudiante(models.Model):
 
 
 class Lapso(models.Model):
-    numero_lapso = models.IntegerField(
+    numero = models.IntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(3)],
         verbose_name="número",
     )
-    nombre_lapso = models.CharField(max_length=50, verbose_name="nombre", unique=True)
+    nombre = models.CharField(max_length=50, unique=True)
     fecha_inicio = models.DateField(verbose_name="fecha de inicio")
     fecha_fin = models.DateField(verbose_name="fecha de fin")
 
@@ -144,7 +142,7 @@ class Lapso(models.Model):
         verbose_name_plural = "Lapsos"
 
     def __str__(self):
-        return f"{self.nombre_lapso} - {self.fecha_inicio} / {self.fecha_fin}"
+        return f"{self.nombre} - {self.fecha_inicio} / {self.fecha_fin}"
 
 
 class AñoMateria(models.Model):
@@ -167,7 +165,7 @@ class AñoMateria(models.Model):
             return super().unique_error_message(model_class, unique_check)
 
     def __str__(self):
-        return f"{self.año.nombre_año} - {self.materia.nombre_materia}"
+        return f"{self.año.nombre} - {self.materia.nombre}"
 
 
 class ProfesorMateria(models.Model):
@@ -233,7 +231,7 @@ class Matricula(models.Model):
             return super().unique_error_message(model_class, unique_check)
 
     def __str__(self):
-        return f"{self.estudiante} - {self.seccion} ({self.lapso.nombre_lapso})"
+        return f"{self.estudiante} - {self.seccion} ({self.lapso.nombre})"
 
 
 class Bachiller(models.Model):
@@ -253,10 +251,8 @@ class Bachiller(models.Model):
 class Nota(models.Model):
     matricula = models.ForeignKey(Matricula, on_delete=models.CASCADE)
     materia = models.ForeignKey(Materia, on_delete=models.CASCADE)
-    valor_nota = models.FloatField(
-        validators=[MinValueValidator(0), MaxValueValidator(20)]
-    )
-    fecha_nota = models.DateTimeField(default=timezone.now)
+    valor = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(20)])
+    fecha = models.DateTimeField(default=timezone.now)
     comentarios = models.TextField(blank=True, null=True)
 
     @property
@@ -276,4 +272,6 @@ class Nota(models.Model):
         verbose_name_plural = "Notas"
 
     def __str__(self):
-        return f"{self.estudiante} - {self.seccion.nombre_seccion} - {self.materia} - {self.valor_nota}"
+        return (
+            f"{self.estudiante} - {self.seccion.nombre} - {self.materia} - {self.valor}"
+        )
