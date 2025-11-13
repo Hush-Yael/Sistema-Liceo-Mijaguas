@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 
-from dist.manejo._internal.django.db import models
+from django.db import models
 
 AbstractUser._meta.get_field("email").verbose_name = "Correo"
 AbstractUser._meta.get_field("is_staff").verbose_name = "Puede ingresar"
