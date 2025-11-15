@@ -253,7 +253,6 @@ class Nota(models.Model):
     materia = models.ForeignKey(Materia, on_delete=models.CASCADE)
     valor = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(20)])
     fecha = models.DateTimeField(default=timezone.now)
-    comentarios = models.TextField(blank=True, null=True)
 
     @property
     def estudiante(self):

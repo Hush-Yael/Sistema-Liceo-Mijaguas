@@ -590,16 +590,10 @@ class Command(BaseCommand):
                     else:
                         nota = round(random.uniform(10.0, 20.0), 1)
 
-                    # Algunas notas pueden tener comentarios
-                    comentarios = None
-                    if random.random() < 0.1:  # 10% de probabilidad de comentario
-                        comentarios = self.faker.sentence()
-
                     Nota.objects.create(
                         matricula=matricula,
                         materia=materia,
                         valor=nota,
-                        comentarios=comentarios,
                     )
 
                     notas_creadas += 1
