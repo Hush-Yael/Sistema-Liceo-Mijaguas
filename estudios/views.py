@@ -1,9 +1,13 @@
-from typing import Tuple
-from django import forms
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
+
+from estudios.utilidades_cookies import (
+    obtener_y_corregir_valores_iniciales,
+    render_con_cookies,
+    verificar_y_aplicar_filtros,
+)
 from .models import (
     Lapso,
     Seccion,
@@ -18,7 +22,6 @@ from .models import (
 )
 from .forms import FormularioProfesorBusqueda, FormularioNotasBusqueda
 from django.core.paginator import Paginator
-import json
 
 
 def inicio(request: HttpRequest):
@@ -133,39 +136,15 @@ def profesores(request: HttpRequest):
 
 
 def notas(request: HttpRequest):
-    cookies = request.COOKIES
-    cookies_a_corregir: list[Tuple] = []
     form = FormularioNotasBusqueda()
 
-    # print("Cookies recibidas:", cookies)
-
-    # cambiar los valores iniciales del form al cargar la página
-    for id, campo in form.fields.items():
-        if (cookie := cookies.get(id)) is not None:
-            try:
-                if isinstance(campo, forms.ModelMultipleChoiceField):
-                    cookie = json.loads(cookie)
-                    campo.initial = cookie
-
-                # validar que el valor de la cookie sea correcto para indicarlo como valor inicial al campo
-                else:
-                    valor_valido = campo.clean(cookie)
-                    campo.initial = valor_valido
-            # si no lo es, se deja como está y se manda a corregir la cookie con el valor por defecto
-            except (ValueError, forms.ValidationError):
-                # print(f'La cookie "{id}" no tenía un valor válido --> {cookie}')
-                cookies_a_corregir.append((id, campo.initial))
-
-            # print(f"Campo <{id}>: initial = {campo.initial}, cookie = {cookie}")
-        """ else:
-            print(f"Campo <{id}>: initial = {campo.initial}") """
+    cookies_a_corregir = obtener_y_corregir_valores_iniciales(request.COOKIES, form)
 
     cantidad_años = Año.objects.count()
     cantidad_lapsos = Lapso.objects.count()
-
     total = Nota.objects.all().count()
 
-    respuesta = render(
+    return render_con_cookies(
         request,
         "notas/index.html",
         {
@@ -174,50 +153,20 @@ def notas(request: HttpRequest):
             "cantidad_años": cantidad_años,
             "cantidad_lapsos": cantidad_lapsos,
         },
+        cookies_a_corregir,
     )
-
-    for clave, valor in cookies_a_corregir:
-        respuesta.set_cookie(clave, valor)
-
-    return respuesta
 
 
 def notas_tabla(request: HttpRequest):
     if request.method != "POST":
         return HttpResponse("", status=405)
 
-    # para guardar los valores de los campos en cookies que cambian los valores iniciales al cargar la página por primera vez
-    filtros_cookies = []
-
     datos = request.POST
     # print("POST:", datos)
 
-    form = FormularioNotasBusqueda()
     form = FormularioNotasBusqueda(datos)
 
-    # validar el form para que los campos cuyos valores no sean válidos tengan su valor por defecto
-    form.is_valid()
-
-    for id, campo in form.fields.items():
-        # filtros de selección
-        if isinstance(campo, forms.ModelMultipleChoiceField):
-            queryset = form.cleaned_data.get(id)
-
-            if not queryset:
-                filtros_cookies.append((id, None))
-            elif hasattr(queryset, "values_list"):
-                filtros_cookies.append(
-                    (id, json.dumps(list(queryset.values_list("pk", flat=True))))
-                )
-        # filtros de búsqueda y valor de notas
-        else:
-            valor = form.cleaned_data.get(id)
-
-            filtros_cookies.append((id, str(valor)))
-
-        # print(f"Campo <{id}>, con valor <{form.cleaned_data.get(id)}>")
-
-    # print("Form data:", form.data)
+    cookies_para_guardar = verificar_y_aplicar_filtros(form)
 
     secciones = form.data.getlist("notas_secciones", [])
     lapsos = form.data.getlist("notas_lapsos", [])
@@ -261,7 +210,7 @@ def notas_tabla(request: HttpRequest):
 
     notas = paginador.get_page(datos.get("pagina", 1))
 
-    respuesta = render(
+    return render_con_cookies(
         request,
         "notas/contenido-tabla.html",
         {
@@ -276,12 +225,8 @@ def notas_tabla(request: HttpRequest):
             # Para indicar (al cambiar de página) que solo se cargue la tabla y la paginación, ya que lo demás no se actualiza
             "solo_tabla": datos.get("solo_tabla", False),
         },
+        cookies_para_guardar,
     )
-
-    for clave, valor in filtros_cookies:
-        respuesta.set_cookie(clave, valor)
-
-    return respuesta
 
 
 @login_required
