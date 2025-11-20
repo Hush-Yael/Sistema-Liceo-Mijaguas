@@ -1,5 +1,12 @@
 .contenedor-tabla {
+  position: relative;
   overflow: auto;
+}
+
+@media only screen and (hover: hover) and (pointer: fine) {
+  .contenedor-tabla {
+    scrollbar-color: var(--color-primario-500) var(--color-fondo-600);
+  }
 }
 
 table {
@@ -15,8 +22,8 @@ caption {
 }
 
 thead {
-  outline: 1px solid var(--color-acento-500);
-  border-radius: calc(var(--radio-campo) - 1px) calc(var(--radio-campo) - 1px) 0 0;
+  position: sticky;
+  top: 0;
 }
 
 th,
@@ -29,18 +36,8 @@ tr {
   background-color: var(--color-fondo-400);
 }
 
-tr:nth-child(even) {
-  background-color: var(--color-fondo-600);
-}
-
 th {
-  background-color: var(--color-acento-500);
-  color: var(--color-texto-acento);
-}
-
-th:not(:last-child),
-td:not(:last-child) {
-  border-right: 1px solid #0002;
+  background: var(--color-fondo-600);
 }
 
 th:first-child {
@@ -49,6 +46,10 @@ th:first-child {
 
 th:last-child {
   border-top-right-radius: calc(var(--radio-campo) - 1px);
+}
+
+tr:not(:last-child)>td {
+  border-bottom: 1px solid #0002;
 }
 
 tr:last-child td:first-child {
