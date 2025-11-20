@@ -1,0 +1,140 @@
+#filtros {
+  min-width: 200px;
+  max-height: calc(100vh - var(--altura-header));
+  border-right: 1px solid #0002;
+}
+
+#filtros,
+#filtros header {
+  background: var(--color-fondo-500);
+  margin-bottom: .5rem;
+  border-bottom: 1px solid #0002;
+}
+
+@media only screen and (hover: hover) and (pointer: fine) {
+  #filtros {
+    scrollbar-color: var(--color-primario-500) transparent;
+  }
+}
+
+#filtros>div {
+  height: 100%;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+#filtros .lista {
+  max-height: 175px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+#filtros .lista:not(:last-child) {
+  margin-bottom: 1.25rem;
+}
+
+#filtros header {
+  position: sticky;
+  top: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: .75rem;
+}
+
+.scroll-btns {
+  display: flex;
+  align-items: center;
+  margin-right: .5rem;
+  color: var(--texto-sutil);
+  gap: .25rem;
+  padding-bottom: 2px;
+}
+
+.scroll-btns button {
+  border-radius: 50%;
+  width: 1.375rem;
+  height: 1.375rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #0000000a;
+  padding: .25rem;
+  transition: background-color 0.2s;
+}
+
+@media only screen and (hover: none) and (pointer: coarse) {
+  .scroll-btns button:active {
+    background-color: #0002;
+  }
+}
+
+@media only screen and (hover: hover) and (pointer: fine) {
+  .scroll-btns button:hover {
+    background-color: #0002;
+  }
+}
+
+.scroll-btns svg {
+  height: 1em;
+  width: 1em;
+}
+
+#filtros label {
+  display: block;
+  font-weight: bold;
+  padding-left: 1.25rem;
+  border-left: 3px solid #00000023;
+  padding: .375rem .75rem;
+  user-select: none;
+  transition: background-color .175s, color .175s, border-left-color .175s;
+}
+
+@media only screen and (hover: none) and (pointer: coarse) {
+  #filtros label:active {
+    background: #0001;
+    border-left-color: #0002;
+  }
+}
+
+@media only screen and (hover: hover) and (pointer: fine) {
+  #filtros label:hover {
+    background: #0001;
+    border-left-color: #0002;
+  }
+
+  #filtros label:active {
+    background: #0002;
+    border-left-color: #0002;
+  }
+}
+
+#filtros input:checked+label {
+  background: var(--color-primario-50);
+  border-left: 3px solid var(--color-primario-500);
+  color: var(--color-primario-600);
+}
+
+@media screen and (max-width: 600px) {
+  #filtros {
+    position: fixed;
+    z-index: 5;
+    top: var(--altura-header);
+    left: 0;
+    height: calc(100% - var(--altura-header));
+    box-shadow: 4px 0 16px rgba(0, 0, 0, .2);
+    transition: transform 0.2s ease-in-out;
+    transform: translateX(-100%);
+  }
+
+  #filtros.abierto,
+  #filtros:focus-within {
+    transform: translateX(0);
+  }
+}
+
+@media screen and (min-width: 600px) {
+  #ver-filtros {
+    display: none;
+  }
+}

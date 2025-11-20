@@ -1,0 +1,54 @@
+.paginacion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  column-gap: 1.5rem;
+  row-gap: .5rem;
+  width: 100%;
+}
+
+.paginacion .indicadores {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+
+.cantidad-paginas {
+  min-width: max-content;
+}
+
+.paginacion ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+
+.paginacion ul button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 2rem;
+  gap: .5rem;
+  border-radius: var(--radio-campo);
+  padding: .25rem .625rem;
+  user-select: none;
+  cursor: pointer;
+}
+
+.paginacion ul button:not(.current) {
+  border: 1px solid #0002;
+  background-color: var(--color-fondo-500);
+}
+
+.paginacion ul button.flechas {
+  width: 2rem;
+  padding: 0;
+}
+
+.paginacion ul button svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}

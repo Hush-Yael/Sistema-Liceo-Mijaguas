@@ -8,19 +8,9 @@ urlpatterns = [
     path("profesores/", views.profesores, name="profesores"),
     path("notas/", views.notas, name="notas"),
     path(
-        "notas/<int:seccion_id>/",
-        views.notas__seccion_estudiantes,
-        name="notas__seccion_estudiantes",
-    ),
-    path(
-        "notas/<int:seccion_id>/<int:estudiante_cedula>/",
-        views.notas__seccion_estudiante_lapsos,
-        name="notas__seccion_estudiante_lapsos",
-    ),
-    path(
-        "notas/<int:seccion_id>/<int:estudiante_cedula>/<int:lapso_id>/",
-        views.notas__seccion_estudiante_lapso,
-        name="notas__seccion_estudiante_lapso",
+        "notas_tabla/",
+        views.notas_tabla,
+        name="notas_tabla",
     ),
     path(
         "estudiantes-matriculados/",

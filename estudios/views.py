@@ -1,7 +1,9 @@
-from django.http import HttpRequest
+from typing import Tuple
+from django import forms
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from django.db.models import Avg, Count, Q
+from django.db.models import Count, Q
 from .models import (
     Lapso,
     Seccion,
@@ -14,8 +16,9 @@ from .models import (
     Matricula,
     Nota,
 )
-from django.contrib.auth.models import Group
 from .forms import FormularioProfesorBusqueda, FormularioNotasBusqueda
+from django.core.paginator import Paginator
+import json
 
 
 def inicio(request: HttpRequest):
@@ -130,148 +133,155 @@ def profesores(request: HttpRequest):
 
 
 def notas(request: HttpRequest):
-    años_list = Año.objects.values("nombre_año", "id", "numero_año").order_by(
-        "numero_año"
-    )
-    años = {}
-
-    for a in años_list:
-        años[a["id"]] = {
-            "nombre": a["nombre_año"],
-            "numero": a["numero_año"],
-            "secciones": [],
-        }
-
-    secciones = Seccion.objects.all().order_by("año", "letra_seccion")
-    es_profesor = Group.objects.get(name="Profesor") in request.user.groups.all()
-
-    for seccion in secciones:
-        años[seccion.año_id]["secciones"].append(seccion)  # type: ignore
-
-    return render(
-        request,
-        "notas/index.html",
-        {"es_profesor": es_profesor, "años": años},
-    )
-
-
-def notas__seccion_estudiantes(request: HttpRequest, seccion_id):
-    seccion = Seccion.objects.get(id=seccion_id)
-
-    estudiantes_notas_seccion = Matricula.objects.filter(seccion=seccion).values(
-        "estudiante__cedula",
-        "estudiante__apellidos",
-        "estudiante__nombres",
-    )
-
-    print(estudiantes_notas_seccion)
-
-    return render(
-        request,
-        "notas/[seccion]_estudiantes.html",
-        {"estudiantes_notas_seccion": estudiantes_notas_seccion, "seccion": seccion},
-    )
-
-
-def notas__seccion_estudiante_lapsos(
-    request: HttpRequest, seccion_id: int, estudiante_cedula: int
-):
-    seccion = Seccion.objects.get(id=seccion_id)
-
-    estudiante = Estudiante.objects.get(cedula=estudiante_cedula)
-
-    lapsos = Lapso.objects.order_by("numero").all().order_by("-fecha_inicio")
-
-    return render(
-        request,
-        "notas/[seccion]_[estudiante]_lapsos.html",
-        {
-            "seccion": seccion,
-            "estudiante": estudiante,
-            "notas": notas,
-            "lapsos": lapsos,
-        },
-    )
-
-
-def notas__seccion_estudiante_lapso(
-    request: HttpRequest, seccion_id: int, estudiante_cedula: int, lapso_id: int
-):
+    cookies = request.COOKIES
+    cookies_a_corregir: list[Tuple] = []
     form = FormularioNotasBusqueda()
 
-    seccion = Seccion.objects.get(id=seccion_id)
-    estudiante = Estudiante.objects.get(cedula=estudiante_cedula)
-    lapso = Lapso.objects.get(id=lapso_id)
-    materias = Materia.objects.values("id", "nombre").order_by("nombre")
+    # print("Cookies recibidas:", cookies)
 
-    filtros = {
-        "matricula__seccion": seccion,
-        "matricula__estudiante": estudiante,
-        "matricula__lapso": lapso,
-    }
-    columnas = [
-        "valor",
-        "fecha",
-        "comentarios",
-    ]
-    orden = ["-fecha"]
+    # cambiar los valores iniciales del form al cargar la página
+    for id, campo in form.fields.items():
+        if (cookie := cookies.get(id)) is not None:
+            try:
+                if isinstance(campo, forms.ModelMultipleChoiceField):
+                    cookie = json.loads(cookie)
+                    campo.initial = cookie
 
-    id_materia_buscada = request.COOKIES.get(
-        "notas_materia_id", form.initial.get("materia_id", "")
-    )
-    maximo = request.COOKIES.get("maximo", form.initial.get("maximo", 20))
-    minimo = request.COOKIES.get("minimo", form.initial.get("minimo", 0))
+                # validar que el valor de la cookie sea correcto para indicarlo como valor inicial al campo
+                else:
+                    valor_valido = campo.clean(cookie)
+                    campo.initial = valor_valido
+            # si no lo es, se deja como está y se manda a corregir la cookie con el valor por defecto
+            except (ValueError, forms.ValidationError):
+                # print(f'La cookie "{id}" no tenía un valor válido --> {cookie}')
+                cookies_a_corregir.append((id, campo.initial))
 
-    if request.method == "POST":
-        form = FormularioNotasBusqueda(request.POST)
+            # print(f"Campo <{id}>: initial = {campo.initial}, cookie = {cookie}")
+        """ else:
+            print(f"Campo <{id}>: initial = {campo.initial}") """
 
-        if form.is_valid():
-            id_materia_buscada = form.cleaned_data["materia_id"]
-            maximo = form.cleaned_data["maximo"]
-            minimo = form.cleaned_data["minimo"]
+    cantidad_años = Año.objects.count()
+    cantidad_lapsos = Lapso.objects.count()
 
-    if id_materia_buscada:
-        if (materia := Materia.objects.get(id=id_materia_buscada)) is not None:
-            filtros["materia"] = materia
+    total = Nota.objects.all().count()
 
-    if filtros.get("materia", None) is None:
-        orden.insert(0, "materia__nombre")
-        columnas.append("materia__nombre")
-
-    promedio = Nota.objects.filter(**filtros).aggregate(promedio=Avg("valor"))
-
-    filtros["valor__range"] = (minimo, maximo)
-
-    notas = Nota.objects.filter(**filtros).values(*columnas).order_by(*orden)
-
-    form.initial = {
-        "materia_id": id_materia_buscada,
-        "notas_maximo": maximo,
-        "notas_minimo": minimo,
-    }
-
-    response = render(
+    respuesta = render(
         request,
-        "notas/[seccion]_[estudiante]_[lapso].html",
+        "notas/index.html",
         {
-            "seccion": seccion,
-            "materia_buscada": filtros.get("materia", None),
-            "estudiante": estudiante,
-            "notas": notas,
-            "promedio": round(promedio["promedio"], 2)
-            if promedio["promedio"]
-            else None,
-            "materias": materias,
-            "lapso": lapso,
             "form": form,
+            "total": total,
+            "cantidad_años": cantidad_años,
+            "cantidad_lapsos": cantidad_lapsos,
         },
     )
 
-    response.set_cookie("notas_materia_id", id_materia_buscada)  # type: ignore
-    response.set_cookie("notas_maximo", maximo)  # type: ignore
-    response.set_cookie("notas_minimo", minimo)  # type: ignore
+    for clave, valor in cookies_a_corregir:
+        respuesta.set_cookie(clave, valor)
 
-    return response
+    return respuesta
+
+
+def notas_tabla(request: HttpRequest):
+    if request.method != "POST":
+        return HttpResponse("", status=405)
+
+    # para guardar los valores de los campos en cookies que cambian los valores iniciales al cargar la página por primera vez
+    filtros_cookies = []
+
+    datos = request.POST
+    # print("POST:", datos)
+
+    form = FormularioNotasBusqueda()
+    form = FormularioNotasBusqueda(datos)
+
+    # validar el form para que los campos cuyos valores no sean válidos tengan su valor por defecto
+    form.is_valid()
+
+    for id, campo in form.fields.items():
+        # filtros de selección
+        if isinstance(campo, forms.ModelMultipleChoiceField):
+            queryset = form.cleaned_data.get(id)
+
+            if not queryset:
+                filtros_cookies.append((id, None))
+            elif hasattr(queryset, "values_list"):
+                filtros_cookies.append(
+                    (id, json.dumps(list(queryset.values_list("pk", flat=True))))
+                )
+        # filtros de búsqueda y valor de notas
+        else:
+            valor = form.cleaned_data.get(id)
+
+            filtros_cookies.append((id, str(valor)))
+
+        # print(f"Campo <{id}>, con valor <{form.cleaned_data.get(id)}>")
+
+    # print("Form data:", form.data)
+
+    secciones = form.data.getlist("notas_secciones", [])
+    lapsos = form.data.getlist("notas_lapsos", [])
+    materias = form.data.getlist("notas_materias", [])
+
+    notas = Nota.objects.all().order_by("-fecha")
+
+    if secciones and len(secciones) > 0 and secciones[0] != "":
+        notas = notas.filter(matricula__seccion_id__in=secciones)
+
+    if lapsos and len(lapsos) > 0 and lapsos[0] != "":
+        notas = notas.filter(matricula__lapso_id__in=lapsos)
+
+    if materias and len(materias) > 0 and materias[0] != "":
+        notas = notas.filter(materia_id__in=materias)
+
+    total_conjunto = notas.count()
+
+    nota_minima = float(form.data.get("notas_valor_minimo"))
+    nota_maxima = float(form.data.get("notas_valor_maximo"))
+
+    if nota_minima <= nota_maxima:
+        notas = notas.filter(valor__range=(nota_minima, nota_maxima))
+
+    busqueda = datos.get("q")
+    if isinstance(busqueda, str) and busqueda.strip() != "":
+        tipo_busqueda = form.data["notas_tipo_busqueda"]
+        columna_buscada = form.data["notas_columna_buscada"]
+
+        if columna_buscada == "nombres_apellidos":
+            notas = notas.filter(
+                Q(matricula__estudiante__nombres__icontains=busqueda)
+                | Q(matricula__estudiante__apellidos__icontains=busqueda)
+            )
+        else:
+            columna = {f"{columna_buscada}__{tipo_busqueda}": busqueda}
+            notas = notas.filter(**columna)
+
+    cantidad_por_pagina = int(datos.get("notas_cantidad_paginas", 10))
+    paginador = Paginator(notas, cantidad_por_pagina)
+
+    notas = paginador.get_page(datos.get("pagina", 1))
+
+    respuesta = render(
+        request,
+        "notas/contenido-tabla.html",
+        {
+            "notas": notas,
+            "total_conjunto": total_conjunto,
+            "paginador": paginador,
+            "cantidad_por_pagina": cantidad_por_pagina,
+            "form": form,
+            "secciones": secciones if secciones and secciones[0] != "" else [],
+            "lapsos": lapsos if lapsos and lapsos[0] != "" else [],
+            "materias": materias if materias and materias[0] != "" else [],
+            # Para indicar (al cambiar de página) que solo se cargue la tabla y la paginación, ya que lo demás no se actualiza
+            "solo_tabla": datos.get("solo_tabla", False),
+        },
+    )
+
+    for clave, valor in filtros_cookies:
+        respuesta.set_cookie(clave, valor)
+
+    return respuesta
 
 
 @login_required

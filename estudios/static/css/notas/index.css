@@ -1,131 +1,94 @@
+body {
+  overflow: hidden;
+}
+
 main {
+  display: flex;
+  height: calc(100% - var(--altura-header));
+  min-height: unset;
+}
+
+main>.contenido {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  flex: 1;
+  height: 100%;
   padding: 1rem;
-  max-width: 1100px;
-  margin: 0 auto;
+  overflow: auto;
 }
 
-#enlaces-especiales {
+main>.contenido .tabla-contenido {
+  height: 100%;
+}
+
+main>.contenido .tabla-contenido,
+#tabla-y-paginacion {
   display: flex;
   flex-direction: column;
-  gap: .5rem;
-}
-
-#titulo {
-  text-align: center;
-  font-size: 1.25rem;
-  font-weight: bold;
-  margin: 1.5rem 0 .5rem;
-}
-
-#años {
-  display: flex;
-  flex-direction: column;
-}
-
-.año summary {
-  padding: .75rem 0;
-  font-weight: 500;
-}
-
-.secciones {
-  display: flex;
-  flex-direction: column;
-  row-gap: .25rem;
-  position: relative;
-  padding-left: 1.5rem;
-}
-
-.secciones::before {
-  content: '';
-  display: block;
-  position: absolute;
-  left: .8rem;
-  top: -.5rem;
-  width: 2px;
-  height: calc(100% + 1rem);
-  background: var(--color-primario-500);
-  border-radius: 100px;
-  opacity: .3;
-}
-
-#años>:last-child .secciones::before {
-  height: calc(100% + .375rem);
-}
-
-main .enlace {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   gap: 1rem;
+}
+
+#tabla-y-paginacion {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.mensaje-tabla {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+  align-items: center;
+  text-align: center;
+  padding: 1.5rem;
+}
+
+#msg-vacio .decoracion-circular {
+  background-color: var(--color-primario-50);
+  color: var(--color-primario-600);
   padding: .5rem;
-  background: var(--color-fondo-500);
-  border: 1px solid #0001;
+  width: 5rem;
+  height: 5rem;
+}
+
+#msg-vacio .decoracion-circular svg {
+  width: 90%;
+  height: 90%;
+}
+
+.mensaje-tabla h2 {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.mensaje-tabla p {
   color: var(--texto-sutil);
-  border-radius: var(--radio-campo);
-  transition: background-color .2s ease-in-out, border .2s ease-in-out;
 }
 
-@media only screen and (hover: none) and (pointer: coarse) {
-  main .enlace:active {
-    background: var(--color-fondo-600);
-    border: 1px solid #0003;
-  }
+.tabla-contenido .paginacion {
+  margin-left: auto;
 }
 
-@media only screen and (hover: hover) and (pointer: fine) {
-  main .enlace:hover {
-    background: var(--color-fondo-600);
-    border: 1px solid #0003;
-  }
-}
-
-main .enlace svg {
-  height: 1em;
-  width: 1em;
-}
-
-@media screen and (min-width: 500px) {
-  main {
-    padding: 2rem;
-  }
-
-  #titulo {
-    margin: 2.25rem 0 .5rem;
-  }
-
-  #años>:last-child .secciones::before {
-    height: 100%;
-  }
-
-  .secciones {
-    display: flex;
-    flex-wrap: wrap;
-    row-gap: .5rem;
-    column-gap: .5rem;
-    padding: .5rem 0 .5rem 2.5rem;
-  }
-
-  main .enlace {
-    padding: .75rem;
-  }
-
-  @supports (grid-template-columns: repeat(auto-fill, minmax(150px, 1fr))) {
-    .secciones {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    }
+@media screen and (max-width: 600px) {
+  main>.contenido table {
+    min-width: 700px;
   }
 }
 
 @media screen and (min-width: 600px) {
-  #enlaces-especiales {
-    justify-content: center;
-    align-items: center;
+  main>.contenido .tabla-contenido {
+    gap: .5rem;
+  }
+
+  main>.contenido .contenedor-tabla {
+    max-height: 50vh;
+    max-height: 50dvh;
   }
 }
 
-@media screen and (min-width: 800px) {
-  #enlaces-especiales {
-    flex-direction: row;
+@media screen and (min-width: 700px) {
+  main>.contenido {
+    padding: 2rem;
   }
 }

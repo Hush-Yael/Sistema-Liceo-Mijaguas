@@ -1,5 +1,5 @@
 from django import forms
-from .models import Materia, Profesor
+from .models import Lapso, Materia, Profesor, Seccion
 
 
 campos_a_evitar = ("id", "profesormateria", "esta_activo", "usuario")
@@ -15,18 +15,20 @@ opciones_busqueda = [
     if hasattr(f, "verbose_name")  # type: ignore
 ]
 
+opciones_tipo_busqueda = [
+    ("contains", "Contiene"),
+    ("iexact", "Exacta"),
+    ("startswith", "Empieza con"),
+    ("endswith", "Termina con"),
+]
+
 
 class FormularioProfesorBusqueda(forms.Form):
     busqueda = forms.CharField(label="Buscar", max_length=100, required=False)
 
     tipo_busqueda = forms.ChoiceField(
         label="Tipo de busqueda",
-        choices=[
-            ("__iexact", "Exacta"),
-            ("__contains", "Contiene"),
-            ("__startswith", "Empieza con"),
-            ("__endswith", "Termina con"),
-        ],
+        choices=opciones_tipo_busqueda,
         required=False,
     )
 
@@ -55,21 +57,66 @@ opciones_materias = [("", "Todas")] + [
 
 
 class FormularioNotasBusqueda(forms.Form):
-    materia_id = forms.ChoiceField(
-        label="Mostrar por asignatura",
-        choices=opciones_materias,
-        initial="",
-        required=False,
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["notas_secciones"].label_from_instance = lambda obj: obj.nombre
+        self.fields["notas_lapsos"].label_from_instance = lambda obj: obj.nombre
+
+    opciones_columna_buscada = [
+        ("nombres_apellidos", "Nombres y apellidos"),
+        ("matricula__estudiante__nombres", "Nombres"),
+        ("matricula__estudiante__apellidos", "Apellidos"),
+        ("matricula__estudiante__cedula", "Cédula"),
+    ]
+
+    notas_materias = forms.ModelMultipleChoiceField(
+        label="Asignatura",
+        queryset=Materia.objects.all().order_by("nombre"),
+        widget=forms.CheckboxSelectMultiple,
     )
-    maximo = forms.FloatField(
-        label="Nota máxima",
-        min_value=0,
+
+    notas_secciones = forms.ModelMultipleChoiceField(
+        label="Sección",
+        queryset=Seccion.objects.all().order_by("año", "letra"),
+        widget=forms.CheckboxSelectMultiple,
+    )
+
+    notas_lapsos = forms.ModelMultipleChoiceField(
+        label="Lapso",
+        queryset=Lapso.objects.all().order_by("-id"),
+        widget=forms.CheckboxSelectMultiple,
+    )
+
+    notas_columna_buscada = forms.ChoiceField(
+        label="Buscar por",
+        initial=opciones_columna_buscada[0][0],
+        choices=opciones_columna_buscada,
+    )
+
+    notas_tipo_busqueda = forms.ChoiceField(
+        label="Tipo de búsqueda",
+        initial=opciones_tipo_busqueda[0][0],
+        choices=opciones_tipo_busqueda,
+    )
+
+    notas_valor_maximo = forms.FloatField(
+        label="Máxima",
+        min_value=1,
         max_value=20,
         initial=20,
+        step_size=0.1,
     )
-    minimo = forms.FloatField(
-        label="Nota mínima",
+
+    notas_valor_minimo = forms.FloatField(
+        label="Mínima",
         min_value=0,
         max_value=20,
         initial=0,
+        step_size=0.1,
+    )
+
+    notas_cantidad_paginas = forms.IntegerField(
+        label="Cantidad por página",
+        min_value=1,
+        initial=50,
     )

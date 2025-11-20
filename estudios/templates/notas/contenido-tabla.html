@@ -1,0 +1,42 @@
+{% comment %}
+  solo reemplaza la tabla y la paginación al cambiar de página
+{% endcomment %}
+{% if solo_tabla %}
+  {% include "notas/tabla.html" %}
+  {% include "componentes/paginacion.html" with datos_paginados=notas hx_target="#tabla-y-paginacion" hx_include=".incluido-filtros" hx_post="/notas_tabla/" %}
+{% else %}
+  {% if notas.object_list.count < 1 %}
+    <div role="alert" id="msg-vacio" class="mensaje-tabla caja">
+      <span class="decoracion-circular">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+        >
+          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+          <path
+            d="M12 2l.117 .007a1 1 0 0 1 .876 .876l.007 .117v4l.005 .15a2 2 0 0 0 1.838 1.844l.157 .006h4l.117 .007a1 1 0 0 1 .876 .876l.007 .117v9a3 3 0 0 1 -2.824 2.995l-.176 .005h-10a3 3 0 0 1 -2.995 -2.824l-.005 -.176v-14a3 3 0 0 1 2.824 -2.995l.176 -.005zm2.571 15.18a4.5 4.5 0 0 0 -5.142 0a1 1 0 1 0 1.142 1.64a2.5 2.5 0 0 1 2.858 0a1 1 0 0 0 1.142 -1.64m-4.565 -5.18h-.011a1 1 0 0 0 0 2h.01a1 1 0 0 0 0 -2m4 0h-.011a1 1 0 0 0 0 2h.01a1 1 0 0 0 0 -2"
+          />
+          <path d="M19 7h-4l-.001 -4.001z" />
+        </svg>
+      </span>
+
+      <hgroup>
+        <h2>No se encontraron notas</h2>
+        <p>Intenta cambiar los filtros o buscar algo distinto</p>
+      </hgroup>
+    </div>
+  {% else %}
+    {% include "notas/tabla.html" %}
+    {% include "componentes/paginacion.html" with datos_paginados=notas hx_target="#tabla-y-paginacion" hx_include=".incluido-filtros" hx_post="/notas_tabla/" %}
+  {% endif %}
+
+  <span id="resultados-cantidad" hx-swap-oob="outerHTML:#resultados-cantidad">
+    {{ notas.paginator.count }}
+  </span>
+
+  <span id="conjunto-cantidad" hx-swap-oob="outerHTML:#conjunto-cantidad">
+    {{ total_conjunto }}
+  </span>
+{% endif %}

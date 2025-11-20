@@ -1,0 +1,124 @@
+{% load widget_tweaks %}
+<header
+  id="tabla-cabecera"
+  hx-target="#tabla-y-paginacion"
+  hx-indicator="#indicador-busqueda"
+  hx-include=".incluido-filtros"
+>
+  <button class="caja" type="button" id="ver-filtros" aria-label="Ver filtros">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M14 6m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+      <path d="M4 6l8 0" />
+      <path d="M16 6l4 0" />
+      <path d="M8 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+      <path d="M4 12l2 0" />
+      <path d="M10 12l10 0" />
+      <path d="M17 18m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+      <path d="M4 18l11 0" />
+      <path d="M19 18l1 0" />
+    </svg>
+  </button>
+
+  <details class="menu" id="busqueda-config">
+    <summary class="caja flex" aria-label="configuración de búsqueda">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+        <path
+          d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"
+        />
+        <path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
+      </svg>
+    </summary>
+
+    <div class="contenido">
+      <details
+        name="config"
+        class="menu submenu"
+        hx-post="{% url 'notas_tabla' %}"
+        hx-trigger="change[verificarBusquedaNoVacia()] changed delay:600ms"
+      >
+        <summary>
+          Búsqueda {% include "componentes/iconos/caret-r.html" %}
+        </summary>
+
+        <div class="contenido">
+          <div class="campo">
+            {{ form.notas_tipo_busqueda.label_tag }}
+            {% render_field form.notas_tipo_busqueda class="caja-input incluido-filtros" %}
+          </div>
+
+          <div class="campo">
+            {{ form.notas_columna_buscada.label_tag }}
+            {% render_field form.notas_columna_buscada class="caja-input incluido-filtros" %}
+          </div>
+        </div>
+      </details>
+
+      <details
+        name="config"
+        class="menu submenu"
+        hx-post="{% url 'notas_tabla' %}"
+        hx-trigger="input changed delay:600ms"
+      >
+        <summary>
+          Valores de las notas {% include "componentes/iconos/caret-r.html" %}
+        </summary>
+
+        <div
+          class="contenido"
+          hx-trigger="change changed"
+          hx-include=".incluido-filtros"
+          hx-post="{% url 'notas_tabla' %}"
+          hx-indicator="#indicador-busqueda"
+          hx-target="#tabla-y-paginacion"
+        >
+          <div class="campo horizontal valor-nota">
+            {{ form.notas_valor_minimo.label_tag }}
+            {% render_field form.notas_valor_minimo class="caja-input incluido-filtros" style="width: 6ch;" %}
+          </div>
+
+          <div class="campo horizontal valor-nota">
+            {{ form.notas_valor_maximo.label_tag }}
+            {% render_field form.notas_valor_maximo class="caja-input incluido-filtros" style="width: 6ch;" %}
+          </div>
+        </div>
+      </details>
+
+      <div class="campo horizontal">
+        {{ form.notas_cantidad_paginas.label_tag }}
+        {% with vals='{"solo_tabla": true}' %}
+          {% render_field form.notas_cantidad_paginas class="caja-input incluido-filtros" style="max-width: 6ch;" hx-trigger="input changed delay:600ms" hx-post="/notas_tabla/" hx-vals=vals %}
+        {% endwith %}
+      </div>
+    </div>
+  </details>
+
+  <input
+    class="caja incluido-filtros"
+    type="search"
+    id="q"
+    name="q"
+    hx-post="{% url 'notas_tabla' %}"
+    hx-trigger="input changed delay:600ms"
+    placeholder="Buscar..."
+  />
+</header>

@@ -1,0 +1,80 @@
+{% load math %}
+
+<div class="contenedor-tabla">
+  <table>
+    <thead>
+      <tr>
+        <th class="numeros">N°</th>
+        <th>Estudiante</th>
+
+        {% comment %}
+          se evita mostrar alguna de las siguientes columnas al tener solo una
+          opción seleccionada de sus respectivos filtros, por ser redundante
+        {% endcomment %}
+
+        {% if materias|length != 1 %}
+          <th>Materia</th>
+        {% endif %}
+
+        {% if secciones|length != 1 %}
+          <th>Sección</th>
+        {% endif %}
+
+        <th style="min-width: 6ch;" class="numeros">Valor</th>
+
+        {% if lapsos|length != 1 %}
+          <th style="min-width: 6ch;" class="numeros">Lapso</th>
+        {% endif %}
+
+        <th style="min-width: 8ch;">Fecha</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for nota in notas %}
+        <tr>
+          {% comment %}
+            se multiplica la cantidad por página de acuerdo a la cantidad
+            recorrida y la cantidad de notas por página y se le añade cada valor
+            del ciclo actual
+          {% endcomment %}
+          {% with total_anterior=notas.number|add:-1|multiplicar:cantidad_por_pagina %}
+            <td class="numeros">{{ total_anterior|add:forloop.counter }}</td>
+          {% endwith %}
+
+          <td>{{ nota.estudiante }}</td>
+
+          {% comment %}
+            se evita mostrar alguna de las siguientes columnas al tener solo una
+            opción seleccionada de sus respectivos filtros, por ser redundante
+          {% endcomment %}
+          {% if materias|length != 1 %}
+            <td>{{ nota.materia }}</td>
+          {% endif %}
+
+          {% if secciones|length != 1 %}
+            <td>
+              {{ nota.matricula.seccion.año.nombre_corto }}
+              {{ nota.matricula.seccion.letra }}
+            </td>
+          {% endif %}
+
+          <td class="numeros">
+            {% with valor=nota.valor|floatformat:"-1" %}
+              {% if nota.valor < 10 %}
+                0{{ valor }}
+              {% else %}
+                {{ valor }}
+              {% endif %}
+            {% endwith %}
+          </td>
+
+          {% if lapsos|length != 1 %}
+            <td class="numeros">{{ nota.lapso.nombre }}</td>
+          {% endif %}
+
+          <td>{{ nota.fecha|date:"D, d M Y, h:i A" }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

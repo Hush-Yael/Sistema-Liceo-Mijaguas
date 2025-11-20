@@ -1,0 +1,177 @@
+{% if datos_paginados.paginator.num_pages > 1 %}
+  <div
+    class="paginacion"
+    hx-target="{{ hx_target }}"
+    hx-include="{{ hx_include }}"
+    hx-indicator="#indicador-pagina"
+  >
+    <div class="indicadores">
+      <p class="cantidad-paginas" role="status">
+        Página <b>{{ datos_paginados.number }}</b> de
+        <b>{{ datos_paginados.paginator.num_pages }}</b>
+      </p>
+
+      <div class="htmx-indicator" id="indicador-pagina">
+        <div class="indicador"></div>
+        Cargando página...
+      </div>
+    </div>
+
+    <nav>
+      <ul>
+        {% if datos_paginados.has_previous %}
+          <li>
+            <button
+              hx-vals='{"pagina": 1, "solo_tabla": true }'
+              hx-post="{{ hx_post }}"
+              class="flechas"
+              aria-label="Primera página"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m17 18-6-6 6-6" />
+                <path d="M7 6v12" />
+              </svg>
+            </button>
+          </li>
+
+          {% if datos_paginados.previous_page_number != 1 %}
+            <li>
+              <button
+                hx-vals='{"pagina": {{ datos_paginados.previous_page_number }}, "solo_tabla": true }'
+                hx-post="{{ hx_post }}"
+                class="flechas"
+                aria-label="Página anterior"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="m15 18-6-6 6-6" />
+                </svg>
+              </button>
+            </li>
+          {% endif %}
+        {% endif %}
+
+        {% if datos_paginados.number|add:'-3' > 1 %}
+          <li>
+            <button
+              hx-vals='{"pagina": {{ datos_paginados.number|add:"-4" }}, "solo_tabla": true }'
+              hx-post="{{ hx_post }}"
+              aria-label="Ir a la página {{ datos_paginados.number|add:'-4' }}"
+            >
+              &hellip;
+            </button>
+          </li>
+        {% endif %}
+
+        {% for num in datos_paginados.paginator.page_range %}
+          {% if datos_paginados.number == num %}
+            <li>
+              {% comment %}
+                este input se usa para poder enviar la página actual junto con
+                los demás filtros
+              {% endcomment %}
+              <input
+                name="pagina"
+                type="number"
+                readonly
+                class="sr-only incluido-filtros"
+                value="{{ num }}"
+                aria-label="Página actual"
+              />
+              <button aria-hidden="true" class="primario current">
+                {{ num }}
+              </button>
+            </li>
+          {% elif num > datos_paginados.number|add:'-3' and num < datos_paginados.number|add:'3' %}
+            <li>
+              <button
+                hx-vals='{"pagina": {{ num }}, "solo_tabla": true }'
+                hx-post="{{ hx_post }}"
+                aria-label="Ir a la página {{ num }}"
+              >
+                {{ num }}
+              </button>
+            </li>
+          {% endif %}
+        {% endfor %}
+
+        {% if datos_paginados.paginator.num_pages > datos_paginados.number|add:'3' %}
+          <li>
+            <button
+              hx-vals='{"pagina": {{ datos_paginados.number|add:"4" }}, "solo_tabla": true }'
+              hx-post="{{ hx_post }}"
+              aria-label="Ir a la página {{ datos_paginados.number|add:'4' }}"
+            >
+              &hellip;
+            </button>
+          </li>
+        {% endif %}
+
+        {% if datos_paginados.has_next %}
+          {% if datos_paginados.next_page_number != datos_paginados.paginator.num_pages %}
+            <li>
+              <button
+                hx-vals='{"pagina": {{ datos_paginados.next_page_number }}, "solo_tabla": true }'
+                hx-post="{{ hx_post }}"
+                class="flechas"
+                aria-label="Página siguiente"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="m9 18 6-6-6-6" />
+                </svg>
+              </button>
+            </li>
+          {% endif %}
+          <li>
+            <button
+              hx-vals='{"pagina": {{ datos_paginados.paginator.num_pages }}, "solo_tabla": true }'
+              hx-post="{{ hx_post }}"
+              class="flechas"
+              aria-label="Última página"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m7 18 6-6-6-6" />
+                <path d="M17 6v12" />
+              </svg>
+            </button>
+          </li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+{% endif %}
