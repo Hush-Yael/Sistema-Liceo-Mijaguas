@@ -10,46 +10,6 @@ body {
   height: 100%;
 }
 
-main {
-  min-height: 100vh;
-  min-height: 100dvh;
-}
-
-footer {
-  gap: 16px;
-  padding: 16px 10px;
-  background-color: var(--color-secundario-400);
-  color: var(--color-texto-secundario);
-  border-top: 2px solid #fff5;
-  box-shadow: 0 -5px 24px 0 rgba(0, 0, 0, .15);
-}
-
-footer h2 {
-  text-align: center;
-  font-weight: bold;
-}
-
-footer hr {
-  opacity: 0.25;
-}
-
-.fila-qr {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 14px;
-  width: 100%;
-  max-width: max-content;
-}
-
-#qr {
-  height: 50px;
-  width: 50px;
-  margin-left: auto;
-  filter: invert(100%);
-}
-
 button,
 summary {
   cursor: pointer;

@@ -39,9 +39,5 @@ pip-delete-this-directory.txt
 *.sqlite3
 migrations/
 
-# archivo creados dinámicamente
-qr.png
-qr.svg
-
 # archivos del servidor
 media/

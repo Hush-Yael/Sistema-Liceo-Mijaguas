@@ -1,61 +1,65 @@
 {% load static %}
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es-VE">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, minimum-scale=1.0"
+    />
+    <meta name="theme-color" content="hsl(0, 100%, 21.5%)" />
+    <title>
+      {% block titulo %}Sistema de Administración{% endblock %} - Liceo Mijaguas
+    </title>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
-  <meta name="theme-color" content="hsl(0, 100%, 21.5%)" />
-  <title>{% block titulo %} Sistema de Administración {% endblock %} - Liceo Mijaguas</title>
+    <link rel="icon" href="{% static 'favicon.ico' %}" />
+    <link
+      rel="icon"
+      href="{% static 'favicon-32x32.png' %}"
+      type="image/png"
+      sizes="32x32"
+    />
+    <link
+      rel="icon"
+      href="{% static 'favicon-16x16.png' %}"
+      type="image/png"
+      sizes="16x16"
+    />
 
-  <link rel="icon" href="{% static 'favicon.ico' %}" />
-  <link rel="icon" href="{% static 'favicon-32x32.png' %}" type="image/png" sizes="32x32" />
-  <link rel="icon" href="{% static 'favicon-16x16.png' %}" type="image/png" sizes="16x16" />
+    <link rel="stylesheet" href="{% static 'css/reset.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/fuentes.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/tema.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/util.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/componentes/index.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/base.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/componentes/cabecera.css' %}" />
 
-  <link rel="stylesheet" href="{% static 'css/reset.css' %}" />
-  <link rel="stylesheet" href="{% static 'css/fuentes.css' %}" />
-  <link rel="stylesheet" href="{% static 'css/tema.css' %}" />
-  <link rel="stylesheet" href="{% static 'css/util.css' %}" />
-  <link rel="stylesheet" href="{% static 'css/componentes/index.css' %}" />
-  <link rel="stylesheet" href="{% static 'css/base.css' %}" />
-  <link rel="stylesheet" href="{% static 'css/componentes/cabecera.css' %}" />
+    <script defer src="{% static 'js/componentes/cabecera.js' %}"></script>
 
-  <script defer src="{% static 'js/componentes/cabecera.js' %}"></script>
-
-  {% if DEBUG %}
-    <script type="module">
-        if ((/Android|iPhone|iPad|iPod|BlackBerry|Windows Phone|webOS/i.test(
-            navigator.userAgent
+    {% if DEBUG %}
+      <script type="module">
+        if (
+          /Android|iPhone|iPad|iPod|BlackBerry|Windows Phone|webOS/i.test(
+            navigator.userAgent,
           ) ||
-            "ontouchstart" in window ||
-            navigator.maxTouchPoints > 0)
+          "ontouchstart" in window ||
+          navigator.maxTouchPoints > 0
         ) {
           await import("/static/js/eruda.js");
 
           if (window.eruda) window.eruda.init();
           else throw new Error("eruda not found");
         }
-    </script>
-  {% endif %}
+      </script>
+    {% endif %}
 
-  {% block cabeza %} {% endblock %}
-</head>
+    {% block cabeza %}
+    {% endblock %}
+  </head>
 
-<body>
-  {% include 'componentes/cabecera.html' %}
+  <body>
+    {% include 'componentes/cabecera.html' %}
 
-  <main>{% block contenido %} {% endblock %}</main>
-
-  <footer class="col flex-center">
-    <h2>
-      Sistema de Administración - Liceo Mijaguas
-    </h2>
-    <hr class="w-100">
-    <figure class="fila-qr">
-      <img id="qr" src="{% static 'qr.svg' %}" alt="código qr" />
-      <figcaption>Escanea este código en otro dispositivo para acceder al sitio</figcaption>
-    <figure>
-  </footer>
-</body>
-
+    <main>{% block contenido %}{% endblock %}</main>
+  </body>
 </html>

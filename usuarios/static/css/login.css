@@ -5,8 +5,7 @@ main {
   justify-content: center;
   row-gap: 1rem;
   padding: 1rem 0;
-  min-height: calc(100vh - var(--altura-header));
-  min-height: calc(100dvh - var(--altura-header));
+  min-height: calc(100% - var(--altura-header));
 }
 
 img {
