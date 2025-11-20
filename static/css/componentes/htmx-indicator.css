@@ -2,11 +2,14 @@
   display: none;
 }
 
-.htmx-request .htmx-indicator {
-  display: unset;
+.htmx-request .htmx-indicator,
+.htmx-indicator.htmx-request {
+  display: flex !important;
+  gap: .5rem;
+  align-items: center;
 }
 
-.htmx-indicator {
+.htmx-indicator .indicador {
   min-width: 1em;
   min-height: 1em;
   aspect-ratio: 1;
