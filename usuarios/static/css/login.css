@@ -26,14 +26,3 @@ form h1 {
   text-align: center;
   margin-bottom: 16px;
 }
-
-#ingresar {
-  background: var(--color-primario-500);
-  color: var(--color-texto-primario);
-  padding: 8px 16px;
-  border-radius: var(--radio-campo);
-  border: none;
-  width: 100%;
-  font-weight: 700;
-  margin-top: 1.75rem;
-}
