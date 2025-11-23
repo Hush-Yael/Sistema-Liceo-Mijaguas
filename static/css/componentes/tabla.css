@@ -7,13 +7,17 @@
   .contenedor-tabla {
     scrollbar-color: var(--color-primario-500) var(--color-fondo-600);
   }
+
+  .oscuro .contenedor-tabla {
+    scrollbar-color: #888 var(--color-fondo-700);
+  }
 }
 
 table {
   border-collapse: separate;
   border-spacing: 0;
   width: 100%;
-  border: 1px solid #0002;
+  border: 1px solid var(--borde-caja);
   border-radius: var(--radio-campo);
 }
 
@@ -49,7 +53,7 @@ th:last-child {
 }
 
 tr:not(:last-child)>td {
-  border-bottom: 1px solid #0002;
+  border-bottom: 1px solid var(--borde-caja);
 }
 
 tr:last-child td:first-child {

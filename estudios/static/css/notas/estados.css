@@ -18,7 +18,6 @@ main>.contenido .estados [role=status],
 main>.contenido .estados [role=alert] {
   justify-content: space-between;
   gap: .75rem;
-  border: 1px solid #0002;
   padding: .75rem 1rem;
   width: max-content;
 }
@@ -36,11 +35,6 @@ main>.contenido .estados [role=alert].error {
   border-radius: var(--radio-caja);
   background: var(--color-peligro-500);
   color: var(--color-texto-peligro);
-}
-
-main>.contenido .estados [role=status] {
-  border-radius: var(--radio-caja);
-  background: var(--color-fondo-500);
 }
 
 main>.contenido .estados [role=status].info .label {
@@ -63,6 +57,11 @@ main>.contenido .estados [role=alert].error div {
 main>.contenido .estados [role=status].info .decoracion-circular {
   background-color: var(--color-secundario-100);
   color: var(--color-secundario-500);
+}
+
+.oscuro main>.contenido .estados [role=status].info .decoracion-circular {
+  background-color: var(--color-secundario-600);
+  color: var(--texto-color-secundario);
 }
 
 main>.contenido .estados [role=alert].error .decoracion-circular {

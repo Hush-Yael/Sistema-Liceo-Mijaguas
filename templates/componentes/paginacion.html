@@ -24,7 +24,7 @@
             <button
               hx-vals='{"pagina": 1, "solo_tabla": true }'
               hx-post="{{ hx_post }}"
-              class="flechas"
+              class="flechas elevado"
               aria-label="Primera página"
             >
               <svg
@@ -48,7 +48,7 @@
               <button
                 hx-vals='{"pagina": {{ datos_paginados.previous_page_number }}, "solo_tabla": true }'
                 hx-post="{{ hx_post }}"
-                class="flechas"
+                class="flechas elevado"
                 aria-label="Página anterior"
               >
                 <svg
@@ -95,13 +95,14 @@
                 value="{{ num }}"
                 aria-label="Página actual"
               />
-              <button aria-hidden="true" class="primario current">
+              <button aria-hidden="true" class="btn-primario current">
                 {{ num }}
               </button>
             </li>
           {% elif num > datos_paginados.number|add:'-3' and num < datos_paginados.number|add:'3' %}
             <li>
               <button
+                class="elevado"
                 hx-vals='{"pagina": {{ num }}, "solo_tabla": true }'
                 hx-post="{{ hx_post }}"
                 aria-label="Ir a la página {{ num }}"
@@ -130,7 +131,7 @@
               <button
                 hx-vals='{"pagina": {{ datos_paginados.next_page_number }}, "solo_tabla": true }'
                 hx-post="{{ hx_post }}"
-                class="flechas"
+                class="flechas elevado"
                 aria-label="Página siguiente"
               >
                 <svg
@@ -152,7 +153,7 @@
             <button
               hx-vals='{"pagina": {{ datos_paginados.paginator.num_pages }}, "solo_tabla": true }'
               hx-post="{{ hx_post }}"
-              class="flechas"
+              class="flechas elevado"
               aria-label="Última página"
             >
               <svg

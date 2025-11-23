@@ -5,7 +5,12 @@
   hx-indicator="#indicador-busqueda"
   hx-include=".incluido-filtros"
 >
-  <button class="caja" type="button" id="ver-filtros" aria-label="Ver filtros">
+  <button
+    class="elevado"
+    type="button"
+    id="ver-filtros"
+    aria-label="Ver filtros"
+  >
     <svg
       xmlns="http://www.w3.org/2000/svg"
       width="24"
@@ -30,7 +35,7 @@
   </button>
 
   <details class="menu" id="busqueda-config">
-    <summary class="caja flex" aria-label="configuración de búsqueda">
+    <summary class="elevado flex" aria-label="configuración de búsqueda">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"
@@ -63,12 +68,12 @@
         <div class="contenido">
           <div class="campo">
             {{ form.notas_tipo_busqueda.label_tag }}
-            {% render_field form.notas_tipo_busqueda class="caja-input incluido-filtros" %}
+            {% render_field form.notas_tipo_busqueda class="elevado-2 incluido-filtros" %}
           </div>
 
           <div class="campo">
             {{ form.notas_columna_buscada.label_tag }}
-            {% render_field form.notas_columna_buscada class="caja-input incluido-filtros" %}
+            {% render_field form.notas_columna_buscada class="elevado-2 incluido-filtros" %}
           </div>
         </div>
       </details>
@@ -93,12 +98,12 @@
         >
           <div class="campo horizontal valor-nota">
             {{ form.notas_valor_minimo.label_tag }}
-            {% render_field form.notas_valor_minimo class="caja-input incluido-filtros" style="width: 6ch;" %}
+            {% render_field form.notas_valor_minimo class="elevado-2 incluido-filtros" style="width: 6ch;" %}
           </div>
 
           <div class="campo horizontal valor-nota">
             {{ form.notas_valor_maximo.label_tag }}
-            {% render_field form.notas_valor_maximo class="caja-input incluido-filtros" style="width: 6ch;" %}
+            {% render_field form.notas_valor_maximo class="elevado-2 incluido-filtros" style="width: 6ch;" %}
           </div>
         </div>
       </details>
@@ -106,14 +111,14 @@
       <div class="campo horizontal">
         {{ form.notas_cantidad_paginas.label_tag }}
         {% with vals='{"solo_tabla": true}' %}
-          {% render_field form.notas_cantidad_paginas class="caja-input incluido-filtros" style="max-width: 6ch;" hx-trigger="input changed delay:600ms" hx-post="/notas_tabla/" hx-vals=vals %}
+          {% render_field form.notas_cantidad_paginas class="elevado-2 incluido-filtros" style="max-width: 6ch;" hx-trigger="input changed delay:600ms" hx-post="/notas_tabla/" hx-vals=vals %}
         {% endwith %}
       </div>
     </div>
   </details>
 
   <input
-    class="caja incluido-filtros"
+    class="elevado incluido-filtros"
     type="search"
     id="q"
     name="q"

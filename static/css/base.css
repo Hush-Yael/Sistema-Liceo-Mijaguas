@@ -55,6 +55,10 @@ dialog::backdrop {
   background: #0005;
 }
 
+.oscuro dialog::backdrop {
+  background: #0008;
+}
+
 @keyframes aparecer {
   from {
     opacity: 0;
@@ -70,7 +74,7 @@ dialog::backdrop {
   position: absolute;
   width: max-content;
   border-radius: var(--radio-caja);
-  border: 1px solid #0002;
+  border: 1px solid var(--borde-caja);
   background: var(--color-fondo-500);
   box-shadow: 0 2px 8px rgba(0, 0, 0, .2);
 }

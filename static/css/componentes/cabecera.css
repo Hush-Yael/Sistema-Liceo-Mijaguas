@@ -13,7 +13,13 @@ html {
   min-height: var(--altura-header);
   padding: 0 1rem;
   border-bottom: 2px solid #fff5;
+  background-color: var(--color-primario-500);
+  color: var(--color-texto-primario);
   box-shadow: 0 5px 24px 0 rgba(0, 0, 0, .15);
+}
+
+.oscuro #header {
+  border-bottom: 1px solid #fff3;
 }
 
 #header h1 a {
@@ -58,6 +64,63 @@ html {
 
 #btn-nav[aria-expanded="true"] svg {
   transform: rotate(-90deg);
+}
+
+#tema-menu summary {
+  list-style: none;
+}
+
+#tema-menu[data-tema=claro] summary svg:not(.sol),
+#tema-menu[data-tema=oscuro] summary svg:not(.luna),
+#tema-menu[data-tema=auto] summary svg:not(.auto) {
+  display: none;
+}
+
+#tema-menu .contenido {
+  right: 0;
+  top: 185%;
+  color: var(--texto-base);
+  border-top-right-radius: 0;
+}
+
+#tema-menu label {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .5rem 1rem;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+#tema-menu label:first-of-type {
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+}
+
+#tema-menu label:last-of-type {
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
+}
+
+@media only screen and (hover: none) and (pointer: coarse) {
+  #tema-menu label:active {
+    background: var(--transparente-1);
+  }
+}
+
+@media only screen and (hover: hover) and (pointer: fine) {
+  #tema-menu label:hover {
+    background: var(--transparente-1);
+  }
+}
+
+#tema-menu input:checked+label {
+  color: var(--color-texto-primario);
+  background-color: var(--color-primario-500);
+}
+
+#tema-menu label svg {
+  height: 1.25em;
+  width: 1.25em;
 }
 
 .iniciar-sesion {
@@ -189,16 +252,19 @@ img.cabecera-avatar {
     position: fixed;
     z-index: 5;
     right: 0;
-    bottom: 1px;
+    bottom: 0;
     gap: 1rem;
     width: 175px;
-    min-height: calc(100% - var(--altura-header) + 1px);
-    border-top: 1px solid #fff2;
+    min-height: calc(100% - var(--altura-header));
     border-left: 2px solid #fff5;
     background: var(--color-primario-500);
     transform: translateX(100%);
     transition: transform 0.2s ease-in-out;
     overflow-y: auto;
+  }
+
+  .oscuro #nav {
+    border-left: 1px solid #fff3;
   }
 
   #nav.abierto,

@@ -1,19 +1,23 @@
 #filtros {
   min-width: 200px;
   max-height: calc(100vh - var(--altura-header));
-  border-right: 1px solid #0002;
+  border-right: 1px solid var(--borde-caja);
 }
 
 #filtros,
 #filtros header {
   background: var(--color-fondo-500);
   margin-bottom: .5rem;
-  border-bottom: 1px solid #0002;
+  border-bottom: 1px solid var(--borde-caja);
 }
 
 @media only screen and (hover: hover) and (pointer: fine) {
   #filtros {
     scrollbar-color: var(--color-primario-500) transparent;
+  }
+
+  .oscuro #filtros {
+    scrollbar-color: #888 var(--color-fondo-700);
   }
 }
 
@@ -63,15 +67,19 @@
   transition: background-color 0.2s;
 }
 
+.oscuro .scroll-btns button {
+  background-color: #ffffff11;
+}
+
 @media only screen and (hover: none) and (pointer: coarse) {
   .scroll-btns button:active {
-    background-color: #0002;
+    background-color: var(--transparente-2);
   }
 }
 
 @media only screen and (hover: hover) and (pointer: fine) {
   .scroll-btns button:hover {
-    background-color: #0002;
+    background-color: var(--transparente-2);
   }
 }
 
@@ -92,20 +100,20 @@
 
 @media only screen and (hover: none) and (pointer: coarse) {
   #filtros label:active {
-    background: #0001;
-    border-left-color: #0002;
+    background: var(--transparente-1);
+    border-left-color: var(--transparente-2);
   }
 }
 
 @media only screen and (hover: hover) and (pointer: fine) {
   #filtros label:hover {
-    background: #0001;
-    border-left-color: #0002;
+    background: var(--transparente-1);
+    border-left-color: var(--transparente-2);
   }
 
   #filtros label:active {
-    background: #0002;
-    border-left-color: #0002;
+    background: var(--transparente-2);
+    border-left-color: var(--transparente-2);
   }
 }
 
@@ -113,6 +121,16 @@
   background: var(--color-primario-50);
   border-left: 3px solid var(--color-primario-500);
   color: var(--color-primario-600);
+}
+
+.oscuro #filtros label {
+  border-left-color: var(--transparente-2);
+}
+
+.oscuro #filtros input:checked+label {
+  background: var(--color-primario-400);
+  border-left-color: var(--color-primario-700);
+  color: var(--color-texto-primario);
 }
 
 @media screen and (max-width: 600px) {

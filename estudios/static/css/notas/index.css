@@ -51,6 +51,11 @@ main>.contenido .tabla-contenido,
   height: 5rem;
 }
 
+.oscuro #msg-vacio .decoracion-circular {
+  background-color: var(--color-primario-800);
+  color: var(--color-primario-100);
+}
+
 #msg-vacio .decoracion-circular svg {
   width: 90%;
   height: 90%;
