@@ -15,6 +15,14 @@
   gap: 1rem;
 }
 
+/* si soporta la transición, alinear al medio el indicador del texto al estarse ocultando, ya que por alguna razón no lo hace */
+@supports (transition-behavior: allow-discrete) {
+
+  #indicador-pagina:not(.htmx-request) .indicador {
+    margin: auto .5rem auto 0;
+  }
+}
+
 .cantidad-paginas {
   min-width: max-content;
 }

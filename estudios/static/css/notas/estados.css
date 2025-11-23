@@ -5,6 +5,7 @@ main>.contenido .estados {
 }
 
 #indicador-busqueda {
+  row-gap: .25rem;
   align-items: center;
   font-size: .875rem;
 }
