@@ -9,6 +9,13 @@
 {% block cabeza %}
   <link rel="stylesheet" href="{% static 'css/login.css' %}" />
   <link rel="stylesheet" href="{% static 'css/componentes/alerta.css' %}" />
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      if (window.location.search.includes("next="))
+        document.querySelector("input[name=next]").value =
+          window.location.search.split("next=")[1];
+    });
+  </script>
 {% endblock %}
 
 {% block contenido %}
@@ -40,10 +47,4 @@
       {% include "componentes/alerta.html" %}
     {% endwith %}
   {% endif %}
-
-  <script defer>
-    if (window.location.search.includes("next="))
-      document.querySelector("input[name=next]").value =
-        window.location.search.split("next=")[1];
-  </script>
 {% endblock %}
