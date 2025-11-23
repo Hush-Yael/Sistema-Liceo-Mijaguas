@@ -10,62 +10,119 @@
     rel="stylesheet"
     href="{% static 'css/componentes/htmx-indicator.css' %}"
   />
-  <script defer src="{% static 'js/limpiar-errores.js' %}"></script>
   <script defer src="{% static 'js/htmx.min.js' %}"></script>
   <script defer src="{% static 'js/perfil.js' %}"></script>
+  {% if form.errors %}
+    <script defer src="{% static 'js/limpiar-errores.js' %}"></script>
+  {% endif %}
 {% endblock cabeza %}
 
 {% block contenido %}
-  <form class="col caja" method="post" enctype="multipart/form-data">
-    <div id="avatar-container" class="col flex-center">
-      <div class="img">
-        {% if request.user.foto_perfil %}
-          <img
-            id="avatar"
-            src="{{ request.user.foto_perfil.url }}"
-            alt="avatar"
-          />
-        {% else %}
+  <form method="post" enctype="multipart/form-data">
+    <header>
+      <hgroup>
+        <h1 id="titulo">Perfil de usuario</h1>
+        <p class="flex texto-sutil" id="fecha-registro">
+          <span class="icono-redondo">
+            <svg
+              style="transform: scale(.9)"
+              viewBox="0 0 448 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M0 464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V192H0v272zm320-196c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12h-40c-6.6 0-12-5.4-12-12v-40zm0 128c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12h-40c-6.6 0-12-5.4-12-12v-40zM192 268c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12h-40c-6.6 0-12-5.4-12-12v-40zm0 128c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12h-40c-6.6 0-12-5.4-12-12v-40zM64 268c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12H76c-6.6 0-12-5.4-12-12v-40zm0 128c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12H76c-6.6 0-12-5.4-12-12v-40zM400 64h-48V16c0-8.8-7.2-16-16-16h-32c-8.8 0-16 7.2-16 16v48H160V16c0-8.8-7.2-16-16-16h-32c-8.8 0-16 7.2-16 16v48H48C21.5 64 0 85.5 0 112v48h448v-48c0-26.5-21.5-48-48-48z"
+              />
+            </svg>
+          </span>
+          Registrado el {{ request.user.date_joined }}
+        </p>
+      </hgroup>
+
+      <div class="enlaces">
+        <a class="link-secundario" href="{% url 'admin:password_change' %}">
           <svg
-            id="avatar"
-            role="img"
-            viewBox="0 0 512 512"
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+          >
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path
+              d="M12 2a5 5 0 0 1 5 5v3a3 3 0 0 1 3 3v6a3 3 0 0 1 -3 3h-10a3 3 0 0 1 -3 -3v-6a3 3 0 0 1 3 -3v-3a5 5 0 0 1 5 -5m0 12a2 2 0 0 0 -1.995 1.85l-.005 .15a2 2 0 1 0 2 -2m0 -10a3 3 0 0 0 -3 3v3h6v-3a3 3 0 0 0 -3 -3"
+            />
+          </svg>
+          Cambiar contraseña
+        </a>
+        <a class="link-primario" id="cerrar-sesion" href="{% url 'logout' %}">
+          <svg
+            fill="none"
+            height="24"
+            viewBox="0 0 24 24"
+            width="24"
             xmlns="http://www.w3.org/2000/svg"
           >
             <path
-              d="M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256s256-114.6 256-256S397.4 0 256 0zM256 128c39.77 0 72 32.24 72 72S295.8 272 256 272c-39.76 0-72-32.24-72-72S216.2 128 256 128zM256 448c-52.93 0-100.9-21.53-135.7-56.29C136.5 349.9 176.5 320 224 320h64c47.54 0 87.54 29.88 103.7 71.71C356.9 426.5 308.9 448 256 448z"
+              d="M15 3H7C5.89543 3 5 3.89543 5 5V19C5 20.1046 5.89543 21 7 21H15"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+            />
+            <path
+              d="M19 12L15 8M19 12L15 16M19 12H9"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
             />
           </svg>
-        {% endif %}
+          Cerrar sesión
+        </a>
+      </div>
+    </header>
 
-        <button type="button" id="ver-avatar" aria-label="Ver avatar"></button>
+    <hr />
 
-        <details class="menu" id="editar-avatar">
-          <summary class="btn-primario" aria-label="Editar avatar">
-            <svg
-              style="enable-background:new 0 0 512 512;"
-              version="1.1"
-              viewBox="0 0 512 512"
-              xml:space="preserve"
-              xmlns="http://www.w3.org/2000/svg"
-              xmlns:xlink="http://www.w3.org/1999/xlink"
-            >
-              <polygon
-                points="263.75,145.68 43.5,365.92 43.5,466.5 152.04,466.5 368.31,250.23    "
+    <div class="datos-contenedor">
+      {% csrf_token %}
+      {% include "componentes/perfil/datos.html" %}
+
+      <div class="img">
+        <div class="flex" id="foto-contenedor">
+          <div id="imagen-contenedor">
+            {% if request.user.foto_perfil %}
+              <img
+                id="foto"
+                src="{{ request.user.foto_perfil.url }}"
+                alt="foto"
               />
-              <path
-                d="M458.07,139.61l-83.7-83.69c-5.76-5.76-15.1-5.76-20.86,0l-67.13,67.13l104.56,104.55l67.13-67.13     C463.83,154.71,463.83,145.37,458.07,139.61z"
-              />
-            </svg>
-          </summary>
+            {% else %}
+              <svg
+                id="foto"
+                viewBox="0 0 512 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256s256-114.6 256-256S397.4 0 256 0zM256 128c39.77 0 72 32.24 72 72S295.8 272 256 272c-39.76 0-72-32.24-72-72S216.2 128 256 128zM256 448c-52.93 0-100.9-21.53-135.7-56.29C136.5 349.9 176.5 320 224 320h64c47.54 0 87.54 29.88 103.7 71.71C356.9 426.5 308.9 448 256 448z"
+                />
+              </svg>
+            {% endif %}
+            <button
+              type="button"
+              id="ver-foto"
+              aria-label="Ver foto de perfil"
+            ></button>
+          </div>
 
-          <div class="contenido">
+          <div id="foto-botones">
             {% render_field form.foto_perfil class="sr-only" %}
-            <label for="{{ form.foto_perfil.id_for_label }}" id="subir-avatar">
+            <label
+              for="{{ form.foto_perfil.id_for_label }}"
+              id="subir-foto"
+              class="btn-primario foto-btn"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="17"
-                height="17"
+                width="24"
+                height="24"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke-width="2"
@@ -78,17 +135,17 @@
                 <path d="M12 4l0 12" />
               </svg>
 
-              Subir avatar
+              Subir foto <span class="sr-only">de perfil</span>
             </label>
 
             <button
+              class="btn-borde foto-btn"
               {% if not request.user.foto_perfil %}
-                disabled
               {% endif %}
-              id="borrar-avatar"
+              id="borrar-foto"
               hx-delete="{% url 'perfil' %}"
               hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-              hx-confirm="¿Seguro que quieres borrar tu avatar?"
+              hx-confirm="¿Seguro que quieres borrar tu foto de perfil?"
               hx-swap="outerHTML"
             >
               <span class="htmx-indicator">
@@ -98,6 +155,8 @@
                 version="1.1"
                 viewBox="0 0 30 30"
                 xml:space="preserve"
+                height="17"
+                width="17"
                 xmlns="http://www.w3.org/2000/svg"
                 xmlns:xlink="http://www.w3.org/1999/xlink"
               >
@@ -112,68 +171,51 @@
                 />
               </svg>
 
-              Eliminar avatar
+              Eliminar foto <span class="sr-only">de perfil</span>
             </button>
           </div>
-        </details>
+        </div>
       </div>
-
-      {% include "componentes/perfil/datos.html" %}
-
-      <p class="flex texto-sutil" id="fecha-registro">
-        <span class="icono-redondo">
-          <svg
-            style="transform: scale(.9)"
-            viewBox="0 0 448 512"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M0 464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V192H0v272zm320-196c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12h-40c-6.6 0-12-5.4-12-12v-40zm0 128c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12h-40c-6.6 0-12-5.4-12-12v-40zM192 268c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12h-40c-6.6 0-12-5.4-12-12v-40zm0 128c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12h-40c-6.6 0-12-5.4-12-12v-40zM64 268c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12H76c-6.6 0-12-5.4-12-12v-40zm0 128c0-6.6 5.4-12 12-12h40c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12H76c-6.6 0-12-5.4-12-12v-40zM400 64h-48V16c0-8.8-7.2-16-16-16h-32c-8.8 0-16 7.2-16 16v48H160V16c0-8.8-7.2-16-16-16h-32c-8.8 0-16 7.2-16 16v48H48C21.5 64 0 85.5 0 112v48h448v-48c0-26.5-21.5-48-48-48z"
-            />
-          </svg>
-        </span>
-        Registrado el {{ request.user.date_joined }}
-      </p>
     </div>
 
     <hr />
 
-    <div role="group" class="campos">
-      {% csrf_token %}
+    <div class="datos-contenedor" id="campos-contenedor">
+      <div id="datos" role="group">
+        <h2>Datos del usuario</h2>
 
-      {% for field in form %}
-        {% if field.id_for_label != 'id_foto_perfil' %}
-          <div class="campo">
-            {{ field.label_tag }}
-            {% if field.errors %}
-              {% with error=field.id_for_label|add:'-error' %}
-                {% render_field field class="caja-input" aria-labelledby=error aria-invalid="true" %}
-              {% endwith %}
-            {% else %}
-              {% render_field field class="caja-input" %}
+        <div>
+          {% for field in form %}
+            {% if field.id_for_label != 'id_foto_perfil' %}
+              <div class="campo">
+                {{ field.label_tag }}
+                {% if field.errors %}
+                  {% with error=field.id_for_label|add:'-error' %}
+                    {% render_field field class="elevado" aria-labelledby=error aria-invalid="true" %}
+                  {% endwith %}
+                {% else %}
+                  {% render_field field class="elevado" %}
+                {% endif %}
+
+                {% if field.errors %}
+                  {% for error in field.errors %}
+                    <p
+                      id="{{ field.id_for_label }}-error"
+                      class="elevado-error"
+                    >
+                      {{ error }}
+                    </p>
+                  {% endfor %}
+                {% endif %}
+              </div>
             {% endif %}
+          {% endfor %}
+        </div>
+      </div>
 
-            {% if field.errors %}
-              {% for error in field.errors %}
-                <p id="{{ field.id_for_label }}-error" class="caja-input-error">
-                  {{ error }}
-                </p>
-              {% endfor %}
-            {% endif %}
-          </div>
-        {% endif %}
-      {% endfor %}
-    </div>
-
-    <div id="acciones" class="col">
-      <button class="btn-primario btn-md">Guardar cambios</button>
-
-      <a
-        class="btn-borde-primario btn-md"
-        href="{% url 'admin:password_change' %}"
-      >
-        Cambiar contraseña
-      </a>
+      <button disabled id="submit" class="btn-primario btn-md">
+        Guardar cambios
+      </button>
     </div>
   </form>
 
@@ -183,7 +225,7 @@
         {% if request.user.foto_perfil %}
           src="{{ request.user.foto_perfil.url }}"
         {% endif %}
-        alt="avatar"
+        alt="foto"
       />
     </div>
   </dialog>

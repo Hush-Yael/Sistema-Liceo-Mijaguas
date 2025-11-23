@@ -137,12 +137,12 @@ html {
   margin-bottom: .5rem;
 }
 
-#perfil-en-linea .contenido {
+#perfil-en-linea {
   position: relative;
   padding: 1rem;
 }
 
-#perfil-en-linea .contenido::after {
+#perfil-en-linea::after {
   position: absolute;
   content: '';
   height: 1px;
@@ -156,44 +156,39 @@ html {
   padding: 1rem;
 }
 
-.perfil figure {
+.perfil .foto {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: .75rem;
+  gap: .5rem;
 }
 
-.cabecera-avatar {
+.cabecera-foto-perfil {
   height: 7rem;
   width: 7rem;
   aspect-ratio: 1 / 1;
 }
 
-svg.cabecera-avatar {
+svg.cabecera-foto-perfil {
   min-width: max-content;
 }
 
-img.cabecera-avatar {
+img.cabecera-foto-perfil {
   border-radius: 50%;
   object-fit: cover;
 }
 
-#cerrar-sesion {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: .25rem;
-  opacity: .8;
-  margin: 1em auto 0;
-  padding: 0 .25rem;
-  border-radius: var(--radio-campo);
-  transition: background-color 0.2s ease-in-out;
+.perfil h2 {
+  font-weight: bold;
 }
 
-#cerrar-sesion svg {
-  height: .875rem;
-  width: .875rem;
-  transform: scaleX(-1) translateY(1px);
+.perfil .arroba {
+  margin-right: .25rem;
+  color: var(--color-secundario-200)
+}
+
+.oscuro .perfil .arroba {
+  color: var(--color-secundario-800)
 }
 
 .link {
@@ -391,6 +386,15 @@ img.cabecera-avatar {
     border-radius: 0;
     border-bottom-left-radius: var(--radio-caja);
     background: var(--color-primario-500);
+  }
+
+  #perfil-menu .cabecera-foto-perfil {
+    height: 8.5rem;
+    width: 8.5rem;
+  }
+
+  #perfil-menu h2 {
+    font-size: 1.2rem;
   }
 }
 

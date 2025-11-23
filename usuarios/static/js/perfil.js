@@ -1,17 +1,31 @@
+"use strict";
+
 const modal = document.getElementById("img-dialog");
-const vetAvatar = document.getElementById("ver-avatar");
+const verFotoPerfil = document.getElementById("ver-foto");
 
 modal.addEventListener("click", function (e) {
   if (e.target === modal) modal.close();
 });
 
-vetAvatar.addEventListener("click", function () {
-  const avatar = document.getElementById("avatar");
+verFotoPerfil.addEventListener("click", function () {
+  const foto = document.getElementById("foto");
 
-  if (avatar.tagName !== "svg") modal.showModal();
+  if (foto.tagName !== "svg") modal.showModal();
 });
 
-document.querySelector("form").addEventListener("change", function (e) {
+const form = document.querySelector("form");
+
+// al cambiar algo, se habilita el botón
+form.addEventListener(
+  "change",
+  function () {
+    document.getElementById("submit").removeAttribute("disabled");
+  },
+  { once: true },
+);
+
+// al cambiar la foto, se actualiza la vista previa
+form.addEventListener("change", function (e) {
   if (e.target.id === "id_foto_perfil") {
     const archivo = e.target.files[0];
 
@@ -21,30 +35,29 @@ document.querySelector("form").addEventListener("change", function (e) {
         return (e.target.value = "");
       }
 
-      const avatar = document.getElementById("avatar");
+      const foto = document.getElementById("foto");
       const url = URL.createObjectURL(e.target.files[0]);
 
-      if (avatar.tagName === "svg") {
-        const nuevoAvatar = document.createElement("IMG");
+      if (foto.tagName === "svg") {
+        const nuevoFotor = document.createElement("IMG");
 
-        nuevoAvatar.classList.add("avatar");
-        nuevoAvatar.setAttribute("src", url);
-        nuevoAvatar.setAttribute("id", "avatar");
-        nuevoAvatar.setAttribute("alt", "avatar");
+        nuevoFotor.classList.add("foto");
+        nuevoFotor.setAttribute("src", url);
+        nuevoFotor.setAttribute("id", "foto");
+        nuevoFotor.setAttribute("alt", "foto");
 
-        avatar.parentElement.replaceChild(nuevoAvatar, avatar);
-      } else avatar.setAttribute("src", url);
+        foto.parentElement.replaceChild(nuevoFotor, foto);
+      } else foto.setAttribute("src", url);
 
       modal.querySelector("img").src = url;
     }
   }
 });
 
-// sin foto
+// ícono cuando no hay foto
 const icono = `
   <svg
-    class="cabecera-avatar"
-    role="img"
+    id="foto"
     viewBox="0 0 512 512"
     xmlns="http://www.w3.org/2000/svg"
   >
@@ -54,19 +67,20 @@ const icono = `
   </svg>
 `;
 
+// al eliminar la foto, se reemplaza por el ícono
 document.addEventListener("htmx:afterRequest", function (e) {
   // foto eliminada, reemplazar por el ícono
   if (e.detail.xhr.status === 200) {
-    document.getElementById("avatar").outerHTML = icono;
+    document.getElementById("foto").outerHTML = icono;
 
     // actualizar fotos en el menú de navegación
-    fotosEnCabecera = document
-      .querySelectorAll(".cabecera-avatar")
+    document
+      .querySelectorAll(".cabecera-foto-perfil")
       .forEach(
         (foto) =>
           (foto.outerHTML = icono.replace(
-            'id="avatar"',
-            "id='cabecera-avatar'",
+            'id="foto"',
+            "id='cabecera-foto-perfil' class='cabecera-foto-perfil'",
           )),
       );
   }
