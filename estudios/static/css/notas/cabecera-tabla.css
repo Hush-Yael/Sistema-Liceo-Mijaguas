@@ -25,10 +25,9 @@
   list-style: none;
 }
 
-#tabla-cabecera>.caja,
-#tabla-cabecera>details summary.caja {
+#tabla-cabecera>.elevado,
+#tabla-cabecera>details summary.elevado {
   padding: .25rem;
-  border-radius: var(--radio-campo);
 }
 
 #busqueda-config .contenido {
@@ -57,7 +56,6 @@
   flex-direction: column;
   gap: .25rem;
 }
-
 
 #busqueda-config .campo label {
   color: var(--texto-sutil);

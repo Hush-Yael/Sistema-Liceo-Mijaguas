@@ -32,3 +32,44 @@ function cerrarPorClickAfuera(e) {
     window.removeEventListener("mousedown", cerrarPorClickAfuera);
   }
 }
+
+const menuTema = document.getElementById("tema-menu");
+const auto = window.matchMedia("(prefers-color-scheme: dark)");
+
+aplicarTema();
+
+function aplicarTema() {
+  try {
+    // valor seleccionado
+    const tema = menuTema.querySelector("input:checked").value;
+
+    document.documentElement.classList.toggle(
+      "oscuro",
+      tema === "oscuro" || (tema === "auto" && auto.matches),
+    );
+
+    // cambio automático si se selecciona 'auto'
+    if (tema === "auto")
+      auto.addEventListener
+        ? auto.addEventListener("change", aplicarTemaAuto)
+        : auto.addListener(aplicarTemaAuto);
+    else
+      auto.removeEventListener
+        ? auto.removeEventListener("change", aplicarTemaAuto)
+        : auto.removeListener(aplicarTemaAuto);
+
+    menuTema.dataset.tema = tema;
+  } catch (error) {
+    // no se ha seleccionado ninguno, se selecciona 'auto' por defecto
+    if (error instanceof TypeError) {
+      document.getElementById("tema-auto").checked = true;
+      aplicarTema();
+    }
+  }
+}
+
+function aplicarTemaAuto(e) {
+  document.documentElement.classList.toggle("oscuro", e.matches);
+}
+
+menuTema.addEventListener("change", aplicarTema);

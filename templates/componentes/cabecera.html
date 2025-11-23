@@ -1,35 +1,11 @@
 {% load static %}
-<header id="header" class="primario">
+<header id="header">
   <h1>
     <a href="{% url 'inicio' %}">
       <img src="{% static 'img/logo-sin-letras.png' %}" alt="logo" />
       <span>Liceo Mijaguas</span>
     </a>
   </h1>
-
-  <button
-    aria-expanded="false"
-    aria-haspopup="menu"
-    aria-label="Abrir menú"
-    id="btn-nav"
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-    >
-      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-      <path d="M4 6h16" />
-      <path d="M7 12h13" />
-      <path d="M10 18h10" />
-    </svg>
-  </button>
 
   <nav id="nav" data-path-actual="{{ request.path }}">
     {% if request.user.is_authenticated %}
@@ -161,6 +137,75 @@
     </ul>
   </nav>
 
+  <div class="flex" style="align-items: center; gap: 1rem">
+    <details id="tema-menu" class="menu">
+      <summary aria-label="Cambiar tema">
+        {% include "componentes/iconos/tema/sol.html" %}
+        {% include "componentes/iconos/tema/luna.html" %}
+        {% include "componentes/iconos/tema/auto.html" %}
+      </summary>
+
+      <div class="contenido">
+        <input
+          class="sr-only"
+          id="tema-claro"
+          type="radio"
+          name="tema"
+          value="claro"
+        />
+        <label for="tema-claro">
+          {% include "componentes/iconos/tema/sol-lineas.html" %} Claro
+        </label>
+
+        <input
+          class="sr-only"
+          id="tema-oscuro"
+          type="radio"
+          name="tema"
+          value="oscuro"
+        />
+        <label for="tema-oscuro">
+          {% include "componentes/iconos/tema/luna-lineas.html" %} Oscuro
+        </label>
+
+        <input
+          class="sr-only"
+          id="tema-auto"
+          type="radio"
+          name="tema"
+          value="auto"
+        />
+        <label for="tema-auto">
+          {% include "componentes/iconos/tema/auto-lineas.html" %} Automático
+        </label>
+      </div>
+    </details>
+
+    <button
+      aria-expanded="false"
+      aria-haspopup="menu"
+      aria-label="Abrir menú"
+      id="btn-nav"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+        <path d="M4 6h16" />
+        <path d="M7 12h13" />
+        <path d="M10 18h10" />
+      </svg>
+    </button>
+  </div>
+
   <details class="perfil menu" id="perfil-menu">
     <summary class="flex-center" aria-label="Ver perfil">
       <svg
@@ -192,10 +237,10 @@
       </svg>
     </summary>
 
-    {% if request.user.is_authenticated %}
-      {% include 'componentes/perfil/index.html' %}
-    {% else %}
-      <div class="contenido">
+    <div class="contenido">
+      {% if request.user.is_authenticated %}
+        {% include 'componentes/perfil/index.html' %}
+      {% else %}
         <a
           id="iniciar-sesion-fuera"
           href="{% url 'login' %}"
@@ -220,7 +265,7 @@
           </svg>
           Iniciar sesión
         </a>
-      </div>
-    {% endif %}
+      {% endif %}
+    </div>
   </details>
 </header>

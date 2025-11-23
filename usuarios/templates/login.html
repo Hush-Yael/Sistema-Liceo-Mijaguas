@@ -19,7 +19,16 @@
 {% endblock %}
 
 {% block contenido %}
-  <img src="{% static 'img/logo.png' %}" alt="logo" />
+  <img
+    id="logo-claro"
+    src="{% static 'img/logo-letras-negras.png' %}"
+    alt="logo"
+  />
+  <img
+    id="logo-oscuro"
+    src="{% static 'img/logo-letras-blancas.png' %}"
+    alt="logo"
+  />
 
   <form class="caja" action="{% url 'login' %}" method="post">
     {% csrf_token %}
@@ -30,7 +39,7 @@
       {% for field in form %}
         <div class="col" style="gap: 6px;">
           {{ field.label_tag }}
-          {% render_field field class="caja-input" %}
+          {% render_field field class="elevado-2" %}
         </div>
       {% endfor %}
     </div>

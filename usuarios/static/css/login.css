@@ -8,6 +8,18 @@ main {
   min-height: calc(100% - var(--altura-header));
 }
 
+#logo-oscuro {
+  display: none;
+}
+
+.oscuro #logo-claro {
+  display: none;
+}
+
+.oscuro #logo-oscuro {
+  display: block;
+}
+
 img {
   height: 200px;
   width: 200px;

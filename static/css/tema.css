@@ -11,8 +11,7 @@ html {
   --color-primario-800: hsl(0 100% 12%);
   --color-primario-900: hsl(0 100% 8.8%);
   --color-primario-950: hsl(0 100% 5.1%);
-
-  --color-texto-primario: var(--color-fondo-200);
+  --color-texto-primario: #fff;
 
   --color-secundario-50: hsl(212.3, 100%, 92.4%);
   --color-secundario-100: hsl(209.6, 100%, 83.7%);
@@ -105,7 +104,71 @@ html {
   --radio-campo: 4px;
   --radio-caja: 1rem;
 
+  --borde-caja: #0002;
+
+  --texto-base: #000;
   --texto-sutil: hsl(0, 0%, 35%);
+
+  --transparente-1: #0001;
+  --transparente-2: #0002;
+  --transparente-3: #0003;
+
+  color-scheme: light;
+}
+
+:root.oscuro {
+  --color-fondo-50: hsl(0, 0%, 5%);
+  --color-fondo-100: hsl(20.5, 20%, 6.4%);
+  --color-fondo-200: hsl(20.2, 20%, 8.2%);
+  --color-fondo-300: hsl(20, 20%, 9.9%);
+  --color-fondo-400: hsl(20.2, 20%, 11%);
+  --color-fondo-500: hsl(20.5, 20%, 13.2%);
+  --color-fondo-600: hsl(20, 20%, 14.5%);
+  --color-fondo-700: hsl(21.3, 25%, 16.9%);
+  --color-fondo-800: hsl(21.4, 25%, 18.9%);
+  --color-fondo-900: hsl(21.9, 25%, 21.5%);
+  --color-fondo-950: hsl(21.9, 25%, 24.5%);
+
+  --color-primario-950: hsl(0 100% 87.5%);
+  --color-primario-900: hsl(0 100% 82.7%);
+  --color-primario-800: hsl(0 100% 69.8%);
+  --color-primario-700: hsl(0 100% 46.9%);
+  --color-primario-600: hsl(0 100% 35.1%);
+  --color-primario-500: hsl(0, 100%, 24%);
+  --color-primario-400: hsl(0 100% 19.8%);
+  --color-primario-300: hsl(0 100% 15.9%);
+  --color-primario-200: hsl(0 100% 12%);
+  --color-primario-100: hsl(0 100% 8.8%);
+  --color-primario-50: hsl(0 100% 5.1%);
+
+  --color-secundario-950: hsl(212.3, 100%, 92.4%);
+  --color-secundario-900: hsl(209.6, 100%, 83.7%);
+  --color-secundario-800: hsl(198.1, 100%, 48.6%);
+  --color-secundario-700: hsl(198.6, 100%, 36.7%);
+  --color-secundario-600: hsl(199.1, 100%, 25.3%);
+  --color-secundario-500: hsl(200.5, 100%, 14.3%);
+  --color-secundario-400: hsl(201, 100%, 12.4%);
+  --color-secundario-300: hsl(201.6, 100%, 9.8%);
+  --color-secundario-200: hsl(204.6, 100%, 7.6%);
+  --color-secundario-100: hsl(205.7, 100%, 5.5%);
+  --color-secundario-50: hsl(211.8, 100%, 3.3%);
+
+  --color-texto-secundario: hsl(0, 0%, 90%);
+  --color-texto-acento: hsl(0, 0%, 90%);
+  --color-texto-exito: hsl(0, 0%, 90%);
+  --color-texto-advertencia: hsl(0, 0%, 90%);
+  --color-texto-peligro: hsl(0, 0%, 90%);
+
+  --texto-sutil: hsl(0, 0%, 65%);
+
+  --borde-caja: hsl(0, 0%, 100%, 0.12);
+  --texto-base: hsl(0, 0%, 90%);
+
+  --transparente-1: #fff1;
+  --transparente-2: #fff2;
+  --transparente-3: #fff3;
+
+  color-scheme: dark;
 }
 
 .texto-sutil {
@@ -113,6 +176,7 @@ html {
 }
 
 html {
+  color: var(--texto-base);
   background: var(--color-fondo-300);
 }
 
@@ -126,29 +190,57 @@ html {
   color: var(--color-texto-secundario);
 }
 
+button.elevado,
+summary.elevado,
+input.elevado,
+select.elevado,
+button.elevado-2,
+summary.elevado-2,
+input.elevado-2,
+select.elevado-2 {
+  border-radius: var(--radio-campo);
+}
+
+input.elevado[aria-invalid=true],
+select.elevado[aria-invalid=true] {
+  border-color: var(--color-peligro-500);
+}
+
+.elevado,
 .caja {
-  border: 1px solid #0002;
-  border-radius: var(--radio-caja);
+  border: 1px solid var(--borde-caja);
   background: var(--color-fondo-500);
 }
 
-.caja-input {
-  width: 100%;
-  padding: 4px 8px;
-  border: 1px solid #0001;
-  border-radius: var(--radio-campo);
+.caja {
+  border-radius: var(--radio-caja);
+}
+
+.elevado-2 {
+  border: 1px solid var(--transparente-1);
   background-color: var(--color-fondo-700);
 }
 
-.caja-input[aria-invalid=true] {
+input.elevado,
+select.elevado,
+input.elevado-2,
+select.elevado-2 {
+  display: block;
+  width: 100%;
+  padding: .25rem .5rem;
+}
+
+input.elevado-2[aria-invalid=true],
+select.elevado-2[aria-invalid=true] {
   border: 1px solid var(--color-peligro-500);
 }
 
-.caja-input-error {
+.elevado-error {
   color: var(--color-peligro-500);
   font-size: .9rem;
 }
 
-input:not([aria-invalid=true])~.caja-input-error {
+input:not([aria-invalid=true])~.elevado-error,
+select:not([aria-invalid=true])~.elevado-error {
   display: none;
 }

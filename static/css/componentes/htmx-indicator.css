@@ -14,9 +14,13 @@
   min-height: 1em;
   aspect-ratio: 1;
   border-radius: 50%;
-  border: 3px solid #0003;
+  border: 3px solid var(--transparente-3);
   border-right-color: var(--color-primario-200);
   animation: l2 600ms infinite linear;
+}
+
+.oscuro .htmx-indicator .indicador {
+  border-right-color: var(--color-primario-700);
 }
 
 @keyframes l2 {
