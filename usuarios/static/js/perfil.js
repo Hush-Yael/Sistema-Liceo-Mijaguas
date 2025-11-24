@@ -15,15 +15,6 @@ verFotoPerfil.addEventListener("click", function () {
 
 const form = document.querySelector("form");
 
-// al cambiar algo, se habilita el botón
-form.addEventListener(
-  "change",
-  function () {
-    document.getElementById("submit").removeAttribute("disabled");
-  },
-  { once: true },
-);
-
 // al cambiar la foto, se actualiza la vista previa
 form.addEventListener("change", function (e) {
   if (e.target.id === "id_foto_perfil") {

@@ -1,9 +1,9 @@
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import (
-    LoginView,
-    LogoutView,
-)
+from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+
 from django.http import HttpRequest, HttpResponse
 
 from usuarios.forms import FormularioPerfil
@@ -53,3 +53,20 @@ def perfil(request: HttpRequest):
             "perfil.html",
             {"form": form, "usuario": usuario},
         )
+
+
+@login_required
+def cambiar_contraseña(request: HttpRequest):
+    if request.method == "POST":
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            # actualizar la sesión
+            update_session_auth_hash(request, user)
+            return redirect("perfil")
+    else:
+        form = PasswordChangeForm(request.user)
+
+    return PasswordChangeView.as_view(
+        template_name="cambiar-contraseña.html",
+    )(request)

@@ -12,6 +12,7 @@
   />
   <script defer src="{% static 'js/htmx.min.js' %}"></script>
   <script defer src="{% static 'js/perfil.js' %}"></script>
+  <script defer src="{% static 'js/btn-subir-autohabilitar.js' %}"></script>
   {% if form.errors %}
     <script defer src="{% static 'js/limpiar-errores.js' %}"></script>
   {% endif %}
@@ -39,7 +40,7 @@
       </hgroup>
 
       <div class="enlaces">
-        <a class="link-secundario" href="{% url 'admin:password_change' %}">
+        <a class="link-secundario" href="{% url 'cambiar_contraseña' %}">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="18"

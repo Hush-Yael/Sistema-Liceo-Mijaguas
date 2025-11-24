@@ -18,4 +18,9 @@ urlpatterns = [
         views.perfil,
         name="perfil",
     ),
+    path(
+        "cambiar_contraseña",
+        views.cambiar_contraseña,
+        name="cambiar_contraseña",
+    ),
 ]
