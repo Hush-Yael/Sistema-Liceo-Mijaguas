@@ -141,6 +141,7 @@
             <button
               class="btn-borde foto-btn"
               {% if not request.user.foto_perfil %}
+                disabled
               {% endif %}
               id="borrar-foto"
               hx-delete="{% url 'perfil' %}"
