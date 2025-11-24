@@ -1,0 +1,9 @@
+{% comment %}
+  foto principal (con los botones)
+{% endcomment %}
+{% include "componentes/iconos/sin-foto.html" with id="foto" swap="outerHTML:#foto" %}
+
+{% comment %}
+  fotos en la navegación
+{% endcomment %}
+{% include "componentes/iconos/sin-foto.html" with swap="outerHTML:.cabecera-foto-perfil" class="cabecera-foto-perfil" %}
