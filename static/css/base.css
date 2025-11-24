@@ -51,6 +51,18 @@ dialog {
   animation: aparecer .2s ease-in-out;
 }
 
+/* animación de cierre */
+@supports (transition-behavior: allow-discrete) {
+  dialog {
+    transition: opacity .2s ease-in-out, display .2s ease-in-out allow-discrete, transform .2s ease-in-out;
+  }
+
+  dialog:not([open]) {
+    opacity: 0;
+    transform: scale(.9);
+  }
+}
+
 dialog::backdrop {
   background: #0005;
 }
