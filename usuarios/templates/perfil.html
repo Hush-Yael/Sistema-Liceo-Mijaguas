@@ -206,10 +206,7 @@
 
                 {% if field.errors %}
                   {% for error in field.errors %}
-                    <p
-                      id="{{ field.id_for_label }}-error"
-                      class="elevado-error"
-                    >
+                    <p id="{{ field.id_for_label }}-error" class="input-error">
                       {{ error }}
                     </p>
                   {% endfor %}
