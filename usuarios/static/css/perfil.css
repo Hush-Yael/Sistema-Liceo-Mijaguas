@@ -82,9 +82,17 @@ main .arroba {
 }
 
 #imagen-contenedor {
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
+  text-align: center;
 }
 
+#imagen-contenedor .imagen {
+  position: relative;
+  max-width: max-content;
+}
 
 #foto {
   width: 11rem;
@@ -92,6 +100,10 @@ main .arroba {
   border: 7px solid #fffa;
   box-shadow: 0 0 10px #0001, 0 7px 15px #0001;
   object-fit: cover;
+  font-style: italic;
+  /* centrar texto (alt) vertical y horizontalmente */
+  line-height: 11rem;
+  text-align: center;
 }
 
 #foto,
@@ -191,13 +203,13 @@ main .arroba {
   }
 }
 
+#img-dialog img {
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
 @media screen and (min-width: 500px) and (max-width: 700px),
 screen and (min-width: 900px) {
-
-  #foto-botones {
-    flex-direction: column;
-  }
-
   #foto-contenedor {
     column-gap: 2rem;
     flex-direction: row;

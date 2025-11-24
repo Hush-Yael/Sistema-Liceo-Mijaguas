@@ -88,24 +88,39 @@
       <div class="img">
         <div class="flex" id="foto-contenedor">
           <div id="imagen-contenedor">
-            {% if request.user.foto_perfil %}
-              <img
-                id="foto"
-                src="{{ request.user.foto_perfil.url }}"
-                alt="foto"
-              />
+            {% if form.foto_perfil.errors %}
+              {% with error_id=form.foto_perfil.id_for_label|add:'-error' %}
+                {% render_field form.foto_perfil class="sr-only" aria-labelledby=error_id aria-invalid="true" %}
+              {% endwith %}
+
+              {% for e in form.foto_perfil.errors %}
+                {% with error=e %}
+                  <p class="input-error">{{ error }}</p>
+                {% endwith %}
+              {% endfor %}
             {% else %}
-              {% include "componentes/iconos/sin-foto.html" with id="foto" %}
+              {% render_field form.foto_perfil class="sr-only" %}
             {% endif %}
-            <button
-              type="button"
-              id="ver-foto"
-              aria-label="Ver foto de perfil"
-            ></button>
+
+            <div class="imagen">
+              {% if request.user.foto_perfil %}
+                <img
+                  id="foto"
+                  src="{{ request.user.foto_perfil.url }}"
+                  alt="foto del perfil"
+                />
+              {% else %}
+                {% include "componentes/iconos/sin-foto.html" with id="foto" %}
+              {% endif %}
+              <button
+                type="button"
+                id="ver-foto"
+                aria-label="Ver foto de perfil"
+              ></button>
+            </div>
           </div>
 
           <div id="foto-botones">
-            {% render_field form.foto_perfil class="sr-only" %}
             <label
               for="{{ form.foto_perfil.id_for_label }}"
               id="subir-foto"
@@ -162,8 +177,9 @@
                   />
                 </svg>
 
-              Eliminar foto <span class="sr-only">de perfil</span>
-            </button>
+                Eliminar foto <span class="sr-only">de perfil</span>
+              </button>
+            {% endif %}
           </div>
         </div>
       </div>

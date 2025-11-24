@@ -2,9 +2,9 @@
   <figure class="foto">
     {% if request.user.foto_perfil %}
       <img
-        src="{{ request.user.foto_perfil.url }}"
+        src="{{ request.user.miniatura_foto.url }}"
         class="cabecera-foto-perfil"
-        alt="foto perfil"
+        alt="foto del perfil"
       />
     {% else %}
       {% include "componentes/iconos/sin-foto.html" with class="cabecera-foto-perfil" %}

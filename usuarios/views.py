@@ -29,6 +29,7 @@ def perfil(request: HttpRequest):
     if request.method == "DELETE":
         try:
             request.user.foto_perfil.delete()  # type: ignore
+            request.user.miniatura_foto.delete()  # type: ignore
             return render(request, "sin-fotos.html")
         except Exception as e:
             print("Error al eliminar la foto", e)

@@ -164,9 +164,13 @@ html {
 }
 
 .cabecera-foto-perfil {
-  height: 7rem;
-  width: 7rem;
+  height: 6rem;
+  width: 6rem;
   aspect-ratio: 1 / 1;
+  font-style: italic;
+  /* centrar texto (alt) vertical y horizontalmente */
+  line-height: 6rem;
+  text-align: center;
 }
 
 svg.cabecera-foto-perfil {
@@ -176,6 +180,7 @@ svg.cabecera-foto-perfil {
 img.cabecera-foto-perfil {
   border-radius: 50%;
   object-fit: cover;
+  outline: 1px solid #fff2;
 }
 
 .perfil h2 {
