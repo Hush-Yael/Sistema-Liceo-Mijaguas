@@ -130,39 +130,37 @@
               Subir foto <span class="sr-only">de perfil</span>
             </label>
 
-            <button
-              class="btn-borde foto-btn"
-              {% if not request.user.foto_perfil %}
-                disabled
-              {% endif %}
-              id="borrar-foto"
-              hx-delete="{% url 'perfil' %}"
-              hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-              hx-confirm="¿Seguro que quieres borrar tu foto de perfil?"
-              hx-swap="outerHTML"
-            >
-              <span class="htmx-indicator">
-                <span class="indicador"></span>
-              </span>
-              <svg
-                version="1.1"
-                viewBox="0 0 30 30"
-                xml:space="preserve"
-                height="17"
-                width="17"
-                xmlns="http://www.w3.org/2000/svg"
-                xmlns:xlink="http://www.w3.org/1999/xlink"
+            {% if request.user.foto_perfil %}
+              <button
+                class="btn-borde foto-btn"
+                id="borrar-foto"
+                hx-delete="{% url 'perfil' %}"
+                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                hx-confirm="¿Seguro que quieres borrar tu foto de perfil?"
+                hx-swap="outerHTML"
               >
-                <path
-                  d="M19.71,26h-9.42c-1.019,0-1.875-0.766-1.988-1.779L6.5,8h17l-1.802,16.221C21.585,25.234,20.729,26,19.71,26z"
-                />
-                <path
-                  d="M24,6H6C5.448,6,5,5.552,5,5v0c0-0.552,0.448-1,1-1h18c0.552,0,1,0.448,1,1v0C25,5.552,24.552,6,24,6z"
-                />
-                <path
-                  d="M18,5h-6V4c0-0.552,0.448-1,1-1h4c0.552,0,1,0.448,1,1V5z"
-                />
-              </svg>
+                <span class="htmx-indicator">
+                  <span class="indicador"></span>
+                </span>
+                <svg
+                  version="1.1"
+                  viewBox="0 0 30 30"
+                  xml:space="preserve"
+                  height="17"
+                  width="17"
+                  xmlns="http://www.w3.org/2000/svg"
+                  xmlns:xlink="http://www.w3.org/1999/xlink"
+                >
+                  <path
+                    d="M19.71,26h-9.42c-1.019,0-1.875-0.766-1.988-1.779L6.5,8h17l-1.802,16.221C21.585,25.234,20.729,26,19.71,26z"
+                  />
+                  <path
+                    d="M24,6H6C5.448,6,5,5.552,5,5v0c0-0.552,0.448-1,1-1h18c0.552,0,1,0.448,1,1v0C25,5.552,24.552,6,24,6z"
+                  />
+                  <path
+                    d="M18,5h-6V4c0-0.552,0.448-1,1-1h4c0.552,0,1,0.448,1,1V5z"
+                  />
+                </svg>
 
               Eliminar foto <span class="sr-only">de perfil</span>
             </button>
