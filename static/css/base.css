@@ -80,7 +80,21 @@ dialog::backdrop {
 
 .menu {
   position: relative;
+
+  &::details-content {
+    opacity: 0;
+
+    transition:
+      opacity .175s ease,
+      content-visibility .175s allow-discrete;
+  }
+
+
+  &[open]::details-content {
+    opacity: 1;
+  }
 }
+
 
 .menu .contenido {
   position: absolute;
