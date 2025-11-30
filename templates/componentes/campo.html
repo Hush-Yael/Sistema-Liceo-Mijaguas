@@ -1,0 +1,19 @@
+{% load widget_tweaks %}
+
+<div class="campo">
+  {{ campo.label_tag }}
+
+  {% if campo.errors %}
+    {% with error=campo.id_for_label|add:'-error' %}
+      {% render_field campo class=class aria-labelledby=error aria-invalid="true" %}
+    {% endwith %}
+  {% else %}
+    {% render_field campo class=class %}
+  {% endif %}
+
+  {% if campo.errors %}
+    {% for error in campo.errors %}
+      <p id="{{ campo.id_for_label }}-error" class="input-error">{{ error }}</p>
+    {% endfor %}
+  {% endif %}
+</div>

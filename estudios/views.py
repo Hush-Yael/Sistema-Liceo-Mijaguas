@@ -3,6 +3,12 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
 
+from estudios.admin_pestañas import (
+    obtener_lista_pestañas_admin,
+    obtener_vista_pestaña_admin_completa,
+    obtener_vista_pestaña_admin_form,
+    pestañas_admin,
+)
 from estudios.utilidades_cookies import (
     obtener_y_corregir_valores_iniciales,
     render_con_cookies,
@@ -20,8 +26,9 @@ from .models import (
     Matricula,
     Nota,
 )
-from .forms import FormularioProfesorBusqueda, FormularioNotasBusqueda
+from .formularios_busqueda import FormularioProfesorBusqueda, FormularioNotasBusqueda
 from django.core.paginator import Paginator
+from functools import wraps
 
 
 def inicio(request: HttpRequest):
@@ -45,36 +52,6 @@ def inicio(request: HttpRequest):
         print(materias_año) """
 
     return render(request, "inicio.html", contexto)
-
-
-def materias(request: HttpRequest):
-    materias = Materia.objects.order_by("nombre")
-    años = Año.objects.values("numero", "nombre_corto").order_by("numero")
-
-    # se guarda cada materia por id, con una lista de los años en los que está asignada
-    materias_años_asignaciones = {}
-
-    if materias.count() > 0:
-        for materia in materias:
-            materias_años_asignaciones[materia.pk] = []
-            materia_años = AñoMateria.objects.values("año__numero").filter(
-                materia=materia
-            )
-
-            for materia_año in materia_años:
-                materias_años_asignaciones[materia.pk].append(
-                    materia_año["año__numero"],
-                )
-
-    return render(
-        request,
-        "materias.html",
-        {
-            "materias": materias,
-            "años": años,
-            "asignaciones": materias_años_asignaciones,
-        },
-    )
 
 
 def profesores(request: HttpRequest):
@@ -133,6 +110,89 @@ def profesores(request: HttpRequest):
     response.set_cookie("profesores_direccion", direccion)
 
     return response
+
+
+@login_required
+def administrar(request: HttpRequest):
+    datos = request.GET
+    pestaña_inicial = datos.get("pestaña")
+
+    lista_pestañas = obtener_lista_pestañas_admin(
+        request.user,
+        pestaña_inicial,
+    )
+
+    return render(
+        request,
+        "administrar/index.html",
+        {
+            "lista_pestañas": lista_pestañas,
+            "pestaña_inicial": pestaña_inicial,
+        },
+    )
+
+
+def obtener_pestaña_admin(request):
+    try:
+        if request.method != "GET" and request.method != "POST":
+            return HttpResponse("", status=405)
+
+        metodo = request.method
+        datos = getattr(request, metodo)
+        pestaña = datos.get("pestaña")
+    except Exception as e:
+        print(f"Error al obtener la pestaña: {str(e)}")
+        return HttpResponse("Error al obtener la pestaña", status=500)
+
+    if pestaña not in pestañas_admin:
+        return HttpResponse("No se encontró la pestaña buscada", status=404)
+
+    try:
+        if metodo == "GET":
+            return obtener_vista_pestaña_admin_completa(
+                request=request,
+                nombre_pestaña=pestaña,
+                form_del_modelo=pestañas_admin[pestaña]["form"],
+                nombre_modelo=pestañas_admin[pestaña]["nombre_modelo"],
+                datos_extra=(
+                    pestañas_admin[pestaña]["datos_extra_completo"]()
+                    if pestañas_admin[pestaña].get("datos_extra_completo")
+                    else {}
+                ),
+            )
+        else:
+            return obtener_vista_pestaña_admin_form(
+                request=request,
+                nombre_pestaña=pestaña,
+                form_del_modelo=pestañas_admin[pestaña]["form"],
+                nombre_modelo=pestañas_admin[pestaña]["nombre_modelo"],
+                datos_extra=(
+                    pestañas_admin[pestaña]["datos_extra_form"]()
+                    if pestañas_admin[pestaña].get("datos_extra_form")
+                    else {}
+                ),
+                modificar_antes_guardar=pestañas_admin[pestaña].get(
+                    "modificar_antes_guardar"
+                ),
+                modificar_luego_guardar=pestañas_admin[pestaña].get(
+                    "modificar_luego_guardar"
+                ),
+            )
+    except Exception as e:
+        print(f"Error procesando la pestaña: {str(e)}")
+        return HttpResponse("Error procesando la pestaña", status=500)
+
+
+# Llama a obtener_vista_pestaña_admin_completa para manejar la vista completa de la pestaña
+@login_required
+def vista_pestaña_admin_completa(request: HttpRequest):
+    return obtener_pestaña_admin(request)
+
+
+# Llama a obtener_vista_pestaña_admin_form para manejar la lógica del formulario y procesar la solicitud
+@login_required
+def vista_pestaña_admin_form(request: HttpRequest):
+    return obtener_pestaña_admin(request)
 
 
 def notas(request: HttpRequest):

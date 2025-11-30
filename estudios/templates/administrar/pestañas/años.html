@@ -1,0 +1,80 @@
+{% extends "administrar/pestañas/base.html" %}
+{% load partials %}
+
+{% block contenido %}
+  {% with titulo="Años académicos" descripcion="Gestiona las etapas que los estudiantes deben cursar para graduarse como bachiller" puede_añadir=perms.estudios.add_año nombre_objeto="año" %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock contenido %}
+
+{% block campos %}
+  {% partial campos %}
+{% endblock campos %}
+
+{% block parcial_objeto %}
+  {% partial año_objeto %}
+{% endblock parcial_objeto %}
+
+{% partialdef campos %}
+  {# añadir nuevo año académico al agregarse correctamente #}
+  {% if exito %}
+    {% include "administrar/mensaje.html" with nombre_objeto="año" %}
+
+    {% with objeto=objeto_guardado reemplazar=1 %}
+      {% partial año_objeto %}
+    {% endwith %}
+  {% endif %}
+
+  {% for campo in form %}
+    {% include "componentes/campo.html" with campo=campo class="elt elevado-2" %}
+  {% endfor %}
+{% endpartialdef campos %}
+
+{% partialdef año_objeto %}
+  {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+    {# Para cuando se añada con el formulario, poder añadirlo a la lista de objetos se genera este div con hx-swap-oob (ya que por alguna razón, al generar el parcial, se elimina el primer elemento, lo que provocaría que no se añada el <li>, sino directamente el <article>) #}
+    {% if reemplazar %}
+      <div hx-swap-oob="beforeend:.lista-objetos">
+    {% endif %}
+  {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+
+  <li>
+    <article class="caja objeto" {% if añadido %}data-nuevo{% endif %}>
+      <header class="cabecera">
+        <h2 class="nombre">{{ objeto.nombre }}</h2>
+        <ul class="estados">
+          <li>
+            <span class="id estado primario" role="status">
+              <span>número:</span>
+              <b>{{ objeto.numero }}</b>
+            </span>
+          </li>
+
+          {% if añadido %}
+            <li>
+              <span class="estado nuevo" role="status">Nuevo</span>
+            </li>
+          {% endif %}
+        </ul>
+      </header>
+
+      <dl class="info">
+        <div class="grupo">
+          <dt>Nombre corto</dt>
+          <dd>{{ objeto.nombre_corto }}</dd>
+        </div>
+
+        <div class="grupo">
+          <dt>Fecha de creación</dt>
+          <dd>{{ objeto.fecha_creacion|date:"D. d M. Y, h:i A" }}</dd>
+        </div>
+      </dl>
+    </article>
+  </li>
+
+  {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+    {% if reemplazar %}
+      </div>
+    {% endif %}
+  {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+{% endpartialdef año_objeto %}

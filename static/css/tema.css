@@ -62,6 +62,7 @@ html {
   --color-info-800: hsl(203.9, 100%, 17.3%);
   --color-info-900: hsl(206.5, 100%, 10.2%);
   --color-info-950: hsl(209.1, 100%, 6.9%);
+  --color-texto-info: #fff;
 
   --color-exito-50: hsl(146.4, 100%, 90.2%);
   --color-exito-100: hsl(152.3, 100%, 71.6%);
@@ -153,8 +154,19 @@ html {
   --color-secundario-100: hsl(205.7, 100%, 5.5%);
   --color-secundario-50: hsl(211.8, 100%, 3.3%);
 
+  --color-acento-950: hsl(148.6 100% 87.3%);
+  --color-acento-900: hsl(153.3 100% 71.4%);
+  --color-acento-800: hsl(161.1 100% 44.9%);
+  --color-acento-700: hsl(161.2 100% 39.4%);
+  --color-acento-600: hsl(160.7 100% 33.5%);
+  --color-acento-500: hsl(160.6 100% 28.4%);
+  --color-acento-400: hsl(160.2 100% 23.1%);
+  --color-acento-300: hsl(159.8 100% 17.5%);
+  --color-acento-200: hsl(158.4 100% 12%);
+  --color-acento-100: hsl(156 100% 6.9%);
+  --color-acento-50: hsl(151.4 100% 4.1%);
+
   --color-texto-secundario: hsl(0, 0%, 90%);
-  --color-texto-acento: hsl(0, 0%, 90%);
   --color-texto-exito: hsl(0, 0%, 90%);
   --color-texto-advertencia: hsl(0, 0%, 90%);
   --color-texto-peligro: hsl(0, 0%, 90%);
@@ -244,6 +256,10 @@ select.elevado-2[aria-invalid=true] {
     display: block;
     opacity: 1;
   }
+}
+
+.oscuro .input-error {
+  color: var(--color-peligro-300);
 }
 
 /* oculta el error si ya se resolvió */

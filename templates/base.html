@@ -1,4 +1,6 @@
 {% load static %}
+{% load sekizai_tags %}
+
 <!doctype html>
 <html lang="es-VE">
   <head>
@@ -54,10 +56,11 @@
     {% endif %}
 
     {% block cabeza %}
-    {% endblock %}
+    {% endblock cabeza %}
+    {% render_block "cabeza" %}
   </head>
 
-  <body>
+  <body hx-ext="head-support">
     {% include 'componentes/cabecera.html' %}
 
     <main>{% block contenido %}{% endblock %}</main>

@@ -4,9 +4,19 @@ from . import views
 
 urlpatterns = [
     path("", views.inicio, name="inicio"),
-    path("materias/", views.materias, name="materias"),
     path("profesores/", views.profesores, name="profesores"),
     path("notas/", views.notas, name="notas"),
+    path("administrar/", views.administrar, name="administrar"),
+    path(
+        "vista_pestaña_admin_completa/",
+        views.vista_pestaña_admin_completa,
+        name="vista_pestaña_admin_completa",
+    ),
+    path(
+        "vista_pestaña_admin_form/",
+        views.vista_pestaña_admin_form,
+        name="vista_pestaña_admin_form",
+    ),
     path(
         "notas_tabla/",
         views.notas_tabla,

@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block titulo %}Inicio{% endblock titulo %}
+
+{% block cabeza %}
+  <link rel="stylesheet" href="{% static 'css/administrar/index.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/componentes/pestañas.css' %}" />
+  <link
+    rel="stylesheet"
+    href="{% static 'css/componentes/decoracion-circular.css' %}"
+  />
+  <link
+    rel="stylesheet"
+    href="{% static 'css/componentes/htmx-indicator.css' %}"
+  />
+
+  <script defer src="{% static 'js/htmx.min.js' %}"></script>
+  <script defer src="{% static 'js/htmx-ext-head.js' %}"></script>
+  <script defer src="{% static 'js/componentes/pestañas.js' %}"></script>
+  <script>
+    const media = window.matchMedia("(min-width: 700px)");
+
+    function actualizarOrientacion() {
+      const pestañas = document.getElementById("pestañas");
+      if (pestañas) {
+        pestañas.setAttribute(
+          "aria-orientation",
+          media.matches ? "vertical" : "horizontal",
+        );
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const pestañas = document.getElementById("pestañas");
+
+      actualizarOrientacion();
+
+      media.addEventListener
+        ? media.addEventListener("change", actualizarOrientacion)
+        : media.addListener(actualizarOrientacion);
+    });
+  </script>
+{% endblock cabeza %}
+
+{% block contenido %}
+  {% load static %}
+  {% load sekizai_tags %}
+
+  {% addtoblock "cabeza" %}
+  {% endaddtoblock %}
+
+  {# se cambia el título y la descripción dependiendo de la pestaña #}
+  <hgroup id="titulo-y-desc">
+    <h1 class="titulo">Panel de administración</h1>
+    <p class="desc">Gestiona las diferentes secciones del sistema</p>
+  </hgroup>
+
+  {% with contenido_id="contenido" %}
+    {% url 'vista_pestaña_admin_completa' as pestaña_url %}
+    {# lista de pestañas para navegar entre secciones del administrador #}
+    {% include "componentes/pestañas.html" with class="borde-izquierdo" id="pestañas" lista_pestañas=lista_pestañas contenido_id=contenido_id hx_get=pestaña_url hx_indicator="#pestaña-indicador" %}
+
+    {# indicador de carga del contenido de la pestaña. Al estar activo oculta el contenido actual #}
+    <div id="pestaña-indicador" role="status" class="htmx-indicator">
+      <div class="indicador"></div>
+      <p>Cargando pestaña...</p>
+    </div>
+
+    {# se carga el contenido de la pestaña dinámicamente mediante HTMX, de acuerdo a la seleccionada #}
+    <section
+      id="{{ contenido_id }}"
+      class="contenido"
+      aria-live="polite"
+    ></section>
+
+    <div
+      hx-get="{{ pestaña_url }}"
+      hx-trigger="load"
+      hx-indicator="#pestaña-indicador"
+      hx-target="#{{ contenido_id }}"
+      type="hidden"
+      hx-vals='{"pestaña": "{{ pestaña_inicial }}"}'
+    />
+  {% endwith %}
+{% endblock contenido %}
