@@ -129,7 +129,7 @@ class Estudiante(models.Model):
 
 class Lapso(models.Model):
     numero = models.IntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(3)],
+        validators=[MinValueValidator(1)],
         verbose_name="número",
     )
     nombre = models.CharField(max_length=50, unique=True)
