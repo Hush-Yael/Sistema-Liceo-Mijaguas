@@ -11,10 +11,6 @@ function mostrarModal() {
   }
 }
 
-const modal = document.getElementById("form-modal");
-modal.onclick = cerrarModal;
-modal.showModal();
-
 function cerrarModal(e) {
   if (e.target === e.currentTarget) e.currentTarget.close();
 }
