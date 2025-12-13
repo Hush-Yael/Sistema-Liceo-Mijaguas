@@ -9,10 +9,18 @@ class Año(models.Model):
         validators=[MinValueValidator(1), MaxValueValidator(5)],
         verbose_name="número",
         unique=True,
+        error_messages={"unique": "Ya existe un año con ese número."},
     )
-    nombre = models.CharField(max_length=100, unique=True)
+    nombre = models.CharField(
+        max_length=100,
+        unique=True,
+        error_messages={"unique": "Ya existe otro año con ese nombre."},
+    )
     nombre_corto = models.CharField(
-        max_length=20, verbose_name="nombre corto", unique=True
+        max_length=20,
+        verbose_name="nombre corto",
+        unique=True,
+        error_messages={"unique": "Ya existe otro año con ese nombre corto."},
     )
     fecha_creacion = models.DateTimeField(
         default=timezone.now, verbose_name="fecha de creación"
@@ -59,7 +67,11 @@ class Seccion(models.Model):
 
 
 class Materia(models.Model):
-    nombre = models.CharField(max_length=200, unique=True)
+    nombre = models.CharField(
+        max_length=200,
+        unique=True,
+        error_messages={"unique": "Ya existe una materia con ese nombre."},
+    )
     descripcion = models.TextField(blank=True, null=True, verbose_name="descripción")
     fecha_creacion = models.DateTimeField(
         default=timezone.now, verbose_name="fecha de creación"
