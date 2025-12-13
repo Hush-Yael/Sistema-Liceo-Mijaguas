@@ -28,7 +28,6 @@ from .models import (
 )
 from .formularios_busqueda import FormularioProfesorBusqueda, FormularioNotasBusqueda
 from django.core.paginator import Paginator
-from functools import wraps
 
 
 def inicio(request: HttpRequest):
@@ -127,11 +126,12 @@ def administrar(request: HttpRequest):
         "administrar/index.html",
         {
             "lista_pestañas": lista_pestañas,
-            "pestaña_inicial": pestaña_inicial,
+            "pestaña_inicial": pestaña_inicial or lista_pestañas[0]["nombre"],
         },
     )
 
 
+@login_required
 def obtener_pestaña_admin(request):
     try:
         if request.method != "GET" and request.method != "POST":

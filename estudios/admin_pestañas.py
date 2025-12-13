@@ -13,7 +13,7 @@ from usuarios.models import User
 
 
 # Crea la lista de pestañas disponibles al entrar en la sección de administración al cargarla completa
-def obtener_lista_pestañas_admin(usuario: User, pestaña_inicial: str):
+def obtener_lista_pestañas_admin(usuario: User, pestaña_inicial):
     permisos = list(
         filter(
             lambda permiso: permiso.startswith("estudios.view_"),
@@ -34,6 +34,9 @@ def obtener_lista_pestañas_admin(usuario: User, pestaña_inicial: str):
                 pestaña["es_inicial"] = True
 
             pestañas.append(pestaña)
+
+    if pestaña_inicial is None:
+        pestañas[0]["es_inicial"] = True
 
     return pestañas
 
