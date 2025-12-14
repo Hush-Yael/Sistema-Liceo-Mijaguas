@@ -1,0 +1,85 @@
+#lista-opciones {
+  display: flex;
+  gap: .5rem;
+}
+
+#lista-opciones button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .375rem;
+  width: 100%;
+  padding: .5rem 1rem;
+  border-radius: var(--radio-campo);
+  border: 3px dashed var(--transparente-2);
+  outline-offset: 2px;
+  color: var(--texto-sutil);
+  transition: border-color .2s ease-in-out, color .2s ease-in-out;
+}
+
+#lista-opciones button:focus-visible {
+  color: var(--color-primario-300);
+  border-color: currentColor;
+  outline: 1px solid;
+}
+
+.oscuro #lista-opciones button:focus-visible {
+  color: var(--color-primario-800);
+  border-color: var(--color-primario-600);
+}
+
+@media only screen and (hover: none) and (pointer: coarse) {
+  #lista-opciones .añadir:active {
+    color: var(--color-primario-300);
+    border-color: currentColor;
+  }
+
+  .oscuro #lista-opciones .añadir:active {
+    color: var(--color-primario-800);
+    border-color: var(--color-primario-600);
+  }
+}
+
+@media only screen and (hover: hover) and (pointer: fine) {
+  #lista-opciones .añadir:hover {
+    color: var(--color-primario-300);
+    border-color: currentColor;
+  }
+
+  .oscuro #lista-opciones .añadir:hover {
+    color: var(--color-primario-800);
+    border-color: var(--color-primario-600);
+  }
+}
+
+#lista-opciones button svg {
+  height: 1.125rem;
+}
+
+.acciones {
+  display: flex;
+  align-items: center;
+  column-gap: 1.5rem;
+  position: sticky;
+  bottom: 0;
+  max-width: 450px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--color-secundario-400);
+  border-radius: var(--radio-caja);
+  font-size: .9rem;
+  background: var(--color-secundario-500);
+  color: var(--color-texto-secundario);
+  animation: aparecer .3s ease-in-out;
+}
+
+.acciones #cantidad {
+  margin-right: auto;
+}
+
+.acciones button svg {
+  height: 22px;
+  width: 22px;
+}

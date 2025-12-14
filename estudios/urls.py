@@ -18,6 +18,11 @@ urlpatterns = [
         name="vista_pestaña_admin_form",
     ),
     path(
+        "obtener_form_editar_pestaña/",
+        views.obtener_form_editar_pestaña,
+        name="obtener_form_editar_pestaña",
+    ),
+    path(
         "notas_tabla/",
         views.notas_tabla,
         name="notas_tabla",

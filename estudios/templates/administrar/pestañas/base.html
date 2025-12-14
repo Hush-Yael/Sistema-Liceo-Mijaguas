@@ -22,6 +22,10 @@
     <head>
       <script defer src="{% static 'js/admin-form-modal.js' %}"></script>
       <link rel="stylesheet" href="{% static 'css/administrar/admin.css' %}" />
+      <link
+        rel="stylesheet"
+        href="{% static 'css/administrar/acciones.css' %}"
+      />
     </head>
 
     <dialog id="form-modal" class="caja">
@@ -31,6 +35,11 @@
         <div id="indicador-subida-form" class="htmx-indicator" role="status">
           <div class="indicador"></div>
           Subiendo...
+        </div>
+
+        <div id="indicador-carga-form" class="htmx-indicator" role="status">
+          <div class="indicador"></div>
+          Cargando datos...
         </div>
 
         {% block antes_form %}{% endblock antes_form %}
@@ -72,38 +81,92 @@
     </dialog>
   {% endif %}
 
-  <hgroup hx-swap-oob="outerHTML:#titulo-y-desc" id="titulo-y-desc">
-    <h1 class="titulo">{{ titulo }}</h1>
-    <p class="desc">{{ descripcion }}</p>
-  </hgroup>
+  <div
+    x-data="{
+    acciones_abiertas: false,
+    alternar_abiertas() {
+      this.acciones_abiertas = !this.acciones_abiertas;
+      this.seleccion.clear()
+    },
+    seleccion: new Set() 
+  }"
+  >
+    <hgroup hx-swap-oob="outerHTML:#titulo-y-desc" id="titulo-y-desc">
+      <h1 class="titulo">{{ titulo }}</h1>
+      <p class="desc">{{ descripcion }}</p>
+    </hgroup>
 
-  <ul class="lista-objetos" id="lista-objetos">
-    {% if puede_añadir %}
-      <li class="añadir-li">
-        <button class="añadir" onclick="mostrarModal()">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-            <path d="M12 5l0 14" />
-            <path d="M5 12l14 0" />
-          </svg>
-          Añadir {{ nombre_objeto|default:'objeto' }}
-        </button>
-      </li>
-    {% endif %}
+    <ul
+      class="lista-objetos"
+      id="lista-objetos"
+      @click="
+        if (acciones_abiertas && $event.target !== $event.currentTarget && $event.target.closest('[data-id]')) {
+          const id = $event.target.closest('[data-id]').getAttribute('data-id')
+          seleccion.has(id) ? seleccion.delete(id) : seleccion.add(id);
+        }
+      "
+      @contextmenu="
+        if (!acciones_abiertas && $event.target !== $event.currentTarget && $event.target.closest('[data-id]')) {
+          $event.preventDefault()
+          alternar_abiertas()
+          seleccion.add($event.target.closest('[data-id]').getAttribute('data-id'))
+        }
+      "
+    >
+      {% if puede_añadir %}
+        <li class="lista-opciones-li">
+          <div role="group" id="lista-opciones">
+            <button @click="alternar_abiertas()">
+              <svg
+                style="margin-right: .25rem"
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M12.034 12.681a.498.498 0 0 1 .647-.647l9 3.5a.5.5 0 0 1-.033.943l-3.444 1.068a1 1 0 0 0-.66.66l-1.067 3.443a.5.5 0 0 1-.943.033z"
+                />
+                <path
+                  d="M21 11V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6"
+                />
+              </svg>
+              <span
+                x-text="!acciones_abiertas ? 'Seleccionar' : 'Cancelar seleccion' "
+              ></span>
+            </button>
+            <button class="añadir" onclick="mostrarModal()">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M12 5l0 14" />
+                <path d="M5 12l14 0" />
+              </svg>
+              Añadir {{ nombre_objeto|default:'objeto' }}
+            </button>
+          </div>
+        </li>
+      {% endif %}
 
-    {% for objeto in lista_objetos %}
-      {# en la plantilla extendida se indica el parcial correspondiente del objeto a mostrar en la lista, ya que obviamente no puede ser creado aquí; este bloque debe ser implementado en las plantillas hijas para mostrar cada objeto #}
-      {% block parcial_objeto %}
-      {% endblock parcial_objeto %}
-    {% endfor %}
-  </ul>
+      {% for objeto in lista_objetos %}
+        {# en la plantilla extendida se indica el parcial correspondiente del objeto a mostrar en la lista, ya que obviamente no puede ser creado aquí; este bloque debe ser implementado en las plantillas hijas para mostrar cada objeto #}
+        {% block parcial_objeto %}
+        {% endblock parcial_objeto %}
+      {% endfor %}
+    </ul>
+
+    {% include "administrar/acciones.html" with puede_eliminar=puede_eliminar puede_editar=puede_editar nombre_objeto=nombre_objeto pestaña=pestaña %}
+  </div>
 {% endblock contenido %}

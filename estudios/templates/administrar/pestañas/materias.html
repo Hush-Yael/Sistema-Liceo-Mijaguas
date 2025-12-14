@@ -1,8 +1,9 @@
 {% extends "administrar/pestañas/base.html" %}
 {% load partials %}
+{% load utilidades_busqueda %}
 
 {% block contenido %}
-  {% with titulo="Materias" descripcion="Gestiona las materias y los años en que se imparten" puede_añadir=perms.estudios.add_materia nombre_objeto="materia" %}
+  {% with titulo="Materias" descripcion="Gestiona las materias y los años en que se imparten" puede_añadir=perms.estudios.add_materia puede_eliminar=perms.estudios.delete_materia puede_editar=perms.estudios.change_materia nombre_objeto="materia" %}
     {{ block.super }}
   {% endwith %}
 {% endblock contenido %}
@@ -18,10 +19,16 @@
 {% partialdef campos %}
   {# añadir nueva materia al agregarse correctamente #}
   {% if exito %}
-    {% include "administrar/mensaje.html" with nombre_objeto="materia" %}
-    {% with objeto=objeto_guardado reemplazar=1 %}
+    {% include "administrar/mensaje.html" with  editado=editado objeto=objeto_retornado nombre_objeto="materia" %}
+
+    {% with objeto=objeto_retornado editado=editado reemplazar=1 %}
       {% partial materia_objeto %}
     {% endwith %}
+  {% endif %}
+
+  {# se indica al obtener los campos con sus valores (a penas inicia la edición) o editar y producirse un error #}
+  {% if not exito and objeto_retornado.id|es_entero %}
+    <input type="hidden" name="id" value="{{ objeto_retornado.id }}" />
   {% endif %}
   {% include "componentes/campo.html" with campo=form.nombre class="deshabilitar-subir elevado-2" %}
 
@@ -46,7 +53,7 @@
               name="{{ asignaciones.name }}"
               value="{{ valor }}"
               id="{{ asignaciones.name }}_{{ forloop.counter }}"
-              {% if valor|stringformat:"i" in asignaciones.value %}checked{% endif %}
+              {% if valor|stringformat:"i" in asignaciones.value or valor in asignaciones.value %}checked{% endif %}
             />
             <label
               class="asignacion-materia"
@@ -74,12 +81,23 @@
   {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
     {# Para cuando se añada con el formulario, poder añadirlo a la lista de objetos se genera este div con hx-swap-oob (ya que por alguna razón, al generar el parcial, se elimina el primer elemento, lo que provocaría que no se añada el <li>, sino directamente el <article>) #}
     {% if reemplazar %}
-      <div hx-swap-oob="afterend:.añadir-li">
+      <div
+        {% if editado %}
+          hx-swap-oob="outerHTML:[data-id='{{ objeto.id }}']"
+        {% else %}
+          hx-swap-oob="afterend:.lista-opciones-li"
+        {% endif %}
+      >
     {% endif %}
   {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
 
   <li>
-    <article class="caja materia" {% if añadido %}data-nuevo{% endif %}>
+    <article
+      class="caja materia"
+      data-id="{{ objeto.id }}"
+      :data-seleccionado="seleccion.has('{{ objeto.id }}')"
+      {% if añadido %}data-nuevo{% endif %}
+    >
       <header class="cabecera">
         <div class="titulo-contenedor">
           <h2 class="nombre">{{ objeto.nombre }}</h2>
@@ -89,28 +107,6 @@
           {% endif %}
         </div>
         <p class="fecha">
-          <span class="decoracion-circular">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <path
-                d="M12.5 21h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v5"
-              />
-              <path d="M16 3v4" />
-              <path d="M8 3v4" />
-              <path d="M4 11h16" />
-              <path d="M16 19h6" />
-              <path d="M19 16v6" />
-            </svg>
-          </span>
           Creada el {{ objeto.fecha_creacion|date:"D. d M. Y, h:i A" }}
         </p>
       </header>

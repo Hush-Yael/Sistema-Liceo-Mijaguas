@@ -1,7 +1,7 @@
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Model
 
 from estudios.admin_pestañas import (
     obtener_lista_pestañas_admin,
@@ -132,13 +132,22 @@ def administrar(request: HttpRequest):
 
 
 @login_required
-def obtener_pestaña_admin(request):
+def obtener_pestaña_admin(request: HttpRequest):
     try:
-        if request.method != "GET" and request.method != "POST":
+        if (
+            request.method != "GET"
+            and request.method != "POST"
+            and request.method != "DELETE"
+        ):
             return HttpResponse("", status=405)
 
         metodo = request.method
-        datos = getattr(request, metodo)
+
+        if request.method != "DELETE":
+            datos = getattr(request, metodo)
+        else:
+            datos = request.GET
+
         pestaña = datos.get("pestaña")
     except Exception as e:
         print(f"Error al obtener la pestaña: {str(e)}")
@@ -147,40 +156,41 @@ def obtener_pestaña_admin(request):
     if pestaña not in pestañas_admin:
         return HttpResponse("No se encontró la pestaña buscada", status=404)
 
-    try:
-        if metodo == "GET":
-            return obtener_vista_pestaña_admin_completa(
-                request=request,
-                nombre_pestaña=pestaña,
-                form_del_modelo=pestañas_admin[pestaña]["form"],
-                nombre_modelo=pestañas_admin[pestaña]["nombre_modelo"],
-                datos_extra=(
-                    pestañas_admin[pestaña]["datos_extra_completo"]()
-                    if pestañas_admin[pestaña].get("datos_extra_completo")
-                    else {}
-                ),
-            )
-        else:
-            return obtener_vista_pestaña_admin_form(
-                request=request,
-                nombre_pestaña=pestaña,
-                form_del_modelo=pestañas_admin[pestaña]["form"],
-                nombre_modelo=pestañas_admin[pestaña]["nombre_modelo"],
-                datos_extra=(
-                    pestañas_admin[pestaña]["datos_extra_form"]()
-                    if pestañas_admin[pestaña].get("datos_extra_form")
-                    else {}
-                ),
-                modificar_antes_guardar=pestañas_admin[pestaña].get(
-                    "modificar_antes_guardar"
-                ),
-                modificar_luego_guardar=pestañas_admin[pestaña].get(
-                    "modificar_luego_guardar"
-                ),
-            )
-    except Exception as e:
-        print(f"Error procesando la pestaña: {str(e)}")
-        return HttpResponse("Error procesando la pestaña", status=500)
+    if metodo == "GET" or metodo == "DELETE":
+        if metodo == "DELETE":
+            modelo: Model = pestañas_admin[pestaña]["modelo"]
+            seleccion = datos.getlist("seleccion")
+
+            if seleccion and seleccion != []:
+                modelo.objects.filter(id__in=seleccion).delete()
+            else:
+                return HttpResponse("No se seleccionaron objetos", status=400)
+
+        return obtener_vista_pestaña_admin_completa(
+            request=request,
+            nombre_pestaña=pestaña,
+        )
+    elif metodo == "POST":
+        return obtener_vista_pestaña_admin_form(
+            request=request,
+            nombre_pestaña=pestaña,
+        )
+
+
+@login_required
+def obtener_form_editar_pestaña(request: HttpRequest):
+    if request.method != "GET":
+        return HttpResponse("", status=405)
+
+    pestaña = request.GET.get("pestaña")
+
+    if pestaña not in pestañas_admin:
+        return HttpResponse("No se encontró la pestaña buscada", status=40)
+
+    return obtener_vista_pestaña_admin_form(
+        request=request,
+        nombre_pestaña=pestaña,
+    )
 
 
 # Llama a obtener_vista_pestaña_admin_completa para manejar la vista completa de la pestaña
