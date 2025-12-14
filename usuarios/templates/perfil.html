@@ -35,7 +35,7 @@
               />
             </svg>
           </span>
-          Registrado el {{ request.user.date_joined }}
+          Registrado el {{ request.user.date_joined|date:"D. d M. Y, h:i A" }}
         </p>
       </hgroup>
 
