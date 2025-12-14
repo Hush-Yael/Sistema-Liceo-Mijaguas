@@ -66,59 +66,80 @@ html {
   transform: rotate(-90deg);
 }
 
-#tema-menu summary {
-  list-style: none;
+#nav {
+  display: flex;
+  flex-direction: column;
+  row-gap: .5rem;
 }
 
-#tema-menu[data-tema=claro] summary svg:not(.sol),
-#tema-menu[data-tema=oscuro] summary svg:not(.luna),
-#tema-menu[data-tema=auto] summary svg:not(.auto) {
+#tema-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  column-gap: .375rem;
+  padding: .375rem .75rem;
+  border-radius: 1rem;
+  margin: .5rem auto;
+  width: max-content;
+  background: #fff2;
+}
+
+#nav hr {
+  height: 1px;
+  margin: -.5rem 1rem;
+  border-color: #fff2;
+}
+
+#tema-selector input[value=claro]:not(:checked)+label svg.sol,
+#tema-selector input[value=oscuro]:not(:checked)+label svg.luna,
+#tema-selector input[value=auto]:not(:checked)+label svg.auto {
   display: none;
 }
 
-#tema-menu .contenido {
-  right: 0;
-  top: 185%;
-  color: var(--texto-base);
-  border-top-right-radius: 0;
+#tema-selector input[value=claro]:checked+label svg:not(.sol),
+#tema-selector input[value=oscuro]:checked+label svg:not(.luna),
+#tema-selector input[value=auto]:checked+label svg:not(.auto) {
+  display: none;
 }
 
-#tema-menu label {
+#tema-selector label {
   display: flex;
   align-items: center;
   gap: .5rem;
-  padding: .5rem 1rem;
+  height: 1.5rem;
+  width: 1.5rem;
+  padding: .25rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #fff2;
+  color: var(--color-text-primario);
   transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
 }
 
-#tema-menu label:first-of-type {
-  border-top-left-radius: inherit;
-  border-top-right-radius: inherit;
-}
-
-#tema-menu label:last-of-type {
-  border-bottom-left-radius: inherit;
-  border-bottom-right-radius: inherit;
+#tema-selector input:focus-visible+label {
+  background: #fff3;
 }
 
 @media only screen and (hover: none) and (pointer: coarse) {
-  #tema-menu label:active {
-    background: var(--transparente-1);
+  #tema-selector label:active {
+    background: #fff3;
   }
 }
 
 @media only screen and (hover: hover) and (pointer: fine) {
-  #tema-menu label:hover {
-    background: var(--transparente-1);
+  #tema-selector label:hover {
+    background: #fff3;
   }
 }
 
-#tema-menu input:checked+label {
-  color: var(--color-texto-primario);
-  background-color: var(--color-primario-500);
+#tema-selector input:checked+label {
+  color: var(--color-primario-500);
+  outline: 1px solid #0003;
+  outline-offset: -1px;
+  background-color: var(--color-texto-primario);
 }
 
-#tema-menu label svg {
+#tema-selector label svg {
   height: 1.25em;
   width: 1.25em;
 }
@@ -134,22 +155,7 @@ html {
 }
 
 #perfil-en-linea {
-  margin-bottom: .5rem;
-}
-
-#perfil-en-linea {
-  position: relative;
   padding: 1rem;
-}
-
-#perfil-en-linea::after {
-  position: absolute;
-  content: '';
-  height: 1px;
-  left: 1em;
-  right: 1em;
-  background-color: #fff2;
-  bottom: 0;
 }
 
 #perfil-menu .contenido {
@@ -247,7 +253,7 @@ img.cabecera-foto-perfil {
   }
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 800px) {
   #nav {
     position: fixed;
     z-index: 5;
@@ -279,8 +285,7 @@ img.cabecera-foto-perfil {
 
   #iniciar-sesion-menu {
     padding: .75rem .5rem;
-    margin-bottom: 1rem;
-    border-bottom: 1px solid #fff3;
+    margin-top: .5rem;
   }
 
   #perfil-menu {
@@ -300,7 +305,7 @@ img.cabecera-foto-perfil {
   }
 }
 
-@media screen and (min-width: 768px) {
+@media screen and (min-width: 800px) {
   #header {
     padding: 0;
     align-items: unset;
@@ -319,6 +324,14 @@ img.cabecera-foto-perfil {
   #nav,
   #nav ul {
     height: 100%;
+  }
+
+  #nav {
+    flex-direction: row-reverse;
+  }
+
+  #nav hr:first-of-type {
+    display: none;
   }
 
   #nav ul {
@@ -403,7 +416,7 @@ img.cabecera-foto-perfil {
   }
 }
 
-@media screen and (min-width: 768px) and (max-width: 1024px) {
+@media screen and (min-width: 768px) and (max-width: 1100px) {
   .link {
     position: relative;
   }
@@ -432,7 +445,7 @@ img.cabecera-foto-perfil {
   }
 }
 
-@media screen and (min-width: 1024px) and (max-width: 1280px) {
+@media screen and (min-width: 1100px) and (max-width: 1280px) {
 
   .link {
     padding: .5rem 1rem;
@@ -441,7 +454,7 @@ img.cabecera-foto-perfil {
   }
 }
 
-@media screen and (min-width: 1024px) {
+@media screen and (min-width: 1100px) {
   :root {
     --altura-header: 4rem;
   }

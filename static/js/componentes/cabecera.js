@@ -33,21 +33,34 @@ function cerrarPorClickAfuera(e) {
   }
 }
 
-const menuTema = document.getElementById("tema-menu");
+const menuSelector = document.getElementById("tema-selector");
 const auto = window.matchMedia("(prefers-color-scheme: dark)");
 
 function cambiarTemaClase(oscuro) {
   document.documentElement.classList.toggle("oscuro", oscuro);
 }
 
-menuTema.dataset.tema = localStorage.getItem("tema", tema) || "auto";
-menuTema.querySelector("input[value='" + menuTema.dataset.tema + "']").checked =
+const temaValores = ["claro", "oscuro", "auto"];
+let temaGuardado = localStorage.getItem("tema");
+if (!temaValores.includes(temaGuardado)) temaGuardado = "auto";
+
+menuSelector.querySelector("input[value='" + temaGuardado + "']").checked =
   true;
 
 function aplicarTema() {
   try {
     // valor seleccionado
-    const tema = menuTema.querySelector("input:checked").value;
+    let tema = menuSelector.querySelector("input:checked").value;
+
+    if (!temaValores.includes(tema)) {
+      tema = "auto";
+      try {
+        menuSelector.querySelector("input[value='auto']").checked = true;
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
     localStorage.setItem("tema", tema);
 
     // cambio automático si se selecciona 'auto'
@@ -65,7 +78,7 @@ function aplicarTema() {
     if (!document.startViewTransition) cambiarTemaClase(esOscuro);
     else document.startViewTransition(() => cambiarTemaClase(esOscuro));
 
-    menuTema.dataset.tema = tema;
+    menuSelector.dataset.tema = tema;
   } catch (error) {
     // no se ha seleccionado ninguno, se selecciona 'auto' por defecto
     if (error instanceof TypeError) {
@@ -80,4 +93,4 @@ function cambioAutoTema(e) {
   else document.startViewTransition(() => cambiarTemaClase(e.matches));
 }
 
-menuTema.addEventListener("change", aplicarTema);
+menuSelector.addEventListener("change", aplicarTema);
