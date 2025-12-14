@@ -7,6 +7,16 @@
   overflow-y: auto;
 }
 
+@-moz-document url-prefix() {
+  .pestañas[aria-orientation=horizontal] {
+    overflow-x: unset;
+  }
+
+  .pestañas[aria-orientation=vertical] {
+    overflow-y: unset;
+  }
+}
+
 .lista-pestañas {
   display: flex;
 }
