@@ -36,16 +36,19 @@ function cerrarPorClickAfuera(e) {
 const menuTema = document.getElementById("tema-menu");
 const auto = window.matchMedia("(prefers-color-scheme: dark)");
 
-aplicarTema();
-
 function cambiarTemaClase(oscuro) {
   document.documentElement.classList.toggle("oscuro", oscuro);
 }
+
+menuTema.dataset.tema = localStorage.getItem("tema", tema) || "auto";
+menuTema.querySelector("input[value='" + menuTema.dataset.tema + "']").checked =
+  true;
 
 function aplicarTema() {
   try {
     // valor seleccionado
     const tema = menuTema.querySelector("input:checked").value;
+    localStorage.setItem("tema", tema);
 
     // cambio automático si se selecciona 'auto'
     if (tema === "auto")

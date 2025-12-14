@@ -55,6 +55,19 @@
       </script>
     {% endif %}
 
+    <script>
+      const tema = localStorage.getItem("tema");
+      if (tema) {
+        if (tema !== "claro") {
+          const auto = window.matchMedia("(prefers-color-scheme: dark)");
+          document.documentElement.classList.toggle(
+            "oscuro",
+            tema === "oscuro" || (tema === "auto" && auto.matches),
+          );
+        }
+      } else localStorage.setItem("tema", "auto");
+    </script>
+
     {% block cabeza %}
     {% endblock cabeza %}
     {% render_block "cabeza" %}
