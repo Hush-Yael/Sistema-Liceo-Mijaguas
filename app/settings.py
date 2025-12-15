@@ -69,6 +69,9 @@ TEMPLATES = [
                 "sekizai.context_processors.sekizai",
                 "app.context_processors.contexto",
             ],
+            "libraries": {
+                "grupos_variantes": "templatetags.grupos_variantes.tags",
+            },
         },
     },
 ]

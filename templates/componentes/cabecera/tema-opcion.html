@@ -1,0 +1,16 @@
+{% load partials %}
+
+<div>
+  <input
+    class="sr-only peer"
+    id="{{ id }}"
+    type="radio"
+    name="tema"
+    value="{{ value }}"
+  />
+  <label for="{{ id }}" class="{{ class }}">
+    {% include "componentes/iconos/tema.html#"|add:icono|add:'_lineas' %}
+    {% include "componentes/iconos/tema.html#"|add:icono %}
+    <span class="sr-only">{{ label }}</span>
+  </label>
+</div>

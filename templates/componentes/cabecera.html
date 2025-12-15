@@ -1,210 +1,118 @@
 {% load static %}
-<header id="header">
-  <h1>
-    <a href="{% url 'inicio' %}">
-      <img src="{% static 'img/logo-sin-letras.png' %}" alt="logo" />
+{% load partials %}
+{% load grupos_variantes %}
+
+<header
+  {% with class="sticky top-0 z-5 flex aic justify-between h-[--altura-header] min-h-[--altura-header] p-[0_1rem] border-b-2 border-#fff5 dark:border-#fff3 bg-primario text-primario-texto shadow-[0_5px_24px_0_#00000026] min-[800px]:(p-0 items-unset justify-between border-b-2 border-#fff5)"|expandir_variantes %}
+    class="{{ class }}"
+  {% endwith %}
+>
+  <h1 class="min-[800px]:m-[auto_1rem]">
+    <a
+      class="flex aic gap-x-5 font-bold tac text-[1.25rem]"
+      href="{% url 'inicio' %}"
+    >
+      <img
+        class="h-2em w-2em min-w-max p-3px scale-120"
+        src="{% static 'img/logo-sin-letras.png' %}"
+        alt="logo"
+      />
       <span>Liceo Mijaguas</span>
     </a>
   </h1>
 
-  <nav id="nav" data-path-actual="{{ request.path }}">
+  <nav
+    {% with c="z-5 right-0 bottom-0 col gap-4 border-#fff5 dark:border-#fff3 bg-primario transition-[transform] ease-in-out overflow-y-auto" escondible=" max-[800px]:(fixed w-175px min-h-[calc(100%-var(--altura-header))] translate-x-100% [&.abierto]:(border-l-2 translate-x-0 shadow-[-4px_5px_16px_#0003])))" lista=" min-[800px]:(flex-row-reverse h-full [&_hr:first-of-type]:hidden overflow-y-visible)" %}
+      class="{{ c|add:escondible|add:lista|expandir_variantes }}"
+    {% endwith %}
+    id="nav"
+    data-path-actual="{{ request.path }}"
+  >
     {% if request.user.is_authenticated %}
-      <div class="perfil" id="perfil-en-linea">
+      <div class="p-4 min-[800px]:hidden">
         {% include 'componentes/perfil/index.html' %}
       </div>
     {% else %}
       <a
         id="iniciar-sesion-menu"
         href="{% url 'login' %}"
-        class="iniciar-sesion flex-center"
+        class="fc gap-x-1 btn p-1.5 m-[0_.5rem] mt-3 rounded-full bg-primario-texto text-primario font-500 min-[800px]:hidden"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-          <path
-            d="M9 8v-2a2 2 0 0 1 2 -2h7a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-7a2 2 0 0 1 -2 -2v-2"
-          />
-          <path d="M3 12h13l-3 -3" />
-          <path d="M13 15l3 -3" />
-        </svg>
         Iniciar sesión
+        <svg
+          class="size-5"
+          stroke-width="0"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 512 512"
+          height="1em"
+          width="1em"
+        >
+          <path
+            d="M0 256a256 256 0 1 0 512 0 256 256 0 1 0-512 0zm281 129c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l71-71L136 280c-13.3 0-24-10.7-24-24s10.7-24 24-24h182.1l-71-71c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0L393 239c9.4 9.4 9.4 24.6 0 33.9L281 385z"
+          ></path>
+        </svg>
       </a>
     {% endif %}
 
-    <hr />
+    {% partialdef hr inline %}
+      <hr class="h-1px m-[0_.5rem] border-#fff2" />
+    {% endpartialdef hr %}
 
-    <div id="tema-selector" class="contenido" role="group">
-      <input
-        class="sr-only"
-        id="tema-claro"
-        type="radio"
-        name="tema"
-        value="claro"
-      />
-      <label for="tema-claro">
-        {% include "componentes/iconos/tema/sol.html" %}
-        {% include "componentes/iconos/tema/sol-lineas.html" %}
-        <span class="sr-only">Claro</span>
-      </label>
-
-      <input
-        class="sr-only"
-        id="tema-oscuro"
-        type="radio"
-        name="tema"
-        value="oscuro"
-      />
-      <label for="tema-oscuro">
-        {% include "componentes/iconos/tema/luna.html" %}
-        {% include "componentes/iconos/tema/luna-lineas.html" %}
-        <span class="sr-only">Oscuro</span>
-      </label>
-
-      <input
-        class="sr-only"
-        id="tema-auto"
-        type="radio"
-        name="tema"
-        value="auto"
-      />
-      <label for="tema-auto">
-        {% include "componentes/iconos/tema/auto.html" %}
-        {% include "componentes/iconos/tema/auto-lineas.html" %}
-        <span class="sr-only">Automático</span>
-      </label>
+    <div
+      id="tema-selector"
+      class="fc gap-x-1.5 p-[.375rem_.75rem] rounded-4 m-[0_auto] w-max bg-#fff2 min-[800px]:mt-2 min-[800px]:mb-2"
+      role="group"
+    >
+      {% with c="flex items-center gap-x-2 size-6 p-1 aspect-square rounded-full bg-#fff2 text-primario-texto transition-[background-color,color] ease-in-out pover:bg-#fff3 [&>svg]:size-5 peer-focus-visible:bg-#fff3 peer-not-checked:[&>svg.lineas]:hidden peer-checked:(text-primario bg-primario-texto [&>svg:not(.lineas)]:hidden)"|expandir_variantes %}
+        {% include "componentes/cabecera/tema-opcion.html" with class=c id="tema-claro" value="claro" icono="sol" label="Claro" %}
+        {% include "componentes/cabecera/tema-opcion.html" with class=c id="tema-oscuro" value="oscuro" icono="luna" label="Oscuro" %}
+        {% include "componentes/cabecera/tema-opcion.html" with class=c id="tema-auto" value="auto" icono="auto" label="Automático" %}
+      {% endwith %}
     </div>
 
-    <hr />
+    {% partial hr %}
 
-    <ul>
-      <li>
-        <a class="link" href="{% url 'inicio' %}">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            class="icon icon-tabler icons-tabler-filled icon-tabler-home"
-          >
-            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-            <path
-              d="M12.707 2.293l9 9c.63 .63 .184 1.707 -.707 1.707h-1v6a3 3 0 0 1 -3 3h-1v-7a3 3 0 0 0 -2.824 -2.995l-.176 -.005h-2a3 3 0 0 0 -3 3v7h-1a3 3 0 0 1 -3 -3v-6h-1c-.89 0 -1.337 -1.077 -.707 -1.707l9 -9a1 1 0 0 1 1.414 0m.293 11.707a1 1 0 0 1 1 1v7h-4v-7a1 1 0 0 1 .883 -.993l.117 -.007z"
-            />
-          </svg>
-          <span>Inicio</span>
-        </a>
-      </li>
+    <ul class="min-[800px]:flex min-[800px]:h-full">
+      {% with c="group relative flex items-center gap-x-3 min-w-max w-full p-[.75em_1rem] transition-[background-color,color] ease-out [&>svg]:size-1.25em pover:(bg-primario-texto text-primario-600) aria-[current='page']:(bg-primario-texto text-primario-600 before:content-['']) before:(absolute right-0) max-[800px]:before:h-80% before:(w-6px rounded-t-3 bg-current) min-[800px]:(h-full p-[.375rem_1.25rem] before:left-0 before:bottom-0 before:w-60% before:h-5px before:ma before:rounded--t-3) min-[1100px]:p-[.5rem_1rem] min-[1100px]:max-[1280px]:(p-[.5rem_1rem] gap-2 text-[.9rem])"|expandir_variantes %}
+        {% with lc="min-[800px]:max-[1100px]:(absolute top-[calc(100%+2px)] left-50% min-w-max p-[.25rem_.5rem] rounded-b-campo opacity-0 whitespace-nowrap text-primario-500 bg-primario-texto transition-[opacity,box-shadow] box-shadow-[0_0_5px_1px_rgba(0,0,0,.3)] -transform-translate-x-50% pointer-events-none group-hover:opacity-100 group-focus:opacity-100)"|expandir_variantes %}
+          {% url 'inicio' as inicio %}
+          {% include "componentes/cabecera/link.html" with class=c label_class=lc href=inicio label="Inicio" icono="inicio" %}
 
-      {% if request.user.is_staff %}
-        <li>
-          <a href="/admin" class="link">
-            <svg
-              height="16"
-              viewBox="0 0 16 16"
-              width="16"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M8 0c-.69 0-1.843.265-2.928.56-1.11.3-2.229.655-2.887.87a1.54 1.54 0 0 0-1.044 1.262c-.596 4.477.787 7.795 2.465 9.99a11.777 11.777 0 0 0 2.517 2.453c.386.273.744.482 1.048.625.28.132.581.24.829.24s.548-.108.829-.24a7.159 7.159 0 0 0 1.048-.625 11.775 11.775 0 0 0 2.517-2.453c1.678-2.195 3.061-5.513 2.465-9.99a1.541 1.541 0 0 0-1.044-1.263 62.467 62.467 0 0 0-2.887-.87C9.843.266 8.69 0 8 0zm0 5a1.5 1.5 0 0 1 .5 2.915l.385 1.99a.5.5 0 0 1-.491.595h-.788a.5.5 0 0 1-.49-.595l.384-1.99A1.5 1.5 0 0 1 8 5z"
-                fill-rule="evenodd"
-              />
-            </svg>
-            <span>Panel</span>
-          </a>
-        </li>
-      {% endif %}
+          {% if request.user.is_staff %}
+            {% include "componentes/cabecera/link.html" with class=c label_class=lc href="/admin" label="Panel" icono="panel" %}
+          {% endif %}
 
-      {% if perms.estudios.view_profesor %}
-        <li>
-          <a class="link" href="{% url 'profesores' %}">
-            <svg viewBox="0 0 640 512" xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M208 352c-2.39 0-4.78.35-7.06 1.09C187.98 357.3 174.35 360 160 360c-14.35 0-27.98-2.7-40.95-6.91-2.28-.74-4.66-1.09-7.05-1.09C49.94 352-.33 402.48 0 464.62.14 490.88 21.73 512 48 512h224c26.27 0 47.86-21.12 48-47.38.33-62.14-49.94-112.62-112-112.62zm-48-32c53.02 0 96-42.98 96-96s-42.98-96-96-96-96 42.98-96 96 42.98 96 96 96zM592 0H208c-26.47 0-48 22.25-48 49.59V96c23.42 0 45.1 6.78 64 17.8V64h352v288h-64v-64H384v64h-76.24c19.1 16.69 33.12 38.73 39.69 64H592c26.47 0 48-22.25 48-49.59V49.59C640 22.25 618.47 0 592 0z"
-              />
-            </svg>
-            <span>Profesores</span>
-          </a>
-        </li>
-      {% endif %}
+          {% if perms.estudios.view_profesor %}
+            {% url 'profesores' as profesores %}
+            {% include "componentes/cabecera/link.html" with class=c label_class=lc href=profesores label="Profesores" icono="profesores" %}
+          {% endif %}
 
-      {% if perms.estudios.view_estudiante %}
-        <li>
-          <a class="link" href="/admin/estudios/estudiante">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M12,9a6,6,0,0,0-5.91,5H2v2H4v6H6V16H18v6h2V16h2V14H17.91A6,6,0,0,0,12,9Z"
-              />
-              <circle cx="12" cy="5" r="3" />
-            </svg>
-            <span>Estudiantes</span>
-          </a>
-        </li>
-      {% endif %}
+          {% if perms.estudios.view_estudiante %}
+            {% include "componentes/cabecera/link.html" with class=c label_class=lc href="/admin/estudios/estudiante" label="Estudiantes" icono="estudiantes" %}
+          {% endif %}
+          {#  #}
+          {% url 'notas' as notas %}
+          {% include "componentes/cabecera/link.html" with class=c label_class=lc href=notas label="Notas" icono="notas" %}
 
-      <li>
-        <a class="link" href="{% url 'notas' %}">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-          >
-            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-            <path
-              d="M12 2l.117 .007a1 1 0 0 1 .876 .876l.007 .117v4l.005 .15a2 2 0 0 0 1.838 1.844l.157 .006h4l.117 .007a1 1 0 0 1 .876 .876l.007 .117v9a3 3 0 0 1 -2.824 2.995l-.176 .005h-10a3 3 0 0 1 -2.995 -2.824l-.005 -.176v-14a3 3 0 0 1 2.824 -2.995l.176 -.005zm3 14h-6a1 1 0 0 0 0 2h6a1 1 0 0 0 0 -2m0 -4h-6a1 1 0 0 0 0 2h6a1 1 0 0 0 0 -2m-5 -4h-1a1 1 0 1 0 0 2h1a1 1 0 0 0 0 -2"
-            />
-            <path d="M19 7h-4l-.001 -4.001z" />
-          </svg>
-          <span>Notas</span>
-        </a>
-      </li>
-
-      {% if request.user.is_authenticated %}
-        <li>
-          <a class="link" href="{% url 'administrar' %}">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-            >
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <path
-                d="M4 11h4a1 1 0 0 1 1 1v8a1 1 0 0 1 -1 1h-2a3 3 0 0 1 -2.995 -2.824l-.005 -.176v-6a1 1 0 0 1 1 -1z"
-              />
-              <path
-                d="M21 12v6a3 3 0 0 1 -2.824 2.995l-.176 .005h-6a1 1 0 0 1 -1 -1v-8a1 1 0 0 1 1 -1h8a1 1 0 0 1 1 1z"
-              />
-              <path
-                d="M18 3a3 3 0 0 1 2.995 2.824l.005 .176v2a1 1 0 0 1 -1 1h-8a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h6z"
-              />
-              <path
-                d="M9 4v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-2a3 3 0 0 1 2.824 -2.995l.176 -.005h2a1 1 0 0 1 1 1z"
-              />
-            </svg>
-            <span>Administración</span>
-          </a>
-        </li>
-      {% endif %}
+          {% if request.user.is_authenticated %}
+            {% url 'administrar' as administrar %}
+            {% include "componentes/cabecera/link.html" with class=c label_class=lc href=administrar label="Administración" icono="admin" %}
+          {% endif %}
+        {% endwith %}
+      {% endwith %}
     </ul>
   </nav>
 
-  <div class="flex" style="align-items: center; gap: 1rem">
+  <div class="flex aic gap-x-4">
     <button
+      id="btn-nav"
+      class="group relative padding-3 rounded-campo transition-background-color ease-in-out min-[800px]:hidden"
       aria-expanded="false"
       aria-haspopup="menu"
       aria-label="Abrir menú"
-      id="btn-nav"
     >
       <svg
+        class="group-[[aria-expanded='true']]:-rotate-90 transition-[transform] duration-150ms ease-in-out"
         xmlns="http://www.w3.org/2000/svg"
         width="24"
         height="24"
@@ -222,16 +130,21 @@
       </svg>
     </button>
 
-    <details class="perfil menu" id="perfil-menu">
-      <summary class="flex-center" aria-label="Ver perfil">
+    <details class="group h-full max-[800px]:hidden" id="perfil-menu">
+      <summary
+        class="fc p-[.375rem_1.25rem] list-none transition-[background-color] min-[800px]:h-full [&>svg]:size-1.5em hover:bg-primario-600 group-open:bg-primario-texto group-open:text-primario-600"
+        aria-label="Ver perfil"
+      >
         {% comment %}
           se muestra un ícono diferente dependiendo de si está abierto
         {% endcomment %}
-        {% include "componentes/iconos/sin-foto-lineas.html" with class="filled" %}
-        {% include "componentes/iconos/sin-foto.html" with class="filled" %}
+        {% include "componentes/iconos/sin-foto-lineas.html" with class="group-open:hidden [&_path]:scale-120 [&_path]:translate-[-7.5%,-7.5%]" %}
+        {% include "componentes/iconos/sin-foto.html" with class="group-not-open:hidden" %}
       </summary>
 
-      <div class="contenido">
+      <div
+        class="absolute p-4 top-full right-0 border-#fff3 border-t-2 solid rounded-0 rounded-bl-caja bg-primario [&_figure_img]:size-min-8.5rem [&_figure_svg]:size-min-8.5rem [&_h2]:text-[1.2rem]"
+      >
         {% if request.user.is_authenticated %}
           {% include 'componentes/perfil/index.html' %}
         {% else %}

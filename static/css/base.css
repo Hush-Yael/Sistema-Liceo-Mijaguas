@@ -1,3 +1,7 @@
+:root {
+  --altura-header: 3.5rem;
+}
+
 /* asegurar que la pagina mida igual de alto que la ventana */
 html,
 body,
@@ -95,7 +99,6 @@ dialog::backdrop {
   }
 }
 
-
 .menu .contenido {
   position: absolute;
   width: max-content;
@@ -124,4 +127,10 @@ select option:checked {
   font-size: .875em;
   opacity: .7;
   text-transform: lowercase;
+}
+
+@media screen and (min-width: 1100px) {
+  :root {
+    --altura-header: 4rem;
+  }
 }

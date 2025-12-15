@@ -1,7 +1,12 @@
 {
-	"devDependencies": {
-		"oxlint": "^1.30.0",
-		"prettier": "^3.6.2",
-		"prettier-plugin-jinja-template": "^2.1.0"
-	}
+  "scripts": {
+    "dev": "unocss 'templates/**' '**/templates/**' --out-file 'static/css/uno.css' --watch & python run.py",
+    "build": "unocss 'templates/**' '**/templates/**' --out-file 'static/css/uno.css' --minify"
+  },
+  "devDependencies": {
+    "oxlint": "^1.30.0",
+    "prettier": "^3.6.2",
+    "prettier-plugin-jinja-template": "^2.1.0",
+    "unocss": "^66.5.10"
+  }
 }
