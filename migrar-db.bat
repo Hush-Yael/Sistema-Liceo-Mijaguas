@@ -1,1 +1,0 @@
-start "Migración DB - Liceo Mijaguas" ".\manejo.exe" migrate
