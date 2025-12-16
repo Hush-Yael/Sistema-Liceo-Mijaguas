@@ -7,7 +7,6 @@
 {% load widget_tweaks %}
 
 {% block cabeza %}
-  <link rel="stylesheet" href="{% static 'css/login.css' %}" />
   <link rel="stylesheet" href="{% static 'css/componentes/alerta.css' %}" />
   <script>
     document.addEventListener("DOMContentLoaded", () => {
@@ -19,41 +18,47 @@
 {% endblock %}
 
 {% block contenido %}
-  <img
-    id="logo-claro"
-    src="{% static 'img/logo-letras-negras.png' %}"
-    alt="logo"
-  />
-  <img
-    id="logo-oscuro"
-    src="{% static 'img/logo-letras-blancas.png' %}"
-    alt="logo"
-  />
+  <main class="flex-1 col fc gap-y-4">
+    <img
+      id="logo-claro"
+      class="dark:hidden size-200px m-[0_auto]"
+      src="{% static 'img/logo-letras-negras.png' %}"
+      alt="logo"
+    />
+    <img
+      id="logo-oscuro"
+      class="hidden dark:block size-200px m-[0_auto]"
+      src="{% static 'img/logo-letras-blancas.png' %}"
+      alt="logo"
+    />
 
-  <form class="caja" action="{% url 'login' %}" method="post">
-    {% csrf_token %}
+    <form
+      class="caja max-w-350px w-90% p-4"
+      action="{% url 'login' %}"
+      method="post"
+    >
+      {% csrf_token %}
 
-    <h1>Iniciar sesión</h1>
+      <h1 class="text-[1.5rem] font-bold tac mb-4">Iniciar sesión</h1>
 
-    <div class="col" style="gap: 1rem;">
-      {% for field in form %}
-        <div class="col" style="gap: 6px;">
-          {{ field.label_tag }}
-          {% render_field field class="elevado-2" %}
-        </div>
-      {% endfor %}
-    </div>
+      <div class="col gap-y-4">
+        {% for field in form %}
+          <div class="col gap-y-1.5">
+            {{ field.label_tag }}
+            {% render_field field class="elevado-2" %}
+          </div>
+        {% endfor %}
+      </div>
 
-    <button class="btn-primario btn-md w-100" style="margin-top: 1.75rem;">
-      Ingresar
-    </button>
+      <button class="btn-primario btn-md w-full mt-[1.75rem]">Ingresar</button>
 
-    <input type="hidden" name="next" value="/" />
-  </form>
+      <input type="hidden" name="next" value="/" />
+    </form>
 
-  {% if form.errors %}
-    {% with mensaje_alerta="Los datos ingresados no son correctos" %}
-      {% include "componentes/alerta.html" %}
-    {% endwith %}
-  {% endif %}
+    {% if form.errors %}
+      {% with mensaje_alerta="Los datos ingresados no son correctos" %}
+        {% include "componentes/alerta.html" %}
+      {% endwith %}
+    {% endif %}
+  </main>
 {% endblock %}
