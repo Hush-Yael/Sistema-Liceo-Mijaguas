@@ -3,15 +3,21 @@
 }
 
 /* asegurar que la pagina mida igual de alto que la ventana */
-html,
-body,
-main {
-  width: 100%;
+:root,
+body {
+  display: flex;
+  flex-direction: column;
 }
 
-html,
+:root {
+  min-height: 100%;
+  min-width: 320px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 body {
-  height: 100%;
+  flex-grow: 1;
 }
 
 button,
