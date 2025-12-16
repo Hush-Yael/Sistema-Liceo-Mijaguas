@@ -1,11 +1,4 @@
 const nav = document.getElementById("nav");
-const urlActual = nav.getAttribute("data-path-actual");
-const links = nav.querySelectorAll("a");
-
-links.forEach((link) => {
-  if (location.origin + urlActual.trim() === link.href)
-    link.setAttribute("aria-current", "page");
-});
 
 const menuSelector = document.getElementById("tema-selector");
 const auto = window.matchMedia("(prefers-color-scheme: dark)");

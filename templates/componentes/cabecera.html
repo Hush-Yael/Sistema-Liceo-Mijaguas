@@ -33,7 +33,6 @@
     id="nav"
     aria-hidden="true"
     inert
-    data-path-actual="{{ request.path }}"
   >
     {% if request.user.is_authenticated %}
       <div class="p-4 min-[800px]:hidden">
@@ -48,7 +47,6 @@
         Iniciar sesión
         <svg
           class="size-5"
-          stroke-width="0"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 512 512"
           height="1em"
@@ -80,30 +78,30 @@
     {% partial hr %}
 
     <ul class="min-[800px]:flex min-[800px]:h-full">
-      {% with c="group relative flex items-center gap-x-3 min-w-max w-full p-[.75em_1rem] transition-[background-color,color] ease-out [&>svg]:size-1.25em pover:(bg-primario-texto text-primario-600) aria-[current='page']:(bg-primario-texto text-primario-600 before:content-['']) before:(absolute right-0) before:bg-current max-[800px]:before:(h-80% w-6px rounded-l-3) min-[800px]:(h-full p-[.375rem_1.25rem] before:left-0 before:bottom-0 before:w-60% before:h-5px before:ma before:rounded-t-3) min-[1100px]:p-[.5rem_1rem] min-[1100px]:max-[1280px]:(p-[.5rem_1rem] gap-2 text-[.9rem])"|expandir_variantes %}
+      {% with p=request.path c="group relative flex items-center gap-x-3 min-w-max w-full p-[.75em_1rem] transition-[background-color,color] ease-out [&>svg]:size-1.25em pover:(bg-primario-texto text-primario-600) aria-[current='page']:(bg-primario-texto text-primario-600 before:content-['']) before:(absolute right-0) before:bg-current max-[800px]:before:(h-80% w-6px rounded-l-3) min-[800px]:(h-full p-[.375rem_1.25rem] before:left-0 before:bottom-0 before:w-60% before:h-5px before:ma before:rounded-t-3) min-[1100px]:p-[.5rem_1rem] min-[1100px]:max-[1280px]:(p-[.5rem_1rem] gap-2 text-[.9rem])"|expandir_variantes %}
         {% with lc="min-[800px]:max-[1100px]:(absolute top-[calc(100%+2px)] left-50% min-w-max p-[.25rem_.5rem] rounded-b-campo opacity-0 whitespace-nowrap text-primario-500 bg-primario-texto transition-[opacity,box-shadow] box-shadow-[0_0_5px_1px_rgba(0,0,0,.3)] -transform-translate-x-50% pointer-events-none group-hover:opacity-100 group-focus:opacity-100)"|expandir_variantes %}
           {% url 'inicio' as inicio %}
-          {% include "componentes/cabecera/link.html" with class=c label_class=lc href=inicio label="Inicio" icono="inicio" %}
+          {% include "componentes/cabecera/link.html" with class=c label_class=lc path_actual=p href=inicio label="Inicio" icono="inicio" %}
 
           {% if request.user.is_staff %}
-            {% include "componentes/cabecera/link.html" with class=c label_class=lc href="/admin" label="Panel" icono="panel" %}
+            {% include "componentes/cabecera/link.html" with class=c label_class=lc path_actual=p href="/admin" label="Panel" icono="panel" %}
           {% endif %}
 
           {% if perms.estudios.view_profesor %}
             {% url 'profesores' as profesores %}
-            {% include "componentes/cabecera/link.html" with class=c label_class=lc href=profesores label="Profesores" icono="profesores" %}
+            {% include "componentes/cabecera/link.html" with class=c label_class=lc path_actual=p href=profesores label="Profesores" icono="profesores" %}
           {% endif %}
 
           {% if perms.estudios.view_estudiante %}
-            {% include "componentes/cabecera/link.html" with class=c label_class=lc href="/admin/estudios/estudiante" label="Estudiantes" icono="estudiantes" %}
+            {% include "componentes/cabecera/link.html" with class=c label_class=lc path_actual=p href="/admin/estudios/estudiante" label="Estudiantes" icono="estudiantes" %}
           {% endif %}
           {#  #}
           {% url 'notas' as notas %}
-          {% include "componentes/cabecera/link.html" with class=c label_class=lc href=notas label="Notas" icono="notas" %}
+          {% include "componentes/cabecera/link.html" with class=c label_class=lc path_actual=p href=notas label="Notas" icono="notas" %}
 
           {% if request.user.is_authenticated %}
             {% url 'administrar' as administrar %}
-            {% include "componentes/cabecera/link.html" with class=c label_class=lc href=administrar label="Administración" icono="admin" %}
+            {% include "componentes/cabecera/link.html" with class=c label_class=lc path_actual=p href=administrar label="Administración" icono="admin" %}
           {% endif %}
         {% endwith %}
       {% endwith %}
