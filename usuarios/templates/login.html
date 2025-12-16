@@ -8,13 +8,6 @@
 
 {% block cabeza %}
   <link rel="stylesheet" href="{% static 'css/componentes/alerta.css' %}" />
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      if (window.location.search.includes("next="))
-        document.querySelector("input[name=next]").value =
-          window.location.search.split("next=")[1];
-    });
-  </script>
 {% endblock %}
 
 {% block contenido %}
@@ -50,9 +43,13 @@
         {% endfor %}
       </div>
 
-      <button class="btn-primario btn-md w-full mt-[1.75rem]">Ingresar</button>
+      <input
+        type="hidden"
+        name="next"
+        value="{% if request.GET.next %}{{ request.GET.next }}{% else %}/{% endif %}"
+      />
 
-      <input type="hidden" name="next" value="/" />
+      <button class="btn-primario btn-md w-full mt-[1.75rem]">Ingresar</button>
     </form>
 
     {% if form.errors %}
