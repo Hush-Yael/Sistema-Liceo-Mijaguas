@@ -1,0 +1,40 @@
+dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  width: 90%;
+  max-width: 600px;
+  max-height: 100%;
+  overflow: auto;
+  animation: aparecer-dialog .2s ease-in-out;
+}
+
+/* animación de cierre */
+@supports (transition-behavior: allow-discrete) {
+  dialog {
+    transition: opacity .2s ease-in-out, display .2s ease-in-out allow-discrete, transform .2s ease-in-out;
+  }
+
+  dialog:not([open]) {
+    opacity: 0;
+    transform: scale(.9);
+  }
+}
+
+dialog::backdrop {
+  background: #0005;
+}
+
+.oscuro dialog::backdrop {
+  background: #0008;
+}
+
+@keyframes aparecer-dialog {
+  from {
+    opacity: 0;
+    transform: scale(.9);
+  }
+}

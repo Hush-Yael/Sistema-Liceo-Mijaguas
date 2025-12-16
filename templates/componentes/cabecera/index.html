@@ -128,7 +128,7 @@
       ></span>
     </button>
 
-    <details class="group h-full max-[800px]:hidden">
+    <details class="menu group h-full max-[800px]:hidden">
       <summary
         class="fc p-[.375rem_1.25rem] list-none transition-[background-color] min-[800px]:h-full [&>svg]:size-1.5em hover:bg-primario-600 group-open:bg-primario-texto group-open:text-primario-600"
         aria-label="Ver perfil"
@@ -141,7 +141,7 @@
       </summary>
 
       <div
-        class="absolute p-4 top-full right-0 border-#fff3 border-t-2 solid rounded-0 rounded-bl-caja bg-primario [&_figure_img]:size-min-8.5rem [&_figure_svg]:size-min-8.5rem [&_h2]:text-[1.2rem]"
+        class="contenido-menu p-4 top-full right-0 border-#fff3 border-t-2 solid rounded-0 rounded-bl-caja bg-primario [&_figure_img]:size-min-8.5rem [&_figure_svg]:size-min-8.5rem [&_h2]:text-[1.2rem]"
       >
         {% if request.user.is_authenticated %}
           {% include 'componentes/perfil/index.html' %}

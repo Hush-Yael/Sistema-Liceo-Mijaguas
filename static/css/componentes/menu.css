@@ -1,0 +1,25 @@
+.menu {
+  position: relative;
+
+  &::details-content {
+    opacity: 0;
+
+    transition:
+      opacity .175s ease,
+      content-visibility .175s allow-discrete;
+  }
+
+
+  &[open]::details-content {
+    opacity: 1;
+  }
+}
+
+.contenido-menu {
+  position: absolute;
+  width: max-content;
+  border-radius: var(--radio-caja);
+  border: 1px solid var(--borde-caja);
+  background: var(--color-fondo-500);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .2);
+}
