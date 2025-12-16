@@ -1,10 +1,11 @@
 <hgroup id="datos-perfil">
-  <h2 id="nombre-usuario">
-    <span class="arroba">@</span>{{ request.user.username }}
+  <h2 class="font-bold text-[1.25rem]">
+    <span class="text-secundario-400 mr-1 text-[1.2em] dark:text-secundario-700"">@</span>{{ request.user.username }}
   </h2>
   {% if request.user.groups.count or request.user.is_superuser %}
-    <p id="rol">
+    <p class="italic text-texto-sutil lowercase">
       <svg
+        class="size-[1.25em]"
         xmlns="http://www.w3.org/2000/svg"
         width="24"
         height="24"

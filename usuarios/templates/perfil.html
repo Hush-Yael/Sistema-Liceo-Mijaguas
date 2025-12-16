@@ -3,6 +3,7 @@
 {% block titulo %}Perfil{% endblock titulo %}
 {% load static %}
 {% load widget_tweaks %}
+{% load grupos_variantes %}
 
 {% block cabeza %}
   <link rel="stylesheet" href="{% static 'css/perfil.css' %}" />
@@ -21,10 +22,14 @@
 {% endblock cabeza %}
 
 {% block contenido %}
-  <form method="post" enctype="multipart/form-data">
-    <header>
+  <main
+    class="{{ "col gap-y-4 w-full max-w-900px m-[0_auto] p-4 [&_hr]:w-full [&_hr]:border-[--borde-caja] min-[525px]:p-5 min-[600px]:p-8 "|expandir_variantes }}"
+  >
+    <header
+      class="col justify-between gap-2 col-span-3 min-[700px]:flex-row min-[700px]:aic"
+    >
       <hgroup>
-        <h1 id="titulo">Perfil de usuario</h1>
+        <h1 class="font-bold text-[1.25rem]">Perfil de usuario</h1>
         <p class="flex texto-sutil" id="fecha-registro">
           <span class="icono-redondo">
             <svg
@@ -41,7 +46,9 @@
         </p>
       </hgroup>
 
-      <div class="enlaces">
+      <div
+        class="flex gap-y-3 gap-x-1 aic flex-wrap min-[700px]:flex-col min-[700px]:items-start"
+      >
         <a class="link-secundario" href="{% url 'cambiar_contraseña' %}">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -58,6 +65,7 @@
         </a>
         <a class="link-primario" id="cerrar-sesion" href="{% url 'logout' %}">
           <svg
+            class="size-[.875rem] -scale-x-100 translate-y-1px"
             fill="none"
             height="24"
             viewBox="0 0 24 24"
@@ -84,28 +92,30 @@
 
     <hr />
 
-    <div class="datos-contenedor">
-      {% csrf_token %}
-      {% include "componentes/perfil/datos.html" %}
+    <form
+      method="post"
+      enctype="multipart/form-data"
+      class="{{ "col gap-y-4 [&>div]:col [&>div]:gap-y-4 min-[700px]:(grid grid-cols-[1fr_auto_1fr] gap-x-6)"|expandir_variantes }}"
+    >
+      <div>
+        {% csrf_token %}
+        {% include "componentes/perfil/datos.html" %}
 
-      <div class="img">
-        <div class="flex" id="foto-contenedor">
-          <div id="imagen-contenedor">
+        <div
+          class="{{ "col gap-y-4 min-[500px]:max-[700px]:(justify-center aic gap-x-8 flex-row) max-[700px]:mb-4 min-[900px]:gap-y-8 min-[900px]:flex-row"|expandir_variantes }}"
+        >
+          <div class="col aic gap-y-4 tac">
             {% if form.foto_perfil.errors %}
-              {% with error_id=form.foto_perfil.id_for_label|add:'-error' %}
-                {% render_field form.foto_perfil class="sr-only" aria-labelledby=error_id aria-invalid="true" %}
-              {% endwith %}
-
               {% for e in form.foto_perfil.errors %}
                 {% with error=e %}
                   <p class="input-error">{{ error }}</p>
                 {% endwith %}
               {% endfor %}
-            {% else %}
-              {% render_field form.foto_perfil class="sr-only" %}
             {% endif %}
 
-            <div class="imagen">
+            <div
+              class="{{ "relative max-w-max [&>img,&>svg]:(size-[11rem] min-w-max border-7 border-#fffa dark:border-#fff3 rounded-full object-cover italic tac lh-[11rem] shadow-[0_0_10px_#0001,_0_7px_15px_#0001] dark:shadow-none)"|expandir_variantes }}"
+            >
               {% if request.user.foto_perfil %}
                 <img
                   id="foto"
@@ -118,16 +128,24 @@
               <button
                 type="button"
                 id="ver-foto"
+                class="absolute top-0 left-0 right-0 bottom-0 border-3 border-#0000 rounded-full outline-none transition-[border-color] ease media-mouse:focus-visible:border-primario dark:media-mouse:focus-visible:border-primario-700 media-touch:focus-visible:border-primario-500"
                 aria-label="Ver foto de perfil"
               ></button>
             </div>
           </div>
 
-          <div id="foto-botones">
+          <div class="flex flex-wrap justify-center aic gap-2">
+            {% if form.foto_perfil.errors %}
+              {% with error_id=form.foto_perfil.id_for_label|add:'-error' %}
+                {% render_field form.foto_perfil class="sr-only peer" aria-labelledby=error_id aria-invalid="true" %}
+              {% endwith %}
+            {% else %}
+              {% render_field form.foto_perfil class="sr-only peer" %}
+            {% endif %}
+
             <label
               for="{{ form.foto_perfil.id_for_label }}"
-              id="subir-foto"
-              class="btn-primario foto-btn"
+              class="{{ "btn-primario p-[.375rem_.75rem] [&>svg]:size-[1.125em] cursor-pointer max-[500px]:text-[.9em] media-mouse:peer-focus:(outline-2 outline-#000 outline-offset-1) dark:media-mouse:peer-focus:outline-#fff"|expandir_variantes }}"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -150,7 +168,7 @@
 
             {% if request.user.foto_perfil %}
               <button
-                class="btn-borde foto-btn"
+                class="btn-borde p-[.375rem_.75rem] [&>svg]:size-[1.125em] max-[500px]:text-[.9em]"
                 id="borrar-foto"
                 hx-delete="{% url 'perfil' %}"
                 hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
@@ -186,49 +204,61 @@
           </div>
         </div>
       </div>
-    </div>
 
-    <hr />
+      <hr
+        class="{{ "min-[700px]:(h-full min-w-1px bg-[--borde-caja])"|expandir_variantes }}"
+      />
 
-    <div class="datos-contenedor" id="campos-contenedor">
-      <div id="datos" role="group">
-        <h2>Datos del usuario</h2>
+      <div>
+        <div
+          class="{{ "col flex gap-y-3 gap-x-1 min-[525px]:max-[700px]:[&>div]:(flex-wrap grid grid-cols-2 gap-x-4) max-[700px]:mb-4 "|expandir_variantes }}"
+          role="group"
+        >
+          <h2 class="font-bold text-[1.25rem]">Datos del usuario</h2>
 
-        <div>
-          {% for field in form %}
-            {% if field.id_for_label != 'id_foto_perfil' %}
-              <div class="campo">
-                {{ field.label_tag }}
-                {% if field.errors %}
-                  {% with error=field.id_for_label|add:'-error' %}
-                    {% render_field field class="elevado" aria-labelledby=error aria-invalid="true" %}
-                  {% endwith %}
-                {% else %}
-                  {% render_field field class="elevado" %}
-                {% endif %}
+          <div class="col gap-y-5 p-2 [&_label]:text-texto-sutil">
+            {% for field in form %}
+              {% if field.id_for_label != 'id_foto_perfil' %}
+                <div class="campo">
+                  {{ field.label_tag }}
+                  {% if field.errors %}
+                    {% with error=field.id_for_label|add:'-error' %}
+                      {% render_field field class="elevado" aria-labelledby=error aria-invalid="true" %}
+                    {% endwith %}
+                  {% else %}
+                    {% render_field field class="elevado" %}
+                  {% endif %}
 
-                {% if field.errors %}
-                  {% for error in field.errors %}
-                    <p id="{{ field.id_for_label }}-error" class="input-error">
-                      {{ error }}
-                    </p>
-                  {% endfor %}
-                {% endif %}
-              </div>
-            {% endif %}
-          {% endfor %}
+                  {% if field.errors %}
+                    {% for error in field.errors %}
+                      <p
+                        id="{{ field.id_for_label }}-error"
+                        class="input-error"
+                      >
+                        {{ error }}
+                      </p>
+                    {% endfor %}
+                  {% endif %}
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
         </div>
-      </div>
 
-      <button disabled id="submit" class="btn-primario btn-md">
-        Guardar cambios
-      </button>
-    </div>
-  </form>
+        <button
+          disabled
+          class="btn-primario btn-md mt-auto min-[700px]:ml-auto"
+        >
+          Guardar cambios
+        </button>
+      </div>
+    </form>
+  </main>
 
   <dialog id="img-dialog">
     <div>
       <img
+        class="aspect-square object-cover"
         {% if request.user.foto_perfil %}
           src="{{ request.user.foto_perfil.url }}"
         {% endif %}
