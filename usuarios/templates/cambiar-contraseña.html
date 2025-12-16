@@ -6,7 +6,6 @@
 {% load widget_tweaks %}
 
 {% block cabeza %}
-  <link rel="stylesheet" href="{% static 'css/cambiar-contraseña.css' %}" />
   <script defer src="{% static 'js/btn-subir-autohabilitar.js' %}"></script>
   {% if form.errors %}
     <script defer src="{% static 'js/limpiar-errores.js' %}"></script>
@@ -14,32 +13,37 @@
 {% endblock cabeza %}
 
 {% block contenido %}
-  <h1>Cambiar contraseña del usuario</h1>
-  <form method="post" class="caja">
-    {% csrf_token %}
-    {% for field in form %}
-      <div class="campo">
-        {{ field.label_tag }}
+  <main class="col fc flex-1 p-4">
+    <form method="post" class="caja col gap-4 w-full max-w-350px p-4">
+      <h1 class="text-[1.25rem] font-bold tac">
+        Cambiar contraseña del usuario
+      </h1>
+      {% csrf_token %}
+      {% for field in form %}
+        <div>
+          {{ field.label_tag }}
 
-        {% if field.errors %}
-          {% with error=field.id_for_label|add:'-error' %}
-            {% render_field field class="elevado-2" aria-labelledby=error aria-invalid="true" %}
-          {% endwith %}
-        {% else %}
-          {% render_field field class="elevado-2" %}
-        {% endif %}
+          {% if field.errors %}
+            {% with error=field.id_for_label|add:'-error' %}
+              {% render_field field class="elevado-2" aria-labelledby=error aria-invalid="true" %}
+            {% endwith %}
+          {% else %}
+            {% render_field field class="elevado-2" %}
+          {% endif %}
 
-        {% if field.errors %}
-          {% for error in field.errors %}
-            <p id="{{ field.id_for_label }}-error" class="input-error">
-              {{ error }}
-            </p>
-          {% endfor %}
-        {% endif %}
-      </div>
-    {% endfor %}
-    <button disabled class="btn-primario btn-md" id="submit">
-      Guardar cambios
-    </button>
-  </form>
+          {% if field.errors %}
+            {% for error in field.errors %}
+              <p id="{{ field.id_for_label }}-error" class="input-error">
+                {{ error }}
+              </p>
+            {% endfor %}
+          {% endif %}
+        </div>
+      {% endfor %}
+
+      <button disabled class="btn-primario btn-md mt-3" id="submit">
+        Guardar cambios
+      </button>
+    </form>
+  </main>
 {% endblock contenido %}
