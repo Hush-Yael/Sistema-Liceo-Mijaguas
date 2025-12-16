@@ -66,6 +66,7 @@
   <body hx-ext="head-support">
     {% include 'componentes/cabecera/index.html' %}
 
-    <main>{% block contenido %}{% endblock %}</main>
+    {% block contenido %}
+    {% endblock %}
   </body>
 </html>
