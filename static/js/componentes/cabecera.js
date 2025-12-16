@@ -1,60 +1,67 @@
-const nav = document.getElementById("nav");
+/** @import { Tema } from  '../aplicar-tema' */
+/** @import { State } from  '../van-1.6.0' */
 
-const menuSelector = document.getElementById("tema-selector");
-const auto = window.matchMedia("(prefers-color-scheme: dark)");
+const $nav = $id("nav");
+const $selectorTema = $id("tema-selector");
+const temaAutoMedia = window.matchMedia("(prefers-color-scheme: dark)");
 
-function cambiarTemaClase(oscuro) {
-  document.documentElement.classList.toggle("oscuro", oscuro);
-}
+/** @type {State<Tema>} */
+const tema = van.state(localStorage.getItem("tema"));
 
-const temaValores = ["claro", "oscuro", "auto"];
-let temaGuardado = localStorage.getItem("tema");
-if (!temaValores.includes(temaGuardado)) temaGuardado = "auto";
+/** @param {boolean} esOscuro */
+const cambiarTemaClase = (esOscuro) =>
+  document.documentElement.classList.toggle("oscuro", esOscuro);
 
-menuSelector.querySelector("input[value='" + temaGuardado + "']").checked =
-  true;
+// validar el tema seleccionado y aplicarlo al documento
+van.derive(() => {
+  let t = tema.val;
 
-function aplicarTema() {
+  if (!TEMA_VALORES.includes(t)) {
+    t = TEMA_POR_DEFECTO;
+    tema.val = t;
+  }
+
+  try {
+    $selectorTema.$("input[value='" + t + "']").checked = true;
+  } catch (e) {
+    if (!(e instanceof TypeError)) throw e;
+  }
+
+  localStorage.setItem("tema", t);
+
+  const esOscuro = t === "oscuro" || (t === "auto" && temaAutoMedia.matches);
+  if (!document.startViewTransition) cambiarTemaClase(esOscuro);
+  else document.startViewTransition(() => cambiarTemaClase(esOscuro));
+
+  // cambio automático si se selecciona 'auto'
+  if (tema === "auto")
+    temaAutoMedia.addEventListener
+      ? temaAutoMedia.addEventListener("change", cambioAutoTema)
+      : temaAutoMedia.addListener(cambioAutoTema);
+  // se elimina el cambio automático con otro valor
+  else
+    temaAutoMedia.removeEventListener
+      ? temaAutoMedia.removeEventListener("change", cambioAutoTema)
+      : temaAutoMedia.removeListener(cambioAutoTema);
+});
+
+$selectorTema.addEventListener("change", function () {
+  /** @type Tema */
+  let val;
+
   try {
     // valor seleccionado
-    let tema = menuSelector.querySelector("input:checked").value;
-
-    if (!temaValores.includes(tema)) {
-      tema = "auto";
-      try {
-        menuSelector.querySelector("input[value='auto']").checked = true;
-      } catch (error) {
-        console.error(error);
-      }
-    }
-
-    localStorage.setItem("tema", tema);
-
-    // cambio automático si se selecciona 'auto'
-    if (tema === "auto")
-      auto.addEventListener
-        ? auto.addEventListener("change", cambioAutoTema)
-        : auto.addListener(cambioAutoTema);
-    else
-      auto.removeEventListener
-        ? auto.removeEventListener("change", cambioAutoTema)
-        : auto.removeListener(cambioAutoTema);
-
-    const esOscuro = tema === "oscuro" || (tema === "auto" && auto.matches);
-
-    if (!document.startViewTransition) cambiarTemaClase(esOscuro);
-    else document.startViewTransition(() => cambiarTemaClase(esOscuro));
-
-    menuSelector.dataset.tema = tema;
-  } catch (error) {
-    // no se ha seleccionado ninguno, se selecciona 'auto' por defecto
-    if (error instanceof TypeError) {
-      document.getElementById("tema-auto").checked = true;
-      aplicarTema();
-    }
+    val = $selectorTema.$("input:checked").value;
+  } catch (e) {
+    // no se encontró el <input>, se usa el valor por defecto
+    if (e instanceof TypeError) val = TEMA_POR_DEFECTO;
+    else throw e;
   }
-}
 
+  tema.val = val;
+});
+
+/** @param {MediaQueryList} e */
 function cambioAutoTema(e) {
   if (!document.startViewTransition) cambiarTemaClase(e.matches);
   else document.startViewTransition(() => cambiarTemaClase(e.matches));
