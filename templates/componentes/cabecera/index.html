@@ -40,7 +40,6 @@
       </div>
     {% else %}
       <a
-        id="iniciar-sesion-menu"
         href="{% url 'login' %}"
         class="fc gap-x-1 btn p-1.5 m-[0_.5rem] mt-3 rounded-full bg-primario-texto text-primario font-500 min-[800px]:hidden"
       >
@@ -129,7 +128,7 @@
       ></span>
     </button>
 
-    <details class="group h-full max-[800px]:hidden" id="perfil-menu">
+    <details class="group h-full max-[800px]:hidden">
       <summary
         class="fc p-[.375rem_1.25rem] list-none transition-[background-color] min-[800px]:h-full [&>svg]:size-1.5em hover:bg-primario-600 group-open:bg-primario-texto group-open:text-primario-600"
         aria-label="Ver perfil"
