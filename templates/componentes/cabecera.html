@@ -1,6 +1,12 @@
 {% load static %}
 {% load partials %}
 {% load grupos_variantes %}
+{% load sekizai_tags %}
+
+{% addtoblock "cabeza" %}
+  <link rel="stylesheet" href="{% static 'css/componentes/cabecera.css' %}" />
+  <script defer src="{% static 'js/componentes/cabecera.js' %}"></script>
+{% endaddtoblock %}
 
 <header
   {% with class="sticky top-0 z-5 flex aic justify-between h-[--altura-header] min-h-[--altura-header] p-[0_1rem] border-b-2 border-#fff5 dark:border-#fff3 bg-primario text-primario-texto shadow-[0_5px_24px_0_#00000026] min-[800px]:(p-0 items-unset justify-between border-b-2 border-#fff5)"|expandir_variantes %}
@@ -22,10 +28,12 @@
   </h1>
 
   <nav
-    {% with c="z-5 right-0 bottom-0 col gap-4 border-#fff5 dark:border-#fff3 bg-primario transition-[transform] ease-in-out overflow-y-auto" escondible=" max-[800px]:(fixed w-175px min-h-[calc(100%-var(--altura-header))] translate-x-100% [&.abierto]:(border-l-2 translate-x-0 shadow-[-4px_5px_16px_#0003])))" lista=" min-[800px]:(flex-row-reverse h-full [&_hr:first-of-type]:hidden overflow-y-visible)" %}
+    {% with c="z-5 right-0 bottom-0 col gap-4 border-#fff5 dark:border-#fff3 bg-primario transition-[transform] ease-in-out overflow-y-auto" escondible=" max-[800px]:(fixed w-175px min-h-[calc(100%-var(--altura-header))] aria-hidden-translate-x-100% aria-[hidden=false]:(border-l-2 translate-x-0 shadow-[-4px_5px_16px_#0003]))))" lista=" min-[800px]:(flex-row-reverse h-full [&_hr:first-of-type]:hidden overflow-y-visible)" %}
       class="{{ c|add:escondible|add:lista|expandir_variantes }}"
     {% endwith %}
     id="nav"
+    aria-hidden="true"
+    inert
     data-path-actual="{{ request.path }}"
   >
     {% if request.user.is_authenticated %}
@@ -106,28 +114,22 @@
   <div class="flex aic gap-x-4">
     <button
       id="btn-nav"
-      class="group relative padding-3 rounded-campo transition-background-color ease-in-out min-[800px]:hidden"
+      {% with c="group relative h-[20px] w-[25px] rounded-campo transition-background-color ease-in-out min-[800px]:hidden [&>span]:(absolute left-0 block w-full h-10% opacity-100 bg-current rounded-20px transition-[transform,top,width,left] ease-in-out duration-250 origin-left-center)"|expandir_variantes %}
+        class="{{ c }}"
+      {% endwith %}
       aria-expanded="false"
       aria-haspopup="menu"
       aria-label="Abrir menú"
     >
-      <svg
-        class="group-[[aria-expanded='true']]:-rotate-90 transition-[transform] duration-150ms ease-in-out"
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-        <path d="M4 6h16" />
-        <path d="M7 12h13" />
-        <path d="M10 18h10" />
-      </svg>
+      <span
+        class="{{ "top-0 group-aria-expanded:(rotate-45 left-16%)"|expandir_variantes }}"
+      ></span>
+      <span
+        class="{{ "top-50% group-aria-expanded:(w-0 opacity-0)"|expandir_variantes }}"
+      ></span>
+      <span
+        class="{{ "top-100% group-aria-expanded:(-rotate-45 top-88% left-16%)"|expandir_variantes }}"
+      ></span>
     </button>
 
     <details class="group h-full max-[800px]:hidden" id="perfil-menu">
@@ -173,3 +175,9 @@
     </details>
   </div>
 </header>
+
+<div
+  aria-hidden="true"
+  id="nav-bg"
+  class="fixed left-0 right-0 top-0 bottom-0 z-4 bg-#0004 dark:bg-#0007 not-[[data-visible]]:hidden min-[800px]:hidden"
+></div>

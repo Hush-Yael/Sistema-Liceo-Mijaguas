@@ -1,0 +1,6 @@
+{
+  "allowJs": true,
+  "compilerOptions": {
+    "types": ["./global.d.ts"]
+  }
+}
