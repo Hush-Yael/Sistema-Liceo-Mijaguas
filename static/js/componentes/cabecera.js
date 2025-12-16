@@ -34,7 +34,7 @@ van.derive(() => {
   else document.startViewTransition(() => cambiarTemaClase(esOscuro));
 
   // cambio automático si se selecciona 'auto'
-  if (tema === "auto")
+  if (t === "auto")
     temaAutoMedia.addEventListener
       ? temaAutoMedia.addEventListener("change", cambioAutoTema)
       : temaAutoMedia.addListener(cambioAutoTema);
