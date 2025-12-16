@@ -60,12 +60,13 @@ function cambioAutoTema(e) {
   else document.startViewTransition(() => cambiarTemaClase(e.matches));
 }
 
-menuSelector.addEventListener("change", aplicarTema);
-
-const bg = document.getElementById("nav-bg");
-const abierto = van.state(false);
+const $btnNav = $id("btn-nav");
+const $navBg = $id("nav-bg");
+const anchoMedia = window.matchMedia("(min-width: 800px)");
+const abierto = van.state(anchoMedia.matches);
 
 function cerrarPorClickAfuera(e) {
+  /** @type { Element | null } */
   const padre = e.target.closest("#nav");
 
   if (padre === null) {
@@ -75,14 +76,22 @@ function cerrarPorClickAfuera(e) {
   }
 }
 
-const btnNav = document.getElementById("btn-nav");
-btnNav.onclick = () => (abierto.val = !abierto.oldVal);
+$btnNav.onclick = () => (abierto.val = !abierto.oldVal);
 
+/** @param {boolean} abierto */
+function cambiarEstadoMenu(abierto) {
+  $btnNav.setAttribute("aria-expanded", abierto);
+  $nav.setAttribute("aria-hidden", !abierto);
+  $nav.toggleAttribute("inert", !abierto);
+  $navBg.toggleAttribute("data-visible", abierto);
+}
+
+// hacer cambios al abrir o cerrar el menú
 van.derive(() => {
-  btnNav.setAttribute("aria-expanded", abierto.val);
-  nav.setAttribute("aria-hidden", !abierto.val);
-  nav.toggleAttribute("inert", !abierto.val);
-  bg.toggleAttribute("data-visible", abierto.val);
-
+  cambiarEstadoMenu(abierto.val);
   if (abierto.val) window.addEventListener("mousedown", cerrarPorClickAfuera);
 });
+
+anchoMedia.addEventListener
+  ? anchoMedia.addEventListener("change", (e) => cambiarEstadoMenu(e.matches))
+  : anchoMedia.addListener((e) => cambiarEstadoMenu(e.matches));
