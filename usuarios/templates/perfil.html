@@ -14,7 +14,7 @@
 
   <script defer src="{% static 'js/htmx.min.js' %}"></script>
   <script defer src="{% static 'js/alpine.min.js' %}"></script>
-  <script type="application/json">{{ datos_iniciales }}</script>
+  <script type="application/json">{{ datos_iniciales|safe }}</script>
 
   {% if form.errors %}
     <script defer src="{% static 'js/limpiar-errores.js' %}"></script>
