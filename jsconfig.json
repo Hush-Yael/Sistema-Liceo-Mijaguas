@@ -1,7 +1,7 @@
 {
   "allowJs": true,
   "compilerOptions": {
-    "lib": ["ES2015"],
+    "lib": ["ES2015", "DOM"],
     "types": ["./global.d.ts"]
   }
 }
