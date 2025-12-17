@@ -3,7 +3,8 @@ main {
   flex-direction: column;
   row-gap: 1rem;
   padding: 1rem;
-  height: calc(100% - var(--altura-header));
+  max-height: calc(100vh - var(--altura-header));
+  max-height: calc(100dvh - var(--altura-header));
   width: 100%;
   max-width: 800px;
   margin: 0 auto;

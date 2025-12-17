@@ -72,7 +72,7 @@
   font-size: .9rem;
   background: var(--color-secundario-500);
   color: var(--color-texto-secundario);
-  animation: aparecer .3s ease-in-out;
+  animation: aparecer-dialog .3s ease-in-out;
 }
 
 .acciones #cantidad {

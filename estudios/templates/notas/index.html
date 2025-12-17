@@ -3,7 +3,6 @@
   Notas
 {% endblock titulo %}
 {% load static %}
-{% load utilidades_diccionario %}
 {% load utilidades_parametros %}
 
 {% block cabeza %}
@@ -32,90 +31,92 @@
 {% endblock cabeza %}
 
 {% block contenido %}
-  <form
-    id="filtros"
-    class="incluido-filtros"
-    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-    hx-trigger="change delay:800ms"
-    hx-post="{% url 'notas_tabla' %}"
-    hx-indicator="#indicador-busqueda"
-    hx-target="#tabla-y-paginacion"
-    hx-include=".incluido-filtros"
-    aria-label="Filtros"
-  >
-    <div>
-      {% with post="/guardado_filtro_cookie/" %}
-        {% include "notas/lista-filtros.html" with cualquiera_label="Todas" label="Secciones" campo=form.notas_secciones %}
-        {#  #}
-        {% include "notas/lista-filtros.html" with cualquiera_label="Todas" label="Materias" campo=form.notas_materias %}
-        {#  #}
-        {% include "notas/lista-filtros.html" with label="Lapso" campo=form.notas_lapsos %}
-      {% endwith %}
-    </div>
-  </form>
-
-  <div class="contenido" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-    <div class="estados">
-      {% if cantidad_años == 0 %}
-        {% include "notas/mensaje-error.html" with mensaje="No se han añadido años académicos" %}
-      {% endif %}
-
-      {% if cantidad_lapsos == 0 %}
-        {% include "notas/mensaje-error.html" with mensaje="No se han añadido lapsos académicos" %}
-      {% endif %}
-
-      {#  #}
-      {% include "notas/estado.html" with label="Totales" dato=total icono='<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M12 2l.117 .007a1 1 0 0 1 .876 .876l.007 .117v4l.005 .15a2 2 0 0 0 1.838 1.844l.157 .006h4l.117 .007a1 1 0 0 1 .876 .876l.007 .117v9a3 3 0 0 1 -2.824 2.995l-.176 .005h-10a3 3 0 0 1 -2.995 -2.824l-.005 -.176v-14a3 3 0 0 1 2.824 -2.995l.176 -.005zm3 14h-6a1 1 0 0 0 0 2h6a1 1 0 0 0 0 -2m0 -4h-6a1 1 0 0 0 0 2h6a1 1 0 0 0 0 -2m-5 -4h-1a1 1 0 1 0 0 2h1a1 1 0 0 0 0 -2"/><path d="M19 7h-4l-.001 -4.001z" /></svg>' %}
-      {#  #}
-      {% include "notas/estado.html" with label="En el conjunto" dato='<span id="conjunto-cantidad" aria-label="cargando">...</span>' icono='<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 10a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M6 4v4" /><path d="M6 12v8" /><path d="M10 16a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M12 4v10" /><path d="M12 18v2" /><path d="M16 7a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M18 4v1" /><path d="M18 9v11" /></svg>' %}
-      {#  #}
-      {% include "notas/estado.html" with label="Resultados" dato='<span id="resultados-cantidad" aria-label="cargando">...</span>' icono='<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>' %}
-
-      <div role="status" class="caja htmx-indicator" id="indicador-busqueda">
-        <div class="indicador"></div>
-        Buscando...
+  <main>
+    <form
+      id="filtros"
+      class="incluido-filtros"
+      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+      hx-trigger="change delay:800ms"
+      hx-post="{% url 'notas_tabla' %}"
+      hx-indicator="#indicador-busqueda"
+      hx-target="#tabla-y-paginacion"
+      hx-include=".incluido-filtros"
+      aria-label="Filtros"
+    >
+      <div>
+        {% with post="/guardado_filtro_cookie/" %}
+          {% include "notas/lista-filtros.html" with cualquiera_label="Todas" label="Secciones" campo=form.notas_secciones %}
+          {#  #}
+          {% include "notas/lista-filtros.html" with cualquiera_label="Todas" label="Materias" campo=form.notas_materias %}
+          {#  #}
+          {% include "notas/lista-filtros.html" with label="Lapso" campo=form.notas_lapsos %}
+        {% endwith %}
       </div>
-    </div>
+    </form>
 
-    {% if total < 1 %}
-      <div role="alert" id="msg-vacio" class="mensaje-tabla caja">
-        <span class="decoracion-circular">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-          >
-            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-            <path
-              d="M12 2l.117 .007a1 1 0 0 1 .876 .876l.007 .117v4l.005 .15a2 2 0 0 0 1.838 1.844l.157 .006h4l.117 .007a1 1 0 0 1 .876 .876l.007 .117v9a3 3 0 0 1 -2.824 2.995l-.176 .005h-10a3 3 0 0 1 -2.995 -2.824l-.005 -.176v-14a3 3 0 0 1 2.824 -2.995l.176 -.005zm2.571 15.18a4.5 4.5 0 0 0 -5.142 0a1 1 0 1 0 1.142 1.64a2.5 2.5 0 0 1 2.858 0a1 1 0 0 0 1.142 -1.64m-4.565 -5.18h-.011a1 1 0 0 0 0 2h.01a1 1 0 0 0 0 -2m4 0h-.011a1 1 0 0 0 0 2h.01a1 1 0 0 0 0 -2"
-            />
-            <path d="M19 7h-4l-.001 -4.001z" />
-          </svg>
-        </span>
+    <div class="contenido" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+      <div class="estados">
+        {% if cantidad_años == 0 %}
+          {% include "notas/mensaje-error.html" with mensaje="No se han añadido años académicos" %}
+        {% endif %}
 
-        <h2>No se han añadido notas</h2>
-      </div>
-    {% else %}
-      <div class="tabla-contenido">
-        {% include "notas/cabecera-tabla.html" %}
+        {% if cantidad_lapsos == 0 %}
+          {% include "notas/mensaje-error.html" with mensaje="No se han añadido lapsos académicos" %}
+        {% endif %}
 
-        <div
-          id="tabla-y-paginacion"
-          hx-trigger="load"
-          hx-post="{% url 'notas_tabla' %}"
-          hx-include=".incluido-filtros"
-          style="margin: auto;"
-        >
-          <div role="status" class="mensaje-tabla htmx-indicator">
-            <div
-              class="indicador"
-              style="min-width: 3em; min-height: 3em; border-width: 5px;"
-            ></div>
-            <h2>Cargando datos...</h2>
-          </div>
+        {#  #}
+        {% include "notas/estado.html" with label="Totales" dato=total icono='<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M12 2l.117 .007a1 1 0 0 1 .876 .876l.007 .117v4l.005 .15a2 2 0 0 0 1.838 1.844l.157 .006h4l.117 .007a1 1 0 0 1 .876 .876l.007 .117v9a3 3 0 0 1 -2.824 2.995l-.176 .005h-10a3 3 0 0 1 -2.995 -2.824l-.005 -.176v-14a3 3 0 0 1 2.824 -2.995l.176 -.005zm3 14h-6a1 1 0 0 0 0 2h6a1 1 0 0 0 0 -2m0 -4h-6a1 1 0 0 0 0 2h6a1 1 0 0 0 0 -2m-5 -4h-1a1 1 0 1 0 0 2h1a1 1 0 0 0 0 -2"/><path d="M19 7h-4l-.001 -4.001z" /></svg>' %}
+        {#  #}
+        {% include "notas/estado.html" with label="En el conjunto" dato='<span id="conjunto-cantidad" aria-label="cargando">...</span>' icono='<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 10a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M6 4v4" /><path d="M6 12v8" /><path d="M10 16a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M12 4v10" /><path d="M12 18v2" /><path d="M16 7a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M18 4v1" /><path d="M18 9v11" /></svg>' %}
+        {#  #}
+        {% include "notas/estado.html" with label="Resultados" dato='<span id="resultados-cantidad" aria-label="cargando">...</span>' icono='<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>' %}
+
+        <div role="status" class="caja htmx-indicator" id="indicador-busqueda">
+          <div class="indicador"></div>
+          Buscando...
         </div>
       </div>
-    {% endif %}
-  </div>
+
+      {% if total < 1 %}
+        <div role="alert" id="msg-vacio" class="mensaje-tabla caja">
+          <span class="decoracion-circular">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path
+                d="M12 2l.117 .007a1 1 0 0 1 .876 .876l.007 .117v4l.005 .15a2 2 0 0 0 1.838 1.844l.157 .006h4l.117 .007a1 1 0 0 1 .876 .876l.007 .117v9a3 3 0 0 1 -2.824 2.995l-.176 .005h-10a3 3 0 0 1 -2.995 -2.824l-.005 -.176v-14a3 3 0 0 1 2.824 -2.995l.176 -.005zm2.571 15.18a4.5 4.5 0 0 0 -5.142 0a1 1 0 1 0 1.142 1.64a2.5 2.5 0 0 1 2.858 0a1 1 0 0 0 1.142 -1.64m-4.565 -5.18h-.011a1 1 0 0 0 0 2h.01a1 1 0 0 0 0 -2m4 0h-.011a1 1 0 0 0 0 2h.01a1 1 0 0 0 0 -2"
+              />
+              <path d="M19 7h-4l-.001 -4.001z" />
+            </svg>
+          </span>
+
+          <h2>No se han añadido notas</h2>
+        </div>
+      {% else %}
+        <div class="tabla-contenido">
+          {% include "notas/cabecera-tabla.html" %}
+
+          <div
+            id="tabla-y-paginacion"
+            hx-trigger="load"
+            hx-post="{% url 'notas_tabla' %}"
+            hx-include=".incluido-filtros"
+            style="margin: auto;"
+          >
+            <div role="status" class="mensaje-tabla htmx-indicator">
+              <div
+                class="indicador"
+                style="min-width: 3em; min-height: 3em; border-width: 5px;"
+              ></div>
+              <h2>Cargando datos...</h2>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </main>
 {% endblock contenido %}

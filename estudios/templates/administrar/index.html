@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
-
-{% block titulo %}Inicio{% endblock titulo %}
+{% load static %}
+{% block titulo %}Administrar{% endblock titulo %}
 
 {% block cabeza %}
   <link rel="stylesheet" href="{% static 'css/administrar/index.css' %}" />
@@ -18,6 +18,7 @@
 
   <script defer src="{% static 'js/htmx.min.js' %}"></script>
   <script defer src="{% static 'js/htmx-ext-head.js' %}"></script>
+  <script defer src="{% static 'js/alpine.min.js' %}"></script>
   <script defer src="{% static 'js/componentes/pestañas.js' %}"></script>
   <script>
     const media = window.matchMedia("(min-width: 700px)");
@@ -45,44 +46,39 @@
 {% endblock cabeza %}
 
 {% block contenido %}
-  {% load static %}
-  {% load sekizai_tags %}
+  <main>
+    {# se cambia el título y la descripción dependiendo de la pestaña #}
+    <hgroup id="titulo-y-desc">
+      <h1 class="titulo">Panel de administración</h1>
+      <p class="desc">Gestiona las diferentes secciones del sistema</p>
+    </hgroup>
 
-  {% addtoblock "cabeza" %}
-    <script defer src="{% static 'js/alpine.min.js' %}"></script>
-  {% endaddtoblock %}
+    {% with contenido_id="contenido" %}
+      {% url 'vista_pestaña_admin_completa' as pestaña_url %}
+      {# lista de pestañas para navegar entre secciones del administrador #}
+      {% include "componentes/pestañas.html" with class="borde-izquierdo" id="pestañas" lista_pestañas=lista_pestañas contenido_id=contenido_id hx_get=pestaña_url hx_indicator="#pestaña-indicador" %}
 
-  {# se cambia el título y la descripción dependiendo de la pestaña #}
-  <hgroup id="titulo-y-desc">
-    <h1 class="titulo">Panel de administración</h1>
-    <p class="desc">Gestiona las diferentes secciones del sistema</p>
-  </hgroup>
+      {# indicador de carga del contenido de la pestaña. Al estar activo oculta el contenido actual #}
+      <div id="pestaña-indicador" role="status" class="htmx-indicator">
+        <div class="indicador"></div>
+        <p>Cargando pestaña...</p>
+      </div>
 
-  {% with contenido_id="contenido" %}
-    {% url 'vista_pestaña_admin_completa' as pestaña_url %}
-    {# lista de pestañas para navegar entre secciones del administrador #}
-    {% include "componentes/pestañas.html" with class="borde-izquierdo" id="pestañas" lista_pestañas=lista_pestañas contenido_id=contenido_id hx_get=pestaña_url hx_indicator="#pestaña-indicador" %}
+      {# se carga el contenido de la pestaña dinámicamente mediante HTMX, de acuerdo a la seleccionada #}
+      <section
+        id="{{ contenido_id }}"
+        class="contenido"
+        aria-live="polite"
+      ></section>
 
-    {# indicador de carga del contenido de la pestaña. Al estar activo oculta el contenido actual #}
-    <div id="pestaña-indicador" role="status" class="htmx-indicator">
-      <div class="indicador"></div>
-      <p>Cargando pestaña...</p>
-    </div>
-
-    {# se carga el contenido de la pestaña dinámicamente mediante HTMX, de acuerdo a la seleccionada #}
-    <section
-      id="{{ contenido_id }}"
-      class="contenido"
-      aria-live="polite"
-    ></section>
-
-    <div
-      hx-get="{{ pestaña_url }}"
-      hx-trigger="load"
-      hx-indicator="#pestaña-indicador"
-      hx-target="#{{ contenido_id }}"
-      type="hidden"
-      hx-vals='{"pestaña": "{{ pestaña_inicial }}"}'
-    />
-  {% endwith %}
+      <div
+        hx-get="{{ pestaña_url }}"
+        hx-trigger="load"
+        hx-indicator="#pestaña-indicador"
+        hx-target="#{{ contenido_id }}"
+        type="hidden"
+        hx-vals='{"pestaña": "{{ pestaña_inicial }}"}'
+      />
+    {% endwith %}
+  </main>
 {% endblock contenido %}
