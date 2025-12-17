@@ -3,21 +3,11 @@
     {% if request.user.foto_perfil %}
       <img
         src="{{ request.user.miniatura_foto.url }}"
-        class="
-          size-min-6rem
-          lh-6rem
-          aspect-square
-          italic
-          tac
-          rounded-full
-          object-cover
-          outline-1
-          outline-#fff2
-        "
+        class="foto-perfil size-min-6rem lh-6rem aspect-square italic tac rounded-full object-cover outline-1 outline-#fff2"
         alt="foto del perfil"
       />
     {% else %}
-      {% include "componentes/iconos/sin-foto.html" with class="min-w-max" %}
+      {% include "componentes/iconos/sin-foto.html" with class="foto-perfil min-w-max" %}
     {% endif %}
 
     <figcaption>

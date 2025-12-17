@@ -5,6 +5,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 
 from django.http import HttpRequest, HttpResponse
+from django.utils.html import json
 
 from usuarios.forms import FormularioPerfil
 
@@ -33,25 +34,30 @@ def perfil(request: HttpRequest):
             return render(request, "sin-fotos.html")
         except Exception as e:
             print("Error al eliminar la foto", e)
-            return HttpResponse("Error al eliminar la foto", status=204)
+            return HttpResponse("Error al eliminar la foto", status=204)  # type: ignore
     else:
-        # se guarda, para evitar que se muestre uno cambiado, a pesar de fallar la validación
-        usuario = request.user.username
+        form = FormularioPerfil(instance=request.user)  # type: ignore
+        # se guardan los datos iniciales, para evitar que usar los que se intentaron cambiar al fallar la validación
+        datos_iniciales = json.dumps(
+            {
+                **form.initial,
+                "foto_perfil": request.user.foto_perfil.url,  # type: ignore
+            }
+        )
 
         if request.method == "POST":
             form = FormularioPerfil(request.POST, request.FILES, instance=request.user)  # type: ignore
 
             if form.is_valid():
                 form.save()
-                # se asegura de que se actualice el nombre de usuario
-                usuario = request.user.username
-        else:
-            form = FormularioPerfil(instance=request.user)  # type: ignore
 
         return render(
             request,
             "perfil.html",
-            {"form": form, "usuario": usuario},
+            {
+                "form": form,
+                "datos_iniciales": datos_iniciales,
+            },
         )
 
 

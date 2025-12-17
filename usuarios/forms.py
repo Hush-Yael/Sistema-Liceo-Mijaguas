@@ -9,8 +9,8 @@ def validarTamaño(foto: forms.ImageField):
     if foto.size > 5242880:  # type: ignore
         raise forms.ValidationError("El archivo es demasiado grande.")
 
-    alto = foto.image.height
-    ancho = foto.image.width
+    alto = foto.image.height  # type: ignore
+    ancho = foto.image.width  # type: ignore
 
     if alto < tamaño_minimo:
         raise forms.ValidationError(

@@ -1,0 +1,48 @@
+{% load grupos_variantes %}
+{% load widget_tweaks %}
+
+<section>
+  <h2 id="datos-label" class="sr-only">Datos del usuario</h2>
+
+  <div
+    role="group"
+    class="col gap-y-5 [&_label]:text-texto-sutil caja p-3 px-4"
+  >
+    {% csrf_token %}
+
+    {% for field in form %}
+      {% if field.id_for_label != 'id_foto_perfil' %}
+        <div>
+          {{ field.label_tag }}
+          {% if field.errors %}
+            {% with error=field.id_for_label|add:'-error' %}
+              {% render_field field class="elevado-2" ::readonly="!editando" aria-errormessage=error aria-invalid="true" %}
+            {% endwith %}
+          {% else %}
+            {% render_field field class="elevado-2" ::readonly="!editando" %}
+          {% endif %}
+
+          {% if field.errors %}
+            {% for error in field.errors %}
+              <p id="{{ field.id_for_label }}-error" class="input-error">
+                {{ error }}
+              </p>
+            {% endfor %}
+          {% endif %}
+        </div>
+      {% endif %}
+    {% endfor %}
+
+    <p class="pl-1 italic text-sm" role="status">
+      {% if request.user.is_superuser %}
+        <span class="text-texto-sutil">Usted es un:</span>
+        superusuario
+      {% else %}
+        <span class="text-texto-sutil">Usted fue asignado como:</span>
+        {% for grupo in request.user.groups.all %}
+          {{ grupo }}{% if not forloop.last %},{% endif %}
+        {% endfor %}
+      {% endif %}
+    </p>
+  </div>
+</section>
