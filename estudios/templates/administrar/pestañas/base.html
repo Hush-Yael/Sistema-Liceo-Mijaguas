@@ -113,32 +113,35 @@
         }
       "
     >
-      {% if puede_añadir %}
-        <li class="lista-opciones-li">
-          <div role="group" id="lista-opciones">
-            <button @click="alternar_abiertas()">
-              <svg
-                style="margin-right: .25rem"
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path
-                  d="M12.034 12.681a.498.498 0 0 1 .647-.647l9 3.5a.5.5 0 0 1-.033.943l-3.444 1.068a1 1 0 0 0-.66.66l-1.067 3.443a.5.5 0 0 1-.943.033z"
-                />
-                <path
-                  d="M21 11V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6"
-                />
-              </svg>
-              <span
-                x-text="!acciones_abiertas ? 'Seleccionar' : 'Cancelar seleccion' "
-              ></span>
-            </button>
+      <li class="lista-opciones-li">
+        <div role="group" id="lista-opciones">
+          <button @click="alternar_abiertas()">
+            <svg
+              style="margin-right: .25rem"
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M12.034 12.681a.498.498 0 0 1 .647-.647l9 3.5a.5.5 0 0 1-.033.943l-3.444 1.068a1 1 0 0 0-.66.66l-1.067 3.443a.5.5 0 0 1-.943.033z"
+              />
+              <path
+                d="M21 11V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6"
+              />
+            </svg>
+            <span
+              x-text="!acciones_abiertas ? 'Seleccionar' : 'Cancelar seleccion' "
+            >
+              Seleccionar
+            </span>
+          </button>
+
+          {% if puede_añadir %}
             <button class="añadir" onclick="mostrarModal()">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -156,9 +159,9 @@
               </svg>
               Añadir {{ nombre_objeto|default:'objeto' }}
             </button>
-          </div>
-        </li>
-      {% endif %}
+          {% endif %}
+        </div>
+      </li>
 
       {% for objeto in lista_objetos %}
         {# en la plantilla extendida se indica el parcial correspondiente del objeto a mostrar en la lista, ya que obviamente no puede ser creado aquí; este bloque debe ser implementado en las plantillas hijas para mostrar cada objeto #}
