@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     "template_partials",
     "usuarios",
     "estudios",
+    "django_cleanup.apps.CleanupConfig",
 ]
 
 MIDDLEWARE = [

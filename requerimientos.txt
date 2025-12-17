@@ -2,11 +2,16 @@ altgraph==0.17.4
 asgiref==3.8.1
 backports.zoneinfo==0.2.1
 colorama==0.4.6
-django==4.2.25
+Django==4.2.25
+django-browser-reload==1.15.0
+django-classy-tags==4.1.0
+django-cleanup==9.0.0
+django-sekizai==4.1.0
+django-template-partials==25.3
 django-unfold==0.46.0
 django-widget-tweaks==1.5.0
 Faker==35.2.2
-importlib-metadata==8.5.0
+importlib_metadata==8.5.0
 netifaces==0.11.0
 packaging==25.0
 pefile==2023.2.7
@@ -19,6 +24,6 @@ python-dotenv==1.0.1
 pywin32-ctypes==0.2.3
 six==1.17.0
 sqlparse==0.5.3
-typing-extensions==4.13.2
+typing_extensions==4.13.2
 tzdata==2025.2
 zipp==3.20.2

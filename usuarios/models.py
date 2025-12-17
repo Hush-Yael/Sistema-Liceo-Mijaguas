@@ -5,9 +5,9 @@ from django.core.files import File
 from django.db import models
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
-AbstractUser._meta.get_field("email").verbose_name = "Correo"
-AbstractUser._meta.get_field("is_staff").verbose_name = "Puede ingresar"
-AbstractUser._meta.get_field("date_joined").verbose_name = "Fecha de ingreso"
+AbstractUser._meta.get_field("email").verbose_name = "Correo"  # type: ignore
+AbstractUser._meta.get_field("is_staff").verbose_name = "Puede ingresar"  # type: ignore
+AbstractUser._meta.get_field("date_joined").verbose_name = "Fecha de ingreso"  # type: ignore
 
 
 class User(AbstractUser):
@@ -23,22 +23,17 @@ class User(AbstractUser):
 
     def save(self, *args, **kwargs):
         foto = self.foto_perfil
-        usuario = User.objects.get(id=self.id)  # type: ignore
-
-        # elimina las fotos anteriores al subirse una nueva
-        if usuario.foto_perfil != foto:
-            usuario.foto_perfil.delete(save=False)
-
-            if hasattr(usuario, "miniatura_foto") and usuario.miniatura_foto:
-                usuario.miniatura_foto.delete(save=False)
-
-        self.foto_perfil = self.reducir_tamaño_imagen(foto)
+        if foto:
+            self.foto_perfil = self.reducir_tamaño_imagen(foto)
 
         super(User, self).save(*args, **kwargs)
 
     def reducir_tamaño_imagen(self, foto):
         bytes_io = BytesIO()
-        img = Image.open(foto)
+        try:
+            img = Image.open(foto)
+        except Exception:
+            return foto
 
         alto = img.height
         ancho = img.width
@@ -108,13 +103,3 @@ class User(AbstractUser):
             self.miniatura_foto = archivo_miniatura
 
         return new_image
-
-    # Eliminar archivos de imagen antes de eliminar la instancia
-    def delete(self, *args, **kwargs):
-        if hasattr(self, "foto_perfil") and self.foto_perfil:
-            self.foto_perfil.delete(save=False)
-
-        if hasattr(self, "miniatura_foto") and self.miniatura_foto:
-            self.miniatura_foto.delete(save=False)
-
-        super().delete(*args, **kwargs)
