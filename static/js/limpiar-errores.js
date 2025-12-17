@@ -1,22 +1,30 @@
 let valorErrorActual = "";
 
-document.querySelector("form").addEventListener(
-  "focus",
-  (e) => {
-    const elemento = e.target;
-    const input = elemento.matches("input");
+/** @type {{input: HTMLInputElement, error: string}[]} */
+const inputsLimpiados = [];
 
-    // guardar el valor erróneo del input al momento de corregirlo, para volver a mostrar el error si se vuelve a introducir
-    if (input && elemento.hasAttribute("aria-invalid"))
-      valorErrorActual = elemento.value;
-    else valorErrorActual = "";
-  },
-  true
-);
+$$("form").forEach((form) => {
+  form.addEventListener("focus", rastrearErrorInputActual, true);
 
-const limpiados = [];
+  form.onchange = limpiarAlCambiar;
+});
 
-document.querySelector("form").onchange = (e) => {
+// guarda el valor erróneo del input al momento de enfocarlo, para verificar cuando se vuelva a introducir o desenfocar
+/** @param {Event} e */
+function rastrearErrorInputActual(e) {
+  const elemento = e.target;
+  const input = elemento.matches("input");
+
+  // guardar el valor erróneo del input al momento de corregirlo, para volver a mostrar el error si se vuelve a introducir
+  if (input && elemento.hasAttribute("aria-invalid"))
+    valorErrorActual = elemento.value;
+  else valorErrorActual = "";
+}
+
+// si se vuelve a introducir el valor erróneo en el mismo campo, volver a mostrar el error
+/** @param {Event} e */
+function limpiarAlCambiar(e) {
+  /** @type {HTMLElement} */
   const elemento = e.target;
   const input = elemento.matches("input");
 
@@ -24,16 +32,16 @@ document.querySelector("form").onchange = (e) => {
     // guardar el valor erróneo del input
     if (elemento.hasAttribute("aria-invalid")) {
       elemento.removeAttribute("aria-invalid");
-      limpiados.push({ input, valorError: valorErrorActual });
+      inputsLimpiados.push({ input, valorError: valorErrorActual });
     } else {
-      const limpiado = limpiados.find((l) => l.input === input);
+      const limpiado = inputsLimpiados.find((l) => l.input === input);
 
       // si se vuelve a introducir el valor erróneo en el mismo campo, volver a mostrar el error
       if (limpiado && limpiado.valorError === elemento.value) {
         elemento.setAttribute("aria-invalid", "true");
         elemento.setAttribute("aria-errormessage", "error");
-        limpiados.splice(limpiados.indexOf(limpiado), 1);
+        inputsLimpiados.splice(inputsLimpiados.indexOf(limpiado), 1);
       }
     }
   }
-};
+}
