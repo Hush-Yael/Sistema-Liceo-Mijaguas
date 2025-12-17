@@ -36,7 +36,7 @@
   >
     {% if request.user.is_authenticated %}
       <div class="p-4 min-[800px]:hidden">
-        {% include 'componentes/perfil/index.html' %}
+        {% include 'componentes/cabecera/datos-usuario.html' %}
       </div>
     {% else %}
       <a
@@ -144,7 +144,7 @@
         class="contenido-menu p-4 top-full right-0 border-#fff3 border-t-2 solid rounded-0 rounded-bl-caja bg-primario [&_figure_img]:size-min-8.5rem [&_figure_img]:lh-8.5rem [&_figure_svg]:size-min-8.5rem [&_h2]:text-[1.2rem]"
       >
         {% if request.user.is_authenticated %}
-          {% include 'componentes/perfil/index.html' %}
+          {% include 'componentes/cabecera/datos-usuario.html' %}
         {% else %}
           <a href="{% url 'login' %}" class="iniciar-sesion flex-center">
             <svg

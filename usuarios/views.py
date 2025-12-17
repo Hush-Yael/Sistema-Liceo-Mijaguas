@@ -74,7 +74,7 @@ def perfil(request: HttpRequest):
 
         return render(
             request,
-            "perfil.html",
+            "perfil/index.html",
             {
                 "form": form,
                 "datos_iniciales": datos_iniciales,
