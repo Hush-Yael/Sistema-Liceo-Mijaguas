@@ -60,7 +60,8 @@
         name="config"
         class="menu submenu"
         hx-post="{% url 'notas_tabla' %}"
-        hx-trigger="change[verificarBusquedaNoVacia()] changed delay:600ms"
+        {# se evita que se ejecute la request de "/notas_tabla" al cambiar los filtros específicos de búsqueda cuando el campo de búsqueda está vacío, ya que no tendría sentido, pues los resultados serían los mismos #}
+        hx-trigger="change[$id('q').value.trim() !== ''] changed delay:600ms"
       >
         <summary>
           Búsqueda {% include "componentes/iconos/caret-r.html" %}

@@ -1,7 +1,4 @@
-// para evitar que se ejecute la request de "/notas_tabla" al cambiar los filtros específicos de búsqueda cuando el campo de búsqueda está vacío, ya que no tendría sentido, pues los resultados serías los mismos
-function verificarBusquedaNoVacia() {
-  return document.getElementById("q").value.trim() !== "";
-}
+"use strict";
 
 const filtros = document.getElementById("filtros");
 
