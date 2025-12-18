@@ -1,12 +1,15 @@
+/** @type null | HTMLInputElement */
 let ultimoSeleccionado = null;
 
-document.getElementById("filtros").addEventListener("change", function (e) {
+/** @param {Event} e */
+$id("filtros").addEventListener("change", function (e) {
+  /** @type HTMLInputElement */
   const inputCambiado = e.target;
   const name = inputCambiado.name;
 
   // opción "todas" seleccionada, se deseleccionan las demás
   if (inputCambiado.type === "radio") {
-    const inputs = document.querySelectorAll(`[name=${name}]`);
+    const inputs = $$(`[name=${name}]`);
 
     inputs.forEach(
       (input) => input !== inputCambiado && (input.checked = false),
@@ -14,20 +17,18 @@ document.getElementById("filtros").addEventListener("change", function (e) {
   }
   // opción que no es "todas" seleccionada, se deselecciona "todas"
   else {
-    const inputNinguno = document.querySelector(
-      `[name=${inputCambiado.name}].ninguno`,
-    );
-    const alMenosUno = document.querySelector(
-      `[name=${inputCambiado.name}]:checked`,
-    );
+    const inputNinguno = $(`[name=${inputCambiado.name}].ninguno`);
+    const alMenosUno = $(`[name=${inputCambiado.name}]:checked`);
 
     inputNinguno.checked = !alMenosUno;
   }
 });
 
 // selección múltiple
-document.getElementById("filtros").addEventListener("click", function (e) {
+/** @param {Event} e */
+$id("filtros").addEventListener("click", function (e) {
   if (e.target.type !== "checkbox") return;
+  /** @type HTMLInputElement */
   const opcionActual = e.target;
 
   // guardar la última opción seleccionada, para usarla como referencia en el siguiente click
@@ -35,9 +36,7 @@ document.getElementById("filtros").addEventListener("click", function (e) {
 
   // si se presiona shift, se seleccionan todas las opciones entre el última seleccionada y la actual
   if (e.shiftKey) {
-    const opciones = Array.from(
-      document.querySelectorAll('input[type="checkbox"]'),
-    );
+    const opciones = Array.from($$('input[type="checkbox"]'));
     const inicio = opciones.indexOf(opcionActual);
     const fin = opciones.indexOf(ultimoSeleccionado);
     const indiceInicio = Math.min(inicio, fin);
