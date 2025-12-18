@@ -1,12 +1,7 @@
-body {
-  overflow: hidden;
-}
-
 main {
   display: flex;
   height: calc(100vh - var(--altura-header));
   height: calc(100dvh - var(--altura-header));
-  overflow: auto;
 }
 
 main>.contenido {
