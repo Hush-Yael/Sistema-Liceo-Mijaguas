@@ -33,6 +33,16 @@ input {
   accent-color: var(--color-primario-500);
 }
 
+input,
+textarea {
+  field-sizing: content;
+}
+
+input:read-only,
+textarea:read-only {
+  cursor: default;
+}
+
 select option:checked {
   background: var(--color-primario-500);
   color: var(--color-texto-primario);
