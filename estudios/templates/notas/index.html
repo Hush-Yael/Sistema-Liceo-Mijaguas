@@ -3,7 +3,7 @@
   Notas
 {% endblock titulo %}
 {% load static %}
-{% load utilidades_parametros %}
+{% load grupos_variantes %}
 
 {% block cabeza %}
   {# componentes #}
@@ -21,9 +21,19 @@
 
   {# estilos propios #}
   <link rel="stylesheet" href="{% static 'css/notas/index.css' %}" />
-  <link rel="stylesheet" href="{% static 'css/notas/filtros.css' %}" />
   <link rel="stylesheet" href="{% static 'css/notas/cabecera-tabla.css' %}" />
   <link rel="stylesheet" href="{% static 'css/notas/estados.css' %}" />
+  <style>
+    @media only screen and (hover: hover) and (pointer: fine) {
+      #filtros {
+        scrollbar-color: var(--color-primario-500) transparent;
+      }
+
+      .oscuro #filtros {
+        scrollbar-color: #888 var(--color-fondo-700);
+      }
+    }
+  </style>
 
   <script src="{% static 'js/htmx.min.js' %}"></script>
   <script defer src="{% static 'js/alpine.min.js' %}"></script>
@@ -47,10 +57,11 @@
       x-ref="filtros"
       :aria-hidden="!filtros_abiertos && !media_match"
       :inert="!filtros_abiertos && !media_match"
+      class="{{ 'max-[600px]:(fixed z-5 ) h-[calc(100%-var(--altura-header))] top-[--altura-header] left-0 min-w-200px  border-r border-[--borde-caja] elevado shadow-[4px_0_20px_#0001] transition-[transform,opacity] ease-in-out duration-300 bg-[--primario] aria-hidden:(-translate-x-100% opacity-0) aria-[hidden=false]:(translate-x-0 opacity-100) min-[600px]:(translate-x-0 opacity-100 h-full)'|expandir_variantes }}"
     >
       <form
         id="filtros"
-        class="incluido-filtros"
+        class="incluido-filtros h-full"
         hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
         hx-trigger="change delay:800ms"
         hx-post="{% url 'notas_tabla' %}"
@@ -59,7 +70,7 @@
         hx-include=".incluido-filtros"
         aria-label="Filtros"
       >
-        <div>
+        <div class="space-y-5 h-full p-4 overflow-y-auto">
           {% with post="/guardado_filtro_cookie/" %}
             {% include "notas/lista-filtros.html" with cualquiera_label="Todas" label="Secciones" campo=form.notas_secciones %}
             {#  #}
