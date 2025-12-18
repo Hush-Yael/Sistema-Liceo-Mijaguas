@@ -40,8 +40,9 @@
         {# se evita que se ejecute la request de "/notas_tabla" al cambiar los filtros específicos de búsqueda cuando el campo de búsqueda está vacío, ya que no tendría sentido, pues los resultados serían los mismos #}
         hx-trigger="change[$id('q').value.trim() !== ''] changed delay:600ms"
       >
-        <summary class="flex aic justify-between">
-          Búsqueda {% include "componentes/iconos/caret-r.html" %}
+        <summary class="flex aic gap-x-2">
+          {% include "componentes/iconos/caret.html#izquierda" with class="size-5" %}
+          Búsqueda
         </summary>
 
         <div class="contenido-menu p-4">
@@ -63,8 +64,9 @@
         hx-post="{% url 'notas_tabla' %}"
         hx-trigger="input changed delay:600ms"
       >
-        <summary class="flex aic justify-between">
-          Valores de las notas {% include "componentes/iconos/caret-r.html" %}
+        <summary class="flex aic gap-x-2">
+          {% include "componentes/iconos/caret.html#izquierda" with class="size-5" %}
+          Valores de las notas
         </summary>
 
         <div
