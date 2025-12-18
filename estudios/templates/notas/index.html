@@ -20,7 +20,6 @@
 
   {# estilos propios #}
   <link rel="stylesheet" href="{% static 'css/notas/index.css' %}" />
-  <link rel="stylesheet" href="{% static 'css/notas/estados.css' %}" />
   <style>
     @media only screen and (hover: hover) and (pointer: fine) {
       #filtros {
@@ -55,7 +54,7 @@
       x-ref="filtros"
       :aria-hidden="!filtros_abiertos && !media_match"
       :inert="!filtros_abiertos && !media_match"
-      class="{{ 'max-[600px]:(fixed z-5 ) h-[calc(100%-var(--altura-header))] top-[--altura-header] left-0 min-w-200px  border-r border-[--borde-caja] elevado shadow-[4px_0_20px_#0001] overflow-y-hidden transition-[transform,opacity] ease-in-out duration-300 bg-[--primario] aria-hidden:(-translate-x-100% opacity-0) aria-[hidden=false]:(translate-x-0 opacity-100) min-[600px]:(translate-x-0 opacity-100 h-full)'|expandir_variantes }}"
+      class="{{ 'max-[600px]:(fixed z-5 h-[calc(100%-var(--altura-header))] shadow-[4px_0_20px_#0001])  top-[--altura-header] left-0 min-w-200px  border-r border-[--borde-caja] elevado  overflow-y-hidden transition-[transform,opacity] ease-in-out duration-300 bg-[--primario] aria-hidden:(-translate-x-100% opacity-0) aria-[hidden=false]:(translate-x-0 opacity-100) min-[600px]:(translate-x-0 opacity-100 h-full)'|expandir_variantes }}"
     >
       <form
         id="filtros"
@@ -81,7 +80,9 @@
     </div>
 
     <div class="contenido" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-      <div class="estados">
+      <div
+        class="{{ 'flex flex-wrap gap-2 [&_[role=status],&_[role=alert]]:(justify-between gap-3 p-[.75rem_1rem] w-max)'|expandir_variantes }}"
+      >
         {% if cantidad_años == 0 %}
           {% include "notas/mensaje-error.html" with mensaje="No se han añadido años académicos" %}
         {% endif %}
@@ -89,15 +90,22 @@
         {% if cantidad_lapsos == 0 %}
           {% include "notas/mensaje-error.html" with mensaje="No se han añadido lapsos académicos" %}
         {% endif %}
-        {#  #}
+        <!-- prettier-ignore-start -->
         {% include "notas/estado.html" with label="Totales" dato=total icono='total' %}
-        {#  #}
-        {% include "notas/estado.html" with label="En el conjunto" dato='<span id="conjunto-cantidad" aria-label="cargando">...</span>' icono='conjunto' %}
-        {#  #}
-        {% include "notas/estado.html" with label="Resultados" dato='<span id="resultados-cantidad" aria-label="cargando">...</span>' icono="resultados" %}
 
-        <div role="status" class="caja htmx-indicator" id="indicador-busqueda">
-          <div class="indicador"></div>
+        {% include "notas/estado.html" with label="En el conjunto" dato='<span id="conjunto-cantidad" aria-label="cargando">...</span>' icono='conjunto' %}
+
+        {% include "notas/estado.html" with label="Resultados" dato='<span id="resultados-cantidad" aria-label="cargando">...</span>' icono="resultados" %}
+        <!-- prettier-ignore-end -->
+
+        <div
+          role="status"
+          class="htmx-indicator caja flex gap-y-1 aic text-[.875rem] min-[600px]:flex-col min-[1000px]:text-[1.125rem]"
+          id="indicador-busqueda"
+        >
+          <div
+            class="indicador size-5! min-[600px]:size-8! min-[600px]:border-5"
+          ></div>
           Buscando...
         </div>
       </div>

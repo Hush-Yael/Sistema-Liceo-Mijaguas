@@ -1,12 +1,11 @@
-<div role="alert" class="error">
-  <div>
+<div role="alert" class="error col rounded-caja bg-peligro text-peligro-texto">
+  <div class=" gap-1 min-[600px]:gap-2">
     <svg
       xmlns="http://www.w3.org/2000/svg"
       width="24"
       height="24"
       viewBox="0 0 24 24"
       fill="currentColor"
-      class="icon icon-tabler icons-tabler-filled icon-tabler-exclamation-circle"
     >
       <path stroke="none" d="M0 0h24v24H0z" fill="none" />
       <path
@@ -14,8 +13,8 @@
       />
     </svg>
 
-    <span class="label">Advertencia</span>
+    <span class="opacity-80">Advertencia</span>
   </div>
 
-  <span class="dato">{{ mensaje }}</span>
+  <span class="dato font-bold min-[1000px]:text-[1.125rem]">{{ mensaje }}</span>
 </div>
