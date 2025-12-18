@@ -19,6 +19,16 @@
     {% include "notas/iconos.html#filtros" %}
   </button>
 
+  <input
+    id="q"
+    name="q"
+    class="flex-1 p-[.25rem_.75rem] rounded-campo elevado incluido-filtros"
+    type="search"
+    hx-post="{% url 'notas_tabla' %}"
+    hx-trigger="input changed delay:600ms"
+    placeholder="Buscar..."
+  />
+
   <details
     class="menu z-4 [&_details[open]]:z-4 w-9 h-full [&_label]:text-texto-sutil"
     id="busqueda-config"
@@ -31,7 +41,7 @@
     </summary>
 
     <div
-      class="{{ 'contenido-menu col gap-y-4 p-3 px-4 rounded-tl-0! top-108% [&_.contenido-menu]:(col gap-y-4) [&_.contenido-menu]:(left-8 top-8 rounded-tl-0) min-[700px]:[&_.contenido-menu]:(left-113% top-0)'|expandir_variantes }}"
+      class="{{ 'contenido-menu col gap-y-4 p-3 px-4 rounded-tr-0! top-108% right-0 [&_.contenido-menu]:(col gap-y-4) [&_.contenido-menu]:(right-50% top-8 rounded-tr-0) min-[450px]:[&_.contenido-menu]:(right-113% top-0)'|expandir_variantes }}"
     >
       <details
         name="config"
@@ -97,14 +107,4 @@
       </div>
     </div>
   </details>
-
-  <input
-    id="q"
-    name="q"
-    class="flex-1 p-[.25rem_.75rem] rounded-campo elevado incluido-filtros"
-    type="search"
-    hx-post="{% url 'notas_tabla' %}"
-    hx-trigger="input changed delay:600ms"
-    placeholder="Buscar..."
-  />
 </header>
