@@ -1,30 +1,37 @@
+{% load grupos_variantes %}
+
 {% if datos_paginados.paginator.num_pages > 1 %}
   <div
-    class="paginacion"
+    class="flex flex-wrap aic justify-space-between gap-y-2 gap-x-6 w-full"
     hx-target="{{ hx_target }}"
     hx-include="{{ hx_include }}"
     hx-indicator="#indicador-pagina"
   >
-    <div class="indicadores">
-      <p class="cantidad-paginas" role="status">
+    <div class="flex flex-wrap aic gap-4">
+      <p class="min-w-max" role="status">
         Página <b>{{ datos_paginados.number }}</b> de
         <b>{{ datos_paginados.paginator.num_pages }}</b>
       </p>
 
       <div class="htmx-indicator" id="indicador-pagina">
-        <div class="indicador"></div>
+        {# si soporta la transición, alinear al medio el indicador del texto al estarse ocultando, ya que por alguna razón no lo hace #}
+        <div
+          class="indicador supports-[transition-behavior:allow-discrete]:m-[auto_.5rem_auto_0]"
+        ></div>
         Cargando página...
       </div>
     </div>
 
     <nav>
-      <ul>
+      <ul
+        class="{{ "flex flex-wrap gap-2 [&_button]:(btn h-full size-min-8 gap-2 p-[.25rem_.625rem] font-600 elevado select-none)"|expandir_variantes }}"
+      >
         {% if datos_paginados.has_previous %}
           <li>
             <button
               hx-vals='{"pagina": 1, "solo_tabla": true }'
               hx-post="{{ hx_post }}"
-              class="flechas elevado"
+              class="p-0!"
               aria-label="Primera página"
             >
               <svg
@@ -48,7 +55,7 @@
               <button
                 hx-vals='{"pagina": {{ datos_paginados.previous_page_number }}, "solo_tabla": true }'
                 hx-post="{{ hx_post }}"
-                class="flechas elevado"
+                class="p-0!"
                 aria-label="Página anterior"
               >
                 <svg
@@ -95,7 +102,7 @@
                 value="{{ num }}"
                 aria-label="Página actual"
               />
-              <button aria-hidden="true" class="btn-primario current">
+              <button aria-hidden="true" class="btn-primario!">
                 {{ num }}
               </button>
             </li>
@@ -131,7 +138,7 @@
               <button
                 hx-vals='{"pagina": {{ datos_paginados.next_page_number }}, "solo_tabla": true }'
                 hx-post="{{ hx_post }}"
-                class="flechas elevado"
+                class="p-0!"
                 aria-label="Página siguiente"
               >
                 <svg
@@ -153,7 +160,7 @@
             <button
               hx-vals='{"pagina": {{ datos_paginados.paginator.num_pages }}, "solo_tabla": true }'
               hx-post="{{ hx_post }}"
-              class="flechas elevado"
+              class="p-0!"
               aria-label="Última página"
             >
               <svg
