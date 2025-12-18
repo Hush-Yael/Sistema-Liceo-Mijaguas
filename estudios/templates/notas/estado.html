@@ -2,8 +2,9 @@
   <span class="label">{{ label }}</span>
 
   <div>
-    <span class="decoracion-circular"> {{ icono }} </span>
-
+    <span class="decoracion-circular">
+      {% include "notas/iconos.html#"|add:icono %}
+    </span>
     <b class="dato">{{ dato }}</b>
   </div>
 </div>
