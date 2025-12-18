@@ -81,7 +81,7 @@
 
     <div class="contenido" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
       <div
-        class="{{ 'flex flex-wrap gap-2 [&_[role=status],&_[role=alert]]:(justify-between gap-3 p-[.75rem_1rem] w-max)'|expandir_variantes }}"
+        class="{{ 'flex flex-wrap gap-2 [&_[role=status],&_[role=alert]]:(justify-between gap-3 p-2 px-3 w-max)'|expandir_variantes }}"
       >
         {% if cantidad_años == 0 %}
           {% include "notas/mensaje-error.html" with mensaje="No se han añadido años académicos" %}

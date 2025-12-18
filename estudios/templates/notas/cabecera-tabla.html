@@ -2,7 +2,7 @@
 {% load grupos_variantes %}
 
 <header
-  class="flex gap-x-1 "
+  class="flex gap-x-1"
   hx-target="#tabla-y-paginacion"
   hx-indicator="#indicador-busqueda"
   hx-include=".incluido-filtros"
@@ -45,12 +45,12 @@
         </summary>
 
         <div class="contenido-menu p-4">
-          <div class="col gap-y-3">
+          <div class="col gap-y-1">
             {{ form.notas_tipo_busqueda.label_tag }}
             {% render_field form.notas_tipo_busqueda class="elevado-2 incluido-filtros" %}
           </div>
 
-          <div class="col gap-y-3">
+          <div class="col gap-y-1">
             {{ form.notas_columna_buscada.label_tag }}
             {% render_field form.notas_columna_buscada class="elevado-2 incluido-filtros" %}
           </div>
@@ -75,19 +75,19 @@
           hx-indicator="#indicador-busqueda"
           hx-target="#tabla-y-paginacion"
         >
-          <div class="flex gap-x-1 valor-nota">
+          <div class="flex gap-x-3 valor-nota">
             {{ form.notas_valor_minimo.label_tag }}
             {% render_field form.notas_valor_minimo class="elevado-2 py-0! incluido-filtros" style="width: 6ch;" %}
           </div>
 
-          <div class="flex gap-x-1 valor-nota">
+          <div class="flex gap-x-3 valor-nota">
             {{ form.notas_valor_maximo.label_tag }}
             {% render_field form.notas_valor_maximo class="elevado-2 py-0! incluido-filtros" style="width: 6ch;" %}
           </div>
         </div>
       </details>
 
-      <div class="flex gap-x-1 flex aic min-w-max">
+      <div class="flex gap-x-3 flex aic [&_label]:min-w-max">
         {{ form.notas_cantidad_paginas.label_tag }}
         {% with vals='{"solo_tabla": true}' %}
           {% render_field form.notas_cantidad_paginas class="elevado-2 incluido-filtros" style="max-width: 6ch;" hx-trigger="input changed delay:600ms" hx-post="/notas_tabla/" hx-vals=vals %}

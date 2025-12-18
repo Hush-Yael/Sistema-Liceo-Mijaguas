@@ -1,19 +1,14 @@
 {% load grupos_variantes %}
-<div
-  id="{{ id }}"
-  role="status"
-  class="caja flex max-[600px]:aic min-[600px]:flex-col"
->
-  <span class="label">{{ label }}</span>
+<div id="{{ id }}" role="status" class="caja col min-[1000px]:p-3!">
+  <span class="text-sm">{{ label }}</span>
 
-  <div class="flex aic gap-2 max-[600px]:-order-1 min-[600px]:gap-4">
+  <div class="flex aic gap-2">
     <span
-      class="decoracion-circular size-7 p-1.5 bg-secundario-100 text-secundario dark:bg-secundario-600 dark:text-secundario-texto min-[1000px]:size-9 min-[1000px]:p-2"
+      class="decoracion-circular size-6! p-1.25 bg-secundario-100 text-secundario dark:bg-secundario-600 dark:text-secundario-texto min-[1000px]:size-9! min-[1000px]:p-2"
     >
       {% include "notas/iconos.html#"|add:icono %}
     </span>
-    <b
-      class="dato text-sm min-[600px]:text-lg font-bold min-[1000px]:text-[1.5rem]!"
+    <b class="dato min-[600px]:text-lg font-bold min-[1000px]:text-[1.5rem]!"
       >{{ dato }}</b
     >
   </div>
