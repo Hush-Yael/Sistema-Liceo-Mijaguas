@@ -26,33 +26,50 @@
   <link rel="stylesheet" href="{% static 'css/notas/estados.css' %}" />
 
   <script src="{% static 'js/htmx.min.js' %}"></script>
-  <script defer src="{% static 'js/notas/index.js' %}"></script>
+  <script defer src="{% static 'js/alpine.min.js' %}"></script>
   <script defer src="{% static 'js/notas/filtros.js' %}"></script>
+
+  <script>
+    const media = window.matchMedia("(min-width: 600px)");
+    media.addEventListener("change", (e) => {
+      Alpine.$data($("main")).media_match = e.matches;
+    });
+  </script>
 {% endblock cabeza %}
 
 {% block contenido %}
-  <main>
-    <form
-      id="filtros"
-      class="incluido-filtros"
-      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-      hx-trigger="change delay:800ms"
-      hx-post="{% url 'notas_tabla' %}"
-      hx-indicator="#indicador-busqueda"
-      hx-target="#tabla-y-paginacion"
-      hx-include=".incluido-filtros"
-      aria-label="Filtros"
+  <main
+    x-data="{ filtros_abiertos: false, media_match: media.matches }"
+    @keydown.escape="filtros_abiertos = false"
+    @mousedown="!$refs.filtros.contains($event.target) && (filtros_abiertos = false)"
+  >
+    <div
+      x-ref="filtros"
+      :aria-hidden="!filtros_abiertos && !media_match"
+      :inert="!filtros_abiertos && !media_match"
     >
-      <div>
-        {% with post="/guardado_filtro_cookie/" %}
-          {% include "notas/lista-filtros.html" with cualquiera_label="Todas" label="Secciones" campo=form.notas_secciones %}
-          {#  #}
-          {% include "notas/lista-filtros.html" with cualquiera_label="Todas" label="Materias" campo=form.notas_materias %}
-          {#  #}
-          {% include "notas/lista-filtros.html" with label="Lapso" campo=form.notas_lapsos %}
-        {% endwith %}
-      </div>
-    </form>
+      <form
+        id="filtros"
+        class="incluido-filtros"
+        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+        hx-trigger="change delay:800ms"
+        hx-post="{% url 'notas_tabla' %}"
+        hx-indicator="#indicador-busqueda"
+        hx-target="#tabla-y-paginacion"
+        hx-include=".incluido-filtros"
+        aria-label="Filtros"
+      >
+        <div>
+          {% with post="/guardado_filtro_cookie/" %}
+            {% include "notas/lista-filtros.html" with cualquiera_label="Todas" label="Secciones" campo=form.notas_secciones %}
+            {#  #}
+            {% include "notas/lista-filtros.html" with cualquiera_label="Todas" label="Materias" campo=form.notas_materias %}
+            {#  #}
+            {% include "notas/lista-filtros.html" with label="Lapso" campo=form.notas_lapsos %}
+          {% endwith %}
+        </div>
+      </form>
+    </div>
 
     <div class="contenido" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
       <div class="estados">

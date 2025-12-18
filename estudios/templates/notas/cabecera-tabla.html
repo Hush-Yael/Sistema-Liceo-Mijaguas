@@ -10,7 +10,10 @@
     class="elevado"
     type="button"
     id="ver-filtros"
+    @click="filtros_abiertos = !filtros_abiertos"
+    aria-expanded="filtros_abiertos"
     aria-label="Ver filtros"
+    aria-haspopup="menu"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
