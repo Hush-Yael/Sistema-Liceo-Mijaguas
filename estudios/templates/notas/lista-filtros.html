@@ -78,35 +78,38 @@
     </div>
   </header>
 
-  {% with lc="block p-[.375rem_.75rem] pl-5 border-l-3 border-#00000023 dark:border-[--transparente-2] font-bold select-none transition-[background-color,color,border-color] pover:(bg-[--transparente-1] border-l-[--transparente-2]) peer-checked:(bg-primario-50 border-l-primario text-primario-600) dark:peer-checked:(bg-primario-400 border-l-primario-700 text-primario-texto)"|expandir_variantes %}
-    <input
-      class="sr-only peer ninguno"
-      type="radio"
-      name="{{ campo.name }}"
-      id="{{ campo.name }}_0"
-      value
-      {% if campo.initial|length == 0 or campo.initial is none %}
-        checked
-      {% endif %}
-    />
-    <label class="{{ lc }}" for="{{ campo.name }}_0"
-      >{{ cualquiera_label|default:"Todos" }}</label
-    >
+  <div class="lista">
+    {% with lc="block p-[.375rem_.75rem] pl-5 border-l-3 border-#00000023 dark:border-[--transparente-2] font-bold select-none transition-[background-color,color,border-color] pover:(bg-[--transparente-1] border-l-[--transparente-2]) peer-focus-visible:ring-1 peer-checked:(bg-primario-50 border-l-primario text-primario-600) dark:peer-checked:(bg-primario-400 border-l-primario-700 text-primario-texto)"|expandir_variantes %}
+      <input
+        class="sr-only peer ninguno"
+        type="radio"
+        name="{{ campo.name }}"
+        id="{{ campo.name }}_0"
+        value
+        {% if campo.initial|length == 0 or campo.initial is none %}
+          checked
+        {% endif %}
+      />
+      <label class="{{ lc }}" for="{{ campo.name }}_0"
+        >{{ cualquiera_label|default:"Todos" }}</label
+      >
 
-    {% for valor, label in campo.field.choices %}
-      <div>
-        <input
-          class="sr-only peer"
-          type="checkbox"
-          name="{{ campo.name }}"
-          value="{{ valor }}"
-          id="{{ campo.name }}_{{ forloop.counter }}"
-          {% if valor == campo.initial or valor in campo.initial %}checked{% endif %}
-        />
-        <label class="{{ lc }}" for="{{ campo.name }}_{{ forloop.counter }}"
-          >{{ label }}</label
-        >
-      </div>
-    {% endfor %}
+      {% for valor, label in campo.field.choices %}
+        <div>
+          <input
+            class="sr-only peer"
+            type="checkbox"
+            name="{{ campo.name }}"
+            value="{{ valor }}"
+            id="{{ campo.name }}_{{ forloop.counter }}"
+            tabindex="-1"
+            {% if valor == campo.initial or valor in campo.initial %}checked{% endif %}
+          />
+          <label class="{{ lc }}" for="{{ campo.name }}_{{ forloop.counter }}"
+            >{{ label }}</label
+          >
+        </div>
+      {% endfor %}
+  </div>
   {% endwith %}
 </div>

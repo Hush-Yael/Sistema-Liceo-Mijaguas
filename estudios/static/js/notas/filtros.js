@@ -1,8 +1,9 @@
 /** @type null | HTMLInputElement */
 let ultimoSeleccionado = null;
+const form = $id("filtros");
 
 /** @param {Event} e */
-$id("filtros").addEventListener("change", function (e) {
+form.addEventListener("change", function (e) {
   /** @type HTMLInputElement */
   const inputCambiado = e.target;
   const name = inputCambiado.name;
@@ -26,7 +27,7 @@ $id("filtros").addEventListener("change", function (e) {
 
 // selección múltiple
 /** @param {Event} e */
-$id("filtros").addEventListener("click", function (e) {
+form.addEventListener("click", function (e) {
   if (e.target.type !== "checkbox") return;
   /** @type HTMLInputElement */
   const opcionActual = e.target;
@@ -47,4 +48,44 @@ $id("filtros").addEventListener("click", function (e) {
       .forEach((opcion) => (opcion.checked = ultimoSeleccionado.checked));
   }
   ultimoSeleccionado = opcionActual;
+});
+
+form.addEventListener("keydown", function (e) {
+  const key = e.key;
+  const target = e.target;
+  const currentTarget = e.currentTarget;
+
+  if (e.target.matches("input") && /Arrow(Left|Right)|Home|End/.test(key)) {
+    /** @type HTMLDivElement */
+    const lista = currentTarget.$(".lista");
+
+    /** @type HTMLInputElement[] */
+    const nodes = Array.from(lista.$$("input"));
+    const index = nodes.indexOf(target);
+
+    /** @type HTMLInputElement */
+    let nextTarget;
+
+    if (!e.ctrlKey && (key === "End" || key === "Home")) {
+      e.preventDefault();
+      if (key === "Home") nextTarget = nodes[0];
+      else nextTarget = nodes[nodes.length - 1];
+    } else {
+      if (key === "ArrowLeft") {
+        if (index === 0) nextTarget = nodes[nodes.length - 1];
+        else nextTarget = nodes[index - 1];
+      } else {
+        if (index === nodes.length - 1) nextTarget = nodes[0];
+        else nextTarget = nodes[index + 1];
+      }
+    }
+
+    console.log(nextTarget);
+
+    if (nextTarget) {
+      target.setAttribute("tabindex", "-1");
+      nextTarget.setAttribute("tabindex", "0");
+      nextTarget.focus();
+    }
+  }
 });
