@@ -7,19 +7,23 @@
     hx-include="{{ hx_include }}"
     hx-indicator="#indicador-pagina"
   >
-    <div class="flex flex-wrap aic gap-4">
-      <p class="min-w-max" role="status">
-        Página <b>{{ datos_paginados.number }}</b> de
-        <b>{{ datos_paginados.paginator.num_pages }}</b>
-      </p>
-
-      <div class="htmx-indicator" id="indicador-pagina">
+    <div class="flex aic">
+      <div
+        id="indicador-pagina"
+        class="htmx-indicator"
+        role="status"
+        aria-label="Cargando página..."
+      >
         {# si soporta la transición, alinear al medio el indicador del texto al estarse ocultando, ya que por alguna razón no lo hace #}
         <div
           class="indicador supports-[transition-behavior:allow-discrete]:m-[auto_.5rem_auto_0]"
         ></div>
-        Cargando página...
       </div>
+
+      <p class="min-w-max" role="status">
+        Página <b>{{ datos_paginados.number }}</b> de
+        <b>{{ datos_paginados.paginator.num_pages }}</b>
+      </p>
     </div>
 
     <nav>
