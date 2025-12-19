@@ -79,6 +79,23 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "app.wsgi.application"
 
+if DEBUG:
+    LOGGING = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "handlers": {
+            "null": {
+                "class": "logging.NullHandler",
+            },
+        },
+        "loggers": {
+            "django.server": {
+                "handlers": ["null"],
+                "level": "INFO",
+                "propagate": False,
+            },
+        },
+    }
 
 DATABASES = {
     "default": {
