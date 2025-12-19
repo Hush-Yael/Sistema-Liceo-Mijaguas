@@ -22,7 +22,11 @@
   }"
   x-effect="window.$(`th[data-i='${indiceColActual}']>div`).appendChild(window.$id('columna-cambiador'));"
 >
-  <table class="tabla" id="tabla-principal" :data-i="indiceColActual">
+  <table
+    class="tabla rounded-b-0! border-b-0! [&_tr:last-child>_td]:rounded-0! [&_tr:last-child>_td]:border-b-0"
+    id="tabla-principal"
+    :data-i="indiceColActual"
+  >
     <thead>
       <tr>
         <th class="numeros">N°</th>

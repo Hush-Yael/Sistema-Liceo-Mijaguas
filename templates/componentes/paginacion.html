@@ -2,7 +2,7 @@
 
 {% if datos_paginados.paginator.num_pages > 1 %}
   <div
-    class="flex flex-wrap aic justify-between gap-y-2 gap-x-6 w-full"
+    class="{{ class|default:''|add:' sticky bottom-0 flex flex-wrap aic justify-between gap-y-2 gap-x-6 w-full p-2 px-3 border border-[--borde-caja] bg-fondo-500' }}"
     hx-target="{{ hx_target }}"
     hx-include="{{ hx_include }}"
     hx-indicator="#indicador-pagina"
