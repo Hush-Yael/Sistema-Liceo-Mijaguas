@@ -71,6 +71,7 @@ TEMPLATES = [
                 "app.context_processors.contexto",
             ],
             "libraries": {
+                "utilidades": "templatetags.utilidades",
                 "grupos_variantes": "templatetags.grupos_variantes.tags",
             },
         },

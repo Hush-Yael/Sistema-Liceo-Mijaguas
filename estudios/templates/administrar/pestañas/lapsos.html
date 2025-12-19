@@ -1,6 +1,6 @@
 {% extends "administrar/pestañas/base.html" %}
 {% load partials %}
-{% load utilidades_busqueda %}
+{% load utilidades %}
 
 {% block contenido %}
   {% with titulo="Lapsos académicos" descripcion="Gestiona las divisiones del año escolar" puede_añadir=perms.estudios.add_lapso puede_eliminar=perms.estudios.delete_lapso puede_editar=perms.estudios.change_lapso nombre_objeto="lapso" %}

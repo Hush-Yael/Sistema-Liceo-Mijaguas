@@ -1,6 +1,6 @@
 {% extends "administrar/pestañas/base.html" %}
 {% load partials %}
-{% load utilidades_busqueda %}
+{% load utilidades %}
 
 {% block contenido %}
   {% with titulo="Materias" descripcion="Gestiona las materias y los años en que se imparten" puede_añadir=perms.estudios.add_materia puede_eliminar=perms.estudios.delete_materia puede_editar=perms.estudios.change_materia nombre_objeto="materia" %}

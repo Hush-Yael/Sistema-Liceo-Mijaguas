@@ -1,6 +1,6 @@
 {% extends "administrar/pestañas/base.html" %}
 {% load partials %}
-{% load utilidades_busqueda %}
+{% load utilidades %}
 
 {% block contenido %}
   {% with titulo="Años académicos" descripcion="Gestiona las etapas que los estudiantes deben cursar para graduarse como bachiller" puede_añadir=perms.estudios.add_año puede_eliminar=perms.estudios.delete_año puede_editar=perms.estudios.change_año nombre_objeto="año" %}
