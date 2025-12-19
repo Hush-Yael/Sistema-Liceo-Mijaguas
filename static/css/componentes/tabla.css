@@ -13,7 +13,7 @@
   }
 }
 
-table {
+.tabla {
   border-collapse: separate;
   border-spacing: 0;
   width: 100%;
@@ -21,55 +21,55 @@ table {
   border-radius: var(--radio-campo);
 }
 
-caption {
+.tabla caption {
   padding: 8px;
 }
 
-thead {
+.tabla thead {
   position: sticky;
   top: 0;
 }
 
-th,
-td {
+.tabla th,
+.tabla td {
   text-align: left;
   padding: 8px;
 }
 
-tr {
+.tabla tr {
   background-color: var(--color-fondo-400);
 }
 
-th {
+.tabla th {
   background: var(--color-fondo-600);
 }
 
-th:first-child {
+.tabla th:first-child {
   border-top-left-radius: calc(var(--radio-campo) - 1px);
 }
 
-th:last-child {
+.tabla th:last-child {
   border-top-right-radius: calc(var(--radio-campo) - 1px);
 }
 
-tr:not(:last-child)>td {
+.tabla tr:not(:last-child)>td {
   border-bottom: 1px solid var(--borde-caja);
 }
 
-tr:last-child td:first-child {
+.tabla tr:last-child td:first-child {
   border-bottom-left-radius: calc(var(--radio-campo) - 1px);
 }
 
-tr:last-child td:last-child {
+.tabla tr:last-child td:last-child {
   border-bottom-right-radius: calc(var(--radio-campo) - 1px);
 }
 
-table .numeros {
+.tabla .numeros {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-table td.numeros {
+.tabla td.numeros {
   letter-spacing: 0.5px;
   font-family: system-ui,
     "Segoe UI",

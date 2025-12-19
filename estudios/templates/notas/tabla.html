@@ -1,80 +1,137 @@
-{% load math %}
+{% load static %}
+{% load partials %}
+{% load utilidades %}
 
-<div class="contenedor-tabla">
-  <table>
+<head>
+  {% include "notas/tabla-style.html" with rango_columnas=columnas_ocultables|length|convertir_a_rango %}
+</head>
+
+<div
+  class="contenedor-tabla min-h-full"
+  x-data="{
+    indiceColActual: 0,
+    tituloColActual: 'nombre',
+    anteriorCol() {
+      if (this.indiceColActual > 0) this.indiceColActual--;
+    },
+    siguienteCol() {
+      if (this.indiceColActual < this.columnas_ocultables.length - 1)
+        this.indiceColActual++;
+    },
+    columnas_ocultables: {{ columnas_ocultables }}
+  }"
+  x-effect="window.$(`th[data-i='${indiceColActual}']>div`).appendChild(window.$id('columna-cambiador'));"
+>
+  <table class="tabla" id="tabla-principal" :data-i="indiceColActual">
     <thead>
       <tr>
         <th class="numeros">N°</th>
-        <th>Estudiante</th>
 
-        {% comment %}
-          se evita mostrar alguna de las siguientes columnas al tener solo una
-          opción seleccionada de sus respectivos filtros, por ser redundante
-        {% endcomment %}
+        {% for columna in columnas %}
+          <th
+            {% if columna.clave == 'valor' or columna.clave == 'lapso_nombre' %}
+              class="numeros"
+            {% endif %}
+            {% if forloop.counter >= columnas_fijas %}
+              data-i="{{ columnas_fijas|negativo|add:forloop.counter }}"
+            {% endif %}
+          >
+            <div
+              class="relative flex aic justify-between gap-x-4 min-[600px]:block"
+            >
+              {{ columna.titulo }}
 
-        {% if materias|length != 1 %}
-          <th>Materia</th>
-        {% endif %}
-
-        {% if secciones|length != 1 %}
-          <th>Sección</th>
-        {% endif %}
-
-        <th style="min-width: 6ch;" class="numeros">Valor</th>
-
-        {% if lapsos|length != 1 %}
-          <th style="min-width: 6ch;" class="numeros">Lapso</th>
-        {% endif %}
-
-        <th style="min-width: 8ch;">Fecha</th>
+              {% if forloop.first %}
+                {% partial columna_cambiador %}
+              {% endif %}
+            </div>
+          </th>
+        {% endfor %}
       </tr>
     </thead>
+
     <tbody>
       {% for nota in notas %}
         <tr>
-          {% comment %}
-            se multiplica la cantidad por página de acuerdo a la cantidad
-            recorrida y la cantidad de notas por página y se le añade cada valor
-            del ciclo actual
-          {% endcomment %}
           {% with total_anterior=notas.number|add:-1|multiplicar:cantidad_por_pagina %}
+            {# se multiplica la cantidad por página de acuerdo a la cantidad recorrida y la cantidad de notas por página y se le añade cada valor del ciclo actual #}
             <td class="numeros">{{ total_anterior|add:forloop.counter }}</td>
           {% endwith %}
 
-          <td>{{ nota.estudiante }}</td>
-
-          {% comment %}
-            se evita mostrar alguna de las siguientes columnas al tener solo una
-            opción seleccionada de sus respectivos filtros, por ser redundante
-          {% endcomment %}
-          {% if materias|length != 1 %}
-            <td>{{ nota.materia }}</td>
-          {% endif %}
-
-          {% if secciones|length != 1 %}
-            <td>
-              {{ nota.matricula.seccion.año.nombre_corto }}
-              {{ nota.matricula.seccion.letra }}
-            </td>
-          {% endif %}
-
-          <td class="numeros">
-            {% with valor=nota.valor|floatformat:"-1" %}
-              {% if nota.valor < 10 %}
-                0{{ valor }}
-              {% else %}
-                {{ valor }}
-              {% endif %}
+          {% for columna in columnas %}
+            {% with c=columna.clave %}
+              <td
+                {% if c == 'valor' or c == 'lapso_nombre' %}
+                  class="numeros"
+                {% endif %}
+                {% if forloop.counter >= columnas_fijas %}
+                  data-i="{{ columnas_fijas|negativo|add:forloop.counter }}"
+                {% endif %}
+              >
+                {% if c == 'valor' %}
+                  {% with valor=nota.valor|floatformat:"-1" %}
+                    {% if nota.valor < 10 %}
+                      0{{ valor }}
+                    {% else %}
+                      {{ valor }}
+                    {% endif %}
+                  {% endwith %}
+                {% elif c == 'fecha' %}
+                  {{ nota.fecha|date:"D. d M. Y, h:i A" }}
+                {% else %}
+                  {{ nota|valor_por_clave:c }}
+                {% endif %}
+              </td>
             {% endwith %}
-          </td>
-
-          {% if lapsos|length != 1 %}
-            <td class="numeros">{{ nota.lapso.nombre }}</td>
-          {% endif %}
-
-          <td>{{ nota.fecha|date:"D. d M. Y, h:i A" }}</td>
+          {% endfor %}
         </tr>
       {% endfor %}
     </tbody>
   </table>
+
+  {% include "componentes/paginacion.html" with datos_paginados=notas hx_target="#tabla-y-paginacion" hx_include=".incluido-filtros" hx_post="/notas_tabla/" %}
 </div>
+
+{% partialdef columna_cambiador %}
+  <div id="columna-cambiador">
+    <select
+      id="cambiar-columna"
+      aria-label="Cambiar columna"
+      class="opacity-0 absolute top-0 left-0 px-1 min-w-max bg-fondo-600 focus-visible:opacity-100 "
+      x-model="indiceColActual"
+      @change="indiceColActual = $event.target.value"
+    >
+      <template x-for="(titulo, index) in columnas_ocultables" :key="index">
+        <option :value="index" x-text="titulo"></option>
+      </template>
+    </select>
+
+    <div class="flex aic gap-x-2.5 [&_svg]:size-3.5">
+      <button
+        class="btn z-1 rounded-full size-5 text-texto-sutil bg-[--transparente-1] pover:bg-[--transparente-2]"
+        @click="anteriorCol()"
+        :disabled="indiceColActual === 0"
+        aria-label="Columna anterior"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+          <path
+            d="M872 474H286.9l350.2-304c5.6-4.9 2.2-14-5.2-14h-88.5c-3.9 0-7.6 1.4-10.5 3.9L155 487.8a31.96 31.96 0 0 0 0 48.3L535.1 866c1.5 1.3 3.3 2 5.2 2h91.5c7.4 0 10.8-9.2 5.2-14L286.9 550H872c4.4 0 8-3.6 8-8v-60c0-4.4-3.6-8-8-8z"
+          ></path>
+        </svg>
+      </button>
+
+      <button
+        class="btn z-1 rounded-full size-5 text-texto-sutil bg-[--transparente-1] pover:bg-[--transparente-2]"
+        @click="siguienteCol()"
+        :disabled="indiceColActual === columnas_ocultables.length - 1"
+        aria-label="Siguiente columna"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+          <path
+            d="M869 487.8 491.2 159.9c-2.9-2.5-6.6-3.9-10.5-3.9h-88.5c-7.4 0-10.8 9.2-5.2 14l350.2 304H152c-4.4 0-8 3.6-8 8v60c0 4.4 3.6 8 8 8h585.1L386.9 854c-5.6 4.9-2.2 14 5.2 14h91.5c1.9 0 3.8-.7 5.2-2L869 536.2a32.07 32.07 0 0 0 0-48.4z"
+          ></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+{% endpartialdef columna_cambiador %}

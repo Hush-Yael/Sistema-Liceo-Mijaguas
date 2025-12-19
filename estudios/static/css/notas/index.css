@@ -71,12 +71,6 @@ main>.contenido .tabla-contenido,
   margin-left: auto;
 }
 
-@media screen and (max-width: 600px) {
-  main>.contenido table {
-    min-width: 700px;
-  }
-}
-
 @media screen and (min-width: 600px) {
   main>.contenido .tabla-contenido {
     gap: .5rem;

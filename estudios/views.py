@@ -1,7 +1,7 @@
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count, Q, Model
+from django.db.models import Count, Q, Model, F
 
 from estudios.admin_pestañas import (
     obtener_lista_pestañas_admin,
@@ -227,12 +227,21 @@ def notas(request: HttpRequest):
     )
 
 
+def al_menos_un_filtro_aplicado(lista: "list[str]") -> bool:
+    if lista:
+        if len(lista) == 1 and lista[0] != "":
+            return True
+        if len(lista) > 1:
+            return True
+
+    return False
+
+
 def notas_tabla(request: HttpRequest):
     if request.method != "POST":
-        return HttpResponse("", status=405)
+        return HttpResponse("", status=405)  # type: ignore
 
     datos = request.POST
-    # print("POST:", datos)
 
     form = FormularioNotasBusqueda(datos)
 
@@ -242,21 +251,65 @@ def notas_tabla(request: HttpRequest):
     lapsos = form.data.getlist("notas_lapsos", [])
     materias = form.data.getlist("notas_materias", [])
 
-    notas = Nota.objects.all().order_by("-fecha")
+    # se añaden dinámicamente según el orden en el que se muestran
+    columnas = [
+        {
+            "nombre_col": "matricula__estudiante",
+            "titulo": "Estudiante",
+            "clave": "estudiante",
+        },
+        (
+            {"nombre_col": "materia", "titulo": "Materia", "clave": "materia"}
+            if not al_menos_un_filtro_aplicado(materias)  # type: ignore
+            else None
+        ),
+        (
+            {
+                "nombre_col": "matricula__seccion__nombre",
+                "titulo": "Sección",
+                "clave": "seccion_nombre",
+            }
+            if not al_menos_un_filtro_aplicado(secciones)  # type: ignore
+            else None
+        ),
+        {"nombre_col": "valor", "titulo": "Valor", "clave": "valor"},
+        (
+            {
+                "nombre_col": "matricula__lapso__nombre",
+                "titulo": "Lapso",
+                "clave": "lapso_nombre",
+            }
+            if not al_menos_un_filtro_aplicado(lapsos)  # type: ignore
+            else None
+        ),
+        {"nombre_col": "fecha", "titulo": "Fecha", "clave": "fecha"},
+    ]
 
-    if secciones and len(secciones) > 0 and secciones[0] != "":
+    columnas = list(filter(None, columnas))
+    columnas_fijas = 2
+
+    notas = (
+        Nota.objects.annotate(  # type: ignore
+            seccion_nombre=F("matricula__seccion__nombre"),
+            lapso_nombre=F("matricula__lapso__nombre"),
+        )
+        .only(*[columna["nombre_col"] for columna in columnas])
+        .order_by("-fecha")
+    )
+
+    if al_menos_un_filtro_aplicado(secciones):  # type: ignore
         notas = notas.filter(matricula__seccion_id__in=secciones)
 
-    if lapsos and len(lapsos) > 0 and lapsos[0] != "":
+    if al_menos_un_filtro_aplicado(lapsos):  # type: ignore
         notas = notas.filter(matricula__lapso_id__in=lapsos)
 
-    if materias and len(materias) > 0 and materias[0] != "":
+    if al_menos_un_filtro_aplicado(materias):  # type: ignore
         notas = notas.filter(materia_id__in=materias)
 
     total_conjunto = notas.count()
 
-    nota_minima = float(form.data.get("notas_valor_minimo"))
-    nota_maxima = float(form.data.get("notas_valor_maximo"))
+    nota_minima = float(form.data.get("notas_valor_minimo"))  # type: ignore
+    nota_maxima = float(form.data.get("notas_valor_maximo"))  # type: ignore
 
     if nota_minima <= nota_maxima:
         notas = notas.filter(valor__range=(nota_minima, nota_maxima))
@@ -275,7 +328,7 @@ def notas_tabla(request: HttpRequest):
             columna = {f"{columna_buscada}__{tipo_busqueda}": busqueda}
             notas = notas.filter(**columna)
 
-    cantidad_por_pagina = int(datos.get("notas_cantidad_paginas", 10))
+    cantidad_por_pagina = int(datos.get("notas_cantidad_paginas", 10))  # type: ignore
     paginador = Paginator(notas, cantidad_por_pagina)
 
     notas = paginador.get_page(datos.get("pagina", 1))
@@ -289,9 +342,11 @@ def notas_tabla(request: HttpRequest):
             "paginador": paginador,
             "cantidad_por_pagina": cantidad_por_pagina,
             "form": form,
-            "secciones": secciones if secciones and secciones[0] != "" else [],
-            "lapsos": lapsos if lapsos and lapsos[0] != "" else [],
-            "materias": materias if materias and materias[0] != "" else [],
+            "columnas": columnas,
+            "columnas_ocultables": list(
+                map(lambda x: x["titulo"], columnas[columnas_fijas - 1 :])
+            ),
+            "columnas_fijas": columnas_fijas,
             # Para indicar (al cambiar de página) que solo se cargue la tabla y la paginación, ya que lo demás no se actualiza
             "solo_tabla": datos.get("solo_tabla", False),
         },

@@ -1,0 +1,22 @@
+<style>
+  @media only screen and (max-width: 600px) {
+    {# separador de las columnas fijas con la que se oculta #}
+    .tabla th:nth-child({{ columnas_fijas }}),
+    .tabla td:nth-child({{ columnas_fijas }}) {
+      border-right: 1px solid var(--borde-caja);
+    }
+    
+    {% for i in rango_columnas|make_list %}
+      .tabla[data-i="{{ i }}"] th[data-i]:not([data-i="{{ i }}"]),
+      .tabla[data-i="{{ i }}"] td[data-i]:not([data-i="{{ i }}"]) {
+        display: none;
+      }
+    {% endfor %}
+  }
+  
+  @media only screen and (min-width: 600px) {
+    #columna-cambiador {
+      display: none;
+    }
+  }
+</style>

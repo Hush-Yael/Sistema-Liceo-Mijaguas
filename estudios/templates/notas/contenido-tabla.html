@@ -1,9 +1,7 @@
-{% comment %}
-  solo reemplaza la tabla y la paginación al cambiar de página
-{% endcomment %}
+{# solo se reemplaza la tabla y la paginación al cambiar de página #}
 {% if solo_tabla %}
   {% include "notas/tabla.html" %}
-  {% include "componentes/paginacion.html" with datos_paginados=notas hx_target="#tabla-y-paginacion" hx_include=".incluido-filtros" hx_post="/notas_tabla/" %}
+  {# al cargar la página por primera vez #}
 {% else %}
   {% if notas.object_list.count < 1 %}
     <div role="alert" id="msg-vacio" class="mensaje-tabla caja">
@@ -18,7 +16,6 @@
     </div>
   {% else %}
     {% include "notas/tabla.html" %}
-    {% include "componentes/paginacion.html" with datos_paginados=notas hx_target="#tabla-y-paginacion" hx_include=".incluido-filtros" hx_post="/notas_tabla/" %}
   {% endif %}
 
   <span id="resultados-cantidad" hx-swap-oob="outerHTML:#resultados-cantidad">

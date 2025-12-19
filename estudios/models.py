@@ -270,13 +270,25 @@ class Nota(models.Model):
     def estudiante(self):
         return self.matricula.estudiante
 
+    @estudiante.setter
+    def estudiante(self, estudiante):
+        self._estudiante = estudiante
+
     @property
     def seccion(self):
         return self.matricula.seccion
 
+    @seccion.setter
+    def seccion(self, seccion):
+        self._seccion = seccion
+
     @property
     def lapso(self):
         return self.matricula.lapso
+
+    @lapso.setter
+    def lapso(self, lapso):
+        self._lapso = lapso
 
     class Meta:
         db_table = "notas"
