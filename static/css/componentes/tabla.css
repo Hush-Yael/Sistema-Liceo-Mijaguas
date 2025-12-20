@@ -40,6 +40,16 @@
   background-color: var(--color-fondo-400);
 }
 
+.tabla .sticky-row {
+  position: sticky;
+  z-index: 1;
+}
+
+.tabla .sticky-row td {
+  background-color: var(--color-fondo-500);
+  font-weight: 500;
+}
+
 .tabla th {
   background: var(--color-fondo-600);
 }

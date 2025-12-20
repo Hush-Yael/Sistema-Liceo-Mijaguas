@@ -4,9 +4,27 @@
 
 <head>
   {% include "notas/tabla-style.html" with rango_columnas=columnas_ocultables|length|convertir_a_rango %}
+  <style>
+    .sticky-row {
+      top: 2.5rem;
+    }
+
+    /* ocultar las celdas de filas con datos repetidos (si no se hace hover) */
+    tr:not(.sticky-row):not(:hover) [data-igual-anterior] {
+      background-color: var(--transparente-1);
+      color: #0000;
+    }
+  </style>
+  <script hx-head="re-eval">
+    {
+      const tabla = new TablaConFilaSticky("contenedor-tabla");
+      window.addEventListener("beforeunload", () => tabla.destruir());
+    }
+  </script>
 </head>
 
 <div
+  id="contenedor-tabla"
   class="contenedor-tabla min-h-full"
   x-data="{
     indiceColActual: 0,
@@ -56,36 +74,43 @@
 
     <tbody>
       {% for nota in notas %}
-        <tr>
+        <tr data-index="{{ forloop.counter0 }}">
           {% with total_anterior=notas.number|add:-1|multiplicar:cantidad_por_pagina %}
             {# se multiplica la cantidad por página de acuerdo a la cantidad recorrida y la cantidad de notas por página y se le añade cada valor del ciclo actual #}
             <td class="numeros">{{ total_anterior|add:forloop.counter }}</td>
           {% endwith %}
 
           {% for columna in columnas %}
-            {% with c=columna.clave %}
-              <td
-                {% if c == 'valor' or c == 'lapso_nombre' %}
-                  class="numeros"
-                {% endif %}
-                {% if forloop.counter >= columnas_fijas %}
-                  data-i="{{ columnas_fijas|negativo|add:forloop.counter }}"
-                {% endif %}
-              >
-                {% if c == 'valor' %}
-                  {% with valor=nota.valor|floatformat:"-1" %}
-                    {% if nota.valor < 10 %}
-                      0{{ valor }}
-                    {% else %}
-                      {{ valor }}
-                    {% endif %}
-                  {% endwith %}
-                {% elif c == 'fecha' %}
-                  {{ nota.fecha|date:"D. d M. Y, h:i A" }}
-                {% else %}
-                  {{ nota|valor_por_clave:c }}
-                {% endif %}
-              </td>
+            {% with clave=columna.clave ante=forloop.parentloop.counter0|add:-1 %}
+              {% with dato=nota|valor_por_clave:clave dato_anterior=notas|valor_por_indice:ante|valor_por_clave:clave %}
+                <td
+                  {% if clave == 'valor' or clave == 'lapso_nombre' %}
+                    class=" numeros"
+                  {% else %}
+                    class=""
+                  {% endif %}
+                  {% if forloop.counter >= columnas_fijas %}
+                    data-i="{{ columnas_fijas|negativo|add:forloop.counter }}"
+                  {% endif %}
+                  {% if not forloop.parentloop.first and dato == dato_anterior %}
+                    data-igual-anterior
+                  {% endif %}
+                >
+                  {% if clave == 'valor' %}
+                    {% with valor=dato|floatformat:"-1" %}
+                      {% if dato < 10 %}
+                        0{{ valor }}
+                      {% else %}
+                        {{ valor }}
+                      {% endif %}
+                    {% endwith %}
+                  {% elif clave == 'fecha' %}
+                    {{ dato|date:"D. d M. Y, h:i A" }}
+                  {% else %}
+                    {{ dato }}
+                  {% endif %}
+                </td>
+              {% endwith %}
             {% endwith %}
           {% endfor %}
         </tr>

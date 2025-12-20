@@ -22,7 +22,22 @@ def es_entero(value):
 
 @register.filter(is_safe=True)
 def valor_por_clave(dicc, clave):
+    if not dicc:
+        return None
     return getattr(dicc, clave)
+
+
+@register.filter(is_safe=True)
+def valor_por_indice(lista: list, indice: int):
+    try:
+        return lista[indice]
+    except IndexError:
+        return None
+
+
+@register.simple_tag
+def actualizar_var(variable):
+    return variable
 
 
 # 4 -> "1234" -> luego se usa como rango en un for usando make_list
