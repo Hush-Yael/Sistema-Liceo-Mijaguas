@@ -84,6 +84,6 @@ main>.contenido .tabla-contenido,
 
 @media screen and (min-width: 700px) {
   main>.contenido {
-    padding: 2rem;
+    padding: 1.5rem;
   }
 }
