@@ -19,7 +19,6 @@
   />
 
   {# estilos propios #}
-  <link rel="stylesheet" href="{% static 'css/notas/index.css' %}" />
   <style>
     @media only screen and (hover: hover) and (pointer: fine) {
       #filtros {
@@ -48,6 +47,8 @@
 
 {% block contenido %}
   <main
+    class="col gap-y-6 flex-1 size-full supports-[not(height:1dvh)]:h-[calc(100vh-var(--altura-header))] max-h-[calc(100dvh-var(--altura-header))] max-w-1000px mxa p-4 overflow-y-auto min-[700px]:p-6 min-[1000px]:p-8!"
+    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
     x-data="{ filtros_abiertos: false, media_match: media.matches }"
     @keydown.escape="filtros_abiertos = false"
     @mousedown="!$refs.filtros.contains($event.target) && (filtros_abiertos = false)"
@@ -80,19 +81,17 @@
         </div>
       </form>
     </div>
+    <div
+      class="{{ 'flex flex-wrap gap-2 [&_[role=status],&_[role=alert]]:(justify-between gap-3 p-2 px-3 w-max)'|expandir_variantes }}"
+    >
+      {% if cantidad_años == 0 %}
+        {% include "notas/mensaje-error.html" with mensaje="No se han añadido años académicos" %}
+      {% endif %}
 
-    <div class="contenido" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-      <div
-        class="{{ 'flex flex-wrap gap-2 [&_[role=status],&_[role=alert]]:(justify-between gap-3 p-2 px-3 w-max)'|expandir_variantes }}"
-      >
-        {% if cantidad_años == 0 %}
-          {% include "notas/mensaje-error.html" with mensaje="No se han añadido años académicos" %}
-        {% endif %}
-
-        {% if cantidad_lapsos == 0 %}
-          {% include "notas/mensaje-error.html" with mensaje="No se han añadido lapsos académicos" %}
-        {% endif %}
-        <!-- prettier-ignore-start -->
+      {% if cantidad_lapsos == 0 %}
+        {% include "notas/mensaje-error.html" with mensaje="No se han añadido lapsos académicos" %}
+      {% endif %}
+      <!-- prettier-ignore-start -->
         {% include "notas/estado.html" with label="Totales" dato=total icono='total' %}
 
         {% include "notas/estado.html" with label="En el conjunto" dato='<span id="conjunto-cantidad" aria-label="cargando">...</span>' icono='conjunto' %}
@@ -100,47 +99,56 @@
         {% include "notas/estado.html" with label="Resultados" dato='<span id="resultados-cantidad" aria-label="cargando">...</span>' icono="resultados" %}
         <!-- prettier-ignore-end -->
 
+      <div
+        role="status"
+        class="htmx-indicator caja flex gap-y-1 aic text-[.875rem] min-[600px]:flex-col min-[1000px]:text-[1.125rem]"
+        id="indicador-busqueda"
+      >
         <div
-          role="status"
-          class="htmx-indicator caja flex gap-y-1 aic text-[.875rem] min-[600px]:flex-col min-[1000px]:text-[1.125rem]"
-          id="indicador-busqueda"
+          class="indicador size-5! min-[600px]:size-8! min-[600px]:border-5"
+        ></div>
+        Buscando...
+      </div>
+    </div>
+
+    {% if total < 1 %}
+      <div
+        role="alert"
+        id="tabla-y-paginacion"
+        class="caja col aic gap-3 max-w-max mxa p-6 tac text-texto-sutil"
+      >
+        <span
+          class="decoracion-circular size-min-[5rem] p-3 bg-primario-50 dark:bg-primario-800 text-primario-600 dark:text-primario-100 [&>svg]:size-full"
+        >
+          {% include "notas/iconos.html#sin_notas" %}
+        </span>
+
+        <h2 class="font-bold text-[1.2rem]">No se han añadido notas</h2>
+      </div>
+    {% else %}
+      <div class="tabla-contenido col gap-y-1 flex-1 h-full overflow-y-auto">
+        {% include "notas/cabecera-tabla.html" %}
+
+        <div
+          id="tabla-y-paginacion"
+          hx-trigger="load"
+          hx-post="{% url 'notas_tabla' %}"
+          hx-include=".incluido-filtros"
+          hx-swap="outerHTML"
+          class="h-full overflow-y-auto"
         >
           <div
-            class="indicador size-5! min-[600px]:size-8! min-[600px]:border-5"
-          ></div>
-          Buscando...
-        </div>
-      </div>
-
-      {% if total < 1 %}
-        <div role="alert" id="msg-vacio" class="mensaje-tabla caja">
-          <span class="decoracion-circular">
-            {% include "notas/iconos.html#sin_notas" %}
-          </span>
-
-          <h2>No se han añadido notas</h2>
-        </div>
-      {% else %}
-        <div class="tabla-contenido">
-          {% include "notas/cabecera-tabla.html" %}
-
-          <div
-            id="tabla-y-paginacion"
-            hx-trigger="load"
-            hx-post="{% url 'notas_tabla' %}"
-            hx-include=".incluido-filtros"
-            class="ma"
+            role="status"
+            class="col aic gap-3 tac p-6 text-texto-sutil text-texto-sutil htmx-indicator"
           >
-            <div role="status" class="mensaje-tabla htmx-indicator">
-              <div
-                class="indicador"
-                style="min-width: 3em; min-height: 3em; border-width: 5px;"
-              ></div>
-              <h2>Cargando datos...</h2>
-            </div>
+            <div
+              class="indicador"
+              style="min-width: 3em; min-height: 3em; border-width: 5px;"
+            ></div>
+            <h2 class="font-bold text-[1.2rem]">Cargando datos...</h2>
           </div>
         </div>
-      {% endif %}
-    </div>
+      </div>
+    {% endif %}
   </main>
 {% endblock contenido %}

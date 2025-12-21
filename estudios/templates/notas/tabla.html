@@ -17,15 +17,15 @@
   </style>
   <script hx-head="re-eval">
     {
-      const tabla = new TablaConFilaSticky("contenedor-tabla");
+      const tabla = new TablaConFilaSticky("tabla-y-paginacion");
       window.addEventListener("beforeunload", () => tabla.destruir());
     }
   </script>
 </head>
 
 <div
-  id="contenedor-tabla"
-  class="contenedor-tabla min-h-full"
+  id="tabla-y-paginacion"
+  class="contenedor-tabla h-full max-h-full overflow-y-auto"
   x-data="{
     indiceColActual: 0,
     tituloColActual: 'nombre',

@@ -4,13 +4,19 @@
   {# al cargar la página por primera vez #}
 {% else %}
   {% if notas.object_list.count < 1 %}
-    <div role="alert" id="msg-vacio" class="mensaje-tabla caja">
-      <span class="decoracion-circular">
+    <div
+      role="alert"
+      id="tabla-y-paginacion"
+      class="caja rounded-campo! col aic gap-3 p-6 tac text-texto-sutil"
+    >
+      <span
+        class="decoracion-circular size-min-[5rem] p-3 bg-primario-50 dark:bg-primario-800 text-primario-600 dark:text-primario-100 [&>svg]:size-full"
+      >
         {% include "notas/iconos.html#sin_notas" %}
       </span>
 
       <hgroup>
-        <h2>No se encontraron notas</h2>
+        <h2 class="font-bold text-[1.2rem]">No se encontraron notas</h2>
         <p>Intenta cambiar los filtros o buscar algo distinto</p>
       </hgroup>
     </div>
