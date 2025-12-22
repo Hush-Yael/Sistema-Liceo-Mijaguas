@@ -70,7 +70,8 @@ function cambioAutoTema(e) {
 const $btnNav = $id("btn-nav");
 const $navBg = $id("nav-bg");
 const anchoMedia = window.matchMedia("(min-width: 800px)");
-const abierto = van.state(anchoMedia.matches);
+const abiertoPorBtn = van.state(false);
+const minimoAncho = van.state(anchoMedia.matches);
 
 function cerrarPorClickAfuera(e) {
   /** @type { Element | null } */
@@ -78,27 +79,25 @@ function cerrarPorClickAfuera(e) {
 
   if (padre === null) {
     // cerrar el nav si se hace click fuera de el y si no se trata del botón de abrir el nav
-    if (!e.target.closest("#btn-nav")) abierto.val = false;
+    if (!e.target.closest("#btn-nav")) abiertoPorBtn.val = false;
     window.removeEventListener("mousedown", cerrarPorClickAfuera);
   }
 }
 
-$btnNav.onclick = () => (abierto.val = !abierto.oldVal);
+$btnNav.onclick = () => (abiertoPorBtn.val = !abiertoPorBtn.oldVal);
 
-/** @param {boolean} abierto */
-function cambiarEstadoMenu(abierto) {
+// hacer cambios al abrir o cerrar el menú
+van.derive(() => {
+  const abierto = abiertoPorBtn.val || minimoAncho.val;
+
   $btnNav.setAttribute("aria-expanded", abierto);
   $nav.setAttribute("aria-hidden", !abierto);
   $nav.toggleAttribute("inert", !abierto);
   $navBg.toggleAttribute("data-visible", abierto);
-}
-
-// hacer cambios al abrir o cerrar el menú
-van.derive(() => {
-  cambiarEstadoMenu(abierto.val);
-  if (abierto.val) window.addEventListener("mousedown", cerrarPorClickAfuera);
+  if (abiertoPorBtn.val)
+    window.addEventListener("mousedown", cerrarPorClickAfuera);
 });
 
 anchoMedia.addEventListener
-  ? anchoMedia.addEventListener("change", (e) => cambiarEstadoMenu(e.matches))
-  : anchoMedia.addListener((e) => cambiarEstadoMenu(e.matches));
+  ? anchoMedia.addEventListener("change", (e) => (minimoAncho.val = e.matches))
+  : anchoMedia.addListener((e) => (minimoAncho.val = e.matches));
