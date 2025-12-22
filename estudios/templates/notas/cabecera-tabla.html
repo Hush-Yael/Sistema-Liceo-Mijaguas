@@ -45,11 +45,15 @@
 
     <details
       class="menu z-4 [&_details[open]]:z-4 [&_label]:text-texto-sutil"
-      id="busqueda-config"
+      x-data="{ abierto: false }"
+      :open="abierto"
+      @click.outside="abierto = false"
+      @keydown.escape="abierto = false"
     >
       <summary
         class="btn elevado h-full min-w-9"
         aria-label="configuración de búsqueda"
+        @click.prevent="abierto = !abierto"
       >
         {% include "notas/iconos.html#config" %}
       </summary>
@@ -58,13 +62,17 @@
         class="{{ 'contenido-menu col gap-y-4 p-3 px-4 rounded-tr-0! top-108% right-0 [&_.contenido-menu]:(col gap-y-4) [&_.contenido-menu]:(right-50% top-8 rounded-tr-0) min-[450px]:[&_.contenido-menu]:(right-113% top-0)'|expandir_variantes }}"
       >
         <details
-          name="config"
+          name="config-submenu"
+          x-data="{ abierto: false }"
+          :open="abierto"
+          @click.outside="abierto = false"
+          @keydown.escape="abierto = false"
           class="menu submenu"
           hx-post="{% url 'notas_tabla' %}"
           {# se evita que se ejecute la request de "/notas_tabla" al cambiar los filtros específicos de búsqueda cuando el campo de búsqueda está vacío, ya que no tendría sentido, pues los resultados serían los mismos #}
           hx-trigger="change[$id('q').value.trim() !== ''] changed delay:600ms"
         >
-          <summary class="flex aic gap-x-2">
+          <summary class="flex aic gap-x-2" @click.prevent="abierto = !abierto">
             {% include "componentes/iconos/caret.html#izquierda" with class="size-5" %}
             Búsqueda
           </summary>
@@ -83,12 +91,16 @@
         </details>
 
         <details
-          name="config"
+          name="config-submenu"
+          x-data="{ abierto: false }"
+          :open="abierto"
+          @click.outside="abierto = false"
+          @keydown.escape="abierto = false"
           class="menu submenu"
           hx-post="{% url 'notas_tabla' %}"
           hx-trigger="input changed delay:600ms"
         >
-          <summary class="flex aic gap-x-2">
+          <summary class="flex aic gap-x-2" @click.prevent="abierto = !abierto">
             {% include "componentes/iconos/caret.html#izquierda" with class="size-5" %}
             Valores de las notas
           </summary>
