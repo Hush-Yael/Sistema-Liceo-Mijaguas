@@ -61,17 +61,6 @@
 
         {% include "notas/estado.html" with label="Resultados" dato='<span id="resultados-cantidad" aria-label="cargando">...</span>' icono="lupa" %}
         <!-- prettier-ignore-end -->
-
-      <div
-        role="status"
-        class="htmx-indicator caja flex gap-y-1 aic text-[.875rem] min-[600px]:flex-col min-[1000px]:text-[1.125rem]"
-        id="indicador-busqueda"
-      >
-        <div
-          class="indicador size-5! min-[600px]:size-8! min-[600px]:border-5"
-        ></div>
-        Buscando...
-      </div>
     </div>
 
     {% if total < 1 %}
