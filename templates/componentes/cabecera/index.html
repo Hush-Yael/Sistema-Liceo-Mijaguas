@@ -65,9 +65,9 @@
     <div
       id="tema-selector"
       class="fc gap-x-1.5 p-[.375rem_.75rem] rounded-4 m-[0_auto] w-max bg-#fff2 min-[800px]:mt-2 min-[800px]:mb-2"
-      role="group"
+      role="radiogroup"
     >
-      {% with c="flex items-center gap-x-2 size-6 p-1 aspect-square rounded-full bg-#fff2 text-primario-texto transition-[background-color,color] ease-in-out pover:bg-#fff3 [&>svg]:size-5 peer-focus-visible:bg-#fff3 peer-not-checked:[&>svg.lineas]:hidden peer-checked:(text-primario bg-primario-texto [&>svg:not(.lineas)]:hidden)"|expandir_variantes %}
+      {% with c="flex items-center gap-x-2 size-6 p-1 aspect-square rounded-full bg-#fff2 text-primario-texto transition-[background-color,color] ease-in-out peer-not-checked:pover:bg-#fff3 [&>svg]:size-5 peer-focus-visible:bg-#fff3 peer-not-checked:[&>svg.lineas]:hidden peer-checked:(text-primario bg-primario-texto [&>svg:not(.lineas)]:hidden)"|expandir_variantes %}
         {% include "componentes/cabecera/tema-opcion.html" with class=c id="tema-claro" value="claro" icono="sol" label="Claro" %}
         {% include "componentes/cabecera/tema-opcion.html" with class=c id="tema-oscuro" value="oscuro" icono="luna" label="Oscuro" %}
         {% include "componentes/cabecera/tema-opcion.html" with class=c id="tema-auto" value="auto" icono="auto" label="Automático" %}
