@@ -13,7 +13,7 @@ def render_con_cookies(request, nombre_archivo, context, cookies_a_guardar):
     )
 
     for clave, valor in cookies_a_guardar:
-        respuesta.set_cookie(clave, valor)
+        respuesta.set_cookie(clave, valor, max_age=2592000)
 
     return respuesta
 
@@ -28,8 +28,9 @@ def obtener_y_corregir_valores_iniciales(cookies: dict, form: forms.Form):
         if (cookie := cookies.get(id)) is not None:
             try:
                 if isinstance(campo, forms.ModelMultipleChoiceField):
-                    cookie = json.loads(cookie)
-                    campo.initial = cookie
+                    initial = json.loads(cookie)
+                    # print(f"<{id}> initial: {initial}")
+                    campo.initial = initial
 
                 # validar que el valor de la cookie sea correcto para indicarlo como valor inicial al campo
                 else:
@@ -37,8 +38,13 @@ def obtener_y_corregir_valores_iniciales(cookies: dict, form: forms.Form):
                     campo.initial = valor_valido
             # si no lo es, se deja como está y se manda a corregir la cookie con el valor por defecto
             except (ValueError, forms.ValidationError):
-                # print(f'La cookie "{id}" no tenía un valor válido --> {cookie}')
-                cookies_a_corregir.append((id, campo.initial))
+                initial = (
+                    "[]" if isinstance(campo, forms.ModelMultipleChoiceField) else ""
+                )
+                """ print(
+                    f'La cookie "{id}" no tenía un valor válido --> {cookie}, se reestablece su valor inicial {initial or "''"}'
+                ) """
+                cookies_a_corregir.append((id, initial or ""))
 
             # print(f"Campo <{id}>: initial = {campo.initial}, cookie = {cookie}")
         """ else:
@@ -63,9 +69,11 @@ def verificar_y_aplicar_filtros(form_poblado: forms.Form):
             if not queryset:
                 cookies_para_guardar.append((id, None))
             elif hasattr(queryset, "values_list"):
-                cookies_para_guardar.append(
-                    (id, json.dumps(list(queryset.values_list("pk", flat=True))))
+                opciones_elegidas = json.dumps(
+                    list(queryset.values_list("pk", flat=True))
                 )
+                # print(f"Opciones elegidas: {opciones_elegidas}")
+                cookies_para_guardar.append((id, opciones_elegidas))
         # filtros de campos individuales
         else:
             valor = form_poblado.cleaned_data.get(id)

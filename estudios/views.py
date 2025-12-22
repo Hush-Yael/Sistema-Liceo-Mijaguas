@@ -247,9 +247,9 @@ def notas_tabla(request: HttpRequest):
 
     cookies_para_guardar = verificar_y_aplicar_filtros(form)
 
-    secciones = form.data.getlist("notas_secciones", [])
-    lapsos = form.data.getlist("notas_lapsos", [])
-    materias = form.data.getlist("notas_materias", [])
+    secciones = form.data.getlist("notas_secciones", [])  # type: ignore
+    lapsos = form.data.getlist("notas_lapsos", [])  # type: ignore
+    materias = form.data.getlist("notas_materias", [])  # type: ignore
 
     # se añaden dinámicamente según el orden en el que se muestran
     columnas = [

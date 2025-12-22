@@ -35,11 +35,6 @@ def valor_por_indice(lista: list, indice: int):
         return None
 
 
-@register.simple_tag
-def actualizar_var(variable):
-    return variable
-
-
 # 4 -> "1234" -> luego se usa como rango en un for usando make_list
 @register.filter(is_safe=True)
 def convertir_a_rango(value, desde=-1):
@@ -64,3 +59,13 @@ def convertir_a_rango(value, desde=-1):
 @register.filter
 def negativo(valor):
     return -valor
+
+
+@register.filter
+def obtener_lista_opciones(campo_choices):
+    return list(
+        map(
+            lambda t: {"id": t[0].value, "label": t[1]},
+            campo_choices,
+        )
+    )

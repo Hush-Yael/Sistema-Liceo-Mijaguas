@@ -1,0 +1,213 @@
+{% load partials %}
+{% load grupos_variantes %}
+
+<div
+  {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+  x-data="{ 
+    abierto: false,
+    opciones: {{ opciones|safe }},
+    {% if multiple == 0 %}
+      multiple: false,
+      seleccionada: {{ opcion_seleccionada|default:'null' }},
+    {% else %}
+      multiple: true,
+      opcionesSeleccionadas: new Set({{ opciones_seleccionadas|safe }}),
+    {% endif %}
+    abiertoPorTeclado: false,
+    shiftPresionado: false,
+    ultimaSeleccionada: null,
+    {# las funciones se cargan desde el script dedicado #}
+    establecerTextoLabel,
+    destacarPrimeraCoincidencia,
+    seleccionarOpcion,
+    reiniciar,
+  }"
+  {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+  class="{{ class|default:''|add:' col gap-1' }}"
+  x-on:keydown="destacarPrimeraCoincidencia($event.key)"
+  x-on:keydown.esc.window="abierto = false, abiertoPorTeclado = false"
+>
+  <label
+    for="{{ name }}-texto"
+    class="{{ label_class|default:''|add:' w-fit pl-0.5 text-sm' }}"
+  >
+    {{ label }}
+    <input
+      id="{{ name }}-texto"
+      type="text"
+      {% if multiple  == 0 %}
+        :value="seleccionada"
+      {% else %}
+        :value="opcionesSeleccionadas.size ?
+        Array.from(opcionesSeleccionadas).join(',') : ''"
+      {% endif %}
+      hidden
+      {% if hx_post %}
+        hx-post="{{ hx_post }}"
+      {% elif hx_get %}
+        hx-get="{{ hx_get }}"
+      {% endif %}
+    />
+  </label>
+
+  <div class="relative flex">
+    {% if btn_reiniciar %}
+      <template
+        {% if multiple == 0 %}
+          x-if="seleccionada !== null && seleccionada !== undefined"
+        {% else %}
+          x-if="opcionesSeleccionadas.size"
+        {% endif %}
+      >
+        <button
+          type="button"
+          aria-label="eliminar valores"
+          data-btn-reiniciar
+          x-on:click="reiniciar()"
+          class="peer btn elevado h-full aspect-1 min-w-7 p-0.5 rounded-r-0 border-r-0! "
+          {% if hx_post %}
+            hx-post="{{ hx_post }}"
+          {% elif hx_get %}
+            hx-get="{{ hx_get }}"
+          {% endif %}
+        >
+          <svg
+            fill="none"
+            stroke-width="0"
+            xmlns="http://www.w3.org/2000/svg"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            height="1em"
+            width="1em"
+            style="overflow: visible; color: currentcolor;"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.5"
+              d="M6 18 18 6M6 6l12 12"
+            ></path>
+          </svg>
+        </button>
+      </template>
+    {% endif %}
+
+    <button
+      type="button"
+      role="combobox"
+      class="{{ btn_class|default:''|add:' elevado inline-flex justify-between gap-2 w-full outline-2 outline-#0000 outline-offset-2 peer-not-disabled:rounded-l-0 focus-visible:outline-primario dark:focus-visible:outline-primario-600 rounded-campo whitespace-nowrap text-sm' }}"
+      aria-haspopup="listbox"
+      aria-controls="skillsList"
+      x-on:click="abierto = !abierto"
+      x-on:keydown.down.prevent="abiertoPorTeclado = true"
+      x-on:keydown.enter.prevent="abiertoPorTeclado = true"
+      x-on:keydown.space.prevent="abiertoPorTeclado = true"
+      :aria-expanded="abierto || abiertoPorTeclado"
+    >
+      <span
+        class="p-1 pl-3 pr-1 text-sm overflow-hidden text-ellipsis whitespace-nowrap"
+      >
+        {% if prefijo %}
+          <span class="{{ prefijo_class }}">{{ prefijo }}</span>
+        {% endif %}
+
+        <span
+          class="{{ valor_class|default:''|add:' w-full empty:before:content-[attr(data-placeholder)] only-of-type:first-letter:uppercase' }}"
+          data-placeholder="{{ placeholder|default:'seleccione una opción' }}"
+          x-text="establecerTextoLabel()"
+        ></span>
+      </span>
+
+      <div
+        class="fc h-full w-7 min-w-max border-l border-[--transparente-2] rounded-r-campo bg-fondo-700"
+      >
+        {% include "componentes/iconos/caret.html#abajo" with class="size-5 size-min-max" %}
+      </div>
+    </button>
+
+    <ul
+      role="listbox"
+      id="skillsList"
+      {% if multiple  == 0 %}
+        aria-multiselectable="false"
+      {% else %}
+        aria-multiselectable="true"
+      {% endif %}
+      class="{{ lista_clases|default:''|add:'absolute z-10 left-0 top-8.5 col supports-[not(height:1dvh)]:max-h-45vh max-h-45dvh w-full min-w-max max-w-350px elevado overflow-y-auto py-1.5 select-none empty:hidden' }}"
+      x-cloak
+      x-trap="abiertoPorTeclado"
+      x-show="abierto || abiertoPorTeclado"
+      x-on:click.outside="abierto = false, abiertoPorTeclado = false"
+      x-on:keydown.down.prevent="$focus.wrap().next()"
+      x-on:keydown.up.prevent="$focus.wrap().previous()"
+      x-on:keydown.home.prevent="$focus.wrap().first()"
+      x-on:keydown.end.prevent="$focus.wrap().last()"
+      x-on:keydown.enter.prevent="if ($event.target !== $event.currentTarget) {
+        $event.target.checked = !$event.target.checked;
+        seleccionarOpcion($event.target)
+      }"
+      x-on:keydown="shiftPresionado = $event.shiftKey"
+      x-on:change="seleccionarOpcion($event.target)"
+      x-transition
+    >
+      <template x-for="(item, index) in opciones" :key="item.id">
+        <li
+          role="option"
+          {% if multiple == 0 %}
+            :aria-selected="seleccionada == item.id"
+          {% else %}
+            :aria-selected="opcionesSeleccionadas.has(item.id)"
+          {% endif %}
+        >
+          <label
+            class="flex items-center gap-2.5 p-1.5 px-3"
+            :for="'{{ name }}-opt-'+index"
+          >
+            <div
+              class="size-4.5 size-min-4.5 relative [&>input::before,&>input::after]:content-['']"
+            >
+              {% with c="incluido-filtros combobox-opcion relative size-full appearance-none border border-[--transparente-2] bg-fondo-700 transition-[background-color,border-color] checked:(bg-primario dark:bg-primario-700 border-primario dark:border-primario-700) before:(absolute -z-1 top-2/4 left-2/4 block size-180% -translate-y-2/4 -translate-x-2/4 rounded-full bg-[--transparente-1] opacity-0 transition-opacity focus-visible:opacity-50 pover:opacity-50)"|expandir_variantes %}
+                {% if multiple == 0 %}
+                  <input
+                    type="radio"
+                    class="{{ c|add:' rounded-full after:(absolute top-0 left-0 right-0 bottom-0 size-50% ma block rounded-full bg-primario-texto opacity-0) checked:after:(opacity-100)'|expandir_variantes }}"
+                    name="{{ name }}"
+                    :value="item.id"
+                    :checked="seleccionada == item.id"
+                    :id="'{{ name }}-opt-'+index"
+                  />
+                {% else %}
+                  <input
+                    type="checkbox"
+                    class="{{ c|add:' peer rounded' }}"
+                    name="{{ name }}"
+                    :value="item.id"
+                    :checked="opcionesSeleccionadas.has(item.id)"
+                    :id="'{{ name }}-opt-'+index"
+                  />
+                  <span
+                    class="absolute fc text-primario-texto opacity-0 peer-checked:opacity-100 top-0 left-0 size-full"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="size-3.5"
+                      viewBox="0 0 20 20"
+                      stroke-width="1"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clip-rule="evenodd"
+                      ></path>
+                    </svg>
+                  </span>
+                {% endif %}
+              {% endwith %}
+            </div>
+            <span x-text="item.label"></span>
+          </label>
+        </li>
+      </template>
+    </ul>
+  </div>
+</div>

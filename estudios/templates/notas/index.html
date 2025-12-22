@@ -18,69 +18,20 @@
     href="{% static 'css/componentes/htmx-indicator.css' %}"
   />
 
-  {# estilos propios #}
-  <style>
-    @media only screen and (hover: hover) and (pointer: fine) {
-      #filtros {
-        scrollbar-color: var(--color-primario-500) transparent;
-      }
-
-      .oscuro #filtros {
-        scrollbar-color: #888 var(--color-fondo-700);
-      }
-    }
-  </style>
-
   <script src="{% static 'js/htmx.min.js' %}"></script>
   <script defer src="{% static 'js/htmx-ext-head.js' %}"></script>
+  <script defer src="{% static 'js/alpine-focus.min.js' %}"></script>
   <script defer src="{% static 'js/alpine.min.js' %}"></script>
-  <script defer src="{% static 'js/notas/filtros.js' %}"></script>
+  <script src="{% static 'js/componentes/combobox.js' %}"></script>
   <script src="{% static 'js/componentes/tabla-con-fila-sticky.js' %}"></script>
-
-  <script>
-    const media = window.matchMedia("(min-width: 800px)");
-    media.addEventListener("change", (e) => {
-      Alpine.$data($("main")).media_match = e.matches;
-    });
-  </script>
 {% endblock cabeza %}
 
 {% block contenido %}
   <main
     class="col gap-y-6 flex-1 size-full supports-[not(height:1dvh)]:h-[calc(100vh-var(--altura-header))] max-h-[calc(100dvh-var(--altura-header))] max-w-1000px mxa p-4 overflow-y-auto min-[700px]:p-6 min-[1000px]:p-8!"
     hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-    x-data="{ filtros_abiertos: false, media_match: media.matches }"
-    @keydown.escape="filtros_abiertos = false"
-    @mousedown="!$refs.filtros.contains($event.target) && (filtros_abiertos = false)"
+    hx-include=".incluido-filtros"
   >
-    <div
-      x-ref="filtros"
-      :aria-hidden="!filtros_abiertos && !media_match"
-      :inert="!filtros_abiertos && !media_match"
-      class="{{ 'max-[800px]:(fixed z-5 h-[calc(100%-var(--altura-header))] shadow-[4px_0_20px_#0001])  top-[--altura-header] left-0 min-w-200px  border-r border-[--borde-caja] elevado  overflow-y-hidden transition-[transform,opacity] ease-in-out duration-300 bg-[--primario] aria-hidden:(-translate-x-100% opacity-0) aria-[hidden=false]:(translate-x-0 opacity-100) min-[800px]:(translate-x-0 opacity-100 h-full)'|expandir_variantes }}"
-    >
-      <form
-        id="filtros"
-        class="incluido-filtros h-full"
-        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-        hx-trigger="change delay:800ms"
-        hx-post="{% url 'notas_tabla' %}"
-        hx-indicator="#indicador-busqueda"
-        hx-target="#tabla-y-paginacion"
-        hx-include=".incluido-filtros"
-        aria-label="Filtros"
-      >
-        <div class="space-y-5 h-full p-4 overflow-y-auto">
-          {% with post="/guardado_filtro_cookie/" %}
-            {% include "notas/lista-filtros.html" with cualquiera_label="Todas" label="Secciones" campo=form.notas_secciones %}
-            {#  #}
-            {% include "notas/lista-filtros.html" with cualquiera_label="Todas" label="Materias" campo=form.notas_materias %}
-            {#  #}
-            {% include "notas/lista-filtros.html" with label="Lapso" campo=form.notas_lapsos %}
-          {% endwith %}
-        </div>
-      </form>
-    </div>
     <div
       class="{{ 'flex flex-wrap gap-2 [&_[role=status],&_[role=alert]]:(justify-between gap-3 p-2 px-3 w-max)'|expandir_variantes }}"
     >
@@ -133,7 +84,6 @@
           id="tabla-y-paginacion"
           hx-trigger="load"
           hx-post="{% url 'notas_tabla' %}"
-          hx-include=".incluido-filtros"
           hx-swap="outerHTML"
           class="h-full overflow-y-auto"
         >

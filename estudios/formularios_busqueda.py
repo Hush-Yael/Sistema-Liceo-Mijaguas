@@ -72,19 +72,22 @@ class FormularioNotasBusqueda(forms.Form):
     notas_materias = forms.ModelMultipleChoiceField(
         label="Asignatura",
         queryset=Materia.objects.all().order_by("nombre"),
-        widget=forms.CheckboxSelectMultiple,
+        initial=[],
+        required=False,
     )
 
     notas_secciones = forms.ModelMultipleChoiceField(
         label="Sección",
         queryset=Seccion.objects.all().order_by("año", "letra"),
-        widget=forms.CheckboxSelectMultiple,
+        initial=[],
+        required=False,
     )
 
     notas_lapsos = forms.ModelMultipleChoiceField(
         label="Lapso",
         queryset=Lapso.objects.all().order_by("-id"),
-        widget=forms.CheckboxSelectMultiple,
+        initial=[],
+        required=False,
     )
 
     notas_columna_buscada = forms.ChoiceField(
