@@ -1,6 +1,7 @@
 {% load widget_tweaks %}
 {% load grupos_variantes %}
 {% load utilidades %}
+{% load partials %}
 {% load sekizai_tags %}
 
 {% addtoblock "cabeza" %}
@@ -33,15 +34,25 @@
   </form>
 
   <div role="group" class="flex gap-x-1">
-    <input
-      id="q"
-      name="q"
-      class="flex-1 p-[.25rem_.75rem] rounded-campo elevado incluido-filtros"
-      type="search"
-      hx-post="{% url 'notas_tabla' %}"
-      hx-trigger="input changed delay:600ms"
-      placeholder="Buscar..."
-    />
+    <label
+      class="flex flex-1 rounded-campo elevado ring-2 focus-within:ring-current"
+    >
+      <span class="sr-only">Buscar</span>
+      <span
+        aria-hidden="true"
+        class="fc h-full w-8 min-w-max border-r border-[--transparente-2] rounded-l-campo bg-fondo-700"
+        >{% include "notas/iconos.html#lupa" with class="size-4 text-texto-sutil" %}</span
+      >
+      <input
+        id="q"
+        name="q"
+        class="incluido-filtros flex-1 p-[.25rem_.75rem]  outline-0"
+        type="search"
+        hx-post="{% url 'notas_tabla' %}"
+        hx-trigger="input changed delay:600ms"
+        placeholder="Buscar..."
+      />
+    </label>
 
     <details
       class="menu z-4 [&_details[open]]:z-4 [&_label]:text-texto-sutil"
