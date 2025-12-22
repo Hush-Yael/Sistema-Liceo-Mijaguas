@@ -7,6 +7,7 @@
     type="radio"
     name="tema"
     value="{{ value }}"
+    :checked="$el.value === tema"
   />
   <label for="{{ id }}" class="{{ class }}">
     {% include "componentes/iconos/tema.html#"|add:icono|add:'_lineas' %}

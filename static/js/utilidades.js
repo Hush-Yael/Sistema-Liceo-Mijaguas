@@ -1,4 +1,5 @@
 Object.defineProperties(window, {
+  log: { value: (...params) => console.log(...params) },
   $: { value: (query) => document.querySelector(query) },
   $$: { value: (query) => document.querySelectorAll(query) },
   $id: { value: (id) => document.getElementById(id) },
