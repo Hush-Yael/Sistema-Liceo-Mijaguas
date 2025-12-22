@@ -5,7 +5,6 @@ from estudios.models import (
     Materia,
     AñoMateria,
 )
-from typing import Callable
 from django import forms
 from django.http import HttpResponse, HttpRequest
 from django.shortcuts import render
@@ -173,6 +172,8 @@ def obtener_vista_pestaña_admin_form(
                 "objeto_retornado": objeto,
             },
         )
+
+    return HttpResponse("Metodo no permitido", status=405)
 
 
 # Obtiene todos los años existentes en la base de datos

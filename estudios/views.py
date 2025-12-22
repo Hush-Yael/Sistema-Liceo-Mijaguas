@@ -176,6 +176,8 @@ def obtener_pestaña_admin(request: HttpRequest):
             nombre_pestaña=pestaña,
         )
 
+    return HttpResponse("Metodo no permitido", status=405)
+
 
 @login_required
 def obtener_form_editar_pestaña(request: HttpRequest):
@@ -212,7 +214,7 @@ def notas(request: HttpRequest):
 
     cantidad_años = Año.objects.count()
     cantidad_lapsos = Lapso.objects.count()
-    total = Nota.objects.all().count()
+    total = Nota.objects.count()
 
     return render_con_cookies(
         request,
