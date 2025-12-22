@@ -18,6 +18,15 @@
     href="{% static 'css/componentes/htmx-indicator.css' %}"
   />
 
+  <style>
+    @media all and (display-mode: fullscreen) {
+      .tabla-contenido {
+        padding: 1rem;
+        background: var(--color-fondo-300);
+      }
+    }
+  </style>
+
   <script src="{% static 'js/htmx.min.js' %}"></script>
   <script defer src="{% static 'js/htmx-ext-head.js' %}"></script>
   <script defer src="{% static 'js/alpine-focus.min.js' %}"></script>
