@@ -31,6 +31,9 @@
     class="col gap-y-6 flex-1 size-full supports-[not(height:1dvh)]:h-[calc(100vh-var(--altura-header))] max-h-[calc(100dvh-var(--altura-header))] max-w-1000px mxa p-4 overflow-y-auto min-[700px]:p-6 min-[1000px]:p-8!"
     hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
     hx-include=".incluido-filtros"
+    hx-target="#tabla-y-paginacion"
+    hx-indicator="#indicador-busqueda"
+    hx-swap="outerHTML"
   >
     <div
       class="{{ 'flex flex-wrap gap-2 [&_[role=status],&_[role=alert]]:(justify-between gap-3 p-2 px-3 w-max)'|expandir_variantes }}"
@@ -84,7 +87,6 @@
           id="tabla-y-paginacion"
           hx-trigger="load"
           hx-post="{% url 'notas_tabla' %}"
-          hx-swap="outerHTML"
           class="h-full overflow-y-auto"
         >
           <div

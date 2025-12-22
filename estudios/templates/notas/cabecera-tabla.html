@@ -4,20 +4,20 @@
 {% load sekizai_tags %}
 
 {% addtoblock "cabeza" %}
-<script>
+
   {# Para que se haga la petición por click en form de los filtros #}
-  function verificarClickEnReiniciar() {
-    return event.target !== event.currentTarget && event.target.closest('[data-btn-reiniciar]') instanceof HTMLButtonElement
-  }
-</script>
+  <script>
+    function verificarClickEnReiniciar() {
+      return (
+        event.target !== event.currentTarget &&
+        event.target.closest("[data-btn-reiniciar]") instanceof
+          HTMLButtonElement
+      );
+    }
+  </script>
 {% endaddtoblock %}
 
-<header
-  class="col gap-y-3"
-  hx-target="#tabla-y-paginacion"
-  hx-indicator="#indicador-busqueda"
-  hx-include=".incluido-filtros"
->
+<header class="col gap-y-3">
   <form
     class="flex flex-wrap gap-2"
     hx-trigger="click[verificarClickEnReiniciar()], change delay:800ms"
@@ -96,11 +96,7 @@
           <div
             class="contenido-menu p-4"
             hx-trigger="change changed"
-            hx-include=".incluido-filtros"
             hx-post="{% url 'notas_tabla' %}"
-            hx-indicator="#indicador-busqueda"
-            hx-target="#tabla-y-paginacion"
-            hx-swap="outerHTML"
           >
             <div class="flex gap-x-3 valor-nota">
               {{ form.notas_valor_minimo.label_tag }}
