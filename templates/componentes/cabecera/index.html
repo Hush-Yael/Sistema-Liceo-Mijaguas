@@ -50,23 +50,9 @@
           {% include 'componentes/cabecera/datos-usuario.html' %}
         </div>
       {% else %}
-        <a
-          href="{% url 'login' %}"
-          class="fc gap-x-1 btn p-1.5 m-[0_.5rem] mt-3 rounded-full bg-primario-texto text-primario font-500 min-[800px]:hidden"
-        >
-          Iniciar sesión
-          <svg
-            class="size-5"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 512 512"
-            height="1em"
-            width="1em"
-          >
-            <path
-              d="M0 256a256 256 0 1 0 512 0 256 256 0 1 0-512 0zm281 129c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l71-71L136 280c-13.3 0-24-10.7-24-24s10.7-24 24-24h182.1l-71-71c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0L393 239c9.4 9.4 9.4 24.6 0 33.9L281 385z"
-            ></path>
-          </svg>
-        </a>
+        {% with class="min-[800px]:hidden" %}
+          {% partial login %}
+        {% endwith %}
       {% endif %}
 
       {% partialdef hr inline %}
@@ -155,47 +141,30 @@
         ></span>
       </button>
 
-      <details class="menu group h-full max-[800px]:hidden">
-        <summary
-          class="fc p-[.375rem_1.25rem] list-none transition-[background-color] min-[800px]:h-full [&>svg]:size-1.5em hover:bg-primario-600 group-open:bg-primario-texto group-open:text-primario-600"
-          aria-label="Ver perfil"
-        >
-          {% comment %}
-            se muestra un ícono diferente dependiendo de si está abierto
-          {% endcomment %}
-          {% include "componentes/iconos/sin-foto-lineas.html" with class="group-open:hidden [&_path]:scale-120 [&_path]:translate-[-7.5%,-7.5%]" %}
-          {% include "componentes/iconos/sin-foto.html" with class="group-not-open:hidden" %}
-        </summary>
+      {% if request.user.is_authenticated %}
+        <details class="menu group h-full max-[800px]:hidden">
+          <summary
+            class="fc p-[.375rem_1.25rem] list-none transition-[background-color] min-[800px]:h-full [&>svg]:size-1.5em hover:bg-primario-600 group-open:bg-primario-texto group-open:text-primario-600"
+            aria-label="Ver perfil"
+          >
+            {% comment %}
+              se muestra un ícono diferente dependiendo de si está abierto
+            {% endcomment %}
+            {% include "componentes/iconos/sin-foto-lineas.html" with class="group-open:hidden [&_path]:scale-120 [&_path]:translate-[-7.5%,-7.5%]" %}
+            {% include "componentes/iconos/sin-foto.html" with class="group-not-open:hidden" %}
+          </summary>
 
-        <div
-          class="contenido-menu p-4 top-full right-0 border-#fff3 border-t-2 solid rounded-0 rounded-bl-caja bg-primario [&_figure_img]:size-min-8.5rem [&_figure_img]:lh-8.5rem [&_figure_svg]:size-min-8.5rem [&_h2]:text-[1.2rem]"
-        >
-          {% if request.user.is_authenticated %}
+          <div
+            class="contenido-menu p-4 top-full right-0 border-#fff3 border-t-2 solid rounded-0 rounded-bl-caja bg-primario [&_figure_img]:size-min-8.5rem [&_figure_img]:lh-8.5rem [&_figure_svg]:size-min-8.5rem [&_h2]:text-[1.2rem]"
+          >
             {% include 'componentes/cabecera/datos-usuario.html' %}
-          {% else %}
-            <a href="{% url 'login' %}" class="iniciar-sesion flex-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                <path
-                  d="M9 8v-2a2 2 0 0 1 2 -2h7a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-7a2 2 0 0 1 -2 -2v-2"
-                />
-                <path d="M3 12h13l-3 -3" />
-                <path d="M13 15l3 -3" />
-              </svg>
-              Iniciar sesión
-            </a>
-          {% endif %}
-        </div>
-      </details>
+          </div>
+        </details>
+      {% else %}
+        {% with class="max-[800px]:hidden px-3 ma mr-2" %}
+          {% partial login %}
+        {% endwith %}
+      {% endif %}
     </div>
   </header>
 
@@ -205,3 +174,13 @@
     class="fixed left-0 right-0 top-0 bottom-0 z-4 bg-#0004 dark:bg-#0007 not-[[data-visible]]:hidden min-[800px]:hidden"
   ></div>
 </div>
+
+{% partialdef login %}
+  <a
+    href="{% url 'login' %}"
+    class="{{ class|default:''|add:' fc gap-x-2 btn p-1.5 m-[0_.5rem] mt-3 rounded-full bg-primario-texto text-primario font-500' }}"
+  >
+    Iniciar sesión
+    {% include "componentes/iconos/nav.html#login" with class="size-5" %}
+  </a>
+{% endpartialdef login %}
