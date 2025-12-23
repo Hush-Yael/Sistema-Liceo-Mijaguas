@@ -66,19 +66,17 @@
         tema: localStorage.getItem('tema'),
         media: matchMedia('(prefers-color-scheme: dark)'),
       }"
-        x-init='$watch("tema", () => {
-        window.aplicarTema(tema, true);  
-
-        if (tema === "auto")
-          media.addEventListener
-            ? media.addEventListener("change", () => window.aplicarTema(tema, true))
-            : media.addListener(() => window.aplicarTema(tema, true))
-        else
-          media.removeEventListener
-            ? media.removeEventListener("change", () => window.aplicarTema(tema, true))
-            : media.removeListener(() => window.aplicarTema(tema, true));
-        
-      })'
+        x-init='$watch("tema", () => window.aplicarTema(tema, true))'
+        x-effect='
+          if (tema === "auto")
+            media.addEventListener
+              ? media.addEventListener("change", () => window.aplicarTema(tema, true))
+              : media.addListener(() => window.aplicarTema(tema, true))
+          else
+            media.removeEventListener
+              ? media.removeEventListener("change", () => window.aplicarTema(tema, true))
+              : media.removeListener(() => window.aplicarTema(tema, true));
+        '
         @change="tema = window.verificarTema($event.target.value)"
       >
         {% with c="flex items-center gap-x-2 size-6 p-1 aspect-square rounded-full bg-#fff2 text-primario-texto transition-[background-color,color] ease-in-out peer-not-checked:pover:bg-#fff3 [&>svg]:size-5 peer-focus-visible:bg-#fff3 peer-not-checked:[&>svg.lineas]:hidden peer-checked:(text-primario bg-primario-texto [&>svg:not(.lineas)]:hidden)"|expandir_variantes %}
