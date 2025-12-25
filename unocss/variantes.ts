@@ -1,4 +1,4 @@
-import type { Variant } from "unocss";
+import { type Variant } from "unocss";
 
 export default [
   (matcher) => {
@@ -7,6 +7,7 @@ export default [
     return [
       {
         matcher: matcher.slice(6),
+        order: 999,
         handle: (input, next) => {
           const p = "@media (hover: hover) and (pointer: fine)";
           return next({
@@ -14,10 +15,11 @@ export default [
             parent: `${input.parent ? `${input.parent} $$ ` : ""}${p}`,
           });
         },
-        selector: (s) => `${s}:hover`,
+        selector: (s) => `${s}:not(:disabled):hover`,
       },
       {
         matcher: matcher.slice(6),
+        order: 999,
         handle: (input, next) => {
           const p = "@media (hover: none) and (pointer: coarse)";
           return next({
@@ -25,7 +27,7 @@ export default [
             parent: `${input.parent ? `${input.parent} $$ ` : ""}${p}`,
           });
         },
-        selector: (s) => `${s}:active`,
+        selector: (s) => `${s}:not(:disabled):active`,
       },
     ];
   },
