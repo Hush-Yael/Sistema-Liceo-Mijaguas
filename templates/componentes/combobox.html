@@ -97,7 +97,7 @@
       role="combobox"
       class="{{ btn_class|default:''|add:' elevado inline-flex justify-between gap-2 w-full outline-2 outline-#0000 outline-offset-2 peer-not-disabled:rounded-l-0 focus-visible:outline-primario dark:focus-visible:outline-primario-600 rounded-campo whitespace-nowrap text-sm' }}"
       aria-haspopup="listbox"
-      aria-controls="skillsList"
+      aria-controls="{{ name }}-lista"
       x-on:click="abierto = !abierto"
       x-on:keydown.down.prevent="abiertoPorTeclado = true"
       x-on:keydown.enter.prevent="abiertoPorTeclado = true"
@@ -127,7 +127,7 @@
 
     <ul
       role="listbox"
-      id="skillsList"
+      id="{{ name }}-lista"
       {% if multiple  == 0 %}
         aria-multiselectable="false"
       {% else %}
