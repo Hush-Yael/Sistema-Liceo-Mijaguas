@@ -1,20 +1,93 @@
-<a href="{% url 'perfil' %}">
-  <figure class="col fc gap-y-2">
-    {% if request.user.foto_perfil %}
-      <img
-        src="{{ request.user.miniatura_foto.url }}"
-        class="foto-perfil size-min-6rem lh-6rem aspect-square italic -indent-5 tac rounded-full object-cover outline-1 outline-#fff2"
-        alt="foto del perfil"
-      />
-    {% else %}
-      {% include "componentes/iconos/sin-foto.html" with class="foto-perfil min-w-max" %}
-    {% endif %}
+{% load partials %}
+{% load utilidades %}
+{% load grupos_variantes %}
 
-    <figcaption>
-      <h2 class="font-bold">
-        <span class="mr-1 text-secundario-200 dark:text-secundario-800">@</span
-        >{{ request.user.username }}
-      </h2>
-    </figcaption>
-  </figure>
-</a>
+{% if request.user.is_authenticated %}
+  <div
+    class="{{ "col gap-y-1 sidebar:max-sidebar_full:(block) sidebar:mt-5"|expandir_variantes }}"
+  >
+    <a class="group w-full" href="{% url 'perfil' %}"
+      ><figure
+        class="{{
+          '
+            group/f relative flex aic gap-x-3 group-hover:bg-#fff2
+            max-sidebar:(p-2 px-3 bg-#0002 group-hover:bg-#fff2)
+            sidebar:max-sidebar_full:(jcc py-2)
+            sidebar_full:(p-2 px-3 bg-#0002)
+          '
+          |reemplazar_espacios:' '|expandir_variantes
+        }}"
+      >
+        {% if request.user.foto_perfil %}
+          <img
+            src="{{ request.user.miniatura_foto.url }}"
+            class="foto-perfil aspect-square size-3rem aspect-square italic -indent-5 tac rounded-full object-cover outline-1 outline-#fff2 sidebar:max-sidebar_full:size-2.5rem"
+            alt="foto del perfil"
+          />
+        {% else %}
+          {% include "componentes/iconos/sin-foto.html" with class="foto-perfil size-3rem min-w-max sidebar:max-sidebar_full:size-2.5rem" %}
+        {% endif %}
+
+        <figcaption
+          class="{{ 'sidebar:max-sidebar_full:(absolute left-full caja rounded-l-0 min-w-max max-w-300px text-initial p-2 px-3 top-0 opacity-0 pointer-events-none group-hover/f:opacity-100 transition-opacity ease-out) '|expandir_variantes }}"
+        >
+          {% partial info %}
+        </figcaption>
+      </figure></a
+    >
+
+    {% include "componentes/cabecera/link.html#enlace" with icono="logout" class=link_class path_actual=path_actual href=logout_href label="Cerrar sesión" %}
+  </div>
+{% else %}
+  {% with class="hidden sidebar:max-sidebar_full:block" %}
+    {% include "componentes/cabecera/index.html#hr" %}
+  {% endwith %}
+  <a
+    href="{% url 'login' %}"
+    class="{{
+      '
+        group relative fc gap-x-2 btn p-1.5 mt-4 mx-3 rounded-full bg-primario-texto text-primario font-500
+        sidebar:max-sidebar_full:(mxa size-8 aspect-square)
+        sidebar_full:mx-3
+      '
+      |reemplazar_espacios:' '|expandir_variantes
+    }}"
+  >
+    <span
+      class="absolute left-2 fc size-6 aspect-square rounded-full p-1 bg-primario text-primario-texto sidebar:max-sidebar_full:left-1"
+    >
+      {% include "componentes/iconos/nav.html#login" with class="size-4" %}
+    </span>
+    <span class="{{ label_class|add:' ' }}"> Iniciar sesión </span>
+  </a>
+{% endif %}
+
+{% partialdef info %}
+  <hgroup>
+    <h2 class="font-bold">
+      <span
+        class="max-sidebar:hidden mr-0.5 text-secundario-200 dark:text-secundario-800"
+      >
+        @
+      </span>
+      {{ request.user.username }}
+    </h2>
+    <p
+      class="opacity-80 text-sm first-letter:lowercase sidebar:max-sidebar_full:italic"
+    >
+      {% if request.user.is_superuser %}
+        superusuario
+      {% else %}
+        {% with roles=request.user.groups.all %}
+          {% if roles %}
+            {% for rol in roles %}
+              {{ rol }}{% if not forloop.last %},{% endif %}
+            {% endfor %}
+          {% else %}
+            sin roles
+          {% endif %}
+        {% endwith %}
+      {% endif %}
+    </p>
+  </hgroup>
+{% endpartialdef info %}

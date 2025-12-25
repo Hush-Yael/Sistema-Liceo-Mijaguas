@@ -1,4 +1,5 @@
 from django import template
+import re
 
 register = template.Library()
 
@@ -69,3 +70,8 @@ def obtener_lista_opciones(campo_choices):
             campo_choices,
         )
     )
+
+
+@register.filter
+def reemplazar_espacios(value: str, arg=None):
+    return re.sub(r"\s{2,}|\ng", arg or "", value)

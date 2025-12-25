@@ -1,0 +1,343 @@
+{% load grupos_variantes %}
+{% load utilidades %}
+{% load partials %}
+{% load utilidades %}
+{% load sekizai_tags %}
+
+{% addtoblock "cabeza" %}
+  <style>
+    @media only screen and (hover: none) and (pointer: coarse) {
+      [x-ref="enlaces"] {
+        transition-property: opacity, translate, display, height;
+      }
+    }
+  </style>
+{% endaddtoblock %}
+
+{% with path_enlace="componentes/cabecera/links.html#enlace" %}
+  {# enlaces profesores #}
+  {% with puede_ver=perms.estudios.view_profesor puede_añadir=perms.estudios.add_profesor %}
+    {# btn #}
+    {% partialdef btn_profesores %}
+      {% include "componentes/iconos/nav.html#profesores" %}
+      <span>Profesores</span>
+    {% endpartialdef btn_profesores %}
+
+    {# enlaces #}
+    {% partialdef enlaces_profesores %}
+      {% if puede_añadir %}
+        {% with icono="añadir" label="Añadir profesor" %}
+          {% include path_enlace %}
+        {% endwith %}
+      {% endif %}
+
+      {% if puede_ver %}
+        {% url 'profesores' as href_profesores %}
+        {% with href=href_profesores icono="usuarios" label="Todos los profesores" %}
+          {% include path_enlace %}
+        {% endwith %}
+      {% endif %}
+
+      {% if perms.estudios.view_profesormateria %}
+        {% with icono="asignaciones_pm" label="Asignación de materias" %}
+          {% include path_enlace %}
+        {% endwith %}
+      {% endif %}
+    {% endpartialdef enlaces_profesores %}
+
+    {# menu #}
+    {% with nombre_parcial="profesores" btn_class=link_class %}
+      {% partial menu_enlaces %}
+    {% endwith %}
+  {% endwith %}
+
+  {# enlaces estudiantes #}
+  {% with puede_ver=perms.estudios.view_estudiante puede_añadir=perms.estudios.add_estudiante puede_ver_matriculas=perms.estudios.view_matricula %}
+    {# btn #}
+    {% partialdef btn_estudiantes %}
+      {% include "componentes/iconos/nav.html#estudiantes" %}
+      <span>Estudiantes</span>
+    {% endpartialdef btn_estudiantes %}
+
+    {# enlaces #}
+    {% partialdef enlaces_estudiantes %}
+      {% if puede_añadir %}
+        {% with icono="añadir" label="Añadir estudiante" %}
+          {% include path_enlace %}
+        {% endwith %}
+      {% endif %}
+
+      {% if puede_ver %}
+        {% with icono="usuarios" label="Todos los estudiantes" %}
+          {% include path_enlace %}
+        {% endwith %}
+      {% endif %}
+
+      {% if puede_ver_matriculas %}
+        {% with icono="tabla" label="Matrículas" %}
+          {% include path_enlace %}
+        {% endwith %}
+      {% endif %}
+    {% endpartialdef enlaces_estudiantes %}
+
+    {# menu #}
+    {% with nombre_parcial="estudiantes" btn_class=link_class %}
+      {% partial menu_enlaces %}
+    {% endwith %}
+  {% endwith %}
+
+  {# enlaces notas #}
+  {% with puede_ver=perms.estudios.view_nota puede_añadir=perms.estudios.add_nota %}
+    {% partialdef btn_notas %}
+      {% include "componentes/iconos/nav.html#notas" %}
+      <span>Notas</span>
+    {% endpartialdef btn_notas %}
+
+    {% partialdef enlaces_notas %}
+      {% if puede_añadir %}
+        {% with icono="añadir" label="Añadir nota" %}
+          {% include path_enlace %}
+        {% endwith %}
+      {% endif %}
+
+      {% if puede_ver %}
+        {% url 'notas' as href_notas %}
+        {% with href=href_notas icono="tabla" label="Lista de notas" %}
+          {% include path_enlace %}
+        {% endwith %}
+      {% endif %}
+
+      {% if puede_ver %}
+        {% with icono="boletines" label="Boletines" %}
+          {% include path_enlace %}
+        {% endwith %}
+      {% endif %}
+    {% endpartialdef enlaces_notas %}
+
+    {% with nombre_parcial="notas" btn_class=link_class %}
+      {% partial menu_enlaces %}
+    {% endwith %}
+  {% endwith %}
+
+  {# enlaces materias #}
+  {% with puede_ver=perms.estudios.view_materia puede_añadir=perms.estudios.add_materia %}
+    {% partialdef btn_materias %}
+      {% include "componentes/iconos/nav.html#materias" with class="scale-90" %}
+      <span>Materias</span>
+    {% endpartialdef btn_materias %}
+
+    {% partialdef enlaces_materias %}
+      {% if puede_añadir %}
+
+        {% with icono="añadir" label="Añadir materia" %}
+          {% include path_enlace %}
+        {% endwith %}
+      {% endif %}
+
+      {% if puede_ver %}
+        {% with icono="tabla" label="Lista de materias" %}
+          {% include path_enlace %}
+        {% endwith %}
+      {% endif %}
+    {% endpartialdef enlaces_materias %}
+
+    {% with nombre_parcial="materias" btn_class=link_class %}
+      {% partial menu_enlaces %}
+    {% endwith %}
+  {% endwith %}
+
+  {# enlaces admin varios #}
+  {% with puede_ver_año=perms.estudios.view_año puede_ver_seccion=perms.estudios.view_seccion puede_ver_lapso=perms.estudios.view_lapso %}
+    {% partialdef btn_varios %}
+      {% include "componentes/iconos/nav.html#admin" %}
+      <span>Administración</span>
+    {% endpartialdef btn_varios %}
+
+    {% partialdef enlaces_varios %}
+      {% if puede_ver_año %}
+        {% with icono="años" label="Años académicos" %}
+          {% include path_enlace %}
+        {% endwith %}
+      {% endif %}
+
+      {% if puede_ver_seccion %}
+        {% with icono="secciones" label="Secciones" %}
+          {% include path_enlace %}
+        {% endwith %}
+      {% endif %}
+
+      {% if puede_ver_lapso %}
+        {% with icono="lapsos" label="Lapsos académicos" icono_class="scale-120" %}
+          {% include path_enlace %}
+        {% endwith %}
+      {% endif %}
+    {% endpartialdef enlaces_varios %}
+
+    {% with nombre_parcial="varios" btn_class=link_class %}
+      {% partial menu_enlaces %}
+    {% endwith %}
+  {% endwith %}
+
+  {% with puede_ver=perms.usuarios.view_user puede_añadir=perms.usuarios.add_user puede_ver_permisos=perms.auth.view_permission %}
+    {% partialdef btn_usuarios %}
+      {% include "componentes/iconos/nav.html#usuarios" %}
+      <span>Usuarios</span>
+    {% endpartialdef btn_usuarios %}
+
+    {% partialdef enlaces_usuarios %}
+      {% if puede_añadir %}
+        {% with icono="añadir" label="Añadir usuario" %}
+          {% include path_enlace %}
+        {% endwith %}
+      {% endif %}
+
+      {% if puede_ver %}
+
+        {% with icono="usuarios" label="Todos los usuarios" %}
+          {% include path_enlace %}
+        {% endwith %}
+      {% endif %}
+
+      {% if puede_ver_permisos %}
+        {% with icono="permisos" label="Permisos" %}
+          {% include path_enlace %}
+        {% endwith %}
+      {% endif %}
+    {% endpartialdef enlaces_usuarios %}
+
+    {% with nombre_parcial="usuarios" btn_class=link_class %}
+      {% partial menu_enlaces %}
+    {% endwith %}
+  {% endwith %}
+
+  {% if request.user.is_staff %}
+    {% include "componentes/cabecera/link.html" with class=link_class href="/admin" label="Panel de administración" icono="panel" %}
+  {% endif %}
+{% endwith %}
+
+{% partialdef menu_enlaces %}
+  <li
+    class="relative"
+    x-data="{ abierto: {{ abierto|default:'false' }} }"
+    @mouseleave="abierto = false"
+  >
+    <button
+      x-ref="btn"
+      class="{{ btn_class|default:''|add:' sidebar:max-sidebar_full:[&>span]:sr-only' }}"
+      :aria-expanded="abierto"
+      @mouseover="if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) abierto = true"
+      @click="abierto = !abierto"
+      @keydown.left.prevent="abierto = false; $el.focus()"
+      @keydown.right.prevent="abierto = true; $refs.enlaces.$('a').focus()"
+      @keydown.esc="abierto = false"
+      @keydown.up="{{
+        "
+          abierto = false;
+          const prev = $el.parentElement.previousElementSibling || $el.parentElement.parentElement.$('li[\\@mouseleave]:last-of-type');
+
+          if (prev && prev.$(`[x-ref='btn']`)) {
+            const btn = prev.querySelector('button');
+            btn.focus();
+            $el.tabIndex = -1;
+            btn.tabIndex = 0;
+          }
+        "|reemplazar_espacios
+      }}"
+      @keydown.down="{{
+        '
+          abierto = false;
+          const next = $el.parentElement.nextElementSibling || $el.parentElement.parentElement.$("[\\@mouseleave]");
+
+          if (next && next.$(`[x-ref="btn"]`)) {
+            const btn = next.querySelector("button");
+            btn.focus();
+            $el.tabIndex = -1;
+            btn.tabIndex = 0;
+          }
+        '|reemplazar_espacios
+      }}"
+    >
+      {% include "componentes/cabecera/links.html#btn_"|add:nombre_parcial %}
+    </button>
+
+    <div
+      class="{{
+        '
+          col min-w-max interpolate-keywords transition-discrete
+          [&_svg]:size-4
+          max-sidebar:(
+            bg-#0002
+            media-touch:supports-[interpolate-size:allow-keywords]:(
+              data-[abierto=false]:flex! duration-200 data-[abierto=false]:h-0px data-[abierto=true]:h-max-content overflow-hidden
+            )
+          )
+          sidebar:(absolute z-1 top-0 left-full data-[abierto=false]:hidden py-1 rounded-b bg-primario-500 duration-200 shadow-xl)
+        '
+        |reemplazar_espacios:' '|expandir_variantes
+      }}"
+      data-abierto="{{ abierto|default:'false' }}"
+      :data-abierto="abierto ? 'true' : 'false'"
+      x-show="abierto"
+      x-ref="enlaces"
+      x-cloak
+      x-transition:enter="ease-out sidebar:delay-250"
+      x-transition:enter-start="{{ 'sidebar:(opacity-0 -translate-x-2)'|expandir_variantes }}"
+      x-transition:enter-end="{{ 'sidebar:(opacity-100 translate-x-0)'|expandir_variantes }}"
+      x-transition:leave="ease-in"
+      x-transition:leave-start="opacity-100"
+      x-transition:leave-end="{{ 'sidebar:(ease-in duration-100 opacity-0 scale-97 translate-x-2)'|expandir_variantes }}"
+      @mouseover="abierto = true"
+      @mouseleave="abierto = false"
+      @keydown.escape="abierto = false; $refs.btn.focus()"
+      @keydown.left.prevent="{{
+        '
+          const el = document.activeElement;
+          el.previousElementSibling
+            ? el.previousElementSibling.focus()
+            : $refs.enlaces.lastElementChild.focus()
+        '
+        |reemplazar_espacios
+      }}"
+      @keydown.tab="abierto = false"
+      @keydown.right.prevent="{{
+        '
+          const el = document.activeElement;
+          el.nextElementSibling
+            ? el.nextElementSibling.focus()
+            : $refs.enlaces.firstElementChild.focus()
+        '
+        |reemplazar_espacios
+      }}"
+    >
+      {% include "componentes/cabecera/links.html#enlaces_"|add:nombre_parcial %}
+    </div>
+  </li>
+{% endpartialdef menu_enlaces %}
+
+{% partialdef enlace %}
+  <a
+    href="{{ href|default:'#' }}"
+    {% if path_actual == href %}
+      aria-current="page"
+    {% endif %}
+    class="{{
+      '
+          flex aic gap-x-3 -outline-offset-3 font-500 transition-[background-color,color]
+          pover:not-[[aria-current=page]]:bg-#0002
+          aria-[current=page]:(bg-primario text-primario-texto)
+          [&>svg]:size-4
+          max-sidebar:(jb p-[.5rem_1rem] pl-8 text-sm)
+          sidebar:p-[.5rem_1rem]
+          sidebar:pover:not-[[aria-current=page]]:bg-#fff1
+      '
+      |reemplazar_espacios:' '|expandir_variantes
+    }}"
+  >
+    {{ label }}
+    <span
+      class="fc size-7 aspect-square p-1 rounded-full bg-#fff2 sidebar:-order-1"
+    >
+      {% include "componentes/iconos/nav.html#"|add:icono with class=icono_class %}
+    </span>
+  </a>
+{% endpartialdef enlace %}

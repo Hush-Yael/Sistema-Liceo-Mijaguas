@@ -3,8 +3,10 @@
 {% load utilidades %}
 {% load partials %}
 {% load sekizai_tags %}
+{% load static %}
 
 {% addtoblock "cabeza" %}
+  <link rel="stylesheet" href="{% static 'css/componentes/menu.css' %}" />
 
   {# Para que se haga la petición por click en form de los filtros #}
   <script>

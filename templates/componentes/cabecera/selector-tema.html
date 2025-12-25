@@ -1,0 +1,151 @@
+{% load partials %}
+{% load utilidades %}
+{% load grupos_variantes %}
+
+<div
+  class="sidebar:relative"
+  x-data="{ abierto: false, media: window.matchMedia('(min-width: 1000px)'), minimoAnchoCumplido: window.matchMedia('(min-width: 1000px)').matches }"
+  x-init="
+    media.addEventListener
+      ? media.addEventListener('change', (e) => (minimoAnchoCumplido = e.matches))
+      : media.addListener((e) => (minimoAnchoCumplido = e.matches))
+  "
+  role="group"
+>
+  <button
+    class="flex aic gap-x-1.5 aria-expanded:bg-#fff2 p-1 px-2 rounded-campo text-sm sidebar_full:hidden"
+    @click="abierto = !abierto"
+    :aria-expanded="abierto"
+    aria-haspopup="menu"
+    aria-controls="menu-tema"
+    aria-label="Abrir menú de temas"
+  >
+    <svg
+      class="size-7"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+    >
+      <path fill="currentColor" d="M12 16a4 4 0 0 0 0-8v8Z"></path>
+      <path
+        fill="currentColor"
+        fill-rule="evenodd"
+        d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2Zm0 2v4a4 4 0 1 0 0 8v4a8 8 0 1 0 0-16Z"
+        clip-rule="evenodd"
+      ></path>
+    </svg>
+  </button>
+
+  <div
+    id="menu-tema"
+    role="menu"
+    class="{{
+      '
+        max-sidebar:-translate-x-50%
+        max-sidebar_full:(
+          absolute top-[var(--altura-header)] w-max col gap-y-1 bg-primario text-primario-texto rounded-b-campo shadow-xl
+        )
+        sidebar:max-sidebar_full:(top-0 left-118% rounded-r-campo)
+        sidebar_full:fc
+      '
+      |reemplazar_espacios:' '|expandir_variantes
+    }}"
+    @click.outside="abierto = false"
+    x-show="abierto || minimoAnchoCumplido"
+    x-cloak
+    :inert="!abierto && !minimoAnchoCumplido"
+  >
+    <div
+      role="radiogroup"
+      aria-label="Tema del sitio"
+      class="{{
+        '
+          flex gap-x-1.5 rounded-4 mxa w-max
+          max-sidebar_full:flex-col
+          sidebar_full:(aic p-[.375rem_.75rem] bg-#fff2)
+        '
+        |reemplazar_espacios:' '|expandir_variantes
+      }}"
+      x-data="{
+          tema: localStorage.getItem('tema'),
+          media: matchMedia('(prefers-color-scheme: dark)'),
+        }"
+      @change="tema = window.verificarTema($event.target.value)"
+      x-init='$watch("tema", () => window.aplicarTema(tema, true))'
+      x-effect="{{
+        '
+          if (tema === "auto")
+            media.addEventListener
+              ? media.addEventListener("change", () => window.aplicarTema(tema, true))
+              : media.addListener(() => window.aplicarTema(tema, true));
+          else
+            media.removeEventListener
+              ? media.removeEventListener("change", () => window.aplicarTema(tema, true))
+              : media.removeListener(() => window.aplicarTema(tema, true));
+        '
+        |reemplazar_espacios:' '
+      }}"
+    >
+      {% with id="tema-claro" value="claro" icono="sol" label="Claro" %}
+        {% partial opcion %}
+      {% endwith %}
+      {% with id="tema-oscuro" value="oscuro" icono="luna" label="Oscuro" %}
+        {% partial opcion %}
+      {% endwith %}
+      {% with id="tema-auto" value="auto" icono="auto" label="Automático" %}
+        {% partial opcion %}
+      {% endwith %}
+    </div>
+  </div>
+</div>
+
+{% partialdef opcion %}
+  <div
+    class="{{
+      '
+        group
+        sidebar:max-sidebar_full:(
+          first:[&>label]:rounded-tr-campo last:[&>label]:rounded-br-campo
+        )
+      '
+      |reemplazar_espacios:' '|expandir_variantes
+    }}"
+  >
+    <input
+      class="sr-only peer"
+      id="{{ id }}"
+      type="radio"
+      name="tema"
+      value="{{ value }}"
+      :checked="$el.value === tema"
+    />
+    <label
+      for="{{ id }}"
+      class="{{
+        '
+          flex aic gap-x-2 transition-[background-color,color] ease-in-out
+          peer-checked:[&>svg:not(.lineas)]:hidden
+          peer-not-checked:[&>svg.lineas]:hidden
+          peer-checked:(bg-primario-texto text-primario)
+          peer-not-checked:pover:bg-[--transparente-2]
+          max-sidebar_full:(
+            p-1.5 px-3
+            [&>svg]:size-4.5
+          )
+          sidebar_full:(
+            rounded-full text-primario-texto bg-#fff3
+            [&>svg]:size-5
+            peer-not-checked:[&>span]:sr-only
+            peer-checked:(p-1 px-3 [&>svg:not(.lineas)]:hidden)
+            peer-not-checked:(size-6 p-1 aspect-square pover:bg-#fff4 [&>svg.lineas]:hidden)
+          )
+        '
+        |reemplazar_espacios:' '|expandir_variantes
+      }}"
+    >
+      {% include "componentes/iconos/tema.html#"|add:icono|add:'_lineas' %}
+      {% include "componentes/iconos/tema.html#"|add:icono %}
+      <span>{{ label }}</span>
+    </label>
+  </div>
+{% endpartialdef opcion %}

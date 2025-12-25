@@ -22,7 +22,7 @@
 
 {% block contenido %}
   <main
-    class="{{ "col gap-y-8 aic flex-1 w-full max-w-900px m-[0_auto] p-5 py-7 min-[525px]:p-5 min-[600px]:p-8 max-[750px]:jcc min-[750px]:(grid grid-cols-2) "|expandir_variantes }}"
+    class="{{ "col gap-y-8 aic flex-1 w-full max-w-900px m-[0_auto] p-5 py-7 min-[525px]:p-5 min-[600px]:p-8 sidebar:jcc"|expandir_variantes }}"
     x-data="{
       editando: {% if form.errors %}true{% else %}false{% endif %},
       alternar_editando() {
@@ -54,7 +54,7 @@
       x-ref="form"
       method="post"
       enctype="multipart/form-data"
-      class="col gap-y-3 mxa w-full max-w-400px min-[750px]:flex-col-reverse"
+      class="col gap-y-3 mxa w-full max-w-400px"
     >
       <div
         class="flex justify-end gap-x-2 *:btn *:h-7 *:px-1 *:text-sm *:elevado"

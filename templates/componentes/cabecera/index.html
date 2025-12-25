@@ -2,8 +2,12 @@
 {% load partials %}
 {% load grupos_variantes %}
 {% load sekizai_tags %}
+{% load utilidades %}
+{% url 'perfil' as perfil_href %}
+{% url 'logout' as logout_href %}
 
 <div
+  class="{{ 'col justify-start *:text-primario-texto *:w-full *:bg-primario sidebar:(flex-1 h-100dvh w-15 max-w-15) sidebar_full:(w-250px max-w-250px)'|expandir_variantes }}"
   x-data='{
     anchoMedia: window.matchMedia("(min-width: 800px)"),
     abiertoPorBtn: false,
@@ -16,112 +20,34 @@
   '
 >
   <header
-    {% with class="sticky top-0 z-5 flex aic justify-between h-[--altura-header] min-h-[--altura-header] p-[0_1rem] border-b-2 border-#fff5 dark:border-#fff3 bg-primario text-primario-texto shadow-[0_5px_24px_0_#00000026] min-[800px]:(p-0 items-unset justify-between border-b-2 border-#fff5)"|expandir_variantes %}
-      class="{{ class }}"
-    {% endwith %}
+    class="{{
+      '
+        top-0 z-5 flex  justify-between w-full h-[--altura-header] min-h-[--altura-header] px-4
+        max-sidebar:(sticky shadow-[0_5px_24px_0_#00000026])
+        sidebar:(flex-col gap-y-6 min-h-max p-4 border-b border-#fff2)
+        max-sidebar_full:aic
+        sidebar_full:(gap-y-3 p-3 px-2 )
+      '
+      |reemplazar_espacios:' '|expandir_variantes
+    }}"
   >
-    <h1 class="min-[800px]:m-[auto_1rem]">
-      <a
-        class="flex aic gap-x-5 font-bold tac text-[1.25rem]"
-        href="{% url 'inicio' %}"
-      >
+    <h1 class="sidebar_full:pl-2">
+      <a class="flex aic gap-x-4 font-bold text-lg" href="{% url 'inicio' %}">
         <img
-          class="h-2em w-2em min-w-max p-3px scale-120"
+          class="size-6 min-w-max scale-120"
           src="{% static 'img/logo-sin-letras.png' %}"
           alt="logo"
         />
-        <span>Liceo Mijaguas</span>
+        <span class="sidebar:max-sidebar_full:sr-only">Liceo Mijaguas</span>
       </a>
     </h1>
 
-    <nav
-      {% with c="z-5 right-0 bottom-0 col gap-4 border-#fff5 dark:border-#fff3 bg-primario transition-[transform] ease-in-out overflow-y-auto" escondible=" max-[800px]:(fixed w-175px min-h-[calc(100%-var(--altura-header))] aria-hidden-translate-x-100% aria-[hidden=false]:(border-l-2 translate-x-0 shadow-[-4px_5px_16px_#0003]))))" lista=" min-[800px]:(flex-row-reverse h-full [&_hr:first-of-type]:hidden overflow-y-visible)" %}
-        class="{{ c|add:escondible|add:lista|expandir_variantes }}"
-      {% endwith %}
-      id="nav"
-      :aria-hidden="!abiertoPorBtn && !minimoAnchoCumplido"
-      x-effect="
-      $el.toggleAttribute('inert', !abiertoPorBtn && !minimoAnchoCumplido)
-    "
-      @click.outside="if (!$refs.btnNav.contains($event.target)) abiertoPorBtn = false"
-    >
-      {% if request.user.is_authenticated %}
-        <div class="p-4 min-[800px]:hidden">
-          {% include 'componentes/cabecera/datos-usuario.html' %}
-        </div>
-      {% else %}
-        {% with class="min-[800px]:hidden" %}
-          {% partial login %}
-        {% endwith %}
-      {% endif %}
-
-      {% partialdef hr inline %}
-        <hr class="h-1px m-[0_.5rem] border-#fff2" />
-      {% endpartialdef hr %}
-
-      <div
-        role="radiogroup"
-        class="fc gap-x-1.5 p-[.375rem_.75rem] rounded-4 m-[0_auto] w-max bg-#fff2 min-[800px]:mt-2 min-[800px]:mb-2"
-        x-data="{
-        tema: localStorage.getItem('tema'),
-        media: matchMedia('(prefers-color-scheme: dark)'),
-      }"
-        x-init='$watch("tema", () => window.aplicarTema(tema, true))'
-        x-effect='
-          if (tema === "auto")
-            media.addEventListener
-              ? media.addEventListener("change", () => window.aplicarTema(tema, true))
-              : media.addListener(() => window.aplicarTema(tema, true))
-          else
-            media.removeEventListener
-              ? media.removeEventListener("change", () => window.aplicarTema(tema, true))
-              : media.removeListener(() => window.aplicarTema(tema, true));
-        '
-        @change="tema = window.verificarTema($event.target.value)"
-      >
-        {% with c="flex items-center gap-x-2 size-6 p-1 aspect-square rounded-full bg-#fff2 text-primario-texto transition-[background-color,color] ease-in-out peer-not-checked:pover:bg-#fff3 [&>svg]:size-5 peer-focus-visible:bg-#fff3 peer-not-checked:[&>svg.lineas]:hidden peer-checked:(text-primario bg-primario-texto [&>svg:not(.lineas)]:hidden)"|expandir_variantes %}
-          {% include "componentes/cabecera/tema-opcion.html" with class=c id="tema-claro" value="claro" icono="sol" label="Claro" %}
-          {% include "componentes/cabecera/tema-opcion.html" with class=c id="tema-oscuro" value="oscuro" icono="luna" label="Oscuro" %}
-          {% include "componentes/cabecera/tema-opcion.html" with class=c id="tema-auto" value="auto" icono="auto" label="Automático" %}
-        {% endwith %}
-      </div>
-
-      {% partial hr %}
-
-      <ul class="min-[800px]:flex min-[800px]:h-full">
-        {% with p=request.path c="group relative flex items-center gap-x-3 min-w-max w-full p-[.75em_1rem] transition-[background-color,color] ease-out [&>svg]:size-1.25em pover:(bg-primario-texto text-primario-600) aria-[current='page']:(bg-primario-texto text-primario-600 before:content-['']) before:(absolute right-0) before:bg-current max-[800px]:before:(h-80% w-6px rounded-l-3) min-[800px]:(h-full p-[.375rem_1.25rem] before:left-0 before:bottom-0 before:w-60% before:h-5px before:ma before:rounded-t-3) min-[1100px]:p-[.5rem_1rem] min-[1100px]:max-[1280px]:(p-[.5rem_1rem] gap-2 text-[.9rem])"|expandir_variantes %}
-          {% with lc="min-[800px]:max-[1100px]:(absolute top-[calc(100%+2px)] left-50% min-w-max p-[.25rem_.5rem] rounded-b-campo opacity-0 whitespace-nowrap text-primario-500 bg-primario-texto transition-[opacity,box-shadow] box-shadow-[0_0_5px_1px_rgba(0,0,0,.3)] -transform-translate-x-50% pointer-events-none group-hover:opacity-100 group-focus:opacity-100)"|expandir_variantes %}
-
-            {% if perms.estudios.view_profesor %}
-              {% url 'profesores' as profesores %}
-              {% include "componentes/cabecera/link.html" with class=c label_class=lc path_actual=p href=profesores label="Profesores" icono="profesores" %}
-            {% endif %}
-
-            {% if perms.estudios.view_estudiante %}
-              {% include "componentes/cabecera/link.html" with class=c label_class=lc path_actual=p href="/admin/estudios/estudiante" label="Estudiantes" icono="estudiantes" %}
-            {% endif %}
-            {#  #}
-            {% url 'notas' as notas %}
-            {% include "componentes/cabecera/link.html" with class=c label_class=lc path_actual=p href=notas label="Notas" icono="notas" %}
-
-            {% if request.user.is_authenticated %}
-              {% url 'administrar' as administrar %}
-              {% include "componentes/cabecera/link.html" with class=c label_class=lc path_actual=p href=administrar label="Administración" icono="admin" %}
-            {% endif %}
-
-            {% if request.user.is_staff %}
-              {% include "componentes/cabecera/link.html" with class=c label_class=lc path_actual=p href="/admin" label="Panel" icono="panel" %}
-            {% endif %}
-          {% endwith %}
-        {% endwith %}
-      </ul>
-    </nav>
-
     <div class="flex aic gap-x-4">
+      {% include "componentes/cabecera/selector-tema.html" %}
+
       <button
-        {% with c="group relative h-[20px] w-[25px] rounded-campo transition-background-color ease-in-out min-[800px]:hidden [&>span]:(absolute left-0 block w-full h-10% opacity-100 bg-current rounded-20px transition-[transform,top,width,left] ease-in-out duration-250 origin-left-center)"|expandir_variantes %}
-          class="{{ c }}"
-        {% endwith %}
+        style="--h: 17px; --w: 25px;"
+        class="{{ 'group relative h-[--h] w-[--w] rounded-campo transition-background-color ease-in-out sidebar:hidden [&>span]:(absolute left-0 block w-full h-10% opacity-100 bg-current rounded-20px transition-[transform,top,width,left] ease-in-out duration-250 origin-left-center)'|expandir_variantes }}"
         x-ref="btnNav"
         @click="abiertoPorBtn = !abiertoPorBtn"
         :aria-expanded="abiertoPorBtn"
@@ -129,56 +55,81 @@
         aria-label="Abrir menú"
       >
         <span
-          class="{{ 'top-0 group-aria-expanded:(rotate-45 left-16%)'|expandir_variantes }}"
+          class="{{ 'top-0 group-aria-expanded:(rotate-45 left-16% -top-[1px] w-[calc(var(--w))])'|expandir_variantes }}"
         ></span>
         <span
           class="{{ 'top-50% group-aria-expanded:(w-0 opacity-0)'|expandir_variantes }}"
         ></span>
         <span
-          class="{{ 'top-100% group-aria-expanded:(-rotate-45 top-88% left-16%)'|expandir_variantes }}"
+          class="{{ 'top-100% group-aria-expanded:(-rotate-45 left-16% -bottom-[1px] w-[calc(var(--w))])'|expandir_variantes }}"
         ></span>
       </button>
-
-      {% if request.user.is_authenticated %}
-        <details class="menu group h-full max-[800px]:hidden">
-          <summary
-            class="fc p-[.375rem_1.25rem] list-none transition-[background-color] min-[800px]:h-full [&>svg]:size-1.5em hover:bg-primario-600 group-open:bg-primario-texto group-open:text-primario-600"
-            aria-label="Ver perfil"
-          >
-            {% comment %}
-              se muestra un ícono diferente dependiendo de si está abierto
-            {% endcomment %}
-            {% include "componentes/iconos/sin-foto-lineas.html" with class="group-open:hidden [&_path]:scale-120 [&_path]:translate-[-7.5%,-7.5%]" %}
-            {% include "componentes/iconos/sin-foto.html" with class="group-not-open:hidden" %}
-          </summary>
-
-          <div
-            class="contenido-menu p-4 top-full right-0 border-#fff3 border-t-2 solid rounded-0 rounded-bl-caja bg-primario [&_figure_img]:size-min-8.5rem [&_figure_img]:lh-8.5rem [&_figure_svg]:size-min-8.5rem [&_h2]:text-[1.2rem]"
-          >
-            {% include 'componentes/cabecera/datos-usuario.html' %}
-          </div>
-        </details>
-      {% else %}
-        {% with class="max-[800px]:hidden px-3 ma mr-2" %}
-          {% partial login %}
-        {% endwith %}
-      {% endif %}
     </div>
   </header>
+
+  <aside
+    class="{{
+      '
+        z-5 left-0 bottom-0 col gap-4 flex-1 transition-[transform] ease-in-out overflow-y-auto
+        max-sidebar:(
+          fixed w-250px h-[calc(100%-var(--altura-header))] border-t border-#fff1 -aria-hidden:translate-x-100%
+          aria-[hidden=false]:(
+            translate-x-0 shadow-[-4px_5px_16px_#0003]
+          )
+        )
+        sidebar:(flex-col gap-y-4 h-full max-h-full overflow-unset)
+      '
+      |reemplazar_espacios:' '|expandir_variantes
+    }}"
+    :aria-hidden="!abiertoPorBtn && !minimoAnchoCumplido"
+    :inert="!abiertoPorBtn && !minimoAnchoCumplido"
+    x-cloak
+    @click.outside="if (!$refs.btnNav.contains($event.target)) abiertoPorBtn = false"
+  >
+    <div>
+      {%
+        with
+        path_actual=request.path
+        link_class="group relative flex items-center gap-x-3 min-w-max w-full p-[.75em_1rem] -outline-offset-3 transition-[background-color,color] ease-out not-[[aria-current=page]]:pover:bg-#fff2 [&>svg]:size-1.25em aria-expanded:bg-#fff2 [[aria-current=page],li:has([aria-current=page])_&]:(bg-primario-texto! text-primario-600! before:content-['']) sidebar:max-sidebar_full:jcc before:(absolute left-0 bg-current h-80% w-6px rounded-r-3)"|expandir_variantes
+        label_class="sidebar:max-sidebar_full:(fc absolute top-0 bottom-0 left-full min-w-max p-[.25rem_.5rem] rounded-r-campo opacity-0 whitespace-nowrap text-primario-texto bg-primario transition-[opacity,box-shadow] shadow-[0_0_8px_#0003] pointer-events-none group-hover:opacity-100 group-focus:opacity-100)"|expandir_variantes
+      %}
+        {% include "componentes/cabecera/datos-usuario.html" %}
+        <nav aria-orientation="vertical">
+          <ul
+            class="h-full empty:hidden max-sidebar:overflow-y-auto"
+            x-init="
+              {# solo el primer botón es enfocable con Tab #}
+              $el.$$(`[x-ref='btn']`).forEach((btn,index) => index !== 0 && (btn.tabIndex = -1))
+              
+              {# se elimina la lista de enlaces si no hay enlaces (para no tener que validar en la plantilla cada permiso) #}
+              $el.$$(`[x-ref='enlaces']`).forEach((lista) => lista.children.length < 1 && lista.parentElement.remove())
+
+              {# se cambia el tabindex de cada enlace a -1, ya que solo se pueden enfocar con las flechas #}
+              $el.$$(`[x-ref='enlaces'] a`).forEach((a,index) => a.tabIndex = -1)
+            "
+          >
+            {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+              {% if request.user.is_authenticated %}
+                {% with class="my-4" %}
+                  {% partial hr %}
+                {% endwith %}
+
+                {% include "componentes/cabecera/links.html" %}
+              {% endif %}
+            {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+          </ul>
+        </nav>
+      {% endwith %}
+    </div>
+  </aside>
 
   <div
     :data-visible="abiertoPorBtn"
     aria-hidden="true"
-    class="fixed left-0 right-0 top-0 bottom-0 z-4 bg-#0004 dark:bg-#0007 not-[[data-visible]]:hidden min-[800px]:hidden"
+    class="fixed left-0 right-0 top-0 bottom-0 z-4 bg-#0004 dark:bg-#0007 not-[[data-visible]]:hidden sidebar:hidden"
   ></div>
 </div>
 
-{% partialdef login %}
-  <a
-    href="{% url 'login' %}"
-    class="{{ class|default:''|add:' fc gap-x-2 btn p-1.5 m-[0_.5rem] mt-3 rounded-full bg-primario-texto text-primario font-500' }}"
-  >
-    Iniciar sesión
-    {% include "componentes/iconos/nav.html#login" with class="size-5" %}
-  </a>
-{% endpartialdef login %}
+{% partialdef hr %}
+  <hr class="{{ class|default:''|add:' h-1px border-#fff2' }}" />
+{% endpartialdef hr %}

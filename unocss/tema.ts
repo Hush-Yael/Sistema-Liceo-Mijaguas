@@ -1,4 +1,4 @@
-import type { ConfigBase, PresetWind4Theme } from "unocss/index";
+import type { ConfigBase, PresetWind4Theme, ThemeExtender } from "unocss/index";
 
 type ThemePreset = PresetWind4Theme;
 type Color = ConfigBase<ThemePreset>["theme"]["colors"];
@@ -14,13 +14,16 @@ class ColorDeTema implements Color {
       this[numero.toString()] = `var(--color-${nombreColor}-${numero})`;
     });
 
-    this.DEFAULT = this[500];
+    this.DEFAULT = this["500"];
     this.texto = `var(--color-texto-${nombreColor})`;
   }
 }
 
-export default {
+const tema: ThemeExtender<PresetWind4Theme> = (theme) => ({
+  ...theme,
   colors: {
+    ...theme.colors,
+    fondo: new ColorDeTema("fondo"),
     primario: new ColorDeTema("primario"),
     secundario: new ColorDeTema("secundario"),
     acento: new ColorDeTema("acento"),
@@ -30,7 +33,15 @@ export default {
     "texto-sutil": "var(--texto-sutil)",
   },
   radius: {
+    ...theme.radius,
     campo: "4px",
     caja: "1rem",
   },
-} satisfies ConfigBase<ThemePreset>["theme"];
+  breakpoint: {
+    ...theme.breakpoint,
+    sidebar: "800px",
+    sidebar_full: "1000px",
+  },
+});
+
+export default tema;

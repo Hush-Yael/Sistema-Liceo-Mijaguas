@@ -2,14 +2,18 @@
 {% load grupos_variantes %}
 
 <li>
-  <a
-    href="{{ href }}"
-    class="{{ class }}"
-    {% if path_actual == href %}
-      aria-current="page"
-    {% endif %}
-  >
-    {% include "componentes/iconos/nav.html#"|add:icono %}
-    <span class="{{ label_class }}"> {{ label }} </span>
-  </a>
+  {% partialdef enlace inline %}
+    <a
+      href="{{ href }}"
+      class="{{ class }}"
+      {% if path_actual == href %}
+        aria-current="page"
+      {% endif %}
+    >
+      {% with class="" %}
+        {% include "componentes/iconos/nav.html#"|add:icono %}
+      {% endwith %}
+      <span class="{{ label_class }}"> {{ label }} </span>
+    </a>
+  {% endpartialdef enlace %}
 </li>
