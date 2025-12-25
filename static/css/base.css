@@ -65,3 +65,7 @@ svg *[stroke-width]:not([stroke=none]) {
   opacity: 0.5;
   cursor: not-allowed !important;
 }
+
+[x-cloak] {
+  display: none !important;
+}

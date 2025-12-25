@@ -85,9 +85,7 @@
               {% with dato=nota|valor_por_clave:clave dato_anterior=notas|valor_por_indice:ante|valor_por_clave:clave %}
                 <td
                   {% if clave == 'valor' or clave == 'lapso_nombre' %}
-                    class=" numeros"
-                  {% else %}
-                    class=""
+                    class="numeros"
                   {% endif %}
                   {% if forloop.counter >= columnas_fijas %}
                     data-i="{{ columnas_fijas|negativo|add:forloop.counter }}"
