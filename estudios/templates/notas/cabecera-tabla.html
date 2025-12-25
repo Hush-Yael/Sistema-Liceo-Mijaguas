@@ -156,7 +156,7 @@
     <button
       class="btn elevado min-h-full min-w-8"
       aria-label="Ver tabla en pantalla completa"
-      onclick="window.$('.tabla-contenido').requestFullscreen()"
+      onclick="!document.fullscreenElement ? window.$('.tabla-contenido').requestFullscreen() : document.exitFullscreen()"
     >
       <svg
         class="size-5"
