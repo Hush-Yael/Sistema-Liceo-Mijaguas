@@ -29,11 +29,14 @@
 
   <script src="{% static 'js/htmx.min.js' %}"></script>
   <script defer src="{% static 'js/htmx-ext-head.js' %}"></script>
-  <script defer src="{% static 'js/alpine-focus.min.js' %}"></script>
-  <script defer src="{% static 'js/alpine.min.js' %}"></script>
   <script src="{% static 'js/componentes/combobox.js' %}"></script>
   <script src="{% static 'js/componentes/tabla-con-fila-sticky.js' %}"></script>
 {% endblock cabeza %}
+
+{% block alpine %}
+  <script defer src="{% static 'js/alpine-focus.min.js' %}"></script>
+  {{ block.super }}
+{% endblock alpine %}
 
 {% block contenido %}
   <main

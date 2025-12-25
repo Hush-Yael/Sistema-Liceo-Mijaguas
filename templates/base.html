@@ -55,7 +55,9 @@
     {% endif %}
 
     <script src="{% static 'js/utilidades.js' %}"></script>
-    <script defer src="{% static 'js/alpine.min.js' %}"></script>
+    {% block alpine %}
+      <script defer src="{% static 'js/alpine.min.js' %}"></script>
+    {% endblock alpine %}
     <script src="{% static 'js/aplicar-tema.js' %}"></script>
 
     {% block cabeza %}
