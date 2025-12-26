@@ -41,3 +41,6 @@ migrations/
 
 # archivos del servidor
 media/
+
+# css generado dinámicamente
+uno.css
