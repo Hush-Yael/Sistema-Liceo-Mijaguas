@@ -66,8 +66,15 @@ svg *[stroke-width]:not([stroke=none]) {
   cursor: not-allowed !important;
 }
 
-[x-cloak] {
+[x-cloak=""] {
   display: none !important;
+}
+
+/* solo se ocultan los elementos con x-cloak="max-sidebar" cuando la pantalla es menor a 800px (ya que al ser mayor, siempre se muestra el sidebar) */
+@media screen and (max-width: 800px) {
+  [x-cloak="max-sidebar"] {
+    display: none !important;
+  }
 }
 
 @media screen and (min-width: 800px) {

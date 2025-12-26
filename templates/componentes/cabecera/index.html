@@ -83,7 +83,7 @@
     }}"
     :aria-hidden="!abiertoPorBtn && !minimoAnchoCumplido"
     :inert="!abiertoPorBtn && !minimoAnchoCumplido"
-    x-cloak
+    x-cloak="max-sidebar"
     @click.outside="if (!$refs.btnNav.contains($event.target)) abiertoPorBtn = false"
   >
     <div>
