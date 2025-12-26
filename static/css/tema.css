@@ -182,67 +182,27 @@ html {
   color-scheme: dark;
 }
 
-.texto-sutil {
-  color: var(--texto-sutil);
-}
-
 html {
   color: var(--texto-base);
   background: var(--color-fondo-300);
 }
 
-.primario {
-  background-color: var(--color-primario-500);
-  color: var(--color-texto-primario);
-}
-
-.secundario {
-  background-color: var(--color-secundario-500);
-  color: var(--color-texto-secundario);
-}
-
-button.elevado,
-summary.elevado,
-input.elevado,
-select.elevado,
-button.elevado-2,
-summary.elevado-2,
-input.elevado-2,
-select.elevado-2 {
-  border-radius: var(--radio-campo);
-}
-
-input.elevado[aria-invalid=true],
-select.elevado[aria-invalid=true] {
+input.ui-elevado[aria-invalid=true],
+select.ui-elevado[aria-invalid=true] {
   border-color: var(--color-peligro-500);
 }
 
-.elevado,
-.caja {
-  border: 1px solid var(--borde-caja);
-  background: var(--color-fondo-500);
-}
-
-.caja {
-  border-radius: var(--radio-caja);
-}
-
-.elevado-2 {
-  border: 1px solid var(--transparente-1);
-  background-color: var(--color-fondo-700);
-}
-
-input.elevado,
-select.elevado,
-input.elevado-2,
-select.elevado-2 {
+input.ui-elevado,
+select.ui-elevado,
+input.ui-elevado-2,
+select.ui-elevado-2 {
   display: block;
   width: 100%;
   padding: .25rem .5rem;
 }
 
-input.elevado-2[aria-invalid=true],
-select.elevado-2[aria-invalid=true] {
+input.ui-elevado-2[aria-invalid=true],
+select.ui-elevado-2[aria-invalid=true] {
   border: 1px solid var(--color-peligro-500);
 }
 

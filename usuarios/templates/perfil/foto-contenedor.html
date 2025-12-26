@@ -59,7 +59,7 @@
       <label
         for="{{ form.foto_perfil.id_for_label }}"
         id="btn-subir-foto"
-        class="foto-label btn btn-primario btn-sm min-[400px]:btn-md"
+        class="foto-label ui-btn ui-btn/primario ui-btn/sm min-[400px]:ui-btn/md"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -82,7 +82,7 @@
 
       {% if request.user.foto_perfil %}
         <button
-          class="btn btn-borde btn-sm min-[400px]:btn-md [&>svg]:size-[1.125em] max-[500px]:text-[.9em]"
+          class="ui-btn ui-btn/borde ui-btn/sm min-[400px]:ui-btn/md [&>svg]:size-[1.125em] max-[500px]:text-[.9em]"
           id="borrar-foto"
           hx-delete="{% url 'perfil' %}"
           hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'

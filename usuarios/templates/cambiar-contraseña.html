@@ -14,7 +14,7 @@
 
 {% block contenido %}
   <main class="col fc flex-1 p-4">
-    <form method="post" class="caja col gap-4 w-full max-w-350px p-4">
+    <form method="post" class="ui-caja col gap-4 w-full max-w-350px p-4">
       <h1 class="text-[1.25rem] font-bold tac">
         Cambiar contraseña del usuario
       </h1>
@@ -25,10 +25,10 @@
 
           {% if field.errors %}
             {% with error=field.id_for_label|add:'-error' %}
-              {% render_field field class="elevado-2" aria-labelledby=error aria-invalid="true" %}
+              {% render_field field class="ui-elevado-2" aria-labelledby=error aria-invalid="true" %}
             {% endwith %}
           {% else %}
-            {% render_field field class="elevado-2" %}
+            {% render_field field class="ui-elevado-2" %}
           {% endif %}
 
           {% if field.errors %}
@@ -41,7 +41,7 @@
         </div>
       {% endfor %}
 
-      <button disabled class="btn-primario btn-md mt-3" id="submit">
+      <button disabled class="ui-btn/primario ui-btn/md mt-3" id="submit">
         Guardar cambios
       </button>
     </form>

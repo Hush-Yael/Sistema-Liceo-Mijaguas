@@ -64,7 +64,7 @@
           aria-label="eliminar valores"
           data-btn-reiniciar
           x-on:click="reiniciar()"
-          class="peer btn elevado h-full aspect-1 min-w-7 p-0.5 rounded-r-0 border-r-0! "
+          class="peer ui-btn ui-elevado h-full aspect-1 min-w-7 p-0.5 rounded-r-0 border-r-0! "
           {% if hx_post %}
             hx-post="{{ hx_post }}"
           {% elif hx_get %}
@@ -95,7 +95,7 @@
     <button
       type="button"
       role="combobox"
-      class="{{ btn_class|default:''|add:' elevado inline-flex justify-between gap-2 w-full outline-2 outline-#0000 outline-offset-2 peer-not-disabled:rounded-l-0 focus-visible:outline-primario dark:focus-visible:outline-primario-600 rounded-campo whitespace-nowrap text-sm' }}"
+      class="{{ btn_class|default:''|add:' ui-elevado inline-flex justify-between gap-2 w-full outline-2 outline-#0000 outline-offset-2 peer-not-disabled:rounded-l-0 focus-visible:outline-primario dark:focus-visible:outline-primario-600 rounded-campo whitespace-nowrap text-sm' }}"
       aria-haspopup="listbox"
       aria-controls="{{ name }}-lista"
       x-on:click="abierto = !abierto"
@@ -133,7 +133,7 @@
       {% else %}
         aria-multiselectable="true"
       {% endif %}
-      class="{{ lista_clases|default:''|add:'absolute z-10 left-0 top-8.5 col supports-[not(height:1dvh)]:max-h-45vh max-h-45dvh w-full min-w-max max-w-350px elevado overflow-y-auto py-1.5 select-none empty:hidden' }}"
+      class="{{ lista_clases|default:''|add:'absolute z-10 left-0 top-8.5 col supports-[not(height:1dvh)]:max-h-45vh max-h-45dvh w-full min-w-max max-w-350px ui-elevado overflow-y-auto py-1.5 select-none empty:hidden' }}"
       x-cloak
       x-trap="abiertoPorTeclado"
       x-show="abierto || abiertoPorTeclado"

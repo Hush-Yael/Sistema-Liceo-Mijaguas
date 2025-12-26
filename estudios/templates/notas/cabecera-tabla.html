@@ -37,7 +37,7 @@
 
   <div role="group" class="flex gap-x-1">
     <label
-      class="flex flex-1 rounded-campo elevado outline-#0000 outline-2 -outline-offset-1 focus-within:outline-current"
+      class="flex flex-1 rounded-campo ui-elevado outline-#0000 outline-2 -outline-offset-1 focus-within:outline-current"
     >
       <span class="sr-only">Buscar</span>
 
@@ -75,7 +75,7 @@
       @keydown.escape="abierto = false"
     >
       <summary
-        class="btn elevado h-full min-w-9"
+        class="ui-btn ui-elevado h-full min-w-9"
         aria-label="configuración de búsqueda"
         @click.prevent="abierto = !abierto"
       >
@@ -104,12 +104,12 @@
           <div class="contenido-menu p-4">
             <div class="col gap-y-1">
               {{ form.notas_tipo_busqueda.label_tag }}
-              {% render_field form.notas_tipo_busqueda class="elevado-2 incluido-filtros" %}
+              {% render_field form.notas_tipo_busqueda class="ui-elevado-2 incluido-filtros" %}
             </div>
 
             <div class="col gap-y-1">
               {{ form.notas_columna_buscada.label_tag }}
-              {% render_field form.notas_columna_buscada class="elevado-2 incluido-filtros" %}
+              {% render_field form.notas_columna_buscada class="ui-elevado-2 incluido-filtros" %}
             </div>
           </div>
         </details>
@@ -136,12 +136,12 @@
           >
             <div class="flex gap-x-3 valor-nota">
               {{ form.notas_valor_minimo.label_tag }}
-              {% render_field form.notas_valor_minimo class="elevado-2 py-0! incluido-filtros" style="width: 6ch;" %}
+              {% render_field form.notas_valor_minimo class="ui-elevado-2 py-0! incluido-filtros" style="width: 6ch;" %}
             </div>
 
             <div class="flex gap-x-3 valor-nota">
               {{ form.notas_valor_maximo.label_tag }}
-              {% render_field form.notas_valor_maximo class="elevado-2 py-0! incluido-filtros" style="width: 6ch;" %}
+              {% render_field form.notas_valor_maximo class="ui-elevado-2 py-0! incluido-filtros" style="width: 6ch;" %}
             </div>
           </div>
         </details>
@@ -149,14 +149,14 @@
         <div class="flex gap-x-3 flex aic [&_label]:min-w-max">
           {{ form.notas_cantidad_paginas.label_tag }}
           {% with vals='{"solo_tabla": true}' %}
-            {% render_field form.notas_cantidad_paginas class="elevado-2 incluido-filtros" style="max-width: 6ch;" hx-trigger="input changed delay:600ms" hx-post="/notas_tabla/" hx-vals=vals %}
+            {% render_field form.notas_cantidad_paginas class="ui-elevado-2 incluido-filtros" style="max-width: 6ch;" hx-trigger="input changed delay:600ms" hx-post="/notas_tabla/" hx-vals=vals %}
           {% endwith %}
         </div>
       </div>
     </details>
 
     <button
-      class="btn elevado min-h-full min-w-8"
+      class="ui-btn ui-elevado min-h-full min-w-8"
       aria-label="Ver tabla en pantalla completa"
       onclick="!document.fullscreenElement ? window.$('.tabla-contenido').requestFullscreen() : document.exitFullscreen()"
     >

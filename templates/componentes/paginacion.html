@@ -28,7 +28,7 @@
 
     <nav>
       <ul
-        class="{{ "flex flex-wrap gap-2 [&_button]:(btn h-full size-min-8 gap-2 p-[.25rem_.625rem] font-600 elevado select-none)"|expandir_variantes }}"
+        class="{{ "flex flex-wrap gap-2 [&_button]:(ui-btn h-full size-min-8 gap-2 p-[.25rem_.625rem] font-600 ui-elevado select-none)"|expandir_variantes }}"
       >
         {% if datos_paginados.has_previous %}
           <li>
@@ -96,14 +96,14 @@
                 value="{{ num }}"
                 aria-label="Página actual"
               />
-              <button aria-hidden="true" class="btn-primario!">
+              <button aria-hidden="true" class="ui-btn/primario!">
                 {{ num }}
               </button>
             </li>
           {% elif num > datos_paginados.number|add:'-3' and num < datos_paginados.number|add:'3' %}
             <li>
               <button
-                class="elevado"
+                class="ui-elevado"
                 hx-vals='{"pagina": {{ num }}, "solo_tabla": true }'
                 hx-post="{{ hx_post }}"
                 aria-label="Ir a la página {{ num }}"

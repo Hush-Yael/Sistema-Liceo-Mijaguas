@@ -135,7 +135,7 @@
 
     <div class="flex aic gap-x-2.5 [&_svg]:size-3.5">
       <button
-        class="btn z-1 rounded-full size-5 text-texto-sutil bg-[--transparente-1] pover:bg-[--transparente-2]"
+        class="ui-btn z-1 rounded-full size-5 text-texto-sutil bg-[--transparente-1] pover:bg-[--transparente-2]"
         @click="anteriorCol()"
         :disabled="indiceColActual === 0"
         aria-label="Columna anterior"
@@ -148,7 +148,7 @@
       </button>
 
       <button
-        class="btn z-1 rounded-full size-5 text-texto-sutil bg-[--transparente-1] pover:bg-[--transparente-2]"
+        class="ui-btn z-1 rounded-full size-5 text-texto-sutil bg-[--transparente-1] pover:bg-[--transparente-2]"
         @click="siguienteCol()"
         :disabled="indiceColActual === columnas_ocultables.length - 1"
         aria-label="Siguiente columna"

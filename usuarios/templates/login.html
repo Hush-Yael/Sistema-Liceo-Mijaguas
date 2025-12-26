@@ -26,7 +26,7 @@
     />
 
     <form
-      class="caja max-w-350px w-90% p-4"
+      class="ui-caja max-w-350px w-90% p-4"
       action="{% url 'login' %}"
       method="post"
     >
@@ -38,7 +38,7 @@
         {% for field in form %}
           <div class="col gap-y-1.5">
             {{ field.label_tag }}
-            {% render_field field class="elevado-2" %}
+            {% render_field field class="ui-elevado-2" %}
           </div>
         {% endfor %}
       </div>
@@ -49,7 +49,9 @@
         value="{% if request.GET.next %}{{ request.GET.next }}{% else %}/{% endif %}"
       />
 
-      <button class="btn-primario btn-md w-full mt-[1.75rem]">Ingresar</button>
+      <button class="ui-btn/primario ui-btn/md w-full mt-[1.75rem]">
+        Ingresar
+      </button>
     </form>
 
     {% if form.errors %}
