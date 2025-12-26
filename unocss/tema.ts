@@ -1,7 +1,7 @@
-import type { ConfigBase, PresetWind4Theme, ThemeExtender } from "unocss/index";
+import type { ThemeExtender } from "unocss/index";
+import type { Config, ConfigThemePreset } from "../uno.config";
 
-type ThemePreset = PresetWind4Theme;
-type Color = ConfigBase<ThemePreset>["theme"]["colors"];
+type Color = Config["theme"]["colors"];
 
 class ColorDeTema implements Color {
   [n: string]: string;
@@ -19,7 +19,7 @@ class ColorDeTema implements Color {
   }
 }
 
-const tema: ThemeExtender<PresetWind4Theme> = (theme) => ({
+const tema: ThemeExtender<ConfigThemePreset> = (theme) => ({
   ...theme,
   colors: {
     ...theme.colors,
