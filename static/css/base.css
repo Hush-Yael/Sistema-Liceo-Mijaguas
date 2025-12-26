@@ -69,3 +69,13 @@ svg *[stroke-width]:not([stroke=none]) {
 [x-cloak] {
   display: none !important;
 }
+
+@media screen and (min-width: 800px) {
+  :root {
+    --altura-header: 0px;
+  }
+
+  body {
+    flex-direction: row;
+  }
+}
