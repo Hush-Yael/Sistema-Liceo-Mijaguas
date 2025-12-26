@@ -15,6 +15,9 @@ const elems = {
 
   ["ui-caja"]:
     "border-1 border-[--borde-caja] rounded-caja shadow-[--sombra-caja] bg-[--color-fondo-500]",
+
+  ["ui-input-error"]:
+    "text-[.9rem] text-peligro-500 dark:text-peligro-300 starting:(block opacity-100) peer-not-[[aria-invalid=true]]:(hidden opacity-0)",
 } satisfies Config["shortcuts"];
 
 const btn = {

@@ -187,11 +187,6 @@ html {
   background: var(--color-fondo-300);
 }
 
-input.ui-elevado[aria-invalid=true],
-select.ui-elevado[aria-invalid=true] {
-  border-color: var(--color-peligro-500);
-}
-
 input.ui-elevado,
 select.ui-elevado,
 input.ui-elevado-2,
@@ -199,31 +194,16 @@ select.ui-elevado-2 {
   display: block;
   width: 100%;
   padding: .25rem .5rem;
+  border-radius: var(--radio-campo);
 }
 
+input.ui-elevado[aria-invalid=true],
+select.ui-elevado[aria-invalid=true],
 input.ui-elevado-2[aria-invalid=true],
 select.ui-elevado-2[aria-invalid=true] {
-  border: 1px solid var(--color-peligro-500);
+  border-color: var(--color-peligro-500);
 }
 
-.input-error {
-  color: var(--color-peligro-500);
-  font-size: .9rem;
+.ui-input-error {
   transition: opacity .2s ease, display .2s ease allow-discrete;
-
-  @starting-style {
-    display: block;
-    opacity: 1;
-  }
-}
-
-.oscuro .input-error {
-  color: var(--color-peligro-300);
-}
-
-/* oculta el error si ya se resolvió */
-input:not([aria-invalid=true])~.input-error,
-select:not([aria-invalid=true])~.input-error {
-  display: none;
-  opacity: 0;
 }

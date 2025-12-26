@@ -35,11 +35,8 @@
       <h1 class="text-[1.5rem] font-bold tac mb-4">Iniciar sesión</h1>
 
       <div class="col gap-y-4">
-        {% for field in form %}
-          <div class="col gap-y-1.5">
-            {{ field.label_tag }}
-            {% render_field field class="ui-elevado-2" %}
-          </div>
+        {% for campo in form %}
+          {% include "componentes/campo.html" with input_class="ui-elevado-2" %}
         {% endfor %}
       </div>
 

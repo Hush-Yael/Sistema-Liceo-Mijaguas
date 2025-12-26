@@ -17,15 +17,7 @@
     {% endif %}
 
     {# mensajes de error #}
-    {% if form.foto_perfil.errors %}
-      {% for e in form.foto_perfil.errors %}
-        {% with error=e %}
-          <p id="{{ error_id }}" class="input-error tac" data-form="form">
-            {{ error }}
-          </p>
-        {% endwith %}
-      {% endfor %}
-    {% endif %}
+    {% include "componentes/campo.html#campo_error" with campo=form.foto_perfil error_class="tac" %}
   {% endwith %}
 
   <div

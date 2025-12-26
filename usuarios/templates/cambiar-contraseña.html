@@ -19,26 +19,8 @@
         Cambiar contraseña del usuario
       </h1>
       {% csrf_token %}
-      {% for field in form %}
-        <div>
-          {{ field.label_tag }}
-
-          {% if field.errors %}
-            {% with error=field.id_for_label|add:'-error' %}
-              {% render_field field class="ui-elevado-2" aria-labelledby=error aria-invalid="true" %}
-            {% endwith %}
-          {% else %}
-            {% render_field field class="ui-elevado-2" %}
-          {% endif %}
-
-          {% if field.errors %}
-            {% for error in field.errors %}
-              <p id="{{ field.id_for_label }}-error" class="input-error">
-                {{ error }}
-              </p>
-            {% endfor %}
-          {% endif %}
-        </div>
+      {% for campo in form %}
+        {% include "componentes/campo.html" with input_class="ui-elevado-2" %}
       {% endfor %}
 
       <button disabled class="ui-btn/primario ui-btn/md mt-3" id="submit">

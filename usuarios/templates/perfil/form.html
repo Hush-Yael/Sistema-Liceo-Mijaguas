@@ -1,35 +1,24 @@
 {% load grupos_variantes %}
 {% load widget_tweaks %}
+{% load partials %}
 
 <section>
   <h2 id="datos-label" class="sr-only">Datos del usuario</h2>
 
-  <div
-    role="group"
-    class="col gap-y-5 [&_label]:text-texto-sutil ui-caja p-3 px-4"
-  >
+  <div role="group" class="col gap-y-5 ui-caja p-3 px-4">
     {% csrf_token %}
 
-    {% for field in form %}
-      {% if field.id_for_label != 'id_foto_perfil' %}
-        <div>
-          {{ field.label_tag }}
-          {% if field.errors %}
-            {% with error=field.id_for_label|add:'-error' %}
-              {% render_field field class="ui-elevado-2" ::readonly="!editando" aria-errormessage=error aria-invalid="true" %}
-            {% endwith %}
-          {% else %}
-            {% render_field field class="ui-elevado-2" ::readonly="!editando" %}
-          {% endif %}
+    {% partialdef input_invalido %}
+      {% render_field campo class="ui-elevado-2 peer" ::readonly="!editando" aria-errormessage=error_id aria-invalid="true" %}
+    {% endpartialdef input_invalido %}
 
-          {% if field.errors %}
-            {% for error in field.errors %}
-              <p id="{{ field.id_for_label }}-error" class="input-error">
-                {{ error }}
-              </p>
-            {% endfor %}
-          {% endif %}
-        </div>
+    {% partialdef input %}
+      {% render_field campo class="ui-elevado-2 peer" ::readonly="!editando" %}
+    {% endpartialdef input %}
+
+    {% for campo in form %}
+      {% if campo.id_for_label != 'id_foto_perfil' %}
+        {% include "componentes/campo.html" with parcial_input_invalido_url="perfil/form.html#input_invalido" parcial_input_url="perfil/form.html#input" %}
       {% endif %}
     {% endfor %}
 

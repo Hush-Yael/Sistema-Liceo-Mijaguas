@@ -1,19 +1,40 @@
 {% load widget_tweaks %}
+{% load partials %}
 
-<div class="campo">
+<div
+  class="{{ class|default:''|add:' col gap-y-1 [&_label]:text-texto-sutil' }}"
+>
   {{ campo.label_tag }}
 
-  {% if campo.errors %}
-    {% with error=campo.id_for_label|add:'-error' %}
-      {% render_field campo class=class aria-labelledby=error aria-invalid="true" %}
-    {% endwith %}
-  {% else %}
-    {% render_field campo class=class %}
-  {% endif %}
+  {% with error_id=campo.id_for_label|add:'-error' ic=input_class|default:''|add:' peer' %}
+    {% if campo.errors %}
+      {% if parcial_input_invalido_url %}
+        {% include parcial_input_invalido_url %}
+      {% else %}
+        {% render_field campo class=ic aria-errormessage=error_id aria-invalid="true" %}
+      {% endif %}
+    {% else %}
+      {% if parcial_input_url %}
+        {% include parcial_input_url %}
+      {% else %}
+        {% render_field campo class=ic %}
+      {% endif %}
+    {% endif %}
 
-  {% if campo.errors %}
-    {% for error in campo.errors %}
-      <p id="{{ campo.id_for_label }}-error" class="input-error">{{ error }}</p>
-    {% endfor %}
-  {% endif %}
+    {% partialdef campo_error inline %}
+      {% if campo.errors %}
+        {% for error in campo.errors %}
+          <p
+            id="{{ error_id }}"
+            class="{{ error_class|default:''|add:' ui-input-error' }}"
+            {% if data_form %}
+              data-form="{{ data_form }}"
+            {% endif %}
+          >
+            {{ error }}
+          </p>
+        {% endfor %}
+      {% endif %}
+    {% endpartialdef campo_error %}
+  {% endwith %}
 </div>
