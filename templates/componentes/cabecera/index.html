@@ -22,7 +22,7 @@
   <header
     class="{{
       '
-        flex justify-between w-full h-[--altura-header] min-h-[--altura-header] px-4
+        z-2 flex justify-between w-full h-[--altura-header] min-h-[--altura-header] px-4
         max-sidebar:shadow-[0_5px_24px_0_#00000026]
         sidebar:(flex-col gap-y-6 min-h-max p-4 border-b border-#fff2)
         max-sidebar_full:aic
@@ -70,7 +70,7 @@
   <aside
     class="{{
       '
-        z-5 left-0 bottom-0 col gap-4 flex-1 transition-[transform] ease-in-out overflow-y-auto
+        z-2 left-0 bottom-0 col gap-4 flex-1 transition-[transform] ease-in-out overflow-y-auto
         max-sidebar:(
           fixed w-250px h-[calc(100%-var(--altura-header))] border-t border-#fff1 -aria-hidden:translate-x-100%
           aria-[hidden=false]:(
@@ -126,7 +126,7 @@
   <div
     :data-visible="abiertoPorBtn"
     aria-hidden="true"
-    class="fixed left-0 right-0 top-0 bottom-0 z-4 bg-#0004 dark:bg-#0007 not-[[data-visible]]:hidden sidebar:hidden"
+    class="fixed z-1 left-0 right-0 top-0 bottom-0 z-4 bg-#0004 dark:bg-#0007 not-[[data-visible]]:hidden sidebar:hidden"
   ></div>
 </div>
 
