@@ -163,6 +163,7 @@
                 {% else %}
                   <input
                     type="checkbox"
+                    :tabindex="index === 0 ? 0 : -1"
                     class="{{ c|add:' peer ui-opcion/checkbox' }}"
                     name="{{ name }}"
                     :value="item.id"
