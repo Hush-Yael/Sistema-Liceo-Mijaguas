@@ -87,6 +87,7 @@ html {
   --color-advertencia-800: hsl(27.4, 100%, 18.4%);
   --color-advertencia-900: hsl(24, 100%, 10.8%);
   --color-advertencia-950: hsl(21.1, 100%, 7.3%);
+  --color-texto-advertencia: #fff;
 
   --color-peligro-50: hsl(356.8, 100%, 96.3%);
   --color-peligro-100: hsl(0, 100%, 92.7%);
@@ -166,7 +167,8 @@ html {
   --color-acento-50: hsl(151.4 100% 4.1%);
 
   --color-texto-secundario: hsl(0, 0%, 90%);
-  --color-texto-exito: hsl(0, 0%, 90%);
+  --color-texto-exito: #000;
+  --color-texto-info: #000;
   --color-texto-advertencia: hsl(0, 0%, 90%);
   --color-texto-peligro: hsl(0, 0%, 90%);
 

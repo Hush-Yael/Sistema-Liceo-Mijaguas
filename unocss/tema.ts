@@ -29,6 +29,7 @@ const tema: ThemeExtender<ConfigThemePreset> = (theme) => ({
     acento: new ColorDeTema("acento"),
     info: new ColorDeTema("info"),
     exito: new ColorDeTema("exito"),
+    advertencia: new ColorDeTema("advertencia"),
     peligro: new ColorDeTema("peligro"),
     "texto-sutil": "var(--texto-sutil)",
   },
