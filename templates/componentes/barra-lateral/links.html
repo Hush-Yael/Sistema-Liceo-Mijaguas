@@ -14,7 +14,7 @@
   </style>
 {% endaddtoblock %}
 
-{% with path_enlace="componentes/cabecera/links.html#enlace" %}
+{% with path_enlace="componentes/barra-lateral/links.html#enlace" %}
   {# enlaces profesores #}
   {% with puede_ver=perms.estudios.view_profesor puede_añadir=perms.estudios.add_profesor %}
     {# btn #}
@@ -128,14 +128,15 @@
 
     {% partialdef enlaces_materias %}
       {% if puede_añadir %}
-
-        {% with icono="añadir" label="Añadir materia" %}
+        {% url 'form_materias' as mat_href_form %}
+        {% with href=mat_href_form icono="añadir" label="Añadir materia" %}
           {% include path_enlace %}
         {% endwith %}
       {% endif %}
 
       {% if puede_ver %}
-        {% with icono="tabla" label="Lista de materias" %}
+        {% url 'materias' as mat_href %}
+        {% with href=mat_href icono="tabla" label="Lista de materias" %}
           {% include path_enlace %}
         {% endwith %}
       {% endif %}
@@ -211,7 +212,7 @@
   {% endwith %}
 
   {% if request.user.is_staff %}
-    {% include "componentes/cabecera/link.html" with class=link_class href="/admin" label="Panel de administración" icono="panel" %}
+    {% include "componentes/barra-lateral/link.html" with class=link_class href="/admin" label="Panel de administración" icono="panel" %}
   {% endif %}
 {% endwith %}
 
@@ -257,7 +258,7 @@
         '|reemplazar_espacios
       }}"
     >
-      {% include "componentes/cabecera/links.html#btn_"|add:nombre_parcial %}
+      {% include "componentes/barra-lateral/links.html#btn_"|add:nombre_parcial %}
     </button>
 
     <div
@@ -309,7 +310,7 @@
         |reemplazar_espacios
       }}"
     >
-      {% include "componentes/cabecera/links.html#enlaces_"|add:nombre_parcial %}
+      {% include "componentes/barra-lateral/links.html#enlaces_"|add:nombre_parcial %}
     </div>
   </li>
 {% endpartialdef menu_enlaces %}

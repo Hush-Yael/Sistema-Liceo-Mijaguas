@@ -36,11 +36,11 @@
       </figure></a
     >
 
-    {% include "componentes/cabecera/link.html#enlace" with icono="logout" class=link_class path_actual=path_actual href=logout_href label="Cerrar sesión" %}
+    {% include "componentes/barra-lateral/link.html#enlace" with icono="logout" class=link_class path_actual=path_actual href=logout_href label="Cerrar sesión" %}
   </div>
 {% else %}
   {% with class="hidden sidebar:max-sidebar_full:block" %}
-    {% include "componentes/cabecera/index.html#hr" %}
+    {% include "componentes/barra-lateral/index.html#hr" %}
   {% endwith %}
   <a
     href="{% url 'login' %}"

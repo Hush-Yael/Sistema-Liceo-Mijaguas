@@ -52,7 +52,7 @@
     </h1>
 
     <div class="flex aic gap-x-4">
-      {% include "componentes/cabecera/selector-tema.html" %}
+      {% include "componentes/barra-lateral/selector-tema.html" %}
 
       <button
         style="--h: 17px; --w: 25px;"
@@ -102,7 +102,7 @@
         link_class="group relative flex items-center gap-x-3 min-w-max w-full p-[.75em_1rem] -outline-offset-3 transition-[background-color,color] ease-out not-[[aria-current=page]]:pover:bg-#fff2 [&>svg]:size-1.25em aria-expanded:bg-#fff2 [[aria-current=page],li:has([aria-current=page])_&]:(bg-primario-texto! text-primario-600! before:content-['']) sidebar:max-sidebar_full:jcc before:(absolute left-0 bg-current h-80% w-6px rounded-r-3)"|expandir_variantes
         label_class="sidebar:max-sidebar_full:(fc absolute top-0 bottom-0 left-full min-w-max p-[.25rem_.5rem] rounded-r-campo opacity-0 whitespace-nowrap text-primario-texto bg-primario transition-[opacity,box-shadow] shadow-[0_0_8px_#0003] pointer-events-none group-hover:opacity-100 group-focus:opacity-100)"|expandir_variantes
       %}
-        {% include "componentes/cabecera/datos-usuario.html" %}
+        {% include "componentes/barra-lateral/datos-usuario.html" %}
         <nav aria-orientation="vertical">
           <ul
             class="h-full empty:hidden max-sidebar:overflow-y-auto"
@@ -123,7 +123,7 @@
                   {% partial hr %}
                 {% endwith %}
 
-                {% include "componentes/cabecera/links.html" %}
+                {% include "componentes/barra-lateral/links.html" %}
               {% endif %}
             {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
           </ul>
