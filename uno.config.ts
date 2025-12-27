@@ -28,6 +28,12 @@ const config = defineConfig({
   rules,
   variants: variantes,
   shortcuts,
+  safelist: [
+    "ui-msg/exito",
+    "ui-msg/peligro",
+    "ui-msg/advertencia",
+    "ui-msg/info",
+  ],
 });
 
 export default config;

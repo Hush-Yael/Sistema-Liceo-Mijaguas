@@ -1,0 +1,48 @@
+{% load partials %}
+{% load grupos_variantes %}
+{% load sekizai_tags %}
+
+{% addtoblock "cabeza" %}
+  <script>
+    document.addEventListener("animationend", (e) => {
+      if (
+        e.target.classList.contains("ui-msg") &&
+        e.animationName === "slide-out-down"
+      )
+        e.target.remove();
+    });
+  </script>
+{% endaddtoblock %}
+
+<div
+  role="region"
+  tabindex="-1"
+  aria-label="Notificaciones"
+  class="{{ "fixed bottom-0 w-full sidebar:(w-300px right-0)"|expandir_variantes }}"
+>
+  <ol id="lista-mensajes" tabindex="-1">
+    {% for message in messages %}
+      {% partial msg %}
+    {% endfor %}
+  </ol>
+</div>
+
+{% partialdef msg %}
+  <li
+    tabindex="0"
+    role="status"
+    aria-atomic="true"
+    aria-live="assertive"
+    class="ui-msg {{ message.tags }}"
+  >
+    {{ message }}
+    <button
+      type="button"
+      aria-label="Cerrar"
+      onclick="this.parentElement.toggleAttribute('data-cerrando', true)"
+      class="ui-btn size-6 p-1"
+    >
+      {% include "componentes/iconos/x.html" %}
+    </button>
+  </li>
+{% endpartialdef msg %}

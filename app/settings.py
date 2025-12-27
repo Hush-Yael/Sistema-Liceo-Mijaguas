@@ -2,6 +2,7 @@ import os
 import sys
 from constantes import DEV, RUTA_BASE
 from dotenv import dotenv_values
+from django.contrib.messages import constants as messages
 from .config_unfold import CONFIG as CONFIG_UNFOLD
 
 
@@ -148,3 +149,11 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 UNFOLD = CONFIG_UNFOLD
+
+MESSAGE_TAGS = {
+    messages.DEBUG: "ui-msg/debug",
+    messages.INFO: "ui-msg/info",
+    messages.SUCCESS: "ui-msg/exito",
+    messages.WARNING: "ui-msg/advertencia",
+    messages.ERROR: "ui-msg/peligro",
+}

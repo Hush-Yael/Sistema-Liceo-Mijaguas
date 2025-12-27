@@ -60,9 +60,24 @@ const input = {
     "rounded-full after:(content-[''] absolute top-0 left-0 right-0 bottom-0 size-50% ma block rounded-full bg-primario-texto opacity-0) checked:after:(opacity-100)",
 } satisfies Config["shortcuts"];
 
+const msg = {
+  ["ui-msg"]:
+    "flex jb aic gap-3 p-3 px-4 rounded-t animate-slide-in-up animate-duration-600 animate-ease-out data-[cerrando]:(animate-duration-250 animate-slide-out-down animate-forwards animate-ease-out)",
+
+  ["ui-msg/exito"]: "bg-exito text-exito-texto [&>button]:bg-#0002",
+
+  ["ui-msg/peligro"]: "bg-peligro text-peligro-texto [&>button]:bg-#0004",
+
+  ["ui-msg/advertencia"]:
+    "bg-advertencia text-advertencia-texto [&>button]:bg-#0002",
+
+  ["ui-msg/info"]: "bg-info text-info-texto [&>button]:bg-#0002",
+} satisfies Config["shortcuts"];
+
 export default {
   ...util,
   ...elems,
   ...btn,
   ...input,
+  ...msg,
 } satisfies UserShortcuts<ConfigThemePreset>;

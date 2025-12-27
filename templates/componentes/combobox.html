@@ -71,23 +71,7 @@
             hx-get="{{ hx_get }}"
           {% endif %}
         >
-          <svg
-            fill="none"
-            stroke-width="0"
-            xmlns="http://www.w3.org/2000/svg"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            height="1em"
-            width="1em"
-            style="overflow: visible; color: currentcolor;"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="1.5"
-              d="M6 18 18 6M6 6l12 12"
-            ></path>
-          </svg>
+          {% include "componentes/iconos/x.html" with class="size-4" %}
         </button>
       </template>
     {% endif %}
