@@ -7,7 +7,16 @@
 {% url 'logout' as logout_href %}
 
 <div
-  class="{{ 'sticky top-0 z-5 col justify-start *:text-primario-texto *:w-full *:bg-primario sidebar:(flex-1 h-100dvh w-15 max-w-15) sidebar_full:(w-250px max-w-250px)'|expandir_variantes }}"
+  class="{{
+    '
+      sticky top-0 z-5 col justify-start
+      *:text-primario-texto *:w-full *:bg-primario
+      sidebar:(flex-1 h-100dvh w-15 max-w-15)
+      sidebar:*:border-r-2 sidebar:*:border-r-#fff4 dark:sidebar:*:border-r-#fff2
+      sidebar_full:(w-250px max-w-250px)
+    '
+    |reemplazar_espacios:' '|expandir_variantes
+  }}"
   x-data='{
     anchoMedia: window.matchMedia("(min-width: 800px)"),
     abiertoPorBtn: false,
@@ -24,9 +33,9 @@
       '
         z-2 flex justify-between w-full h-[--altura-header] min-h-[--altura-header] px-4
         max-sidebar:shadow-[0_5px_24px_0_#00000026]
-        sidebar:(flex-col gap-y-6 min-h-max p-4 border-b border-#fff2)
+        sidebar:(flex-col gap-y-6 min-h-max p-4 border-b border-b-#fff2)
         max-sidebar_full:aic
-        sidebar_full:(gap-y-3 p-3 px-2 )
+        sidebar_full:(gap-y-3 p-3 px-2)
       '
       |reemplazar_espacios:' '|expandir_variantes
     }}"
