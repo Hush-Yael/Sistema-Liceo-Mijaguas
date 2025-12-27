@@ -188,8 +188,10 @@ html {
 }
 
 input.ui-elevado,
+textarea.ui-elevado,
 select.ui-elevado,
 input.ui-elevado-2,
+textarea.ui-elevado-2,
 select.ui-elevado-2 {
   display: block;
   width: 100%;
@@ -198,8 +200,10 @@ select.ui-elevado-2 {
 }
 
 input.ui-elevado[aria-invalid=true],
+textarea.ui-elevado[aria-invalid=true],
 select.ui-elevado[aria-invalid=true],
 input.ui-elevado-2[aria-invalid=true],
+textarea.ui-elevado-2[aria-invalid=true],
 select.ui-elevado-2[aria-invalid=true] {
   border-color: var(--color-peligro-500);
 }

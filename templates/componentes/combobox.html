@@ -166,11 +166,11 @@
             <div
               class="size-4.5 size-min-4.5 relative [&>input::before,&>input::after]:content-['']"
             >
-              {% with c="incluido-filtros combobox-opcion relative size-full appearance-none border border-[--transparente-2] bg-fondo-700 transition-[background-color,border-color] checked:(bg-primario dark:bg-primario-700 border-primario dark:border-primario-700) before:(absolute -z-1 top-2/4 left-2/4 block size-180% -translate-y-2/4 -translate-x-2/4 rounded-full bg-[--transparente-1] opacity-0 transition-opacity focus-visible:opacity-50 pover:opacity-50)"|expandir_variantes %}
+              {% with c="incluido-filtros combobox-opcion ui-opcion"|expandir_variantes %}
                 {% if multiple == 0 %}
                   <input
                     type="radio"
-                    class="{{ c|add:' rounded-full after:(absolute top-0 left-0 right-0 bottom-0 size-50% ma block rounded-full bg-primario-texto opacity-0) checked:after:(opacity-100)'|expandir_variantes }}"
+                    class="{{ c|add:' '|expandir_variantes }}"
                     name="{{ name }}"
                     :value="item.id"
                     :checked="seleccionada == item.id"
@@ -179,28 +179,13 @@
                 {% else %}
                   <input
                     type="checkbox"
-                    class="{{ c|add:' peer rounded' }}"
+                    class="{{ c|add:' peer ui-opcion/checkbox' }}"
                     name="{{ name }}"
                     :value="item.id"
                     :checked="opcionesSeleccionadas.has(item.id)"
                     :id="'{{ name }}-opt-'+index"
                   />
-                  <span
-                    class="absolute fc text-primario-texto opacity-0 peer-checked:opacity-100 top-0 left-0 size-full"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="size-3.5"
-                      viewBox="0 0 20 20"
-                      stroke-width="1"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clip-rule="evenodd"
-                      ></path>
-                    </svg>
-                  </span>
+                  {% include "componentes/checkbox-icono.html" %}
                 {% endif %}
               {% endwith %}
             </div>

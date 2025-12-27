@@ -8,16 +8,13 @@ const util = {
 
 const elems = {
   ["ui-elevado"]:
-    "border-1 border-[--borde-caja] shadow-[--sombra-caja] bg-[--color-fondo-500]",
+    "border-1 border-[--borde-caja] shadow-[--sombra-caja] bg-fondo-500",
 
   ["ui-elevado-2"]:
-    "border-1 border-[--transparente-1] shadow-[--sombra-caja] bg-[--color-fondo-700]",
+    "border-1 border-[--transparente-1] shadow-[--sombra-caja] bg-fondo-700",
 
   ["ui-caja"]:
-    "border-1 border-[--borde-caja] rounded-caja shadow-[--sombra-caja] bg-[--color-fondo-500]",
-
-  ["ui-input-error"]:
-    "text-[.9rem] text-peligro-500 dark:text-peligro-300 starting:(block opacity-100) peer-not-[[aria-invalid=true]]:(hidden opacity-0)",
+    "border-1 border-[--borde-caja] rounded-caja shadow-[--sombra-caja] bg-fondo-500",
 } satisfies Config["shortcuts"];
 
 const btn = {
@@ -44,8 +41,28 @@ const btn = {
   ["ui-btn/md"]: "px-6 py-1.5 [&>svg]:size-4.5",
 } satisfies Config["shortcuts"];
 
+const input = {
+  ["ui-input-error"]:
+    "text-[.9rem] text-peligro-500 dark:text-peligro-300 starting:(block opacity-100) peer-not-[[aria-invalid=true]]:(hidden opacity-0)",
+  ["ui-opcion"]: `
+    relative size-full appearance-none border border-[--transparente-2] bg-fondo-700 transition-[background-color,border-color]
+    
+    [&:checked,.peer:checked~&,.group[aria-selected=true]_&]:(bg-primario dark:bg-primario-700 border-primario dark:border-primario-700)
+    
+
+    before:(
+      content-['']
+      absolute -z-1 top-2/4 left-2/4 block size-180% -translate-y-2/4 -translate-x-2/4 rounded-full bg-[--transparente-1] opacity-0 transition-opacity focus-visible:opacity-50 pover:opacity-50
+    )
+  `,
+  ["ui-opcion/checkbox"]: "rounded",
+  ["ui-opcion/radio"]:
+    "rounded-full after:(content-[''] absolute top-0 left-0 right-0 bottom-0 size-50% ma block rounded-full bg-primario-texto opacity-0) checked:after:(opacity-100)",
+} satisfies Config["shortcuts"];
+
 export default {
   ...util,
   ...elems,
   ...btn,
+  ...input,
 } satisfies UserShortcuts<ConfigThemePreset>;
