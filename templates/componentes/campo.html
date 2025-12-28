@@ -11,7 +11,9 @@
       {% if parcial_input_invalido_url %}
         {% include parcial_input_invalido_url %}
       {% else %}
-        {% render_field campo class=ic aria-errormessage=error_id aria-invalid="true" %}
+        {% with eic=ic|add:' animate-head-shake animate-delay-200' %}
+          {% render_field campo class=eic aria-errormessage=error_id aria-invalid="true" %}
+        {% endwith %}
       {% endif %}
     {% else %}
       {% if parcial_input_url %}
