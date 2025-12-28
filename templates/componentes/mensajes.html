@@ -75,3 +75,9 @@
     </button>
   </li>
 {% endpartialdef msg %}
+
+{% partialdef como_respuesta %}
+  {% for message in messages %}
+    <div hx-swap-oob="beforeend:#lista-mensajes">{% partial msg %}</div>
+  {% endfor %}
+{% endpartialdef como_respuesta %}
