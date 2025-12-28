@@ -34,8 +34,6 @@ const btn = {
   ["ui-btn/exito"]:
     "bg-exito text-exito-texto border-exito-400 dark:border-exito-600 pover:bg-exito-600 dark:pover:bg-exito-400",
 
-  ["ui-btn/redondeado"]: "rounded-full",
-
   ["ui-btn/sm"]: "px-4 py-1 text-sm [&>svg]:size-4",
 
   ["ui-btn/md"]: "px-6 py-1.5 [&>svg]:size-4.5",
