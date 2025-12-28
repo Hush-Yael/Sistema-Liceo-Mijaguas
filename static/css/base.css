@@ -61,7 +61,8 @@ svg *[stroke-width]:not([stroke=none]) {
   stroke: currentColor;
 }
 
-:disabled {
+:disabled,
+label:has(input:disabled) {
   opacity: 0.5;
   cursor: not-allowed !important;
 }
