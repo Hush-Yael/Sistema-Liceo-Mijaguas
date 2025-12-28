@@ -73,17 +73,24 @@
       </label>
 
       {% if request.user.foto_perfil %}
+        <span
+          role="alert"
+          id="i"
+          class="htmx-indicator peer hidden!"
+          aria-label="Eliminando..."
+        ></span>
+
         <button
-          class="ui-btn ui-btn/borde ui-btn/sm min-[400px]:ui-btn/md [&>svg]:size-[1.125em] max-[500px]:text-[.9em]"
+          class="ui-btn ui-btn/borde ui-btn/sm min-[400px]:ui-btn/md [&>svg]:size-[1.125em] max-[500px]:text-[.9em] peer-[:not(.htmx-request)]:[&>.ui-loader]:hidden peer-[.htmx-request]:[&>svg]:hidden"
           id="borrar-foto"
           hx-delete="{% url 'perfil' %}"
           hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
           hx-confirm="¿Seguro que quieres borrar tu foto de perfil?"
+          hx-indicator="#i"
           hx-swap="outerHTML"
         >
-          <span class="htmx-indicator">
-            <span class="indicador"></span>
-          </span>
+          <span class="ui-loader"></span>
+
           <svg
             version="1.1"
             viewBox="0 0 30 30"

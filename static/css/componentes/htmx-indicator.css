@@ -1,34 +1,14 @@
 .htmx-indicator {
-  display: none;
   transition: opacity .2s ease-in-out, visibility .2s ease-in-out allow-discrete, display .2s ease-in-out allow-discrete;
 }
 
-.htmx-request .htmx-indicator,
+.htmx-indicator:not(.test),
+.htmx-indicator:not(.htmx-request) {
+  display: none;
+}
+
+.htmx-indicator.test,
 .htmx-indicator.htmx-request {
-  display: flex !important;
-  gap: .5rem;
-  align-items: center;
-}
-
-.htmx-indicator .indicador {
-  display: inline-block;
-  width: 1em;
-  height: 1em;
-  min-width: 1em;
-  min-height: 1em;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  border: 3px solid var(--transparente-3);
-  border-right-color: var(--color-primario-200);
-  animation: l2 600ms infinite linear;
-}
-
-.oscuro .htmx-indicator .indicador {
-  border-right-color: var(--color-primario-700);
-}
-
-@keyframes l2 {
-  to {
-    transform: rotate(1turn)
-  }
+  visibility: visible;
+  opacity: 1;
 }

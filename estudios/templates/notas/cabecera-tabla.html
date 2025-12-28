@@ -45,13 +45,12 @@
         class="fc h-full w-8 min-w-max border-r border-[--transparente-2] rounded-l-campo bg-fondo-700"
       >
         <div
-          role="status"
+          role="alert"
           id="indicador-busqueda"
           aria-label="Buscando..."
-          class="htmx-indicator peer transition-none!"
-        >
-          <div class="indicador size-4"></div>
-        </div>
+          class="htmx-indicator peer"
+        ></div>
+        <div class="ui-loader peer-not-[.htmx-request]:hidden"></div>
 
         {% include "notas/iconos.html#lupa" with class="peer-[.htmx-request]:hidden size-4 text-texto-sutil" %}
       </span>

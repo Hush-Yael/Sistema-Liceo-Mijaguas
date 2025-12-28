@@ -7,17 +7,14 @@
     hx-include="{{ hx_include }}"
     hx-indicator="#indicador-pagina"
   >
-    <div class="flex aic">
+    <div class="flex aic gap-x-2">
       <div
         id="indicador-pagina"
-        class="htmx-indicator"
+        class="htmx-indicator fc"
         role="status"
         aria-label="Cargando página..."
       >
-        {# si soporta la transición, alinear al medio el indicador del texto al estarse ocultando, ya que por alguna razón no lo hace #}
-        <div
-          class="indicador supports-[transition-behavior:allow-discrete]:m-[auto_.5rem_auto_0]"
-        ></div>
+        <div class="ui-loader"></div>
       </div>
 
       <p class="min-w-max" role="status">
