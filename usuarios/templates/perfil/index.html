@@ -4,6 +4,7 @@
 {% load static %}
 {% load widget_tweaks %}
 {% load grupos_variantes %}
+{% load partials %}
 
 {% block cabeza %}
   <link
@@ -182,3 +183,9 @@
     </dialog>
   </main>
 {% endblock contenido %}
+
+{% partialdef foto_eliminada %}
+  {# se reemplazan las fotos de la navegación y la sección del perfil #}
+  {% include "componentes/iconos/sin-foto.html" with swap="outerHTML:.foto-perfil" class=".foto-perfil" %}
+  {% include "componentes/mensajes.html#como_respuesta" %}
+{% endpartialdef foto_eliminada %}

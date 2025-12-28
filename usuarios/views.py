@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
@@ -7,7 +8,7 @@ from .models import User
 from django.db import connection
 
 from django.http import HttpRequest, HttpResponse
-from django.utils.html import json
+import json
 
 from usuarios.forms import FormularioPerfil
 
@@ -46,11 +47,10 @@ def perfil(request: HttpRequest):
                 )
 
                 if cursor.rowcount < 1:
-                    raise Exception(
-                        "No se pudo dejar en blanco los campos de las fotos"
-                    )
+                    print("No se pudo dejar en blanco los campos de las fotos")
 
-            return render(request, "sin-fotos.html")
+            messages.success(request, "Foto eliminada")
+            return render(request, "perfil/index.html#foto_eliminada")
         except Exception as e:
             print("Error al eliminar la foto", e)
             return HttpResponse("Error al eliminar la foto: ", status=204)  # type: ignore
