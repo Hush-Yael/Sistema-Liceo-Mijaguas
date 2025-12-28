@@ -59,8 +59,18 @@ const input = {
 } satisfies Config["shortcuts"];
 
 const msg = {
-  ["ui-msg"]:
-    "flex jb aic gap-3 p-3 px-4 rounded-t animate-slide-in-up animate-duration-600 animate-ease-out data-[cerrando]:(animate-duration-250 animate-slide-out-down animate-forwards animate-ease-out)",
+  ["ui-msg"]: `
+      flex jb aic gap-3 p-3 px-4 rounded-t not-last:rounded-b animate-forwards! animate-ease-out
+      bg-exito text-exito-texto [&>button]:bg-#0002
+
+      before:(content-[''] absolute top-0 left-0 size-full bg-#0002 pointer-events-none)
+
+      data-[estado=abriendo]:(animate-slide-in-up animate-duration-400)
+
+      data-[estado=cerrando]:(animate-fade-out-down animate-duration-500 animate-delay-[var(--retraso,5000ms)] hover:(animate-paused before:animate-paused))
+
+      data-[estado=cerrando]:before:animate-[encoger_var(--retraso,5000ms)_linear_forwards]
+    `,
 
   ["ui-msg/exito"]: "bg-exito text-exito-texto [&>button]:bg-#0002",
 

@@ -1,17 +1,42 @@
 {% load partials %}
 {% load grupos_variantes %}
 {% load sekizai_tags %}
+{% load utilidades %}
 
 {% addtoblock "cabeza" %}
   <script>
     document.addEventListener("animationend", (e) => {
-      if (
-        e.target.classList.contains("ui-msg") &&
-        e.animationName === "slide-out-down"
-      )
-        e.target.remove();
+      /** @type {HTMLLIElement} */
+      const $el = e.target;
+
+      if ($el.classList.contains("ui-msg")) {
+        switch ($el.getAttribute("data-estado")) {
+          case "abriendo": {
+            const customDelay = parseInt($el.getAttribute("data-retraso"));
+
+            if (Number.isInteger(customDelay) && customDelay > 0)
+              $el.style.setProperty("--retraso", `${customDelay}ms`);
+
+            // {# conteo hasta cerrar (se usa el delay de la animación) #}
+            return $el.setAttribute("data-estado", "cerrando");
+          }
+          case "cerrando":
+            return ($el.onanimationend = () => $el.remove());
+        }
+      }
     });
   </script>
+
+  <style>
+    @keyframes encoger {
+      0% {
+        width: 100%;
+      }
+      100% {
+        width: 0;
+      }
+    }
+  </style>
 {% endaddtoblock %}
 
 <div
@@ -20,7 +45,7 @@
   aria-label="Notificaciones"
   class="{{ "fixed bottom-0 w-full sidebar:(w-300px right-0)"|expandir_variantes }}"
 >
-  <ol id="lista-mensajes" tabindex="-1">
+  <ol class="col gap-y-1" id="lista-mensajes" tabindex="-1">
     {% for message in messages %}
       {% partial msg %}
     {% endfor %}
@@ -33,14 +58,18 @@
     role="status"
     aria-atomic="true"
     aria-live="assertive"
+    data-estado="abriendo"
+    {% if 'retraso=' in message.extra_tags %}
+      data-retraso={{ message.extra_tags|encontrar_retraso }}
+    {% endif %}
     class="ui-msg {{ message.tags }}"
   >
     {{ message }}
     <button
       type="button"
       aria-label="Cerrar"
-      onclick="this.parentElement.toggleAttribute('data-cerrando', true)"
-      class="ui-btn size-6 p-1"
+      class="ui-btn rounded-full size-6 p-1"
+      onclick="this.parentElement.remove()"
     >
       {% include "componentes/iconos/x.html" %}
     </button>

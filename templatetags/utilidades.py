@@ -75,3 +75,10 @@ def obtener_lista_opciones(campo_choices):
 @register.filter
 def reemplazar_espacios(value: str, arg=None):
     return re.sub(r"\s{2,}|\ng", arg or "", value)
+
+
+@register.filter
+def encontrar_retraso(value: str):
+    r = re.search(r"retraso=(\d+)", value)
+    if r:
+        return r.group(1)
