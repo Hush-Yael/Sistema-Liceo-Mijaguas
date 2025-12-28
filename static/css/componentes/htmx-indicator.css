@@ -2,8 +2,7 @@
   transition: opacity .2s ease-in-out, visibility .2s ease-in-out allow-discrete, display .2s ease-in-out allow-discrete;
 }
 
-.htmx-indicator:not(.test),
-.htmx-indicator:not(.htmx-request) {
+.htmx-indicator:not(.test):not(.htmx-request) {
   display: none;
 }
 
