@@ -14,7 +14,10 @@
   <link rel="stylesheet" href="{% static 'css/componentes/dialog.css' %}" />
 
   <script defer src="{% static 'js/htmx.min.js' %}"></script>
+  <script defer src="{% static 'js/htmx-error-solicitudes.js' %}"></script>
+  {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
   <script type="application/json">{{ datos_iniciales|safe }}</script>
+  {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
 
   {% if form.errors %}
     <script defer src="{% static 'js/limpiar-errores.js' %}"></script>
