@@ -1,5 +1,5 @@
 <style hx-head="re-eval">
-  @media only screen and (max-width: 600px) {
+  @media only screen and (max-width: {{ ancho_cambio|default:"600"}}px) {
     {# separador de las columnas fijas con la que se oculta #}
     .tabla th:nth-child({{ columnas_fijas }}),
     .tabla td:nth-child({{ columnas_fijas }}) {
@@ -14,7 +14,12 @@
     {% endfor %}
   }
   
-  @media only screen and (min-width: 600px) {
+  @media only screen and (min-width: {{ ancho_cambio|default:"600"}}px) {
+    {# ya no tiene el cambiador de columnas, por lo que no se necesita que sea flex #}
+    .tabla th > div {
+      display: block;
+    }
+    
     #columna-cambiador {
       display: none;
     }
