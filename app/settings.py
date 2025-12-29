@@ -1,23 +1,17 @@
 import os
-import sys
-from constantes import DEV, RUTA_BASE
+from pathlib import Path
 from dotenv import dotenv_values
 from django.contrib.messages import constants as messages
 from .config_unfold import CONFIG as CONFIG_UNFOLD
 
 
-BASE_DIR = RUTA_BASE
+BASE_DIR = Path(__file__).resolve().parent.parent
 
-try:
-    ruta_secretos = os.path.join(sys._MEIPASS, ".env") if not DEV else ".env"  # type: ignore
-    secretos = dotenv_values(ruta_secretos)
+secretos = dotenv_values(".env")
+SECRET_KEY = secretos["SECRET_KEY"]
 
-    SECRET_KEY = secretos["SECRET_KEY"]
-except Exception as E:
-    print("Error al leer el archivo .env", E)
-
+DEV = True
 DEBUG = DEV
-# DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
