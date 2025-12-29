@@ -2,31 +2,28 @@
 
 // oxlint-disable-next-line no-unused-vars
 const TablaConFilaSticky = class {
+  /** @param {string} contenedorId */
   constructor(contenedorId) {
-    /** @type {HTMLDivElement} */
+    this.contenedorId = contenedorId;
+
+    /** @type {HTMLDivElement}  */
     this.contenedor = $id(contenedorId);
 
     /** @type {HTMLTableRowElement[]} */
     this.filas = Array.from(this.contenedor.$$("tbody tr"));
 
-    /** @type {HTMLTableRowElement | null} */
-    this.stickyActual = null;
-
-    /** @type {number | null} */
-    this.scrollTimeout = null;
-
     /** @type {number} */
-    this.tiempoScrollAnterior = 0;
+    this.indiceStickyActual = -1;
 
-    /** @type {number} */
-    this.retraso = 16; // ~60fps
+    /** @type {IntersectionObserver | null} */
+    this.observador = null;
 
     this.init();
   }
 
   init() {
-    // Escuchar scroll con throttle
-    this.contenedor.onscroll = this.handleScroll.bind(this);
+    // Configurar Intersection Observer
+    this.montarObservador();
 
     let seRepetiraEncontrado = false,
       /** @type {number | null} */
@@ -50,63 +47,82 @@ const TablaConFilaSticky = class {
       } else if (!seRepetira && !tieneRepetidos) seRepetiraEncontrado = false;
     }
 
-    // Inicializar
-    this.actualizarFilas();
+    // Configurar eventos de scroll
+    this.contenedor.addEventListener("scroll", this.manejarScroll.bind(this));
+
+    // Aplicar sticky a la primera fila inicialmente
+    requestAnimationFrame(() => this.establecerFilaSticky(0));
+
+    window.addEventListener("beforeunload", () => this.destruir());
   }
 
-  handleScroll() {
-    const now = Date.now();
-    const timeSinceLastScroll = now - this.tiempoScrollAnterior;
+  montarObservador() {
+    const options = {
+      root: this.contenedor,
+      rootMargin: "-1px 0px 0px 0px",
+      threshold: [0, 1],
+    };
 
-    // Si ya pasó el tiempo del throttle, ejecutar inmediatamente
-    if (timeSinceLastScroll >= this.retraso) {
-      this.tiempoScrollAnterior = now;
-      this.actualizarFilas();
-    } else {
-      // Programar para ejecutar después del tiempo restante
-      clearTimeout(this.scrollTimeout);
-      this.scrollTimeout = setTimeout(() => {
-        this.tiempoScrollAnterior = Date.now();
-        this.actualizarFilas();
-      }, this.retraso - timeSinceLastScroll);
-    }
-  }
+    this.observador = new IntersectionObserver((entradas) => {
+      // Usar requestAnimationFrame para agrupar actualizaciones
+      requestAnimationFrame(() => {
+        let nuevoIndiceSticky = this.indiceStickyActual;
 
-  actualizarFilas() {
-    const scrollTop = this.contenedor.scrollTop;
+        entradas.forEach((entrada) => {
+          const indice = parseInt(entrada.target.dataset.indice);
 
-    // Encontrar la fila que debería ser sticky
-    let indiceFilaObjetivo = 0;
-    let alturaAcumulada = 0;
+          if (!entrada.isIntersecting && entrada.boundingClientRect.top < 0)
+            nuevoIndiceSticky = Math.max(nuevoIndiceSticky, indice + 1);
+          else if (
+            entrada.isIntersecting &&
+            entrada.boundingClientRect.top <= 0
+          )
+            nuevoIndiceSticky = Math.max(nuevoIndiceSticky, indice);
+        });
 
-    for (let i = 0; i < this.filas.length; i++) {
-      const alturaFila = this.filas[i].offsetHeight;
-      alturaAcumulada += alturaFila;
+        // Actualizar solo si cambió
+        if (nuevoIndiceSticky !== this.indiceStickyActual)
+          this.establecerFilaSticky(nuevoIndiceSticky);
+      });
+    }, options);
 
-      if (alturaAcumulada > scrollTop) {
-        indiceFilaObjetivo = i;
-        break;
-      }
-    }
-
-    this.aplicarSticky(indiceFilaObjetivo);
+    // Observar todas las filas
+    this.filas.forEach((fila) => this.observador.observe(fila));
   }
 
   /** @param {number} indice */
-  aplicarSticky(indice) {
-    // Remover sticky anterior
-    if (this.stickyActual) this.stickyActual.classList.remove("sticky-row");
+  establecerFilaSticky(indice) {
+    if (
+      indice < 0 ||
+      indice >= this.filas.length ||
+      indice === this.indiceStickyActual
+    )
+      return;
 
-    // Aplicar nuevo sticky
-    const filaObjetivo = this.filas[indice];
-    filaObjetivo.classList.add("sticky-row");
+    // Remover clase sticky de todas las filas
+    const sticky = this.contenedor.$(".fila-sticky");
+    if (sticky) sticky.classList.remove("fila-sticky");
 
-    this.stickyActual = filaObjetivo;
+    // Añadir clase sticky a la fila actual
+    this.filas[indice].classList.add("fila-sticky");
+
+    this.indiceStickyActual = indice;
   }
 
-  // Limpiar timeout al destruir
+  manejarScroll() {
+    // Backup: Si Intersection Observer falla, usar cálculo manual
+    const scrollTop = this.contenedor.scrollTop;
+    const filaAltura = this.filas[0]?.offsetHeight || 50;
+    const indiceCalculado = Math.floor(scrollTop / filaAltura);
+
+    if (indiceCalculado >= 0 && indiceCalculado < this.filas.length) {
+      this.establecerFilaSticky(indiceCalculado);
+    }
+  }
+
   destruir() {
-    clearTimeout(this.scrollTimeout);
-    this.contenedor.onscroll = null;
+    if (this.observador) this.observador.disconnect();
+
+    this.contenedor.removeEventListener("scroll", this.manejarScroll);
   }
 };

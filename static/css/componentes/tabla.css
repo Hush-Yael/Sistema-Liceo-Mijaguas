@@ -41,13 +41,13 @@
   background-color: var(--color-fondo-400);
 }
 
-.sticky-row {
+.fila-sticky {
   position: sticky;
   z-index: 2;
   top: 2.5rem;
 }
 
-.sticky-row td {
+.fila-sticky td {
   background-color: var(--color-fondo-500);
   font-weight: 500;
 }
@@ -95,13 +95,13 @@
 }
 
 /* 1: ocultar las celdas y su contenido de las filas con datos repetidos */
-tr:not(.sticky-row):not(:hover) td[data-igual-anterior] {
+tr:not(.fila-sticky):not(:hover) td[data-igual-anterior] {
   color: #0000;
   border-bottom-color: var(--transparente-1);
 }
 
 /* 1 */
-tr:not(.sticky-row):not(:hover) td[data-igual-anterior] * {
+tr:not(.fila-sticky):not(:hover) td[data-igual-anterior] * {
   visibility: hidden;
 }
 
@@ -112,13 +112,13 @@ td[data-me-voy-a-repetir] {
 }
 
 /* 2 */
-.sticky-row [data-igual-anterior],
+.fila-sticky [data-igual-anterior],
 td[data-me-voy-a-repetir] {
   --alpha: 10%;
 }
 
 /* 2 */
-.oscuro .sticky-row [data-igual-anterior],
+.oscuro .fila-sticky [data-igual-anterior],
 .oscuro td[data-me-voy-a-repetir] {
   --alpha: 5%;
 }

@@ -42,10 +42,7 @@
     columnas_ocultables: {{ columnas_ocultables }}
   }"
   x-effect="window.$(`th[data-i='${indiceColActual}']>div`).appendChild(window.$id('columna-cambiador'));"
-  x-init='
-    const tabla = new TablaConFilaSticky("{{ contenedor_id }}");
-    window.addEventListener("beforeunload", () => tabla.destruir());
-  '
+  x-init='new TablaConFilaSticky("{{ contenedor_id }}")'
 >
   <table
     class="{{ class|default:""|add:" tabla" }}"
@@ -81,7 +78,7 @@
 
     <tbody>
       {% for objeto in objetos %}
-        <tr data-index="{{ forloop.counter0 }}">
+        <tr data-indice="{{ forloop.counter0 }}">
           <td class="numeros">
             {% if url_parcial_paginado %}
               {% with total_anterior=notas.number|add:-1|multiplicar:cantidad_por_pagina %}
