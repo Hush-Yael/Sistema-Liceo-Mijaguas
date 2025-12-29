@@ -169,7 +169,7 @@ html {
   --color-texto-secundario: hsl(0, 0%, 90%);
   --color-texto-exito: #000;
   --color-texto-info: #000;
-  --color-texto-advertencia: hsl(0, 0%, 90%);
+  --color-texto-advertencia: #000;
   --color-texto-peligro: hsl(0, 0%, 90%);
 
   --texto-sutil: hsl(0, 0%, 65%);
