@@ -1,31 +1,10 @@
 {% load partials %}
-{% load grupos_variantes %}
+{% load static %}
 {% load sekizai_tags %}
 {% load utilidades %}
 
 {% addtoblock "cabeza" %}
-  <script>
-    document.addEventListener("animationend", (e) => {
-      /** @type {HTMLLIElement} */
-      const $el = e.target;
-
-      if ($el.classList.contains("ui-msg")) {
-        switch ($el.getAttribute("data-estado")) {
-          case "abriendo": {
-            const customDelay = parseInt($el.getAttribute("data-retraso"));
-
-            if (Number.isInteger(customDelay) && customDelay > 0)
-              $el.style.setProperty("--retraso", `${customDelay}ms`);
-
-            // {# conteo hasta cerrar (se usa el delay de la animación) #}
-            return $el.setAttribute("data-estado", "cerrando");
-          }
-          case "cerrando":
-            return ($el.onanimationend = () => $el.remove());
-        }
-      }
-    });
-  </script>
+  <script defer src="{% static 'js/componentes/mensajes.js' %}"></script>
 
   <style>
     @keyframes encoger {
@@ -43,7 +22,7 @@
   role="region"
   tabindex="-1"
   aria-label="Notificaciones"
-  class="{{ "fixed bottom-0 w-full sidebar:(w-300px right-0)"|expandir_variantes }}"
+  class="fixed bottom-0 w-full sidebar:w-300px sidebar:right-0"
 >
   <ol class="col gap-y-1" id="lista-mensajes" tabindex="-1">
     {% for message in messages %}
@@ -59,7 +38,9 @@
     aria-atomic="true"
     aria-live="assertive"
     data-estado="abriendo"
-    {% if 'retraso=' in message.extra_tags %}
+    {% if 'eterno' in message.extra_tags %}
+      data-eterno
+    {% elif 'retraso=' in message.extra_tags %}
       data-retraso={{ message.extra_tags|encontrar_retraso }}
     {% endif %}
     class="ui-msg {{ message.tags }}"
