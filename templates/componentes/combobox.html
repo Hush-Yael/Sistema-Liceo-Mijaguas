@@ -170,7 +170,7 @@
                     :checked="opcionesSeleccionadas.has(item.id)"
                     :id="'{{ name }}-opt-'+index"
                   />
-                  {% include "componentes/checkbox-icono.html" %}
+                  {% include "componentes/checkbox-icono.html" with class="" %}
                 {% endif %}
               {% endwith %}
             </div>
