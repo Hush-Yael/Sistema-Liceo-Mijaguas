@@ -1,5 +1,9 @@
 <style hx-head="re-eval">
   @media only screen and (max-width: {{ ancho_cambio|default:"600"}}px) {
+    th[data-i] {
+      position: relative;
+    }
+    
     {# separador de las columnas fijas con la que se oculta #}
     .tabla th:nth-child({{ columnas_fijas }}),
     .tabla td:nth-child({{ columnas_fijas }}) {

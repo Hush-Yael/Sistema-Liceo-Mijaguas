@@ -67,7 +67,7 @@
               class="{{ columna.clase }}"
             {% endif %}
           >
-            <div class="relative flex aic justify-between gap-x-4">
+            <div class="flex aic justify-between gap-x-4">
               {{ columna.titulo }}
 
               {% if forloop.first %}
@@ -155,7 +155,7 @@
     <select
       id="cambiar-columna"
       aria-label="Cambiar columna"
-      class="opacity-0 absolute top-0 left-0 media-mouse:px-1 media-mouse:min-w-max bg-fondo-600 focus-visible:opacity-100 "
+      class="peer appearance-none absolute top-0 left-0 size-full -outline-offset-2 pl-2 pr-8 bg-fondo-600 not-focus:w-[calc(100%-63px)] not-focus:cursor-pointer not-focus:opacity-0 focus-visible:outline-2 focus:outline-current"
       x-model="indiceColActual"
       @change="indiceColActual = $event.target.value"
     >
@@ -164,7 +164,11 @@
       </template>
     </select>
 
-    <div class="flex aic gap-x-2.5 [&_svg]:size-3.5">
+    {% include "componentes/iconos/caret.html#abajo" with class="absolute top-50% right-1 size-5 size-min-max -translate-y-50% peer-not-focus:opacity-0 pointer-events-none" %}
+
+    <div
+      class="flex aic gap-x-2.5 [&_svg]:size-3.5 peer-focus:opacity-0 peer-focus:pointer-events-none"
+    >
       <button
         class="ui-btn z-1 rounded-full size-5 text-texto-sutil bg-[--transparente-1] pover:bg-[--transparente-2]"
         @click="anteriorCol()"
