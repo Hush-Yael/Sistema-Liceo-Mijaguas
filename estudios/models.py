@@ -72,7 +72,6 @@ class Materia(models.Model):
         unique=True,
         error_messages={"unique": "Ya existe una materia con ese nombre."},
     )
-    descripcion = models.TextField(blank=True, null=True, verbose_name="descripción")
     fecha_creacion = models.DateTimeField(
         default=timezone.now, verbose_name="fecha de creación"
     )
