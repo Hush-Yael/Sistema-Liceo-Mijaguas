@@ -1,0 +1,187 @@
+{% load utilidades %}
+{% load partials %}
+{% load static %}
+{% load sekizai_tags %}
+
+{% partialdef head %}
+  {# estilos generales #}
+  <link rel="stylesheet" href="{% static 'css/componentes/tabla.css' %}" />
+
+  {# etiqueta de estilos que crea los rangos de índices de las columnas para ocultarlas automáticamente según el actual y la cantidad de estas #}
+  {% include "notas/tabla-style.html" with rango_columnas=columnas_ocultables|length|convertir_a_rango %}
+
+  {# script para cambiar la fila sticky a medida que se hace scroll #}
+  <script src="{% static 'js/componentes/tabla-con-fila-sticky.js' %}"></script>
+{% endpartialdef head %}
+
+{% if cargada_por_htmx %}
+  <head>
+    {% partial head %}
+  </head>
+{% else %}
+  {% addtoblock "cabeza" %}
+    {% partial head %}
+  {% endaddtoblock %}
+{% endif %}
+
+<div
+  {% if contenedor_id %}
+    id="{{ contenedor_id }}"
+  {% endif %}
+  class="{{ contenedor_class|default:""|add:" contenedor-tabla" }}"
+  x-data="{
+    indiceColActual: {{ indice_col_actual|default:0 }},
+    tituloColActual: '{{ titulo_col_actual }}',
+    anteriorCol() {
+      if (this.indiceColActual > 0) this.indiceColActual--;
+    },
+    siguienteCol() {
+      if (this.indiceColActual < this.columnas_ocultables.length - 1)
+        this.indiceColActual++;
+    },
+    columnas_ocultables: {{ columnas_ocultables }}
+  }"
+  x-effect="window.$(`th[data-i='${indiceColActual}']>div`).appendChild(window.$id('columna-cambiador'));"
+  x-init='
+    const tabla = new TablaConFilaSticky("{{ contenedor_id }}");
+    window.addEventListener("beforeunload", () => tabla.destruir());
+  '
+>
+  <table
+    class="{{ class|default:""|add:" tabla" }}"
+    {% if id %}
+      id="{{ id }}"
+    {% endif %}
+    :data-i="indiceColActual"
+  >
+    <thead>
+      <tr>
+        <th class="numeros">N°</th>
+
+        {% for columna in columnas %}
+          <th
+            {% if forloop.counter >= columnas_fijas %}
+              data-i="{{ columnas_fijas|a_negativo|add:forloop.counter }}"
+            {% endif %}
+            {% if columna.clase %}
+              class="{{ columna.clase }}"
+            {% endif %}
+          >
+            <div class="relative flex aic justify-between gap-x-4">
+              {{ columna.titulo }}
+
+              {% if forloop.first %}
+                {% partial columna_cambiador %}
+              {% endif %}
+            </div>
+          </th>
+        {% endfor %}
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for objeto in objetos %}
+        <tr data-index="{{ forloop.counter0 }}">
+          <td class="numeros">
+            {% if url_parcial_paginado %}
+              {% with total_anterior=notas.number|add:-1|multiplicar:cantidad_por_pagina %}
+                {# se multiplica la cantidad por página de acuerdo a la cantidad recorrida y la cantidad de notas por página y se le añade cada valor del ciclo actual #}
+                {{ total_anterior|add:forloop.counter }}
+              {% endwith %}
+            {% else %}
+              {{ forloop.counter }}
+            {% endif %}
+          </td>
+
+          {# manejar todas las columnas manualmente #}
+          {% if url_parcial_columnas %}
+            {% include url_parcial_columnas %}
+
+            {# se ahorra el ciclo #}
+          {% else %}
+            {% for columna in columnas %}
+              {%
+                with
+                clave=columna.clave
+                anterior_i=forloop.parentloop.counter0|add:-1
+                siguiente_i=forloop.parentloop.counter0|add:1
+              %}
+                {%
+                  with
+                  dato=objeto|valor_por_clave:clave
+                  dato_anterior=objetos|valor_por_indice:anterior_i|valor_por_clave:clave
+                  dato_siguiente=objetos|valor_por_indice:siguiente_i|valor_por_clave:clave
+                %}
+                  <td
+                    {% if columna.clase %}
+                      class="{{ columna.clase }}"
+                    {% endif %}
+
+                    {% if forloop.counter >= columnas_fijas %}
+                      data-i="{{ columnas_fijas|a_negativo|add:forloop.counter }}"
+                    {% endif %}
+
+                    {% if not forloop.parentloop.first and dato == dato_anterior %}
+                      data-igual-anterior
+                    {% elif not forloop.parentloop.last and dato == dato_siguiente %}
+                      data-me-voy-a-repetir
+                    {% endif %}
+                  >
+                    {# se pasa a todas las columnas un parcial común #}
+                    {% if url_parcial_td_contenido %}
+                      {% include url_parcial_td_contenido %}
+
+                      {# si no se pasa nada, mostrar todas las columnas sin cambios #}
+                    {% else %}
+                      {{ objeto|valor_por_clave:columna.clave }}
+                    {% endif %}
+                  </td>
+                {% endwith %}
+              {% endwith %}
+            {% endfor %}
+          {% endif %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if url_parcial_paginado %}
+    {% include url_parcial_paginado %}
+  {% endif %}
+</div>
+
+{% partialdef columna_cambiador %}
+  <div id="columna-cambiador">
+    <select
+      id="cambiar-columna"
+      aria-label="Cambiar columna"
+      class="opacity-0 absolute top-0 left-0 media-mouse:px-1 media-mouse:min-w-max bg-fondo-600 focus-visible:opacity-100 "
+      x-model="indiceColActual"
+      @change="indiceColActual = $event.target.value"
+    >
+      <template x-for="(titulo, index) in columnas_ocultables" :key="index">
+        <option :value="index" x-text="titulo"></option>
+      </template>
+    </select>
+
+    <div class="flex aic gap-x-2.5 [&_svg]:size-3.5">
+      <button
+        class="ui-btn z-1 rounded-full size-5 text-texto-sutil bg-[--transparente-1] pover:bg-[--transparente-2]"
+        @click="anteriorCol()"
+        :disabled="indiceColActual === 0"
+        aria-label="Columna anterior"
+      >
+        {% include "componentes/iconos/flecha.html#izquierda" with class="" %}
+      </button>
+
+      <button
+        class="ui-btn z-1 rounded-full size-5 text-texto-sutil bg-[--transparente-1] pover:bg-[--transparente-2]"
+        @click="siguienteCol()"
+        :disabled="indiceColActual === columnas_ocultables.length - 1"
+        aria-label="Siguiente columna"
+      >
+        {% include "componentes/iconos/flecha.html#derecha" with class="" %}
+      </button>
+    </div>
+  </div>
+{% endpartialdef columna_cambiador %}

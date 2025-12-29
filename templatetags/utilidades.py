@@ -22,10 +22,12 @@ def es_entero(value):
 
 
 @register.filter(is_safe=True)
-def valor_por_clave(dicc, clave):
-    if not dicc:
+def valor_por_clave(obj, clave):
+    if not obj:
         return None
-    return getattr(dicc, clave)
+    elif isinstance(obj, dict):
+        return obj.get(clave)
+    return getattr(obj, clave)
 
 
 @register.filter(is_safe=True)
@@ -58,7 +60,7 @@ def convertir_a_rango(value, desde=-1):
 
 
 @register.filter
-def negativo(valor):
+def a_negativo(valor):
     return -valor
 
 

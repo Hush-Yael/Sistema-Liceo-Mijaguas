@@ -28,6 +28,7 @@
 .tabla thead {
   position: sticky;
   top: 0;
+  z-index: 2;
 }
 
 .tabla th,
@@ -40,12 +41,13 @@
   background-color: var(--color-fondo-400);
 }
 
-.tabla .sticky-row {
+.sticky-row {
   position: sticky;
-  z-index: 1;
+  z-index: 2;
+  top: 2.5rem;
 }
 
-.tabla .sticky-row td {
+.sticky-row td {
   background-color: var(--color-fondo-500);
   font-weight: 500;
 }
@@ -90,4 +92,43 @@
     "Apple Color Emoji",
     "Segoe UI Emoji",
     "Segoe UI Symbol";
+}
+
+/* 1: ocultar las celdas y su contenido de las filas con datos repetidos */
+tr:not(.sticky-row):not(:hover) td[data-igual-anterior] {
+  color: #0000;
+  border-bottom-color: var(--transparente-1);
+}
+
+/* 1 */
+tr:not(.sticky-row):not(:hover) td[data-igual-anterior] * {
+  visibility: hidden;
+}
+
+/* 2: se remarcan las celdas de las filas con datos repetidos y la primera antes de empezar a repetirse, para indicar visualmente que los datos invisibles son iguales a esta */
+td[data-igual-anterior],
+td[data-me-voy-a-repetir] {
+  background-color: hsl(var(--hue) 100% 50% / var(--alpha));
+}
+
+/* 2 */
+.sticky-row [data-igual-anterior],
+td[data-me-voy-a-repetir] {
+  --alpha: 10%;
+}
+
+/* 2 */
+.oscuro .sticky-row [data-igual-anterior],
+.oscuro td[data-me-voy-a-repetir] {
+  --alpha: 5%;
+}
+
+/* 2 */
+td[data-igual-anterior] {
+  --alpha: 30%;
+}
+
+/* 2 */
+.oscuro td[data-igual-anterior] {
+  --alpha: 15%;
 }
