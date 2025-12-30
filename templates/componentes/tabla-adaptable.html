@@ -9,14 +9,13 @@
 
   {# etiqueta de estilos que crea los rangos de índices de las columnas para ocultarlas automáticamente según el actual y la cantidad de estas #}
   {% include "notas/tabla-style.html" with rango_columnas=columnas_ocultables|length|convertir_a_rango %}
-
-  {# script para cambiar la fila sticky a medida que se hace scroll #}
-  <script src="{% static 'js/componentes/tabla-con-fila-sticky.js' %}"></script>
 {% endpartialdef head %}
 
 {% if cargada_por_htmx %}
   <head>
     {% partial head %}
+
+    {# el script para cambiar las fila sticky se debe importar en el componente que realiza la carga de la tabla #}
     <script>
       new TablaConFilaSticky("{{ contenedor_id }}");
     </script>
@@ -24,6 +23,9 @@
 {% else %}
   {% addtoblock "cabeza" %}
     {% partial head %}
+    {# script para cambiar la fila sticky a medida que se hace scroll #}
+    <script src="{% static 'js/componentes/tabla-con-fila-sticky.js' %}"></script>
+
     <script>
       document.addEventListener("alpine:initialized", () => {
         new TablaConFilaSticky("{{ contenedor_id }}");
