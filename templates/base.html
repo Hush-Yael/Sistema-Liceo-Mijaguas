@@ -54,14 +54,13 @@
     {% endif %}
 
     <script src="{% static 'js/utilidades.js' %}"></script>
-    {% block alpine %}
-      <script defer src="{% static 'js/alpine.min.js' %}"></script>
-    {% endblock alpine %}
     <script src="{% static 'js/aplicar-tema.js' %}"></script>
 
     {% block cabeza %}
     {% endblock cabeza %}
     {% render_block "cabeza" %}
+
+    <script defer src="{% static 'js/alpine.min.js' %}"></script>
   </head>
 
   <body hx-ext="head-support">
