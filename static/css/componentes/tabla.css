@@ -114,7 +114,7 @@ td[data-me-voy-a-repetir] {
 /* 2 */
 .fila-sticky [data-igual-anterior],
 td[data-me-voy-a-repetir] {
-  --alpha: 10%;
+  --alpha: 15%;
 }
 
 /* 2 */
@@ -125,7 +125,7 @@ td[data-me-voy-a-repetir] {
 
 /* 2 */
 td[data-igual-anterior] {
-  --alpha: 30%;
+  --alpha: 20%;
 }
 
 /* 2 */
