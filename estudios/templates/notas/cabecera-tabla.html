@@ -27,11 +27,38 @@
     hx-post="{% url 'notas_tabla' %}"
   >
     {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
-      {% include "componentes/combobox.html" with class="min-w-150px incluido-filtros" name=form.notas_materias.name label=form.notas_materias.label label_class="sr-only" prefijo=form.notas_materias.label|add:':' prefijo_class="text-texto-sutil" placeholder="cualquiera" opciones=form.notas_materias.field.choices|obtener_lista_opciones opciones_seleccionadas=form.notas_materias.field.initial valor_class="font-bold" btn_reiniciar=1 %}
+      {% with 
+        class="min-[500px]:min-w-150px incluido-filtros"
+        prefijo_class="text-texto-sutil max-[500px]:has-[+:not(:empty)]:hidden"
+        label_class="sr-only" 
+        valor_class="max-[500px]:empty:hidden font-bold"
+        placeholder="cualquiera"
+        btn_reiniciar=1
+      %}
+        {% include "componentes/combobox.html" with
+          name=form.notas_materias.name
+          label=form.notas_materias.label
+          prefijo=form.notas_materias.label
+          opciones=form.notas_materias.field.choices|obtener_lista_opciones
+          opciones_seleccionadas=form.notas_materias.field.initial 
+        %}
 
-      {% include "componentes/combobox.html" with class="min-w-150px incluido-filtros" name=form.notas_secciones.name label=form.notas_secciones.label label_class="sr-only" prefijo=form.notas_secciones.label|add:':' prefijo_class="text-texto-sutil" placeholder="cualquiera" opciones=form.notas_secciones.field.choices|obtener_lista_opciones opciones_seleccionadas=form.notas_secciones.field.initial valor_class="font-bold" btn_reiniciar=1 %}
+        {% include "componentes/combobox.html" with
+          name=form.notas_secciones.name
+          label=form.notas_secciones.label
+          prefijo=form.notas_secciones.label
+          opciones=form.notas_secciones.field.choices|obtener_lista_opciones
+          opciones_seleccionadas=form.notas_secciones.field.initial
+        %}
 
-      {% include "componentes/combobox.html" with class="min-w-150px incluido-filtros" name=form.notas_lapsos.name label=form.notas_lapsos.label label_class="sr-only" prefijo=form.notas_lapsos.label|add:':' prefijo_class="text-texto-sutil" placeholder="cualquiera" opciones=form.notas_lapsos.field.choices|obtener_lista_opciones opciones_seleccionadas=form.notas_lapsos.field.initial valor_class="font-bold" btn_reiniciar=1 %}
+        {% include "componentes/combobox.html" with
+          name=form.notas_lapsos.name
+          label=form.notas_lapsos.label
+          prefijo=form.notas_lapsos.label
+          opciones=form.notas_lapsos.field.choices|obtener_lista_opciones
+          opciones_seleccionadas=form.notas_lapsos.field.initial
+        %}
+      {% endwith %}
     {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
   </form>
 

@@ -92,7 +92,9 @@
         class="p-1 pl-3 pr-1 text-sm overflow-hidden text-ellipsis whitespace-nowrap"
       >
         {% if prefijo %}
-          <span class="{{ prefijo_class }}">{{ prefijo }}</span>
+          <span aria-hidden="true" class="{{ prefijo_class }}">
+            {{ prefijo }}
+          </span>
         {% endif %}
 
         <span
