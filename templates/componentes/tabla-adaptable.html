@@ -17,10 +17,18 @@
 {% if cargada_por_htmx %}
   <head>
     {% partial head %}
+    <script>
+      new TablaConFilaSticky("{{ contenedor_id }}");
+    </script>
   </head>
 {% else %}
   {% addtoblock "cabeza" %}
     {% partial head %}
+    <script>
+      document.addEventListener("alpine:initialized", () => {
+        new TablaConFilaSticky("{{ contenedor_id }}");
+      });
+    </script>
   {% endaddtoblock %}
 {% endif %}
 
@@ -42,7 +50,6 @@
     columnas_ocultables: {{ columnas_ocultables }}
   }"
   x-effect="window.$(`th[data-i='${indiceColActual}']>div`).appendChild(window.$id('columna-cambiador'));"
-  x-init='new TablaConFilaSticky("{{ contenedor_id }}")'
 >
   <table
     class="{{ class|default:""|add:" tabla" }}"

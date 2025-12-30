@@ -6,25 +6,49 @@ const TablaConFilaSticky = class {
   constructor(contenedorId) {
     this.contenedorId = contenedorId;
 
-    /** @type {HTMLDivElement}  */
-    this.contenedor = $id(contenedorId);
-
-    /** @type {HTMLTableRowElement[]} */
-    this.filas = Array.from(this.contenedor.$$("tbody tr"));
-
-    /** @type {number} */
-    this.indiceStickyActual = -1;
-
     /** @type {IntersectionObserver | null} */
     this.observador = null;
+
+    window.addEventListener("beforeunload", () => this.destruir());
+
+    window.addEventListener("htmx:afterRequest", () => {
+      if (!document.body.contains(this.contenedor)) {
+        this.destruir();
+
+        // se reemplazó el contenedor y la tabla en una solicitud HTMX, por lo que se destruye y hay que volver a inicializar
+        if ($id(this.contenedorId)) this.init();
+      }
+    });
+
+    // Configurar Intersection Observer
+    this.montarObservador();
 
     this.init();
   }
 
   init() {
-    // Configurar Intersection Observer
-    this.montarObservador();
+    /** @type {HTMLDivElement}  */
+    this.contenedor = $id(this.contenedorId);
 
+    /** @type {HTMLTableRowElement[]} */
+    this.filas = Array.from(this.contenedor.$$("tbody tr"));
+
+    this.establecerFilasObservadas();
+
+    /** @type {number} */
+    this.indiceStickyActual = -1;
+
+    this.montarRangosYColores();
+
+    // Configurar eventos de scroll
+    this.contenedor.addEventListener("scroll", this.manejarScroll.bind(this));
+
+    // Aplicar sticky a la primera fila inicialmente
+    requestAnimationFrame(() => this.establecerFilaSticky(0));
+  }
+
+  // Asignar colores a las filas y definir donde empiezan y terminan las filas con datos repetidos
+  montarRangosYColores() {
     let seRepetiraEncontrado = false,
       /** @type {number | null} */
       ultimoRepetiraIndice = null,
@@ -46,14 +70,6 @@ const TablaConFilaSticky = class {
         fila.setAttribute("data-contiene-repetidos", "");
       } else if (!seRepetira && !tieneRepetidos) seRepetiraEncontrado = false;
     }
-
-    // Configurar eventos de scroll
-    this.contenedor.addEventListener("scroll", this.manejarScroll.bind(this));
-
-    // Aplicar sticky a la primera fila inicialmente
-    requestAnimationFrame(() => this.establecerFilaSticky(0));
-
-    window.addEventListener("beforeunload", () => this.destruir());
   }
 
   montarObservador() {
@@ -85,7 +101,9 @@ const TablaConFilaSticky = class {
           this.establecerFilaSticky(nuevoIndiceSticky);
       });
     }, options);
+  }
 
+  establecerFilasObservadas() {
     // Observar todas las filas
     this.filas.forEach((fila) => this.observador.observe(fila));
   }
