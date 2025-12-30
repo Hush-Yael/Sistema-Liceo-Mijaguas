@@ -18,15 +18,6 @@
     href="{% static 'css/componentes/htmx-indicator.css' %}"
   />
 
-  <style>
-    @media all and (display-mode: fullscreen) {
-      .tabla-contenido {
-        padding: 1rem;
-        background: var(--color-fondo-300);
-      }
-    }
-  </style>
-
   <script src="{% static 'js/htmx.min.js' %}"></script>
   <script defer src="{% static 'js/htmx-error-solicitudes.js' %}"></script>
   <script defer src="{% static 'js/htmx-ext-head.js' %}"></script>
@@ -95,7 +86,9 @@
       {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
       </div>
 
-      <div class="tabla-contenido col gap-y-2 flex-1 h-full overflow-y-auto">
+      <div
+        class="{{ "tabla-contenido col gap-y-2 flex-1 h-full overflow-y-auto [@media_all_and_(display-mode:fullscreen)]:(p-4 bg-fondo-300)"|expandir_variantes }}"
+      >
         {% include "notas/cabecera-tabla.html" %}
 
         <div
