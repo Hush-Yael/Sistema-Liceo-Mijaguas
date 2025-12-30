@@ -16,6 +16,15 @@ export default [
     },
   ],
   [
+    /^max-h-(\d+)dvh$/,
+    ([_, d]) => {
+      return [
+        ["max-height", `${d}vh`],
+        ["max-height", `${d}dvh`],
+      ];
+    },
+  ],
+  [
     /^min-h-(\d+)dvh$/,
     ([_, d]) => {
       return [

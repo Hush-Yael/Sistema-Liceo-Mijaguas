@@ -119,7 +119,7 @@
       {% else %}
         aria-multiselectable="true"
       {% endif %}
-      class="{{ lista_clases|default:''|add:'absolute z-10 left-0 top-8.5 col supports-[not(height:1dvh)]:max-h-45vh max-h-45dvh w-full min-w-max max-w-350px ui-elevado overflow-y-auto py-1.5 select-none empty:hidden' }}"
+      class="{{ lista_clases|default:''|add:'absolute z-10 left-0 top-8.5 col max-h-45dvh w-full min-w-max max-w-350px ui-elevado overflow-y-auto py-1.5 select-none empty:hidden' }}"
       x-cloak
       x-trap="abiertoPorTeclado"
       x-show="abierto || abiertoPorTeclado"
