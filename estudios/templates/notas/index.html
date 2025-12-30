@@ -41,7 +41,7 @@
 
 {% block contenido %}
   <main
-    class="{{ "col gap-y-6 flex-1 size-full supports-[not(height:1dvh)]:(max-h-[calc(100vh-var(--altura-header))] h-[calc(100vh-var(--altura-header))]) max-h-[calc(100dvh-var(--altura-header))] max-w-1000px h-[calc(100dvh-var(--altura-header))] mxa p-4 overflow-y-auto min-[700px]:p-6 min-[1000px]:p-8!" }}"
+    class="{{ "col gap-y-6 flex-1 size-full supports-[not(height:1dvh)]:(max-h-[calc(100vh-var(--altura-header))] h-[calc(100vh-var(--altura-header))]) max-h-[calc(100dvh-var(--altura-header))] max-w-1000px h-[calc(100dvh-var(--altura-header))] mxa p-4 overflow-y-auto min-[700px]:p-6 min-[1000px]:p-8!"|expandir_variantes }}"
     hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
     hx-include=".incluido-filtros"
     hx-target="#tabla-y-paginacion"
