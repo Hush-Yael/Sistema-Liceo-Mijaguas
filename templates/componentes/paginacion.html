@@ -2,7 +2,7 @@
 
 {% if datos_paginados.paginator.num_pages > 1 %}
   <div
-    class="{{ class|default:''|add:' sticky bottom-0 flex flex-wrap aic justify-between gap-y-2 gap-x-6 w-full p-2 px-3 border border-[--borde-caja] bg-fondo-500' }}"
+    class="{{ class|default:''|add:' sticky bottom-0 flex flex-wrap aic justify-between gap-y-2 gap-x-6 w-full p-2 px-3 border border-[--borde-caja] bg-fondo-500 max-[500px]:text-sm' }}"
     hx-target="{{ hx_target }}"
     hx-include="{{ hx_include }}"
     hx-indicator="#indicador-pagina"
@@ -25,7 +25,7 @@
 
     <nav>
       <ul
-        class="{{ "flex flex-wrap gap-2 [&_button]:(ui-btn h-full size-min-8 gap-2 p-[.25rem_.625rem] font-600 ui-elevado-2 border-[--transparente-2] select-none)"|expandir_variantes }}"
+        class="{{ "flex flex-wrap gap-1.5 [&_button]:(ui-btn size-7 aspect-square gap-2 p-[.25rem_.625rem] font-600 ui-elevado-2 border-[--transparente-2] select-none)"|expandir_variantes }}"
       >
         {% if datos_paginados.has_previous %}
           <li>
@@ -36,6 +36,7 @@
               aria-label="Primera página"
             >
               <svg
+                class="size-5"
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
                 height="24"
@@ -59,7 +60,7 @@
                 class="p-0!"
                 aria-label="Página anterior"
               >
-                {% include "componentes/iconos/caret.html#izquierda" with class="size-6" %}
+                {% include "componentes/iconos/caret.html#izquierda" with class="size-5" %}
               </button>
             </li>
           {% endif %}
@@ -132,7 +133,7 @@
                 class="p-0!"
                 aria-label="Página siguiente"
               >
-                {% include "componentes/iconos/caret.html#derecha" with class="size-6" %}
+                {% include "componentes/iconos/caret.html#derecha" with class="size-5" %}
               </button>
             </li>
           {% endif %}
@@ -144,6 +145,7 @@
               aria-label="Última página"
             >
               <svg
+                class="size-5"
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
                 height="24"
