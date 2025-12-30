@@ -1,8 +1,11 @@
+// sin cambios: se deshabilita el botón
+$id("submit").setAttribute("disabled", "");
+
 // al cambiar algo, se habilita el botón
 document.querySelector("form").addEventListener(
   "change",
   function () {
-    document.getElementById("submit").removeAttribute("disabled");
+    $id("submit").removeAttribute("disabled");
   },
   { once: true },
 );
