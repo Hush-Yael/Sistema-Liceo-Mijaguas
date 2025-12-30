@@ -212,8 +212,8 @@ def notas(request: HttpRequest):
 
     cookies_a_corregir = obtener_y_corregir_valores_iniciales(request.COOKIES, form)
 
-    cantidad_años = Año.objects.count()
-    cantidad_lapsos = Lapso.objects.count()
+    hay_matriculas = Matricula.objects.exists()
+    hay_materias = Materia.objects.exists()
     total = Nota.objects.count()
 
     return render_con_cookies(
@@ -222,8 +222,8 @@ def notas(request: HttpRequest):
         {
             "form": form,
             "total": total,
-            "cantidad_años": cantidad_años,
-            "cantidad_lapsos": cantidad_lapsos,
+            "hay_matriculas": hay_matriculas,
+            "hay_materias": hay_materias,
         },
         cookies_a_corregir,
     )

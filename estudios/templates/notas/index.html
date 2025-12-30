@@ -41,45 +41,60 @@
 
 {% block contenido %}
   <main
-    class="col gap-y-6 flex-1 size-full supports-[not(height:1dvh)]:h-[calc(100vh-var(--altura-header))] max-h-[calc(100dvh-var(--altura-header))] max-w-1000px mxa p-4 overflow-y-auto min-[700px]:p-6 min-[1000px]:p-8!"
+    class="{{ "col gap-y-6 flex-1 size-full supports-[not(height:1dvh)]:(max-h-[calc(100vh-var(--altura-header))] h-[calc(100vh-var(--altura-header))]) max-h-[calc(100dvh-var(--altura-header))] max-w-1000px h-[calc(100dvh-var(--altura-header))] mxa p-4 overflow-y-auto min-[700px]:p-6 min-[1000px]:p-8!" }}"
     hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
     hx-include=".incluido-filtros"
     hx-target="#tabla-y-paginacion"
     hx-indicator="#indicador-busqueda"
     hx-swap="outerHTML"
   >
-    <div class="flex flex-wrap gap-2">
-      {% if cantidad_años == 0 %}
-        {% include "notas/mensaje-error.html" with mensaje="No se han añadido años académicos" %}
-      {% endif %}
+    {% if total < 1 %}
+      <div
+        id="tabla-y-paginacion"
+        role="alert"
+        class="ui-caja col aic gap-y-6 max-w-[400px] max-h-max ma flex-1 p-5 px-6 tac text-balance"
+      >
+        <span
+          class="rounded-full aspect-square size-min-[5rem] p-3 bg-primario-50 dark:bg-primario-800 text-primario-600 dark:text-primario-100 [&>svg]:size-full"
+        >
+          {% include "notas/iconos.html#sin_notas" %}
+        </span>
 
-      {% if cantidad_lapsos == 0 %}
-        {% include "notas/mensaje-error.html" with mensaje="No se han añadido lapsos académicos" %}
-      {% endif %}
-      <!-- prettier-ignore-start -->
+        <hgroup class="col gap-y-2">
+          {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+            <h2 class="font-bold text-xl">No se han añadido
+
+              {% if not hay_matriculas %}
+                matrículas</h2>
+                <p class="text-texto-sutil">
+                  estas son necesarias para poder asignar notas
+                </p>
+              {% elif not hay_materias %}
+                asignaturas</h2>
+                <p class="text-texto-sutil">
+                  estas son necesarias para poder asignar notas
+                </p>
+                
+              {% else %}
+                notas</h2>
+                <p class="text-texto-sutil">
+                  Parece que las actividades escolares no han iniciado
+                </p>
+              {% endif %}
+          {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+        </hgroup>
+      </div>
+    {% else %}
+      <div class="flex flex-wrap gap-2 hidden">
+        {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
         {% include "notas/estado.html" with label="Totales" dato=total icono='total' %}
 
         {% include "notas/estado.html" with label="Filtradas" dato='<span id="conjunto-cantidad" aria-label="cargando">...</span>' icono='conjunto' %}
 
         {% include "notas/estado.html" with label="Resultados" dato='<span id="resultados-cantidad" aria-label="cargando">...</span>' icono="lupa" %}
-        <!-- prettier-ignore-end -->
-    </div>
-
-    {% if total < 1 %}
-      <div
-        role="alert"
-        id="tabla-y-paginacion"
-        class="ui-caja col aic gap-3 max-w-max mxa p-6 tac text-texto-sutil"
-      >
-        <span
-          class="decoracion-circular size-min-[5rem] p-3 bg-primario-50 dark:bg-primario-800 text-primario-600 dark:text-primario-100 [&>svg]:size-full"
-        >
-          {% include "notas/iconos.html#sin_notas" %}
-        </span>
-
-        <h2 class="font-bold text-[1.2rem]">No se han añadido notas</h2>
+      {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
       </div>
-    {% else %}
+
       <div class="tabla-contenido col gap-y-2 flex-1 h-full overflow-y-auto">
         {% include "notas/cabecera-tabla.html" %}
 
