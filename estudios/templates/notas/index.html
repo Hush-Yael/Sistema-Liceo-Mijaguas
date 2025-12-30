@@ -48,9 +48,7 @@
     hx-indicator="#indicador-busqueda"
     hx-swap="outerHTML"
   >
-    <div
-      class="{{ 'flex flex-wrap gap-2 [&_[role=status],&_[role=alert]]:(justify-between gap-3 p-2 px-3 w-max)'|expandir_variantes }}"
-    >
+    <div class="flex flex-wrap gap-2">
       {% if cantidad_años == 0 %}
         {% include "notas/mensaje-error.html" with mensaje="No se han añadido años académicos" %}
       {% endif %}
@@ -61,7 +59,7 @@
       <!-- prettier-ignore-start -->
         {% include "notas/estado.html" with label="Totales" dato=total icono='total' %}
 
-        {% include "notas/estado.html" with label="En el conjunto" dato='<span id="conjunto-cantidad" aria-label="cargando">...</span>' icono='conjunto' %}
+        {% include "notas/estado.html" with label="Filtradas" dato='<span id="conjunto-cantidad" aria-label="cargando">...</span>' icono='conjunto' %}
 
         {% include "notas/estado.html" with label="Resultados" dato='<span id="resultados-cantidad" aria-label="cargando">...</span>' icono="lupa" %}
         <!-- prettier-ignore-end -->

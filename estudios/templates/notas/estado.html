@@ -1,15 +1,22 @@
 {% load grupos_variantes %}
-<div id="{{ id }}" role="status" class="ui-caja col min-[1000px]:p-3!">
-  <span class="text-sm">{{ label }}</span>
 
-  <div class="flex aic gap-2">
+<div
+  id="{{ id }}"
+  role="status"
+  class="{{ "ui-caja col flex-1 justify-between gap-y-2 p-2 px-3 max-[400px]:(min-w-100px max-w-50%) min-[500px]:(min-w-125px max-w-200px) min-[600px]:(gap-y-1 px-5)"|expandir_variantes }}"
+>
+  <span class="flex jb aic gap-2 text-xs min-w-max min-[500px]:text-sm">
+    <div class="text-texto-sutil">{{ label }}</div>
     <span
-      class="decoracion-circular size-6! p-1.25 bg-secundario-100 text-secundario dark:bg-secundario-600 dark:text-secundario-texto min-[1000px]:size-9! min-[1000px]:p-2"
+      class="{{ "fc rounded bg-secundario-100 text-secundario dark:(bg-secundario-600 text-secundario-texto) max-[400px]:(size-5 p-1 rounded-full) min-[400px]:(size-6 p-1.25) min-[500px]:(size-7 p-1.5) sidebar_full:(size-8! p-1.75) "|expandir_variantes }}"
     >
       {% include "notas/iconos.html#"|add:icono %}
     </span>
-    <b class="dato min-[600px]:text-lg font-bold min-[1000px]:text-[1.5rem]!"
-      >{{ dato }}</b
-    >
-  </div>
+  </span>
+
+  <b
+    class="font-bold min-[400px]:text-lg min-[500px]:text-xl min-[600px]:text-2xl"
+  >
+    {{ dato }}
+  </b>
 </div>
