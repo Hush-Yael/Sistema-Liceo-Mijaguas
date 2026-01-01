@@ -28,11 +28,11 @@ htmx.on("htmx:responseError", function (evt) {
 
   notificarError(
     xhr.status < 500
-      ? `Error en la solicitud: [${xhr.status}: ${xhr.statusText}] ${xhr.responseText.slice(
+      ? `[${xhr.status}] Error en la solicitud: ${xhr.responseText.slice(
           0,
           256,
         )}`
-      : `Error interno del servidor al procesar la solicitud: [${xhr.status}: ${xhr.statusText}]`,
+      : `[${xhr.status}] Error interno del servidor al procesar la solicitud`,
   );
 });
 
