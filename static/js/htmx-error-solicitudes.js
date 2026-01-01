@@ -7,10 +7,10 @@ function notificarError(texto) {
   const nuevoMensaje = document.importNode(msgTemplate.content, true);
 
   /** @type {HTMLLIElement} */
-  const $mensaje = Object.assign(nuevoMensaje.firstElementChild, {
-    id: "htmx-error",
-    textContent: texto,
-  });
+  const $mensaje = nuevoMensaje.firstElementChild;
+
+  $mensaje.id = "htmx-error";
+  $mensaje.prepend(document.createTextNode(texto));
 
   $mensaje.setAttribute("data-eterno", "");
   $mensaje.classList.add("ui-msg/peligro");
