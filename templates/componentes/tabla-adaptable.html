@@ -28,15 +28,15 @@
 
     <script>
       document.addEventListener("alpine:initialized", () => {
-        new TablaConFilaSticky("{{ contenedor_id }}");
+        new TablaConFilaSticky("{{ tabla_contenedor_id }}");
       });
     </script>
   {% endaddtoblock %}
 {% endif %}
 
 <div
-  {% if contenedor_id %}
-    id="{{ contenedor_id }}"
+  {% if tabla_contenedor_id %}
+    id="{{ tabla_contenedor_id }}"
   {% endif %}
   class="{{ contenedor_class|default:""|add:" contenedor-tabla" }}"
   x-data="{
