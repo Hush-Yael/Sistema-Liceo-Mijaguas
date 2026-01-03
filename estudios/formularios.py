@@ -23,13 +23,7 @@ class FormAño(forms.ModelForm):
 class FormLapso(forms.ModelForm):
     class Meta:
         model = Lapso
-        fields = ("numero", "nombre", "fecha_inicio", "fecha_fin")
-        labels = {
-            "numero": "Número",
-            "nombre": "Nombre",
-            "fecha_inicio": "Fecha de inicio",
-            "fecha_fin": "Fecha de fin",
-        }
+        fields = "__all__"
 
         widgets = {
             "numero": forms.NumberInput(
