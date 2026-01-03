@@ -111,8 +111,8 @@
             {% if forloop.counter >= 2 %}
               data-i="{{ -2|add:forloop.counter }}"
             {% endif %}
-            {% if columna.clase %}
-              class="{{ columna.clase }}"
+            {% if columna.alinear == "derecha" %}
+              class="text-right!"
             {% endif %}
           >
             <div class="flex aic justify-between gap-x-4">
@@ -206,8 +206,8 @@
                   dato_siguiente=objetos|valor_por_indice:siguiente_i|valor_por_clave:clave
                 %}
                   <td
-                    {% if columna.clase %}
-                      class="{{ columna.clase }}"
+                    {% if columna.alinear == "derecha" %}
+                      class="text-right!"
                     {% endif %}
 
                     {% if forloop.counter >= 2 %}
