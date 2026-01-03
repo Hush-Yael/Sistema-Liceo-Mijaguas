@@ -11,11 +11,13 @@ const TablaConFilaSticky = class {
 
     window.addEventListener("beforeunload", () => this.destruir());
 
-    window.addEventListener("htmx:afterRequest", () => {
-      if (!document.body.contains(this.contenedor)) {
+    window.addEventListener("htmx:afterRequest", (e) => {
+      // Si se reemplazó el contenedor
+      if (e.detail.successful && e.detail.target.id === this.contenedorId) {
+        // ya no hay que observar sus filas
         this.destruir();
 
-        // se reemplazó el contenedor y la tabla en una solicitud HTMX, por lo que se destruye y hay que volver a inicializar
+        // Se cambió por la misma tabla, hay que volver a inicializar
         if ($id(this.contenedorId)) this.init();
       }
     });
