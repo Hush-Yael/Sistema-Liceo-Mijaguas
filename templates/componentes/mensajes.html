@@ -22,7 +22,7 @@
   role="region"
   tabindex="-1"
   aria-label="Notificaciones"
-  class="fixed bottom-0 w-full sidebar:w-300px sidebar:right-0"
+  class="fixed bottom-0 w-full sidebar:w-425px sidebar:right-1"
 >
   <ol class="col gap-y-1" id="lista-mensajes" tabindex="-1">
     {% for message in messages %}
@@ -30,7 +30,7 @@
     {% endfor %}
   </ol>
 
-  <template id="msg-template"> {% partial msg %} </template>
+  <template id="msg-template">{% partial msg %}</template>
 </div>
 
 {% partialdef msg %}
@@ -51,7 +51,7 @@
     <button
       type="button"
       aria-label="Cerrar"
-      class="ui-btn rounded-full size-6 p-1"
+      class="ui-btn rounded-full size-6 aspect-square ml-2 min-w-max p-1"
       onclick="this.parentElement.remove()"
     >
       {% include "componentes/iconos/x.html" %}
