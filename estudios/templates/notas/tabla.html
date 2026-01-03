@@ -3,7 +3,7 @@
 {% with url_base="notas/tabla.html" %}
   {%
     include "componentes/tabla-adaptable.html" with
-    cargada_por_htmx=1
+    tabla_reemplazada_por_htmx=1
     objetos=notas
     titulo_col_actual='nombre'
     url_parcial_td_contenido=url_base|add:"#datos_td"
