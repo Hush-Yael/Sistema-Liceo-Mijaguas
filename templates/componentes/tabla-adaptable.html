@@ -177,8 +177,8 @@
 
           <td class="fila-n numeros">
             {% if url_parcial_paginado %}
-              {% with total_anterior=notas.number|add:-1|multiplicar:cantidad_por_pagina %}
-                {# se multiplica la cantidad por página de acuerdo a la cantidad recorrida y la cantidad de notas por página y se le añade cada valor del ciclo actual #}
+              {% with total_anterior=lista_objetos.number|add:-1|multiplicar:cantidad_por_pagina %}
+                {# se multiplica la cantidad por página de acuerdo a la cantidad recorrida y la cantidad de objetos por página y se le añade cada valor del ciclo actual #}
                 {{ total_anterior|add:forloop.counter }}
               {% endwith %}
             {% else %}
@@ -202,8 +202,8 @@
                 {%
                   with
                   dato=objeto|valor_por_clave:clave
-                  dato_anterior=objetos|valor_por_indice:anterior_i|valor_por_clave:clave
-                  dato_siguiente=objetos|valor_por_indice:siguiente_i|valor_por_clave:clave
+                  dato_anterior=lista_objetos|valor_por_indice:anterior_i|valor_por_clave:clave
+                  dato_siguiente=lista_objetos|valor_por_indice:siguiente_i|valor_por_clave:clave
                 %}
                   <td
                     {% if columna.alinear == "derecha" %}
