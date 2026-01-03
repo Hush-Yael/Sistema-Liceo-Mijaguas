@@ -17,7 +17,12 @@ const elems = {
     "border-1 border-[--borde-caja] rounded-caja shadow-[--sombra-caja] bg-fondo-500",
 
   ["ui-loader"]:
-    "inline-block aspect-square rounded-full size-4 border-3 border-[--transparente-3] border-r-[--color-primario-200] dark:border-r-[--color-primario-700] animate-spin",
+    "inline-block aspect-square rounded-full size-4 border-3 animate-spin",
+
+  ["ui-loader/primario"]:
+    "border-[--transparente-3] border-r-[--color-primario-200] dark:border-r-[--color-primario-700]",
+
+  ["ui-loader/blanco"]: "border-#fff3 border-r-#fff",
 } satisfies Config["shortcuts"];
 
 const btn = {
