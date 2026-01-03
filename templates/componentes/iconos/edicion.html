@@ -1,0 +1,87 @@
+{% load partials %}
+
+{% partialdef x %}
+  <svg
+    class="{{ class }}"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+  >
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="1.5"
+      d="M6 18 18 6M6 6l12 12"
+    ></path>
+  </svg>
+{% endpartialdef x %}
+
+{% partialdef lapiz %}
+  <svg
+    class="{{ class }}"
+    fill="none"
+    stroke-width="2"
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"></path>
+    <path
+      d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"
+    ></path>
+    <path d="M16 5l3 3"></path>
+  </svg>
+{% endpartialdef lapiz %}
+
+{% partialdef borrar %}
+  <svg
+    class="{{ class }}"
+    viewBox="0 0 30 30"
+    xml:space="preserve"
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+  >
+    <path
+      d="M19.71,26h-9.42c-1.019,0-1.875-0.766-1.988-1.779L6.5,8h17l-1.802,16.221C21.585,25.234,20.729,26,19.71,26z"
+    />
+    <path
+      d="M24,6H6C5.448,6,5,5.552,5,5v0c0-0.552,0.448-1,1-1h18c0.552,0,1,0.448,1,1v0C25,5.552,24.552,6,24,6z"
+    />
+    <path d="M18,5h-6V4c0-0.552,0.448-1,1-1h4c0.552,0,1,0.448,1,1V5z" />
+  </svg>
+{% endpartialdef borrar %}
+
+{% partialdef suma %}
+  <svg
+    class="{{ class }}"
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <path d="M12 5l0 14" />
+    <path d="M5 12l14 0" />
+  </svg>
+{% endpartialdef suma %}
+
+{% partialdef suma_circulo %}
+  <svg
+    class="{{ class }}"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+  >
+    <path
+      fill="currentColor"
+      d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10Zm-1-11H7v2h4v4h2v-4h4v-2h-4V7h-2v4Z"
+    ></path>
+  </svg>
+{% endpartialdef suma_circulo %}
