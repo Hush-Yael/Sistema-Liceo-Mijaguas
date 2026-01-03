@@ -38,7 +38,7 @@ def valor_por_indice(lista: list, indice: int):
         return None
 
 
-# 4 -> "1234" -> luego se usa como rango en un for usando make_list
+# 4 -> "1234" -> luego se usa como rango en un for
 @register.filter(is_safe=True)
 def convertir_a_rango(value, desde=-1):
     i = desde
