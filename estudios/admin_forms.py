@@ -1,5 +1,5 @@
 from django import forms
-from django.utils.datetime_safe import datetime
+from datetime import datetime
 from .models import (
     Bachiller,
     Matricula,
