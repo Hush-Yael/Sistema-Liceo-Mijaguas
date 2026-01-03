@@ -38,8 +38,8 @@ textarea {
   field-sizing: content;
 }
 
-input:read-only,
-textarea:read-only {
+input[readonly],
+textarea[readonly] {
   cursor: default;
 }
 
