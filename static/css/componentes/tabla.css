@@ -76,6 +76,11 @@
   border-bottom-right-radius: calc(var(--radio-campo) - 1px);
 }
 
+.fila-check+.fila-n,
+.fila-check+.fila-n {
+  padding-left: 0;
+}
+
 .tabla .numeros {
   text-align: right;
   font-variant-numeric: tabular-nums;

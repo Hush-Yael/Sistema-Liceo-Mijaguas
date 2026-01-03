@@ -288,7 +288,6 @@ def notas_tabla(request: HttpRequest):
     ]
 
     columnas = list(filter(None, columnas))
-    columnas_fijas = 2
 
     notas = (
         Nota.objects.annotate(  # type: ignore
@@ -345,10 +344,7 @@ def notas_tabla(request: HttpRequest):
             "cantidad_por_pagina": cantidad_por_pagina,
             "form": form,
             "columnas": columnas,
-            "columnas_ocultables": list(
-                map(lambda x: x["titulo"], columnas[columnas_fijas - 1 :])
-            ),
-            "columnas_fijas": columnas_fijas,
+            "columnas_ocultables": list(map(lambda x: x["titulo"], columnas[2 - 1 :])),
             # Para indicar (al cambiar de página) que solo se cargue la tabla y la paginación, ya que lo demás no se actualiza
             "solo_tabla": datos.get("solo_tabla", False),
         },
