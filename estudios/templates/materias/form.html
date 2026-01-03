@@ -1,0 +1,72 @@
+{% extends "objeto-form.html" %}
+{% load partials %}
+{% load grupos_variantes %}
+
+{% block campos %}
+  <div id="campos" class="ui-elevado col gap-y-8 gap-x-10 p-4 rounded-lg">
+    {% partialdef campos inline %}
+      {% include "componentes/campo.html" with campo=form.nombre class="col-1" input_class="deshabilitar-al-subir ui-elevado-2" %}
+
+      {% with asignaciones=form.asignaciones %}
+        <div
+          role="group"
+          class="max-w-500px row-[1/3] col-2"
+          aria-labelledby="asignaciones-materia-label"
+          {% if asignaciones.errors %}
+            aria-invalid="true" aria-errormessage="asignaciones-materia-error"
+          {% endif %}
+        >
+          <p class="text-texto-sutil mb-1" id="asignaciones-materia-label">
+            Años en los que se imparte:
+          </p>
+
+          {% partialdef asignaciones inline %}
+            <div
+              class="{{ "grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] supports-[not(grid-template-columns:repeat(auto-fit,minmax(140px,1fr)))]:(flex flex-wrap) gap-2"|expandir_variantes }}"
+            >
+              {% for opcion, label in asignaciones.field.choices %}
+                {% with valor=opcion.value %}
+                  <label
+                    class="flex aic supports-[not(grid-template-columns:repeat(auto-fit,minmax(140px,1fr)))]:jcc gap-x-2.5 rounded-full min-w-max p-1 px-3 ui-elevado-2 cursor-pointer"
+                    for="{{ asignaciones.name }}_{{ forloop.counter }}"
+                  >
+                    <input
+                      class="deshabilitar-al-subir sr-only peer"
+                      type="checkbox"
+                      name="{{ asignaciones.name }}"
+                      value="{{ valor }}"
+                      id="{{ asignaciones.name }}_{{ forloop.counter }}"
+                      {% if valor|stringformat:"i" in asignaciones.value or valor in asignaciones.value %}
+                        checked
+                      {% endif %}
+                    />
+                    <div
+                      class="group relative size-4 ui-opcion ui-opcion/checkbox"
+                    >
+                      {% include "componentes/checkbox-icono.html" with class="" %}
+                    </div>
+
+                    {{ label }}
+                  </label>
+                {% endwith %}
+              {% endfor %}
+            </div>
+          {% endpartialdef asignaciones %}
+          {% if asignaciones.errors %}
+            <p
+              id="asignaciones-materia-error"
+              class="input-error"
+              style="margin-top: .5rem;"
+            >
+              {{ asignaciones.errors.0 }}
+            </p>
+          {% endif %}
+        </div>
+      {% endwith %}
+    {% endpartialdef campos %}
+  </div>
+{% endblock campos %}
+
+{% partialdef invalido %}
+  {% include "objeto-form.html#invalido" %}
+{% endpartialdef invalido %}

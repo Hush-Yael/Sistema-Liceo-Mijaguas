@@ -1,4 +1,5 @@
 from django.urls import path
+from app.vistas import crear_crud_urls
 from . import views
 
 
@@ -6,22 +7,6 @@ urlpatterns = [
     path("", views.inicio, name="inicio"),
     path("profesores/", views.profesores, name="profesores"),
     path("notas/", views.notas, name="notas"),
-    path("administrar/", views.administrar, name="administrar"),
-    path(
-        "vista_pestaña_admin_completa/",
-        views.vista_pestaña_admin_completa,
-        name="vista_pestaña_admin_completa",
-    ),
-    path(
-        "vista_pestaña_admin_form/",
-        views.vista_pestaña_admin_form,
-        name="vista_pestaña_admin_form",
-    ),
-    path(
-        "obtener_form_editar_pestaña/",
-        views.obtener_form_editar_pestaña,
-        name="obtener_form_editar_pestaña",
-    ),
     path(
         "notas_tabla/",
         views.notas_tabla,
@@ -46,3 +31,20 @@ urlpatterns = [
         name="resumen_matriculas",
     ),
 ]
+
+
+urlpatterns += crear_crud_urls(
+    "materia",
+    "materias",
+    views.ListaMaterias,
+    views.CrearMateria,
+    views.ActualizarMateria,
+)
+
+urlpatterns += crear_crud_urls(
+    "año", "años", views.ListaAños, views.CrearAño, views.ActualizarAño
+)
+
+urlpatterns += crear_crud_urls(
+    "lapso", "lapsos", views.ListaLapsos, views.CrearLapso, views.ActualizarLapso
+)

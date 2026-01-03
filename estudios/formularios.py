@@ -1,5 +1,5 @@
 from django import forms
-from .models import Año, Materia, Lapso
+from .models import Año, Materia, Lapso, AñoMateria
 from datetime import date
 
 
@@ -42,16 +42,16 @@ class FormLapso(forms.ModelForm):
         }
 
 
-class FormMateria(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["asignaciones"].label_from_instance = lambda obj: obj.nombre_corto
+asignaciones_campo = forms.ModelMultipleChoiceField(
+    queryset=Año.objects.all().order_by("numero"),
+    widget=forms.CheckboxSelectMultiple(attrs={"id": "materia"}),
+    initial=[],
+    required=False,
+)
 
-    asignaciones = forms.ModelMultipleChoiceField(
-        queryset=Año.objects.all().order_by("numero"),
-        widget=forms.CheckboxSelectMultiple(attrs={"id": "materia"}),
-        required=False,
-    )
+
+class FormMateria(forms.ModelForm):
+    asignaciones = asignaciones_campo
 
     class Meta:
         model = Materia
@@ -63,3 +63,11 @@ class FormMateria(forms.ModelForm):
         widgets = {
             "nombre": forms.TextInput,
         }
+
+
+class FormAsignaciones(forms.ModelForm):
+    asignaciones = asignaciones_campo
+
+    class Meta:
+        model = AñoMateria
+        fields = ("asignaciones",)

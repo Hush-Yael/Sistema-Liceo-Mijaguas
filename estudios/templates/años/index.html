@@ -1,0 +1,34 @@
+{% extends "lista-objetos.html" %}
+{% load utilidades %}
+{% load partials %}
+
+{% block contenido %}
+  {%
+    with
+    main_class="col gap-y-3 flex-1 max-h-[calc(100dvh-var(--altura-header))] max-w-800px mxa w-full p-4 py-6 min-[500px]:py-8 sidebar:jcc sidebar:p-10"
+    nombre_url_crear="crear_año"
+  %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock contenido %}
+
+{% partialdef tabla %}
+  {% include "lista-objetos.html#tabla" %}
+{% endpartialdef tabla %}
+
+{% block modales %}
+  {{ block.super }}
+{% endblock modales %}
+
+{% partialdef acciones %}
+  {% include "lista-objetos.html#acciones" %}
+{% endpartialdef acciones %}
+
+{% partialdef datos_td %}
+
+  {% if 'fecha_' in columna.clave %}
+    {{ objeto|valor_por_clave:columna.clave|date:"d F Y" }}
+  {% else %}
+    {{ objeto|valor_por_clave:columna.clave }}
+  {% endif %}
+{% endpartialdef datos_td %}

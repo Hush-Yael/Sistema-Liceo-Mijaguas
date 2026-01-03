@@ -128,7 +128,7 @@
 
     {% partialdef enlaces_materias %}
       {% if puede_añadir %}
-        {% url 'form_materias' as mat_href_form %}
+        {% url 'crear_materia' as mat_href_form %}
         {% with href=mat_href_form icono="añadir" label="Añadir materia" %}
           {% include path_enlace %}
         {% endwith %}
@@ -156,7 +156,8 @@
 
     {% partialdef enlaces_varios %}
       {% if puede_ver_año %}
-        {% with icono="años" label="Años académicos" %}
+        {% url 'años' as href_años %}
+        {% with href=href_años icono="años" label="Años académicos" %}
           {% include path_enlace %}
         {% endwith %}
       {% endif %}
@@ -168,7 +169,8 @@
       {% endif %}
 
       {% if puede_ver_lapso %}
-        {% with icono="lapsos" label="Lapsos académicos" icono_class="scale-120" %}
+        {% url 'lapsos' as href_lapsos %}
+        {% with href=href_lapsos icono="lapsos" label="Lapsos académicos" icono_class="scale-120" %}
           {% include path_enlace %}
         {% endwith %}
       {% endif %}

@@ -1,0 +1,150 @@
+{% extends "lista-objetos.html" %}
+{% load utilidades %}
+{% load partials %}
+
+{% block contenido %}
+  {%
+    with
+    main_class="col gap-y-3 flex-1 max-h-[calc(100dvh-var(--altura-header))] max-w-800px mxa w-full p-4 py-6 min-[500px]:py-8 sidebar:jcc sidebar:p-10"
+    nombre_url_crear="crear_materia"
+  %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock contenido %}
+
+{% partialdef tabla %}
+  {% include "lista-objetos.html#tabla" %}
+{% endpartialdef tabla %}
+
+{% block modales %}
+  {{ block.super }}
+
+  {% if permisos.editar %}
+    <dialog
+      class="{{ dialog_class }}"
+      x-show="modalAbierto === 'asignar'"
+      x-htmldialog="modalAbierto = null"
+      @click="$event.target === $event.currentTarget && (modalAbierto = null)"
+    >
+      <div class="{{ div_class }}">
+        <hgroup class="col gap-y-3 ">
+          <h1 class="text-lg font-bold tac text-balance">
+            Cambiar asignaciones de años de las materias seleccionadas
+          </h1>
+          <p class="text-texto-sutil">
+            Marca los años que quieres asignarles, los que
+            <span class="text-peligro dark:text-peligro-400">NO</span> estén
+            marcados
+            <span class="text-peligro dark:text-peligro-400">NO</span> se
+            añadirán o serán
+            <span class="text-peligro dark:text-peligro-400">ELIMINADOS</span>
+            si ya estaban asignados:
+          </p>
+        </hgroup>
+
+        {% with asignaciones=form_asignaciones.asignaciones %}
+          <form>{% include "materias/form.html#asignaciones" %}</form>
+
+          <div class="{{ btns_class }}" role="group">
+            <button class="{{ cancelar_class }}" @click="modalAbierto = null">
+              Cancelar
+            </button>
+
+            <div
+              role="alert"
+              id="indicador-asignar"
+              class="htmx-indicator peer sr-only"
+            >
+              Asignando...
+            </div>
+
+            <button
+              class="{{ subir_class|add:' ui-btn/primario' }}"
+              hx-put
+              hx-indicator="#indicador-asignar"
+              hx-disabled-elt=".deshabilitar-al-subir"
+              hx-vals="js:{
+                  ids: Array.from(Alpine.$data($('table')).filasSeleccionadas),
+                  {{ asignaciones.name }}:
+                    new FormData(this.closest('dialog').$('form')).getAll('{{ asignaciones.name }}')
+                }"
+              @htmx:after-request.window="$event.target === $el && (modalAbierto = null)"
+            >
+              <div class="ui-loader ui-loader/blanco"></div>
+              Asignar
+            </button>
+          </div>
+        {% endwith %}
+      </div>
+    </dialog>
+  {% endif %}
+{% endblock modales %}
+
+{% partialdef acciones %}
+  {% include "lista-objetos.html#acciones" %}
+
+  <button
+    role="menuitem"
+    class="{{ accion_btn_class|add:' deshabilitar-al-subir' }}"
+    :disabled="filasSeleccionadas.size === 0"
+    aria-haspopup="dialog"
+    :aria-expanded="modalAbierto === 'asignar'"
+    @click="modalAbierto = 'asignar'"
+  >
+    <svg
+      fill="none"
+      class="size-4"
+      stroke-width="2"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+      <path
+        d="M4 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"
+      ></path>
+      <path
+        d="M14 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"
+      ></path>
+      <path
+        d="M4 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"
+      ></path>
+      <path d="M14 17h6m-3 -3v6"></path>
+    </svg>
+    Establecer años asignados...
+  </button>
+{% endpartialdef acciones %}
+
+{% partialdef datos_td %}
+  {% if columna.clave == 'asignaciones' %}
+    {% if objeto.asignaciones|length == 0 %}
+      <span
+        role="status"
+        class="flex aic gap-2 rounded-full w-max p-1 px-3 text-sm bg-advertencia text-advertencia-texto"
+      >
+        {% include "componentes/iconos/alerta.html" with class="size-4" %}
+        Ningún año
+      </span>
+    {% else %}
+      <ul class="flex flex-wrap gap-2">
+        {% for año in lista_años %}
+          {% if año.numero in objeto.asignaciones %}
+            <li>
+              <span
+                class="rounded-full p-0.5 px-2 text-sm ui-elevado-2"
+                role="status"
+              >
+                {{ año.nombre_corto }}
+              </span>
+            </li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% elif columna.clave == 'fecha_creacion' %}
+    {{ objeto.fecha_creacion|date:"d M. Y, h:i A" }}
+  {% else %}
+    {{ objeto|valor_por_clave:columna.clave }}
+  {% endif %}
+{% endpartialdef datos_td %}

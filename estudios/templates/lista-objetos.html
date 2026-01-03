@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+{% load static %}
+{% load utilidades %}
+{% load partials %}
+{% load grupos_variantes %}
+
+{% block titulo %}
+  Lista de {{ view.nombre_objeto_plural }}
+{% endblock %}
+
+{% block cabeza %}
+  {% if permisos.eliminar or permisos.editar %}
+    <link rel="stylesheet" href="{% static 'css/componentes/dialog.css' %}" />
+
+    <script defer src="{% static 'js/htmx.min.js' %}"></script>
+    <script defer src="{% static 'js/htmx-error-solicitudes.js' %}"></script>
+    <script defer src="{% static 'js/alpine-dialog.min.js' %}"></script>
+  {% endif %}
+{% endblock cabeza %}
+
+{% block contenido %}
+  <main
+    class="{{ main_class }}"
+    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+    hx-target="#tabla-objetos"
+    hx-swap="outerHTML"
+    x-data="{ modalAbierto: null }"
+  >
+    {% block cabecera %}
+      <header class="flex aic jb gap-x-4">
+        <h1 class="text-lg font-bold min-[500px]:text-xl">
+          Lista de {{ view.nombre_objeto_plural }}
+        </h1>
+
+        {% if permisos.crear and nombre_url_crear %}
+          <a
+            class="{{ "ui-btn ui-btn/primario max-[350px]:(size-6 p-1.25) min-[350px]:ui-btn/sm"|expandir_variantes }}"
+            href="{% url nombre_url_crear %}
+"
+          >
+            {% include "componentes/iconos/edicion.html#suma_circulo" %}
+            <span class="max-[350px]:sr-only">Añadir</span>
+          </a>
+        {% endif %}
+      </header>
+    {% endblock cabecera %}
+    {% partial tabla %}
+
+    {%
+      with
+      dialog_class="ui-caja max-w-400px"
+      div_class="col gap-y-6 p-4 px-5"
+      btns_class="flex gap-x-2 *:flex-1"
+      cancelar_class="deshabilitar-al-subir ui-btn ui-btn/borde ui-btn/md"
+      subir_class="deshabilitar-al-subir ui-btn ui-btn/md peer-[:not(.htmx-request)]:[&>.ui-loader]:hidden"
+    %}
+      {% block modales %}
+        {% if permisos.eliminar %}
+          <dialog
+            class="{{ dialog_class }}"
+            x-show="modalAbierto === 'eliminar'"
+            x-htmldialog="modalAbierto = null"
+            @click="$event.target === $event.currentTarget && (modalAbierto = null)"
+          >
+            <div class="{{ div_class }}">
+              <hgroup class="col gap-y-3">
+                <h1 class="text-lg font-bold tac">Confirmar eliminación</h1>
+                <p class="text-texto-sutil">
+                  ¿Realmente deseas eliminar {{ view.articulo_nombre_plural }}
+                  {{ view.nombre_objeto_plural }}
+                  seleccionad{% if view.articulo_nombre_plural == 'los' %}os{% else %}as{% endif %}?
+                </p>
+              </hgroup>
+
+              {% if modelos_relacionados|length > 0 %}
+                <div class="col gap-y-2">
+                  {% with texto="También se verán afectados los modelos:" %}
+                    {% partialdef consecuencia_p inline %}
+                      <p
+                        class="flex gap-2 text-advertencia-600 dark:text-advertencia-400"
+                      >
+                        <span
+                          class="fc rounded-full p-1.25 aspect-square text-advertencia bg-advertencia-200 dark:bg-advertencia-900 size-7"
+                        >
+                          {% include "componentes/iconos/alerta.html" with class="" %}
+                        </span>
+                        {{ texto }}
+                      </p>
+                    {% endpartialdef consecuencia_p %}
+                  {% endwith %}
+                  <ul class="list-disc list-inside">
+                    {% for m in modelos_relacionados %}
+                      <li class="font-500 pl-3 first-letter:capitalize">
+                        {{ m }}{% if not forloop.last %},{% endif %}
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              {% else %}
+                {% with texto="Todos sus elementos relacionados también serán eliminados" %}
+                  {% partial consecuencia_p %}
+                {% endwith %}
+              {% endif %}
+
+              <div class="{{ btns_class }}" role="group">
+                <button
+                  class="{{ cancelar_class }}"
+                  @click="modalAbierto = null"
+                >
+                  No eliminar
+                </button>
+
+                <div
+                  role="alert"
+                  id="indicador-eliminar"
+                  class="htmx-indicator peer sr-only"
+                >
+                  Eliminando...
+                </div>
+
+                <button
+                  class="{{ subir_class|add:' ui-btn/peligro' }}"
+                  hx-delete
+                  hx-indicator="#indicador-eliminar"
+                  hx-disabled-elt=".deshabilitar-al-subir"
+                  hx-vals="js:{ ids: Array.from(Alpine.$data($('table')).filasSeleccionadas) }"
+                  @htmx:after-request.window="$event.target === $el && (modalAbierto = null)"
+                >
+                  <div class="ui-loader ui-loader/blanco"></div>
+                  Sí, eliminar
+                </button>
+              </div>
+            </div>
+          </dialog>
+        {% endif %}
+      {% endblock modales %}
+    {% endwith %}
+  </main>
+{% endblock contenido %}
+
+{# Este parcial define la tabla y se debe usar en la plantilla extendida para definir su propio parcial de la tabla, por si se debe cambiar luego de una petición #}
+{% partialdef tabla %}
+  {%
+    include "componentes/tabla-adaptable.html" with
+    contenedor_class=contenedor_class|default_if_none:"flex-1 overflow-y-auto"
+    columnas=view.columnas
+    columnas_ocultables=view.columnas_ocultables
+    titulo_col_actual=titulo_col_actual|default_if_none:view.columnas_ocultables.0
+    url_parcial_td_contenido=view.template_name|add:'#datos_td'
+    url_parcial_acciones=view.template_name|add:'#acciones'
+    tabla_contenedor_id="tabla-objetos"
+  %}
+{% endpartialdef tabla %}
+
+{% partialdef respuesta_cambios_tabla %}
+  {% with url_tabla_parcial=view.template_name|add:"#tabla" %}
+    {# El parcial de la tabla devuelta al cambiar sus datos debe definirse en la plantilla extendida #}
+    {% include url_tabla_parcial %}
+    {% include "componentes/mensajes.html#como_respuesta" %}
+  {% endwith %}
+{% endpartialdef respuesta_cambios_tabla %}
+
+{% partialdef acciones %}
+  {% if permisos.eliminar %}
+    <button
+      id="eliminar-btn"
+      role="menuitem"
+      class="{{ accion_btn_class }}"
+      aria-haspopup="dialog"
+      :aria-expanded="modalAbierto === 'eliminar'"
+      @click="modalAbierto = 'eliminar'"
+      :disabled="filasSeleccionadas.size === 0"
+    >
+      {% include "componentes/iconos/edicion.html#borrar" with class="size-4" %}
+      Eliminar...
+    </button>
+  {% endif %}
+
+  {% if permisos.editar %}
+    <a
+      role="menuitem"
+      class="{{ accion_btn_class }}"
+      :href="
+        filasSeleccionadas.size === 1
+          ? 'editar/'+filasSeleccionadas.values().next().value
+          : false
+      "
+      :aria-disabled="filasSeleccionadas.size !== 1"
+    >
+      {% include "componentes/iconos/edicion.html#lapiz" with class="size-4" %}
+      Editar
+    </a>
+  {% endif %}
+{% endpartialdef acciones %}

@@ -1,0 +1,16 @@
+{% extends "objeto-form.html" %}
+{% load partials %}
+
+{% block campos %}
+  <div id="campos" class="ui-elevado col gap-y-6 p-4 rounded-lg">
+    {% partialdef campos inline %}
+      {% for campo in form %}
+        {% include "componentes/campo.html" with input_class="deshabilitar-al-subir ui-elevado-2" %}
+      {% endfor %}
+    {% endpartialdef campos %}
+  </div>
+{% endblock campos %}
+
+{% partialdef invalido %}
+  {% include "objeto-form.html#invalido" %}
+{% endpartialdef invalido %}

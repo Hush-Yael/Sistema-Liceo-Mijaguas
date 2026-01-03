@@ -1,14 +1,17 @@
-from django.http import HttpRequest, HttpResponse
+from django.http import (
+    HttpRequest,
+    HttpResponse,
+    HttpResponseBadRequest,
+)
+from django.http.request import QueryDict
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count, Q, Model, F
+from django.db.models import Count, Q, F
+from django.urls import reverse_lazy
 
-from estudios.admin_pestañas import (
-    obtener_lista_pestañas_admin,
-    obtener_vista_pestaña_admin_completa,
-    obtener_vista_pestaña_admin_form,
-    pestañas_admin,
-)
+from app.vistas import VistaActualizarObjeto, VistaCrearObjeto, VistaListaObjetos
+
+from estudios.formularios import FormAsignaciones, FormLapso, FormMateria, FormAño
 from estudios.utilidades_cookies import (
     obtener_y_corregir_valores_iniciales,
     render_con_cookies,
@@ -39,7 +42,7 @@ def inicio(request: HttpRequest):
         }
     }
 
-    if request.user.is_superuser:
+    if request.user.is_superuser:  # type: ignore
         """ contexto["profesores"] = ProfesorMateria.objects.values(
             "materia", "año", "profesor"
         ) """
@@ -109,102 +112,6 @@ def profesores(request: HttpRequest):
     response.set_cookie("profesores_direccion", direccion)
 
     return response
-
-
-@login_required
-def administrar(request: HttpRequest):
-    datos = request.GET
-    pestaña_inicial = datos.get("pestaña")
-
-    lista_pestañas = obtener_lista_pestañas_admin(
-        request.user,
-        pestaña_inicial,
-    )
-
-    return render(
-        request,
-        "administrar/index.html",
-        {
-            "lista_pestañas": lista_pestañas,
-            "pestaña_inicial": pestaña_inicial or lista_pestañas[0]["nombre"],
-        },
-    )
-
-
-@login_required
-def obtener_pestaña_admin(request: HttpRequest):
-    try:
-        if (
-            request.method != "GET"
-            and request.method != "POST"
-            and request.method != "DELETE"
-        ):
-            return HttpResponse("", status=405)
-
-        metodo = request.method
-
-        if request.method != "DELETE":
-            datos = getattr(request, metodo)
-        else:
-            datos = request.GET
-
-        pestaña = datos.get("pestaña")
-    except Exception as e:
-        print(f"Error al obtener la pestaña: {str(e)}")
-        return HttpResponse("Error al obtener la pestaña", status=500)
-
-    if pestaña not in pestañas_admin:
-        return HttpResponse("No se encontró la pestaña buscada", status=404)
-
-    if metodo == "GET" or metodo == "DELETE":
-        if metodo == "DELETE":
-            modelo: Model = pestañas_admin[pestaña]["modelo"]
-            seleccion = datos.getlist("seleccion")
-
-            if seleccion and seleccion != []:
-                modelo.objects.filter(id__in=seleccion).delete()
-            else:
-                return HttpResponse("No se seleccionaron objetos", status=400)
-
-        return obtener_vista_pestaña_admin_completa(
-            request=request,
-            nombre_pestaña=pestaña,
-        )
-    elif metodo == "POST":
-        return obtener_vista_pestaña_admin_form(
-            request=request,
-            nombre_pestaña=pestaña,
-        )
-
-    return HttpResponse("Metodo no permitido", status=405)
-
-
-@login_required
-def obtener_form_editar_pestaña(request: HttpRequest):
-    if request.method != "GET":
-        return HttpResponse("", status=405)
-
-    pestaña = request.GET.get("pestaña")
-
-    if pestaña not in pestañas_admin:
-        return HttpResponse("No se encontró la pestaña buscada", status=40)
-
-    return obtener_vista_pestaña_admin_form(
-        request=request,
-        nombre_pestaña=pestaña,
-    )
-
-
-# Llama a obtener_vista_pestaña_admin_completa para manejar la vista completa de la pestaña
-@login_required
-def vista_pestaña_admin_completa(request: HttpRequest):
-    return obtener_pestaña_admin(request)
-
-
-# Llama a obtener_vista_pestaña_admin_form para manejar la lógica del formulario y procesar la solicitud
-@login_required
-def vista_pestaña_admin_form(request: HttpRequest):
-    return obtener_pestaña_admin(request)
 
 
 def notas(request: HttpRequest):
@@ -350,6 +257,197 @@ def notas_tabla(request: HttpRequest):
         },
         cookies_para_guardar,
     )
+
+
+class ListaMaterias(VistaListaObjetos):
+    template_name = "materias/index.html"
+    model = Materia
+    form_asignaciones = FormAsignaciones
+    articulo_nombre_plural = "las"
+    lista_años: "list[dict]"
+
+    def get_queryset(self, *args, **kwargs) -> "list[dict]":
+        materias = list(Materia.objects.values().order_by("nombre"))
+
+        if materias:
+            años = años = Año.objects.values("numero", "nombre_corto").order_by(
+                "numero"
+            )
+            self.lista_años = list(años)
+            asignaciones = list(AñoMateria.objects.values("año__numero", "materia__id"))
+
+            for materia in materias:
+                materia["asignaciones"] = []
+
+                for año in años:
+                    if asignaciones.__contains__(
+                        {
+                            "año__numero": año["numero"],
+                            "materia__id": materia["id"],
+                        }
+                    ):
+                        materia["asignaciones"].append(año["numero"])
+
+        return materias
+
+    def get_context_data(self, *args, **kwargs):
+        if not self.object_list:
+            return super().get_context_data(*args, **kwargs)
+
+        ctx = super().get_context_data(*args, **kwargs)
+        ctx.update(
+            {
+                "lista_años": self.lista_años,
+                "form_asignaciones": self.form_asignaciones(),
+            }
+        )
+        return ctx
+
+    def put(self, request: HttpRequest, *args, **kwargs):
+        datos = QueryDict(request.body)  # type: ignore
+
+        if not (ids := datos.getlist("ids")):
+            return HttpResponseBadRequest("No se indicó una lista de ids")
+
+        form = self.form_asignaciones(datos)
+
+        if not form.is_valid():
+            return HttpResponseBadRequest("La lista de años es inválida")
+
+        asignaciones = form.cleaned_data["asignaciones"]
+        años = Año.objects.filter(id__in=asignaciones)
+
+        for id in ids:
+            materia = Materia.objects.get(id=id)
+            AñoMateria.objects.filter(materia=materia).delete()
+
+            if asignaciones:
+                AñoMateria.objects.bulk_create(
+                    [AñoMateria(año=año, materia=materia) for año in años]
+                )
+
+        self.object_list = self.get_queryset()
+
+        ctx = self.get_context_data(*args, **kwargs)
+        ctx["tabla_reemplazada_por_htmx"] = 1
+
+        return render(
+            request,
+            f"{self.template_name}#respuesta_cambios_tabla",
+            ctx,
+        )
+
+
+class CrearMateria(VistaCrearObjeto):
+    template_name = "materias/form.html"
+    model = Materia
+    form_class = FormMateria
+    success_url = reverse_lazy("materias")
+
+    def form_valid(self, form):
+        años_seleccionados: list[Año] = list(form.cleaned_data["asignaciones"])
+        materia: Materia = self.object  # type: ignore
+
+        if len(años_seleccionados):
+            AñoMateria.objects.bulk_create(
+                [AñoMateria(año=año, materia=materia) for año in años_seleccionados]
+            )
+
+        return super().form_valid(form)
+
+
+class ActualizarMateria(VistaActualizarObjeto):
+    template_name = "materias/form.html"
+    model = Materia
+    form_class = FormMateria
+    success_url = reverse_lazy("materias")
+
+    def form_valid(self, form):
+        años_seleccionados: list[Año] = list(form.cleaned_data["asignaciones"])
+
+        if len(años_seleccionados):
+            materia: Materia = self.object
+            todos_los_años = Año.objects.all()
+            asignados: list[int] = list(
+                AñoMateria.objects.filter(materia=materia).values_list(
+                    "año_id", flat=True
+                )
+            )
+
+            años_a_asignar = []
+
+            for año in todos_los_años:
+                if años_seleccionados.__contains__(año) and not asignados.__contains__(
+                    año.id
+                ):  # type: ignore
+                    años_a_asignar.append(año)
+
+            AñoMateria.objects.filter(materia=self.object).exclude(
+                año__in=años_seleccionados
+            ).delete()
+
+            if len(años_a_asignar):
+                AñoMateria.objects.bulk_create(
+                    [AñoMateria(año=año, materia=self.object) for año in años_a_asignar]
+                )
+
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+
+        # recuperar las asignaciones actuales
+        ctx["form"].fields["asignaciones"].initial = list(
+            AñoMateria.objects.filter(materia=self.object).values_list(
+                "año_id", flat=True
+            )
+        )
+
+        return ctx
+
+
+class ListaLapsos(VistaListaObjetos):
+    template_name = "lapsos/index.html"
+    model = Lapso
+
+    def get_queryset(self, *args, **kwargs) -> "list[dict]":
+        return super().get_queryset(Lapso.objects.all().order_by("numero"))
+
+
+class CrearLapso(VistaCrearObjeto):
+    template_name = "lapsos/form.html"
+    model = Lapso
+    form_class = FormLapso
+    success_url = reverse_lazy("lapsos")
+
+
+class ActualizarLapso(VistaActualizarObjeto):
+    template_name = "lapsos/form.html"
+    model = Lapso
+    form_class = FormLapso
+    success_url = reverse_lazy("lapsos")
+
+
+class ListaAños(VistaListaObjetos):
+    template_name = "años/index.html"
+    model = Año
+
+    def get_queryset(self, *args, **kwargs) -> "list[dict]":
+        return super().get_queryset(Año.objects.all().order_by("numero"))
+
+
+class CrearAño(VistaCrearObjeto):
+    template_name = "años/form.html"
+    model = Año
+    form_class = FormAño
+    success_url = reverse_lazy("años")
+
+
+class ActualizarAño(VistaActualizarObjeto):
+    template_name = "años/form.html"
+    model = Año
+    form_class = FormAño
+    success_url = reverse_lazy("años")
 
 
 @login_required
