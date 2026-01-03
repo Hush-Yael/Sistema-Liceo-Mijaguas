@@ -28,7 +28,6 @@ class Año(models.Model):
 
     class Meta:
         db_table = "años"
-        verbose_name_plural = "Años"
 
     def __str__(self):
         return self.nombre
@@ -52,7 +51,7 @@ class Seccion(models.Model):
         ordering = ["año", "letra"]
         db_table = "secciones"
         unique_together = ["año", "letra"]
-        verbose_name_plural = "Secciones"
+        verbose_name_plural = "secciones"
 
     def unique_error_message(self, model_class, unique_check, *args, **kwargs):
         if model_class is type(self) and unique_check == ("año", "letra"):
@@ -110,7 +109,7 @@ class Profesor(models.Model):
 
     class Meta:
         db_table = "profesores"
-        verbose_name_plural = "Profesores"
+        verbose_name_plural = "profesores"
 
     def __str__(self):
         return f"{self.nombres} {self.apellidos}"
@@ -149,8 +148,6 @@ class Lapso(models.Model):
 
     class Meta:
         db_table = "lapsos"
-        verbose_name = "lapso"
-        verbose_name_plural = "Lapsos"
 
     def __str__(self):
         return f"{self.nombre} - {self.fecha_inicio} / {self.fecha_fin}"
@@ -164,7 +161,7 @@ class AñoMateria(models.Model):
         db_table = "años_materias"
         unique_together = ["año", "materia"]
         verbose_name = "materia asignada a año"
-        verbose_name_plural = "Materias asignadas por años"
+        verbose_name_plural = "asignaciones de años a materias"
 
     def unique_error_message(self, model_class, unique_check, *args, **kwargs):
         if model_class is type(self) and unique_check == ("año", "materia"):
@@ -191,7 +188,7 @@ class ProfesorMateria(models.Model):
         db_table = "profesores_materias"
         unique_together = ["profesor", "materia", "seccion"]
         verbose_name = "materia impartida por profesor"
-        verbose_name_plural = "Materias impartidas por profesores"
+        verbose_name_plural = "materias impartidas por profesores"
 
     def unique_error_message(self, model_class, unique_check, *args, **kwargs):
         if model_class is type(self) and unique_check == (
@@ -253,7 +250,7 @@ class Bachiller(models.Model):
     class Meta:
         db_table = "bachilleres"
         verbose_name = "bachiller"
-        verbose_name_plural = "Bachilleres"
+        verbose_name_plural = "bachilleres"
 
     def __str__(self):
         return f"Bachiller {self.estudiante} - promo. {self.promocion} ({self.fecha_graduacion.strftime('%d/%m/%Y')})"
@@ -291,7 +288,6 @@ class Nota(models.Model):
 
     class Meta:
         db_table = "notas"
-        verbose_name_plural = "Notas"
 
     def __str__(self):
         return (
