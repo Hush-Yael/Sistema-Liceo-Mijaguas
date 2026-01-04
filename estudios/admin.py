@@ -34,9 +34,8 @@ from django.core.exceptions import PermissionDenied
 
 @admin.register(Año)
 class AñoAdmin(ModelAdmin):
-    list_display = ["numero", "nombre", "nombre_corto", "fecha_creacion"]
-    list_filter = ["numero"]
-    search_fields = ["nombre", "numero"]
+    list_display = ["nombre", "nombre_corto", "fecha_creacion"]
+    search_fields = ["nombre"]
     readonly_fields = ["fecha_creacion"]
 
 
@@ -46,7 +45,7 @@ class SeccionAdmin(ModelAdmin):
         "nombre",
         "letra",
         "vocero",
-        "capacidad_maxima",
+        "capacidad",
     ]
     list_filter = ["año", "letra"]
     search_fields = ["nombre", "letra"]
@@ -203,11 +202,11 @@ class ProfesorMateriaAdmin(LetraSeccionModelo, ModelAdmin):
 @admin.register(Matricula)
 class MatriculaAdmin(ModelAdmin):
     form = MatriculaAdminForm
-    list_display = ["estudiante", "seccion", "fecha_matricula", "estado", "lapso"]
+    list_display = ["estudiante", "seccion", "fecha_añadida", "estado", "lapso"]
     list_filter = [AñoNombreCortoFiltro, SeccionLetraFiltro, "lapso"]
     search_fields = ["estudiante__nombres", "estudiante__apellidos"]
     autocomplete_fields = ["estudiante", "seccion"]
-    ordering = ["-fecha_matricula"]
+    ordering = ["-fecha_añadida"]
 
     def get_form(self, request, obj=None, *args, **kwargs):
         form = super().get_form(request, obj, **kwargs)

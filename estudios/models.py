@@ -5,12 +5,6 @@ from django.utils import timezone
 
 
 class Año(models.Model):
-    numero = models.IntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(5)],
-        verbose_name="número",
-        unique=True,
-        error_messages={"unique": "Ya existe un año con ese número."},
-    )
     nombre = models.CharField(
         max_length=100,
         unique=True,
@@ -37,7 +31,7 @@ class Seccion(models.Model):
     año = models.ForeignKey(Año, on_delete=models.CASCADE)
     letra = models.CharField(max_length=1)
     nombre = models.CharField(max_length=100)
-    capacidad_maxima = models.IntegerField(default=30)
+    capacidad = models.IntegerField(default=30)
     vocero = models.ForeignKey(
         "Estudiante",
         on_delete=models.SET_NULL,
@@ -45,7 +39,9 @@ class Seccion(models.Model):
         blank=True,
         related_name="secciones_vocero",
     )
-    fecha_creacion = models.DateTimeField(default=timezone.now)
+    fecha_creacion = models.DateTimeField(
+        default=timezone.now, verbose_name="fecha de creación"
+    )
 
     class Meta:
         ordering = ["año", "letra"]
@@ -90,21 +86,20 @@ class Profesor(models.Model):
         primary_key=True,
         verbose_name="cédula",
     )
-    nombres = models.CharField(max_length=100, verbose_name="nombres")
-    apellidos = models.CharField(max_length=100, verbose_name="apellidos")
+    nombres = models.CharField(max_length=100)
+    apellidos = models.CharField(max_length=100)
     telefono = models.CharField(
         max_length=15, blank=True, null=True, verbose_name="teléfono"
     )
     fecha_ingreso = models.DateTimeField(
         default=timezone.now, verbose_name="fecha de ingreso"
     )
-    esta_activo = models.BooleanField(default=True, verbose_name="activo")
+    esta_activo = models.BooleanField(default=True, verbose_name="está activo")
     usuario = models.OneToOneField(
         "usuarios.User",
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
-        verbose_name="usuario",
     )
 
     class Meta:
@@ -119,14 +114,13 @@ class Estudiante(models.Model):
     cedula = models.IntegerField(
         validators=[MinValueValidator(1)],
         unique=True,
-        primary_key=True,
         verbose_name="cédula",
     )
-    nombres = models.CharField(max_length=100, verbose_name="nombres")
-    apellidos = models.CharField(max_length=100, verbose_name="apellidos")
+    nombres = models.CharField(max_length=100)
+    apellidos = models.CharField(max_length=100)
     fecha_nacimiento = models.DateField(verbose_name="fecha de nacimiento")
     fecha_ingreso = models.DateField(
-        default=timezone.now, verbose_name="fecha de matricula"
+        default=timezone.now, verbose_name="fecha de ingreso"
     )
 
     class Meta:
@@ -134,7 +128,7 @@ class Estudiante(models.Model):
         db_table = "estudiantes"
 
     def __str__(self):
-        return f"{self.nombres} {self.apellidos}"
+        return f"{self.cedula} - {self.nombres} {self.apellidos}"
 
 
 class Lapso(models.Model):
@@ -218,7 +212,7 @@ class Matricula(models.Model):
 
     estudiante = models.ForeignKey(Estudiante, on_delete=models.CASCADE)
     seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE)
-    fecha_matricula = models.DateTimeField(default=timezone.now)
+    fecha_añadida = models.DateTimeField(default=timezone.now)
     estado = models.CharField(max_length=10, choices=ESTADOS, default="activo")
     lapso = models.ForeignKey(
         Lapso,
@@ -245,7 +239,9 @@ class Matricula(models.Model):
 class Bachiller(models.Model):
     promocion = models.CharField(max_length=50, verbose_name="promoción")
     estudiante = models.OneToOneField(Estudiante, on_delete=models.CASCADE)
-    fecha_graduacion = models.DateField(default=timezone.now)
+    fecha_graduacion = models.DateField(
+        default=timezone.now, verbose_name="fecha de graduación"
+    )
 
     class Meta:
         db_table = "bachilleres"

@@ -4,7 +4,7 @@
 import os
 import sys
 
-from constantes import DEV
+from app.settings import DEV
 
 
 def main():

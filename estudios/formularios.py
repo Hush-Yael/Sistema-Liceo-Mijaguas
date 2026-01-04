@@ -6,15 +6,13 @@ from datetime import date
 class FormAño(forms.ModelForm):
     class Meta:
         model = Año
-        fields = ("numero", "nombre", "nombre_corto")
+        fields = ("nombre", "nombre_corto")
         labels = {
-            "numero": "Número del año",
             "nombre": "Nombre completo del año",
             "nombre_corto": "Nombre corto del año",
         }
 
         widgets = {
-            "numero": forms.NumberInput(attrs={"min": 1}),
             "nombre": forms.TextInput(attrs={"placeholder": "Ej: Primer año"}),
             "nombre_corto": forms.TextInput(attrs={"placeholder": "Ej: 1ero"}),
         }
@@ -43,7 +41,7 @@ class FormLapso(forms.ModelForm):
 
 
 asignaciones_campo = forms.ModelMultipleChoiceField(
-    queryset=Año.objects.all().order_by("numero"),
+    queryset=Año.objects.all(),
     widget=forms.CheckboxSelectMultiple(attrs={"id": "materia"}),
     initial=[],
     required=False,

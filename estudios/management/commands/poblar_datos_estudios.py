@@ -73,7 +73,7 @@ class Command(BaseCommand):
                 _, created = Seccion.objects.get_or_create(
                     año=año,
                     letra=letra,
-                    defaults={"nombre": nombre, "capacidad_maxima": 30},
+                    defaults={"nombre": nombre, "capacidad": 30},
                 )
                 if created:
                     secciones_creadas += 1

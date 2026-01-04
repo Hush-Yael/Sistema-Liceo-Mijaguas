@@ -34,7 +34,7 @@ class MatriculaAdminForm(forms.ModelForm):
         seccion = self.cleaned_data.get("seccion")
 
         if seccion is not None:
-            cantidad_maxima = Seccion.objects.get(id=seccion.id).capacidad_maxima
+            cantidad_maxima = Seccion.objects.get(id=seccion.id).capacidad
             cantidad_actual = Matricula.objects.filter(seccion=seccion).count()
 
             if cantidad_actual >= cantidad_maxima:
