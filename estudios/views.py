@@ -290,6 +290,11 @@ class ListaMaterias(VistaListaObjetos):
 
         return materias
 
+    def obtener_columnas(self):
+        super().obtener_columnas()
+        self.columnas.insert(1, {"clave": "asignaciones", "titulo": "Asignaciones"})
+        self.columnas_ocultables.insert(0, "Asignaciones")
+
     def get_context_data(self, *args, **kwargs):
         if not self.object_list:
             return super().get_context_data(*args, **kwargs)
