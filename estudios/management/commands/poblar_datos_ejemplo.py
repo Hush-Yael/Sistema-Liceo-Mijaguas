@@ -131,7 +131,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        año_objetivo: int = options["año"]
+        año_id: int = options["año"]
         limpiar_todo: bool = options["limpiar_todo"]
         limpiar_modelo: str = options["limpiar"]
         hacer_todo: bool = options["todo"]
@@ -174,7 +174,7 @@ class Command(BaseCommand):
 
         if hacer_todo or acciones["asignar-materias"]:
             profesores = Profesor.objects.all()
-            self.asignar_profesores_a_materias(profesores, año_objetivo)
+            self.asignar_profesores_a_materias(profesores, año_id)
 
         if hacer_todo or acciones["matriculas"]:
             estudiantes = Estudiante.objects.all()
@@ -186,7 +186,7 @@ class Command(BaseCommand):
 
             self.matricular_estudiantes(
                 estudiantes,
-                año_objetivo,
+                año_id,
                 options["lapso"],
                 options["seccion"],
             )
@@ -200,10 +200,10 @@ class Command(BaseCommand):
                 )
 
             cantidad = options["cantidad_notas"]
-            self.crear_notas(estudiantes, año_objetivo, cantidad, options["lapso"])
+            self.crear_notas(estudiantes, año_id, cantidad, options["lapso"])
 
-    def obtener_año_objetivo(self, año_objetivo: int):
-        if año_objetivo is None:
+    def obtener_año_id(self, año_id: int):
+        if año_id is None:
             return self.stdout.write(
                 self.style.ERROR(
                     "Debes proporcionar el número del año objetivo para esta operación."
@@ -211,11 +211,11 @@ class Command(BaseCommand):
             )
 
         try:
-            return Año.objects.get(numero=año_objetivo)
+            return Año.objects.get(id=año_id)
         except Año.DoesNotExist:
             return self.stdout.write(
                 self.style.ERROR(
-                    f"No existe el año número {año_objetivo}. "
+                    f"No existe el año número {año_id}. "
                     f"Ejecuta primero poblar_datos_estudios para crear los años por defecto."
                 )
             )
@@ -415,8 +415,8 @@ class Command(BaseCommand):
 
         self.stdout.write(f"✓ Total lapsos creados: {lapsos_creados}")
 
-    def asignar_profesores_a_materias(self, profesores, año_objetivo: int):
-        if (año := self.obtener_año_objetivo(año_objetivo)) is None:
+    def asignar_profesores_a_materias(self, profesores, año_id: int):
+        if (año := self.obtener_año_id(año_id)) is None:
             return
 
         self.stdout.write("Asignando profesores a materias por sección...")
@@ -454,12 +454,12 @@ class Command(BaseCommand):
     def matricular_estudiantes(
         self,
         estudiantes,
-        año_objetivo: int,
+        año_id: int,
         lapso_objetivo: int,
         seccion_objetivo: int,
     ):
         self.stdout.write(
-            f"Matriculando estudiantes {f'en todas las secciones del año {año_objetivo}...' if seccion_objetivo is None else f'en la sección {seccion_objetivo}...'}"
+            f"Matriculando estudiantes {f'en todas las secciones del año {año_id}...' if seccion_objetivo is None else f'en la sección {seccion_objetivo}...'}"
         )
 
         if (lapso := self.obtener_lapso_objetivo(lapso_objetivo)) is None:
@@ -469,7 +469,7 @@ class Command(BaseCommand):
         ya_matriculados = 0
 
         if seccion_objetivo is not None:
-            if año_objetivo is not None:
+            if año_id is not None:
                 self.stdout.write(
                     self.style.WARNING(
                         "Advertencia: al indicar la sección, el año indicado es ignorado."
@@ -504,7 +504,7 @@ class Command(BaseCommand):
                 else:
                     ya_matriculados += 1
         else:
-            if (año := self.obtener_año_objetivo(año_objetivo)) is None:
+            if (año := self.obtener_año_id(año_id)) is None:
                 return
 
             secciones = Seccion.objects.filter(año=año)
@@ -557,11 +557,11 @@ class Command(BaseCommand):
             self.stdout.write(f"✓ Total matriculas creadas: {matriculas_creadas}")
 
     def crear_notas(
-        self, estudiantes, año_objetivo: int, cantidad_notas: int, lapso_objetivo: int
+        self, estudiantes, año_id: int, cantidad_notas: int, lapso_objetivo: int
     ):
         self.stdout.write("Creando notas por sección...")
 
-        if (año := self.obtener_año_objetivo(año_objetivo)) is None or (
+        if (año := self.obtener_año_id(año_id)) is None or (
             lapso := self.obtener_lapso_objetivo(lapso_objetivo)
         ) is None:
             return

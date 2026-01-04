@@ -129,7 +129,7 @@
     {% else %}
       <ul class="flex flex-wrap gap-2">
         {% for año in lista_años %}
-          {% if año.numero in objeto.asignaciones %}
+          {% if año.id in objeto.asignaciones %}
             <li>
               <span
                 class="rounded-full p-0.5 px-2 text-sm ui-elevado-2"

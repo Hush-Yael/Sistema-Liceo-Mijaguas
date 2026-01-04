@@ -19,11 +19,11 @@ from django.db.utils import IntegrityError
 
 
 AÑOS = [
-    (1, "Primer Año", "1ero"),
-    (2, "Segundo Año", "2do"),
-    (3, "Tercer Año", "3ero"),
-    (4, "Cuarto Año", "4to"),
-    (5, "Quinto Año", "5to"),
+    ("Primer Año", "1ero"),
+    ("Segundo Año", "2do"),
+    ("Tercer Año", "3ero"),
+    ("Cuarto Año", "4to"),
+    ("Quinto Año", "5to"),
 ]
 
 MATERIAS = [
@@ -51,9 +51,9 @@ class Command(BaseCommand):
 
         años_creados = 0
 
-        for num, nombre, nombre_corto in AÑOS:
+        for nombre, nombre_corto in AÑOS:
             _, created = Año.objects.get_or_create(
-                numero=num, nombre=nombre, nombre_corto=nombre_corto
+                nombre=nombre, nombre_corto=nombre_corto
             )
             if created:
                 años_creados += 1
@@ -93,7 +93,7 @@ class Command(BaseCommand):
         materias_asignadas = 0
 
         for materia in MATERIAS:
-            for num, _, _ in AÑOS:
+            for num in range(len(AÑOS)):
                 # evitar asignar ciertas materias a todos los años, solo a algunos
                 if (
                     materia in MATERIAS_PUNTUALES
@@ -101,10 +101,13 @@ class Command(BaseCommand):
                 ):
                     continue
 
-                _, asignada = AñoMateria.objects.get_or_create(
-                    materia=Materia.objects.get(nombre=materia),
-                    año=Año.objects.get(numero=num),
-                )
+                try:
+                    _, asignada = AñoMateria.objects.get_or_create(
+                        año=Año.objects.get(id=num),
+                        materia=Materia.objects.get(nombre=materia),
+                    )
+                except:
+                    continue
 
                 if asignada:
                     self.stdout.write(f"✓ Asignada materia {materia} al año {num}")

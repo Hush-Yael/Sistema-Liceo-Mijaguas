@@ -110,7 +110,7 @@ class NotaAñoNombreCortoFiltro(admin.SimpleListFilter):
             ]
         # todos los años
         else:
-            años = Año.objects.values("id", "nombre_corto").order_by("numero")
+            años = Año.objects.values("id", "nombre_corto")
 
             return [
                 (año["id"], año["nombre_corto"])  # pyright: ignore[reportAttributeAccessIssue]

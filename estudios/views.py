@@ -270,23 +270,16 @@ class ListaMaterias(VistaListaObjetos):
         materias = list(Materia.objects.values().order_by("nombre"))
 
         if materias:
-            años = años = Año.objects.values("numero", "nombre_corto").order_by(
-                "numero"
-            )
+            años = Año.objects.values("id", "nombre_corto")
             self.lista_años = list(años)
-            asignaciones = list(AñoMateria.objects.values("año__numero", "materia__id"))
+            asignaciones = list(AñoMateria.objects.values("año_id", "materia__id"))
 
             for materia in materias:
-                materia["asignaciones"] = []
-
-                for año in años:
-                    if asignaciones.__contains__(
-                        {
-                            "año__numero": año["numero"],
-                            "materia__id": materia["id"],
-                        }
-                    ):
-                        materia["asignaciones"].append(año["numero"])
+                materia["asignaciones"] = [
+                    asignacion["año_id"]
+                    for asignacion in asignaciones
+                    if (asignacion["materia__id"] == materia["id"])
+                ]
 
         return materias
 
@@ -438,7 +431,7 @@ class ListaAños(VistaListaObjetos):
     model = Año
 
     def get_queryset(self, *args, **kwargs) -> "list[dict]":
-        return super().get_queryset(Año.objects.all().order_by("numero"))
+        return super().get_queryset(Año.objects.all())
 
 
 class CrearAño(VistaCrearObjeto):
