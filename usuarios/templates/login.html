@@ -52,9 +52,10 @@
     </form>
 
     {% if form.errors %}
-      {% with mensaje_alerta="Los datos ingresados no son correctos" %}
-        {% include "componentes/alerta.html" %}
-      {% endwith %}
+      <div role="alert" class="rounded p-2 px-4 bg-peligro text-peligro-texto">
+        {% include "componentes/iconos/alerta.html" with class="size-5 mr-2" %}
+        Los datos ingresados no son correctos
+      </div>
     {% endif %}
   </main>
 {% endblock %}
