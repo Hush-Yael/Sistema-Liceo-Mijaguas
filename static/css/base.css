@@ -67,6 +67,10 @@ label:has(input:disabled) {
   cursor: not-allowed !important;
 }
 
+[x-ref="enlaces"] {
+  transition-property: opacity, translate, display, height;
+}
+
 [x-cloak=""] {
   display: none !important;
 }

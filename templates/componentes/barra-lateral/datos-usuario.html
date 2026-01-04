@@ -6,8 +6,8 @@
   <div
     class="{{ "col gap-y-1 sidebar:max-sidebar_full:(block) sidebar:mt-5"|expandir_variantes }}"
   >
-    <a class="group w-full" href="{% url 'perfil' %}"
-      ><figure
+    <a class="group w-full" href="{% url 'perfil' %}">
+      <figure
         class="{{
           '
             group/f relative flex aic gap-x-3 group-hover:bg-#fff2
@@ -33,10 +33,10 @@
         >
           {% partial info %}
         </figcaption>
-      </figure></a
-    >
+      </figure>
+    </a>
 
-    {% include "componentes/barra-lateral/link.html#enlace" with icono="logout" class=link_class path_actual=path_actual href=logout_href label="Cerrar sesión" %}
+    {% include "componentes/barra-lateral/link.html#enlace" with icono="logout" class=link_class href=logout_href label="Cerrar sesión" %}
   </div>
 {% else %}
   {% with class="hidden sidebar:max-sidebar_full:block" %}
@@ -45,11 +45,11 @@
   <a
     href="{% url 'login' %}"
     class="{{
-      '
+      "
         group relative fc gap-x-2 ui-btn p-1.5 mt-4 mx-3 rounded-full bg-primario-texto text-primario font-500
         sidebar:max-sidebar_full:(mxa size-8 aspect-square)
         sidebar_full:mx-3
-      '
+      "
       |reemplazar_espacios:' '|expandir_variantes
     }}"
   >

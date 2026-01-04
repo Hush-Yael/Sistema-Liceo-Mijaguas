@@ -6,13 +6,11 @@
     <a
       href="{{ href }}"
       class="{{ class }}"
-      {% if path_actual == href %}
+      {% if request.path == href %}
         aria-current="page"
       {% endif %}
     >
-      {% with class="" %}
-        {% include "componentes/iconos/nav.html#"|add:icono %}
-      {% endwith %}
+      {% include "componentes/iconos/nav.html#"|add:icono with class=icono_class %}
       <span class="{{ label_class }}"> {{ label }} </span>
     </a>
   {% endpartialdef enlace %}
