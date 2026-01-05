@@ -57,7 +57,11 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
                 ),
                 si_permitido(
                     "estudios.view_nota",
-                    {"label": "Lista de notas", "icono_nombre": "tabla"},
+                    {
+                        "label": "Lista de notas",
+                        "icono_nombre": "tabla",
+                        "href": reverse_lazy("notas"),
+                    },
                 ),
                 si_permitido(
                     "estudios.view_nota",
