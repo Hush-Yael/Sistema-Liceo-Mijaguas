@@ -39,16 +39,18 @@ class VistaListaObjetos(Vista, ListView):
     context_object_name = "lista_objetos"
     articulo_nombre_plural = "los"
     columnas: "list[dict[str, str]]"
-    columnas_a_evitar: "list[str]" = []
+    columnas_a_evitar: "set[str]" = set()
     columnas_ocultables: "list[str]"
 
     def __init__(self):
         setattr(self, "nombre_modelo_plural", self.model._meta.verbose_name_plural)
-        self.obtener_columnas()
+
+        if not hasattr(self, "columnas") or not self.columnas:
+            self.establecer_columnas()
 
         super().__init__()
 
-    def obtener_columnas(self):
+    def establecer_columnas(self):
         columnas = filter(
             lambda col: col.name != "id" and col.name not in self.columnas_a_evitar,
             self.model._meta.fields,  # type: ignore

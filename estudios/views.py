@@ -283,8 +283,8 @@ class ListaMaterias(VistaListaObjetos):
 
         return materias
 
-    def obtener_columnas(self):
-        super().obtener_columnas()
+    def establecer_columnas(self):
+        super().establecer_columnas()
         self.columnas.insert(1, {"clave": "asignaciones", "titulo": "Asignaciones"})
         self.columnas_ocultables.insert(0, "Asignaciones")
 
