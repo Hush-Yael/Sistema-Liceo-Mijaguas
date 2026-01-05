@@ -1,10 +1,8 @@
 {% load grupos_variantes %}
 
-{% if datos_paginados.paginator.num_pages > 1 %}
+{% if page_obj.paginator.num_pages > 1 %}
   <div
     class="{{ class|default:''|add:' sticky bottom-0 flex flex-wrap aic justify-between gap-y-2 gap-x-6 w-full p-2 px-3 border border-[--borde-caja] bg-fondo-500 max-[500px]:text-sm' }}"
-    hx-target="{{ hx_target }}"
-    hx-include="{{ hx_include }}"
     hx-indicator="#indicador-pagina"
   >
     <div class="flex aic gap-x-2">
@@ -18,20 +16,20 @@
       </div>
 
       <p class="min-w-max" role="status">
-        Página <b>{{ datos_paginados.number }}</b> de
-        <b>{{ datos_paginados.paginator.num_pages }}</b>
+        Página <b>{{ page_obj.number }}</b> de
+        <b>{{ page_obj.paginator.num_pages }}</b>
       </p>
     </div>
 
     <nav>
       <ul
-        class="{{ "flex flex-wrap gap-1.5 [&_button]:(ui-btn size-7 aspect-square gap-2 p-[.25rem_.625rem] font-600 ui-elevado-2 border-[--transparente-2] select-none)"|expandir_variantes }}"
+        class="{{ 'flex flex-wrap gap-1.5 [&_button]:(ui-btn size-7 aspect-square gap-2 p-[.25rem_.625rem] font-600 ui-elevado-2 border-[--transparente-2] select-none)'|expandir_variantes }}"
       >
-        {% if datos_paginados.has_previous %}
+        {% if page_obj.has_previous %}
           <li>
             <button
-              hx-vals='{"pagina": 1, "solo_tabla": true }'
-              hx-post="{{ hx_post }}"
+              hx-get
+              hx-vals='{"page": 1, "solo_tabla": true }'
               class="p-0!"
               aria-label="Primera página"
             >
@@ -52,11 +50,11 @@
             </button>
           </li>
 
-          {% if datos_paginados.previous_page_number != 1 %}
+          {% if page_obj.previous_page_number != 1 %}
             <li>
               <button
-                hx-vals='{"pagina": {{ datos_paginados.previous_page_number }}, "solo_tabla": true }'
-                hx-post="{{ hx_post }}"
+                hx-get
+                hx-vals='{"page": {{ page_obj.previous_page_number }}, "solo_tabla": true }'
                 class="p-0!"
                 aria-label="Página anterior"
               >
@@ -66,20 +64,20 @@
           {% endif %}
         {% endif %}
 
-        {% if datos_paginados.number|add:'-3' > 1 %}
+        {% if page_obj.number|add:'-3' > 1 %}
           <li>
             <button
-              hx-vals='{"pagina": {{ datos_paginados.number|add:"-4" }}, "solo_tabla": true }'
-              hx-post="{{ hx_post }}"
-              aria-label="Ir a la página {{ datos_paginados.number|add:'-4' }}"
+              hx-get
+              hx-vals='{"page": {{ page_obj.number|add:"-4" }}, "solo_tabla": true }'
+              aria-label="Ir a la página {{ page_obj.number|add:'-4' }}"
             >
               &hellip;
             </button>
           </li>
         {% endif %}
 
-        {% for num in datos_paginados.paginator.page_range %}
-          {% if datos_paginados.number == num %}
+        {% for num in page_obj.paginator.page_range %}
+          {% if page_obj.number == num %}
             <li>
               {% comment %}
                 este input se usa para poder enviar la página actual junto con
@@ -98,12 +96,12 @@
                 {{ num }}
               </button>
             </li>
-          {% elif num > datos_paginados.number|add:'-3' and num < datos_paginados.number|add:'3' %}
+          {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
             <li>
               <button
                 class="ui-elevado"
-                hx-vals='{"pagina": {{ num }}, "solo_tabla": true }'
-                hx-post="{{ hx_post }}"
+                hx-get
+                hx-vals='{"page": {{ num }}, "solo_tabla": true }'
                 aria-label="Ir a la página {{ num }}"
               >
                 {{ num }}
@@ -112,24 +110,24 @@
           {% endif %}
         {% endfor %}
 
-        {% if datos_paginados.paginator.num_pages > datos_paginados.number|add:'3' %}
+        {% if page_obj.paginator.num_pages > page_obj.number|add:'3' %}
           <li>
             <button
-              hx-vals='{"pagina": {{ datos_paginados.number|add:"4" }}, "solo_tabla": true }'
-              hx-post="{{ hx_post }}"
-              aria-label="Ir a la página {{ datos_paginados.number|add:'4' }}"
+              hx-get
+              hx-vals='{"page": {{ page_obj.number|add:"4" }}, "solo_tabla": true }'
+              aria-label="Ir a la página {{ page_obj.number|add:'4' }}"
             >
               &hellip;
             </button>
           </li>
         {% endif %}
 
-        {% if datos_paginados.has_next %}
-          {% if datos_paginados.next_page_number != datos_paginados.paginator.num_pages %}
+        {% if page_obj.has_next %}
+          {% if page_obj.next_page_number != page_obj.paginator.num_pages %}
             <li>
               <button
-                hx-vals='{"pagina": {{ datos_paginados.next_page_number }}, "solo_tabla": true }'
-                hx-post="{{ hx_post }}"
+                hx-get
+                hx-vals='{"page": {{ page_obj.next_page_number }}, "solo_tabla": true }'
                 class="p-0!"
                 aria-label="Página siguiente"
               >
@@ -139,8 +137,8 @@
           {% endif %}
           <li>
             <button
-              hx-vals='{"pagina": {{ datos_paginados.paginator.num_pages }}, "solo_tabla": true }'
-              hx-post="{{ hx_post }}"
+              hx-get
+              hx-vals='{"page": {{ page_obj.paginator.num_pages }}, "solo_tabla": true }'
               class="p-0!"
               aria-label="Última página"
             >

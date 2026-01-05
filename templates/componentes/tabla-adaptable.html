@@ -177,7 +177,7 @@
 
           <td class="fila-n numeros">
             {% if url_parcial_paginado %}
-              {% with total_anterior=lista_objetos.number|add:-1|multiplicar:cantidad_por_pagina %}
+              {% with total_anterior=page_obj.number|add:-1|multiplicar:view.paginate_by %}
                 {# se multiplica la cantidad por página de acuerdo a la cantidad recorrida y la cantidad de objetos por página y se le añade cada valor del ciclo actual #}
                 {{ total_anterior|add:forloop.counter }}
               {% endwith %}
@@ -238,9 +238,7 @@
     </tbody>
   </table>
 
-  {% if url_parcial_paginado %}
-    {% include url_parcial_paginado %}
-  {% endif %}
+  {% include "componentes/paginacion.html" %}
 
   {% if url_parcial_acciones %}
     <div
