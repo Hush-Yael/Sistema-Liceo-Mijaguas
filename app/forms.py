@@ -129,21 +129,27 @@ class BusquedaFormMixin(CookieFormMixin, forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        cantidad_por_pagina = forms.IntegerField(
+            label="Cantidad por página",
+            min_value=1,
+            initial=50,
+            required=False,
+        )
         self.fields[f"{self.seccion_prefijo_cookie}_cantidad_por_pagina"] = (
-            forms.IntegerField(
-                label="Cantidad por página",
-                min_value=1,
-                initial=50,
-                required=False,
-            )
+            cantidad_por_pagina
+        )
+        self.base_fields[f"{self.seccion_prefijo_cookie}_cantidad_por_pagina"] = (
+            cantidad_por_pagina
         )
 
-        self.fields[f"{self.seccion_prefijo_cookie}_tipo_busqueda"] = forms.ChoiceField(
+        tipo_busqueda = forms.ChoiceField(
             label="Tipo de búsqueda",
             initial=opciones_tipo_busqueda[0][0],
             choices=opciones_tipo_busqueda,
             required=False,
         )
+        self.fields[f"{self.seccion_prefijo_cookie}_tipo_busqueda"] = tipo_busqueda
+        self.base_fields[f"{self.seccion_prefijo_cookie}_tipo_busqueda"] = tipo_busqueda
 
         if not self.opciones_columna_buscar:
             self.opciones_columna_buscar = [
@@ -152,11 +158,13 @@ class BusquedaFormMixin(CookieFormMixin, forms.Form):
                 if f.name not in self.columnas_a_evitar
             ]
 
-        self.fields[f"{self.seccion_prefijo_cookie}_columna_buscada"] = (
-            forms.ChoiceField(
-                label="Buscar por",
-                initial=self.opciones_columna_buscar[0][0],
-                choices=self.opciones_columna_buscar,
-                required=False,
-            )
+        columna_buscada = forms.ChoiceField(
+            label="Buscar por",
+            initial=self.opciones_columna_buscar[0][0],
+            choices=self.opciones_columna_buscar,
+            required=False,
+        )
+        self.fields[f"{self.seccion_prefijo_cookie}_columna_buscada"] = columna_buscada
+        self.base_fields[f"{self.seccion_prefijo_cookie}_columna_buscada"] = (
+            columna_buscada
         )
