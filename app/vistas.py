@@ -1,8 +1,13 @@
-from typing import Type
+from typing import Mapping, Type, Any
 from django import forms
 from django.contrib import messages
 from django.db import models
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
+from django.http import (
+    HttpRequest,
+    HttpResponse,
+    HttpResponseBadRequest,
+    HttpResponseForbidden,
+)
 from django.shortcuts import render
 from django.urls import path
 from django.views.generic import ListView
@@ -10,6 +15,8 @@ from django.views.generic.detail import SingleObjectTemplateResponseMixin
 from django.views.generic.edit import CreateView, UpdateView
 from app import HTTPResponseHXRedirect
 from django.contrib.auth.mixins import PermissionRequiredMixin
+
+from app.forms import BusquedaFormMixin
 
 
 class Vista(PermissionRequiredMixin):
@@ -41,6 +48,7 @@ class VistaListaObjetos(Vista, ListView):
     columnas: "list[dict[str, str]]"
     columnas_a_evitar: "set[str]" = set()
     columnas_ocultables: "list[str]"
+    form_filtros: BusquedaFormMixin
 
     def __init__(self):
         setattr(self, "nombre_modelo_plural", self.model._meta.verbose_name_plural)
@@ -64,13 +72,64 @@ class VistaListaObjetos(Vista, ListView):
         )
 
     def get_queryset(self, queryset: models.QuerySet) -> "list[dict]":  # type: ignore
+        """Retorna una lista de diccionarios con los datos de los objetos de la base de datos. Si se indica un form de filtros, se modifican los datos de acuerdo a los filtros indicados en el form."""
+
         if queryset:
+            # se indicó un form de filtros
+            if hasattr(self, "form_filtros"):
+                datos_request = (
+                    self.request.GET
+                    if self.request.method == "GET"
+                    else self.request.POST
+                )
+
+                # se debe distinguir entre GET y POST, ya que por alguna razón GET no funciona correctamente si se le pasan los datos: evita que se recuperen los datos de las cookies
+                if self.request.method == "GET":
+                    self.form_filtros = self.form_filtros(request=self.request)  # type: ignore
+                elif self.request.method == "POST":
+                    self.form_filtros = self.form_filtros(  # type: ignore
+                        datos_request, request=self.request
+                    )
+
+                if self.form_filtros.is_valid():
+                    form_datos = self.form_filtros.cleaned_data
+                else:
+                    form_datos = self.form_filtros.initial
+
+                # modificar queryset de acuerdo a los filtros
+                queryset = self.aplicar_filtros(
+                    queryset=queryset,
+                    datos_request=datos_request,
+                    datos_form=form_datos,
+                )
+
             return list(queryset)
         else:
             return []
 
+    def aplicar_filtros(
+        self,
+        queryset: models.QuerySet,
+        datos_request: "dict[str, Any]",
+        datos_form: "dict[str, Any] | Mapping[str, Any]",
+    ):
+        try:
+            cantidad_por_pagina = int(
+                datos_form.get(
+                    f"{self.form_filtros.seccion_prefijo_cookie}_cantidad_por_pagina",
+                    "0",
+                )
+            )
+        except (TypeError, ValueError):
+            cantidad_por_pagina = 0
+
+        if cantidad_por_pagina > 0:
+            self.paginate_by = cantidad_por_pagina
+
+        return queryset
+
     def get_context_data(self, *args, **kwargs):
-        ctx = super().get_context_data()
+        ctx = super().get_context_data(*args, **kwargs)
 
         try:
             ctx["modelos_relacionados"] = list(
@@ -82,18 +141,47 @@ class VistaListaObjetos(Vista, ListView):
         except Exception:
             ctx["modelos_relacionados"] = []
 
-        ctx["permisos"] = {
-            "editar": self.request.user.has_perm(  # type: ignore
-                f"{self.nombre_app_modelo}.edit_{self.nombre_modelo}"
-            ),
-            "crear": self.request.user.has_perm(  # type: ignore
-                f"{self.nombre_app_modelo}.add_{self.nombre_modelo}"
-            ),
-            "eliminar": self.request.user.has_perm(  # type: ignore
-                f"{self.nombre_app_modelo}.delete_{self.nombre_modelo}"
-            ),
-        }
+        ctx.update(
+            {
+                "form_filtros": self.form_filtros
+                if hasattr(self, "form_filtros")
+                else None,
+                "permisos": {
+                    "editar": self.request.user.has_perm(  # type: ignore
+                        f"{self.nombre_app_modelo}.edit_{self.nombre_modelo}"
+                    ),
+                    "crear": self.request.user.has_perm(  # type: ignore
+                        f"{self.nombre_app_modelo}.add_{self.nombre_modelo}"
+                    ),
+                    "eliminar": self.request.user.has_perm(  # type: ignore
+                        f"{self.nombre_app_modelo}.delete_{self.nombre_modelo}"
+                    ),
+                },
+            }
+        )
         return ctx
+
+    def get(self, request: HttpRequest, *args, **kwargs):  # noqa: F811
+        respuesta = super().get(request, *args, **kwargs)
+
+        # cambio la tabla pero no por filtros
+        if hasattr(self, "form_filtros") and request.GET.get("solo_tabla"):
+            respuesta.context_data["tabla_reemplazada_por_htmx"] = 1  # type: ignore
+            respuesta.template_name = self.template_name + "#tabla"  # type: ignore
+
+        return respuesta
+
+    # aplicación de filtros por POST
+    def post(self, request: HttpRequest, *args, **kwargs):  # noqa: F811
+        if self.form_filtros:
+            respuesta = super().get(request, *args, **kwargs)
+
+            respuesta.context_data["tabla_reemplazada_por_htmx"] = 1  # type: ignore
+            respuesta.template_name = self.template_name + "#tabla"  # type: ignore
+
+            return respuesta
+
+        return HttpResponse("No se indicó un form de filtros", status=405)
 
     def delete(self, request, *args, **kwargs):
         if not self.request.user.has_perm(  # type: ignore
@@ -131,6 +219,19 @@ class VistaListaObjetos(Vista, ListView):
             "lista-objetos.html#respuesta_cambios_tabla",
             ctx,
         )
+
+    def render_to_response(self, context, **response_kwargs):
+        response = super().render_to_response(context, **response_kwargs)
+
+        # Guardar filtros en cookies si el formulario es válido
+        if self.request.method == "POST" and hasattr(self, "form_filtros"):
+            if self.form_filtros.is_valid():
+                self.form_filtros.guardar_en_cookies(response)
+
+            # Recalcular columnas, pues pueden haberse ocultado o mostrado algunas
+            self.establecer_columnas()
+
+        return response
 
 
 class VistaForm(SingleObjectTemplateResponseMixin, Vista):

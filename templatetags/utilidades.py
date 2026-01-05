@@ -68,7 +68,7 @@ def a_negativo(valor):
 def obtener_lista_opciones(campo_choices):
     return list(
         map(
-            lambda t: {"id": t[0].value, "label": t[1]},
+            lambda t: {"id": str(t[0].value), "label": t[1]},
             campo_choices,
         )
     )

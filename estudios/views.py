@@ -1,6 +1,5 @@
 from django.http import (
     HttpRequest,
-    HttpResponse,
     HttpResponseBadRequest,
 )
 from django.http.request import QueryDict
@@ -8,15 +7,9 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q, F
 from django.urls import reverse_lazy
-
 from app.vistas import VistaActualizarObjeto, VistaCrearObjeto, VistaListaObjetos
-
 from estudios.formularios import FormAsignaciones, FormLapso, FormMateria, FormAño
-from estudios.utilidades_cookies import (
-    obtener_y_corregir_valores_iniciales,
-    render_con_cookies,
-    verificar_y_aplicar_filtros,
-)
+from estudios.formularios_busqueda import NotasBusquedaForm
 from .models import (
     Lapso,
     Seccion,
@@ -29,8 +22,6 @@ from .models import (
     Matricula,
     Nota,
 )
-from .formularios_busqueda import FormularioProfesorBusqueda, FormularioNotasBusqueda
-from django.core.paginator import Paginator
 
 
 def inicio(request: HttpRequest):
@@ -56,207 +47,121 @@ def inicio(request: HttpRequest):
     return render(request, "inicio.html", contexto)
 
 
-def profesores(request: HttpRequest):
-    profesores = None
-
-    form = FormularioProfesorBusqueda()
-
-    columna_buscada = request.COOKIES.get("profesores_columna", "apellidos")
-    tipo_busqueda = request.COOKIES.get("profesores_tipo_busqueda", "icontains")
-    orden = request.COOKIES.get("profesores_orden", "apellidos")
-    orden_col = orden
-    direccion = request.COOKIES.get("profesores_direccion", "asc")
-
-    if request.method == "POST":
-        form = FormularioProfesorBusqueda(request.POST)
-
-        if form.is_valid():
-            busqueda = form.cleaned_data["busqueda"].strip()
-
-            columna_buscada = form.cleaned_data["columna_buscada"]
-            tipo_busqueda = form.cleaned_data["tipo_busqueda"]
-            orden = form.cleaned_data["ordenar_por"]
-            direccion = form.cleaned_data["direccion_de_orden"]
-
-            if busqueda != "":
-                columna_buscada_key = f"{columna_buscada}{tipo_busqueda}"
-                profesores = Profesor.objects.filter(**{columna_buscada_key: busqueda})
-
-    if direccion == "desc":
-        orden_col = f"-{orden}"
-
-    if profesores is None:
-        profesores = Profesor.objects
-
-    profesores = profesores.order_by(orden_col).select_related("usuario").all()
-
-    form.initial = {
-        "columna_buscada": columna_buscada,
-        "tipo_busqueda": tipo_busqueda,
-        "ordenar_por": orden,
-        "direccion_de_orden": direccion,
-    }
-
-    response = render(
-        request,
-        "profesores.html",
-        {
-            "form": form,
-            "profesores": profesores,
-        },
-    )
-
-    response.set_cookie("profesores_columna", columna_buscada)
-    response.set_cookie("profesores_tipo_busqueda", tipo_busqueda)
-    response.set_cookie("profesores_orden", orden)
-    response.set_cookie("profesores_direccion", direccion)
-
-    return response
+def al_menos_un_filtro_aplicado(lista: "list[str]"):
+    if lista and ((len(lista) == 1 and lista[0] != "") or len(lista) > 1):
+        return lista
+    return None
 
 
-def notas(request: HttpRequest):
-    form = FormularioNotasBusqueda()
-
-    cookies_a_corregir = obtener_y_corregir_valores_iniciales(request.COOKIES, form)
-
-    hay_matriculas = Matricula.objects.exists()
-    hay_materias = Materia.objects.exists()
-    total = Nota.objects.count()
-
-    return render_con_cookies(
-        request,
-        "notas/index.html",
-        {
-            "form": form,
-            "total": total,
-            "hay_matriculas": hay_matriculas,
-            "hay_materias": hay_materias,
-        },
-        cookies_a_corregir,
-    )
-
-
-def al_menos_un_filtro_aplicado(lista: "list[str]") -> bool:
-    if lista:
-        if len(lista) == 1 and lista[0] != "":
-            return True
-        if len(lista) > 1:
-            return True
-
-    return False
-
-
-def notas_tabla(request: HttpRequest):
-    if request.method != "POST":
-        return HttpResponse("", status=405)  # type: ignore
-
-    datos = request.POST
-
-    form = FormularioNotasBusqueda(datos)
-
-    cookies_para_guardar = verificar_y_aplicar_filtros(form)
-
-    secciones = form.data.getlist("notas_secciones", [])  # type: ignore
-    lapsos = form.data.getlist("notas_lapsos", [])  # type: ignore
-    materias = form.data.getlist("notas_materias", [])  # type: ignore
-
-    # se añaden dinámicamente según el orden en el que se muestran
-    columnas = [
+class ListaNotas(VistaListaObjetos):
+    model = Nota
+    template_name = "notas/index.html"
+    paginate_by = 50
+    form_filtros = NotasBusquedaForm  # type: ignore
+    todas_las_columnas = [
         {
             "nombre_col": "matricula__estudiante",
             "titulo": "Estudiante",
             "clave": "estudiante",
         },
-        (
-            {"nombre_col": "materia", "titulo": "Materia", "clave": "materia"}
-            if not al_menos_un_filtro_aplicado(materias)  # type: ignore
-            else None
-        ),
-        (
-            {
-                "nombre_col": "matricula__seccion__nombre",
-                "titulo": "Sección",
-                "clave": "seccion_nombre",
-            }
-            if not al_menos_un_filtro_aplicado(secciones)  # type: ignore
-            else None
-        ),
-        {"nombre_col": "valor", "titulo": "Valor", "clave": "valor"},
-        (
-            {
-                "nombre_col": "matricula__lapso__nombre",
-                "titulo": "Lapso",
-                "clave": "lapso_nombre",
-            }
-            if not al_menos_un_filtro_aplicado(lapsos)  # type: ignore
-            else None
-        ),
+        {"nombre_col": "materia", "titulo": "Materia", "clave": "materia"},
+        {
+            "nombre_col": "matricula__seccion__nombre",
+            "titulo": "Sección",
+            "clave": "seccion_nombre",
+        },
+        {
+            "nombre_col": "valor",
+            "titulo": "Valor",
+            "clave": "valor",
+            "alinear": "derecha",
+        },
+        {
+            "nombre_col": "matricula__lapso__nombre",
+            "titulo": "Lapso",
+            "clave": "lapso_nombre",
+            "alinear": "derecha",
+        },
         {"nombre_col": "fecha", "titulo": "Fecha", "clave": "fecha"},
     ]
 
-    columnas = list(filter(None, columnas))
+    def establecer_columnas(self):
+        self.columnas = list(
+            filter(
+                lambda col: col["clave"] not in self.columnas_a_evitar,
+                self.todas_las_columnas,
+            )
+        )
 
-    notas = (
-        Nota.objects.annotate(  # type: ignore
+        self.columnas_ocultables = list(
+            map(lambda col: col["titulo"], self.columnas[1:])
+        )
+
+    def get_queryset(self, *args, **kwargs) -> "list[dict]":
+        queryset = Nota.objects.annotate(
             seccion_nombre=F("matricula__seccion__nombre"),
             lapso_nombre=F("matricula__lapso__nombre"),
-        )
-        .only(*[columna["nombre_col"] for columna in columnas])
-        .order_by("-fecha")
-    )
+        ).only(*[col["nombre_col"] for col in self.todas_las_columnas])
 
-    if al_menos_un_filtro_aplicado(secciones):  # type: ignore
-        notas = notas.filter(matricula__seccion_id__in=secciones)
+        self.total = queryset.count()
 
-    if al_menos_un_filtro_aplicado(lapsos):  # type: ignore
-        notas = notas.filter(matricula__lapso_id__in=lapsos)
+        return super().get_queryset(queryset)
 
-    if al_menos_un_filtro_aplicado(materias):  # type: ignore
-        notas = notas.filter(materia_id__in=materias)
+    def aplicar_filtros(self, queryset, datos_request, datos_form):
+        queryset = super().aplicar_filtros(queryset, datos_request, datos_form)
 
-    total_conjunto = notas.count()
-
-    nota_minima = float(form.data.get("notas_valor_minimo"))  # type: ignore
-    nota_maxima = float(form.data.get("notas_valor_maximo"))  # type: ignore
-
-    if nota_minima <= nota_maxima:
-        notas = notas.filter(valor__range=(nota_minima, nota_maxima))
-
-    busqueda = datos.get("q")
-    if isinstance(busqueda, str) and busqueda.strip() != "":
-        tipo_busqueda = form.data["notas_tipo_busqueda"]
-        columna_buscada = form.data["notas_columna_buscada"]
-
-        if columna_buscada == "nombres_apellidos":
-            notas = notas.filter(
-                Q(matricula__estudiante__nombres__icontains=busqueda)
-                | Q(matricula__estudiante__apellidos__icontains=busqueda)
-            )
+        if secciones := al_menos_un_filtro_aplicado(datos_form.get("notas_secciones")):  # type: ignore
+            queryset = queryset.filter(matricula__seccion_id__in=secciones)
+            self.columnas_a_evitar.add("seccion_nombre")
         else:
-            columna = {f"{columna_buscada}__{tipo_busqueda}": busqueda}
-            notas = notas.filter(**columna)
+            self.columnas_a_evitar.discard("seccion_nombre")
 
-    cantidad_por_pagina = int(datos.get("notas_cantidad_paginas", 10))  # type: ignore
-    paginador = Paginator(notas, cantidad_por_pagina)
+        if lapsos := al_menos_un_filtro_aplicado(datos_form.get("notas_lapsos")):  # type: ignore
+            queryset = queryset.filter(matricula__lapso_id__in=lapsos)
+            self.columnas_a_evitar.add("lapso_nombre")
+        else:
+            self.columnas_a_evitar.discard("lapso_nombre")
 
-    notas = paginador.get_page(datos.get("pagina", 1))
+        if materias := al_menos_un_filtro_aplicado(datos_form.get("notas_materias")):  # type: ignore
+            queryset = queryset.filter(materia_id__in=materias)
+            self.columnas_a_evitar.add("materia")
+        else:
+            self.columnas_a_evitar.discard("materia")
 
-    return render_con_cookies(
-        request,
-        "notas/contenido-tabla.html",
-        {
-            "notas": notas,
-            "total_conjunto": total_conjunto,
-            "paginador": paginador,
-            "cantidad_por_pagina": cantidad_por_pagina,
-            "form": form,
-            "columnas": columnas,
-            "columnas_ocultables": list(map(lambda x: x["titulo"], columnas[2 - 1 :])),
-            # Para indicar (al cambiar de página) que solo se cargue la tabla y la paginación, ya que lo demás no se actualiza
-            "solo_tabla": datos.get("solo_tabla", False),
-        },
-        cookies_para_guardar,
-    )
+        nota_minima = float(datos_form.get("notas_valor_minimo", 0))  # type: ignore
+        nota_maxima = float(datos_form.get("notas_valor_maximo", 20))  # type: ignore
+
+        if nota_minima <= nota_maxima:
+            queryset = queryset.filter(valor__range=(nota_minima, nota_maxima))
+
+        busqueda = datos_request.get("q")
+        if isinstance(busqueda, str) and busqueda.strip() != "":
+            tipo_busqueda = datos_form["notas_tipo_busqueda"]
+            columna_buscada = datos_form["notas_columna_buscada"]
+
+            if columna_buscada == "nombres_y_apellidos":
+                queryset = queryset.filter(
+                    Q(matricula__estudiante__nombres__icontains=busqueda)
+                    | Q(matricula__estudiante__apellidos__icontains=busqueda)
+                )
+            else:
+                columna = {f"{columna_buscada}__{tipo_busqueda}": busqueda}
+                queryset = queryset.filter(**columna)
+
+        return queryset
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super().get_context_data(*args, **kwargs)
+
+        ctx.update(
+            {
+                "hay_matriculas": Matricula.objects.exists(),
+                "hay_materias": Materia.objects.exists(),
+                "total": self.total,
+            }
+        )
+
+        return ctx
 
 
 class ListaMaterias(VistaListaObjetos):
@@ -376,8 +281,8 @@ class ActualizarMateria(VistaActualizarObjeto):
 
             for año in todos_los_años:
                 if años_seleccionados.__contains__(año) and not asignados.__contains__(
-                    año.id
-                ):  # type: ignore
+                    año.id  # type: ignore
+                ):
                     años_a_asignar.append(año)
 
             AñoMateria.objects.filter(materia=self.object).exclude(

@@ -26,8 +26,7 @@ function establecerTextoLabel() {
       .join(", ");
   } else
     return this.seleccionada
-      ? this.opciones.find((item) => item.id === Number(this.seleccionada))
-          .label
+      ? this.opciones.find((item) => item.id === this.seleccionada).label
       : "";
 }
 
@@ -80,7 +79,7 @@ function seleccionarOpcion(opcion) {
 
       for (let i = indiceInicio; i < indiceFin; i++)
         this.opcionesSeleccionadas[debeAñadir ? "add" : "delete"](
-          Number(inputs[i].value),
+          inputs[i].value,
         );
 
       this.shiftPresionado = false;
@@ -95,9 +94,9 @@ function seleccionarOpcion(opcion) {
       variasOpciones(opcion);
     else {
       // añadir la opción marcada al Set de opciones seleccionadas
-      if (opcion.checked) this.opcionesSeleccionadas.add(Number(opcion.value));
+      if (opcion.checked) this.opcionesSeleccionadas.add(opcion.value);
       // remover la opción desmarcada del Set de opciones seleccionadas
-      else this.opcionesSeleccionadas.delete(Number(opcion.value));
+      else this.opcionesSeleccionadas.delete(opcion.value);
 
       // guardar la última opción seleccionada, para usarla como referencia en el siguiente cambio, si se presiona shift
       this.ultimaSeleccionada = opcion;

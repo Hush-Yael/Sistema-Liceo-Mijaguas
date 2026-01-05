@@ -24,7 +24,7 @@
   <form
     class="flex flex-wrap gap-2"
     hx-trigger="click[verificarClickEnReiniciar()], change delay:800ms"
-    hx-post="{% url 'notas_tabla' %}"
+    hx-post
   >
     {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
       {% with 
@@ -36,27 +36,27 @@
         btn_reiniciar=1
       %}
         {% include "componentes/combobox.html" with
-          name=form.notas_materias.name
-          label=form.notas_materias.label
-          prefijo=form.notas_materias.label
-          opciones=form.notas_materias.field.choices|obtener_lista_opciones
-          opciones_seleccionadas=form.notas_materias.field.initial 
+          name=form_filtros.notas_materias.name
+          label=form_filtros.notas_materias.label
+          prefijo=form_filtros.notas_materias.label
+          opciones=form_filtros.notas_materias.field.choices|obtener_lista_opciones
+          opciones_seleccionadas=form_filtros.notas_materias.value
         %}
 
         {% include "componentes/combobox.html" with
-          name=form.notas_secciones.name
-          label=form.notas_secciones.label
-          prefijo=form.notas_secciones.label
-          opciones=form.notas_secciones.field.choices|obtener_lista_opciones
-          opciones_seleccionadas=form.notas_secciones.field.initial
+          name=form_filtros.notas_secciones.name
+          label=form_filtros.notas_secciones.label
+          prefijo=form_filtros.notas_secciones.label
+          opciones=form_filtros.notas_secciones.field.choices|obtener_lista_opciones
+          opciones_seleccionadas=form_filtros.notas_secciones.value
         %}
 
         {% include "componentes/combobox.html" with
-          name=form.notas_lapsos.name
-          label=form.notas_lapsos.label
-          prefijo=form.notas_lapsos.label
-          opciones=form.notas_lapsos.field.choices|obtener_lista_opciones
-          opciones_seleccionadas=form.notas_lapsos.field.initial
+          name=form_filtros.notas_lapsos.name
+          label=form_filtros.notas_lapsos.label
+          prefijo=form_filtros.notas_lapsos.label
+          opciones=form_filtros.notas_lapsos.field.choices|obtener_lista_opciones
+          opciones_seleccionadas=form_filtros.notas_lapsos.value
         %}
       {% endwith %}
     {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
@@ -89,7 +89,7 @@
         name="q"
         class="incluido-filtros flex-1 p-[.25rem_.75rem]  outline-0"
         type="search"
-        hx-post="{% url 'notas_tabla' %}"
+        hx-post
         hx-trigger="input changed delay:600ms"
         placeholder="Buscar..."
       />
@@ -120,8 +120,8 @@
           @click.outside="abierto = false"
           @keydown.escape="abierto = false"
           class="menu submenu"
-          hx-post="{% url 'notas_tabla' %}"
-          {# se evita que se ejecute la request de "/notas_tabla" al cambiar los filtros específicos de búsqueda cuando el campo de búsqueda está vacío, ya que no tendría sentido, pues los resultados serían los mismos #}
+          hx-post
+          {# se evita que se ejecute la request de "/notas" al cambiar los filtros específicos de búsqueda cuando el campo de búsqueda está vacío, ya que no tendría sentido, pues los resultados serían los mismos #}
           hx-trigger="change[$id('q').value.trim() !== ''] changed delay:600ms"
         >
           <summary class="flex aic gap-x-2" @click.prevent="abierto = !abierto">
@@ -131,13 +131,13 @@
 
           <div class="contenido-menu p-4">
             <div class="col gap-y-1">
-              {{ form.notas_tipo_busqueda.label_tag }}
-              {% render_field form.notas_tipo_busqueda class="ui-elevado-2 incluido-filtros" %}
+              {{ form_filtros.notas_tipo_busqueda.label_tag }}
+              {% render_field form_filtros.notas_tipo_busqueda class="ui-elevado-2 incluido-filtros" %}
             </div>
 
             <div class="col gap-y-1">
-              {{ form.notas_columna_buscada.label_tag }}
-              {% render_field form.notas_columna_buscada class="ui-elevado-2 incluido-filtros" %}
+              {{ form_filtros.notas_columna_buscada.label_tag }}
+              {% render_field form_filtros.notas_columna_buscada class="ui-elevado-2 incluido-filtros" %}
             </div>
           </div>
         </details>
@@ -149,7 +149,7 @@
           @click.outside="abierto = false"
           @keydown.escape="abierto = false"
           class="menu submenu"
-          hx-post="{% url 'notas_tabla' %}"
+          hx-post
           hx-trigger="input changed delay:600ms"
         >
           <summary class="flex aic gap-x-2" @click.prevent="abierto = !abierto">
@@ -157,28 +157,25 @@
             Valores de las notas
           </summary>
 
-          <div
-            class="contenido-menu p-4"
-            hx-trigger="change changed"
-            hx-post="{% url 'notas_tabla' %}"
-          >
+          <div class="contenido-menu p-4" hx-trigger="change changed" hx-post>
             <div class="flex gap-x-3 valor-nota">
-              {{ form.notas_valor_minimo.label_tag }}
-              {% render_field form.notas_valor_minimo class="ui-elevado-2 py-0! incluido-filtros" style="width: 6ch;" %}
+              {{ form_filtros.notas_valor_minimo.label_tag }}
+              {% render_field form_filtros.notas_valor_minimo class="ui-elevado-2 py-0! incluido-filtros" style="width: 6ch;" %}
             </div>
 
             <div class="flex gap-x-3 valor-nota">
-              {{ form.notas_valor_maximo.label_tag }}
-              {% render_field form.notas_valor_maximo class="ui-elevado-2 py-0! incluido-filtros" style="width: 6ch;" %}
+              {{ form_filtros.notas_valor_maximo.label_tag }}
+              {% render_field form_filtros.notas_valor_maximo class="ui-elevado-2 py-0! incluido-filtros" style="width: 6ch;" %}
             </div>
           </div>
         </details>
 
-        <div class="flex gap-x-3 flex aic [&_label]:min-w-max">
-          {{ form.notas_cantidad_paginas.label_tag }}
-          {% with vals='{"solo_tabla": true}' %}
-            {% render_field form.notas_cantidad_paginas class="ui-elevado-2 incluido-filtros" style="max-width: 6ch;" hx-trigger="input changed delay:600ms" hx-post="/notas_tabla/" hx-vals=vals %}
-          {% endwith %}
+        <div
+          class="flex gap-x-3 flex aic [&_label]:min-w-max"
+          hx-vals='{"solo_tabla": true}'
+        >
+          {{ form_filtros.notas_cantidad_por_pagina.label_tag }}
+          {% render_field form_filtros.notas_cantidad_por_pagina class="ui-elevado-2 incluido-filtros" style="max-width: 6ch;" hx-trigger="input changed delay:600ms" hx-post="" %}
         </div>
       </div>
     </details>

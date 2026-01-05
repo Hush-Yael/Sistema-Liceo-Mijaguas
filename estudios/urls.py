@@ -5,13 +5,7 @@ from . import views
 
 urlpatterns = [
     path("", views.inicio, name="inicio"),
-    path("profesores/", views.profesores, name="profesores"),
-    path("notas/", views.notas, name="notas"),
-    path(
-        "notas_tabla/",
-        views.notas_tabla,
-        name="notas_tabla",
-    ),
+    path("notas/", views.ListaNotas.as_view(), name="notas"),
     path(
         "estudiantes-matriculados/",
         views.estudiantes_matriculados_por_año,
