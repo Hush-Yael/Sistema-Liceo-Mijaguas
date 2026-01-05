@@ -1,5 +1,4 @@
 {% extends "lista-objetos.html" %}
-{% load utilidades %}
 {% load partials %}
 
 {% block contenido %}
@@ -25,10 +24,9 @@
 {% endpartialdef acciones %}
 
 {% partialdef datos_td %}
-
   {% if 'fecha_' in columna.clave %}
-    {{ objeto|valor_por_clave:columna.clave|date:"d F Y" }}
+    {{ dato|date:"d F Y" }}
   {% else %}
-    {{ objeto|valor_por_clave:columna.clave }}
+    {{ dato }}
   {% endif %}
 {% endpartialdef datos_td %}

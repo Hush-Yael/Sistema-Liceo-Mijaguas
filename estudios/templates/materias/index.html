@@ -1,5 +1,4 @@
 {% extends "lista-objetos.html" %}
-{% load utilidades %}
 {% load partials %}
 
 {% block contenido %}
@@ -143,8 +142,8 @@
       </ul>
     {% endif %}
   {% elif columna.clave == 'fecha_creacion' %}
-    {{ objeto.fecha_creacion|date:"d M. Y, h:i A" }}
+    {{ dato|date:"d M. Y, h:i A" }}
   {% else %}
-    {{ objeto|valor_por_clave:columna.clave }}
+    {{ dato }}
   {% endif %}
 {% endpartialdef datos_td %}
