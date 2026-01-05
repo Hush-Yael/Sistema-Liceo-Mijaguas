@@ -11,7 +11,7 @@
       seleccionada: {{ opcion_seleccionada|default:'null' }},
     {% else %}
       multiple: true,
-      opcionesSeleccionadas: new Set({{ opciones_seleccionadas|safe }}),
+      opcionesSeleccionadas: new Set({{ opciones_seleccionadas|default:''|safe }}),
     {% endif %}
     abiertoPorTeclado: false,
     shiftPresionado: false,
