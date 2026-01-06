@@ -156,10 +156,10 @@
                 {% if multiple == 0 %}
                   <input
                     type="radio"
-                    class="{{ c|add:' '|expandir_variantes }}"
+                    class="{{ c|add:' ui-opcion/radio'|expandir_variantes }}"
                     name="{{ name }}"
                     :value="item.id"
-                    :checked="seleccionada == item.id"
+                    :checked="seleccionada === item.id"
                     :id="'{{ name }}-opt-'+index"
                   />
                 {% else %}
