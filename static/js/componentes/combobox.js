@@ -1,4 +1,4 @@
-/** @typedef {{ id: number, label: string }} ComboboxOpcion */
+/** @typedef {{ id: string, label: string }} ComboboxOpcion */
 
 /**
  * @typedef {{
@@ -9,6 +9,7 @@
  *   shiftPresionado: boolean,
  *   multiple: boolean,
  *   reiniciar: () => void,
+ *   q: string,
  *   $el: HTMLDivElement
  * }} ComboboxContext
  **/
@@ -111,4 +112,75 @@ function seleccionarOpcion(opcion) {
 function reiniciar() {
   if (this.multiple) this.opcionesSeleccionadas.clear();
   else this.seleccionada = null;
+}
+
+/**
+ * @this {ComboboxContext}
+ * @param {KeyboardEvent} e
+ * **/
+// oxlint-disable-next-line no-unused-vars
+function manejarTeclas(e, $focus) {
+  switch (e.key) {
+    case "ArrowDown": {
+      e.preventDefault();
+      return $focus.wrap().next();
+    }
+    case "ArrowUp": {
+      e.preventDefault();
+      return $focus.wrap().previous();
+    }
+    case "Home": {
+      if (e.target.type !== "text") {
+        e.preventDefault();
+        return $focus.wrap().first();
+      }
+    }
+    case "End": {
+      if (e.target.type !== "text") {
+        e.preventDefault();
+        return $focus.wrap().last();
+      }
+    }
+    case "Enter": {
+      if (e.target !== e.currentTarget && e.target.type !== "text") {
+        e.preventDefault();
+        e.target.checked = !e.target.checked;
+        seleccionarOpcion(e.target);
+      }
+    }
+  }
+
+  this.shiftPresionado = e.shiftKey;
+}
+
+/** @this {ComboboxContext} **/
+// oxlint-disable-next-line no-unused-vars
+function filtrarOpciones() {
+  let busqueda = this.q.trim();
+
+  if (busqueda) {
+    busqueda = busqueda
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/\p{Diacritic}/gu, "");
+    console.log(busqueda);
+
+    const filtradas = this.opciones.filter((opcion) =>
+      opcion.label
+        .toLowerCase()
+        .normalize("NFD")
+        .normalize("NFD")
+        .replace(/\p{Diacritic}/gu, "")
+        .includes(busqueda),
+    );
+
+    if (filtradas.length === 0)
+      this.$refs.sinResultadosMsj.classList.remove("hidden");
+    else this.$refs.sinResultadosMsj.classList.add("hidden");
+
+    return filtradas;
+  }
+
+  this.$refs.sinResultadosMsj.classList.add("hidden");
+  return this.opciones;
 }

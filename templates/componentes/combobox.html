@@ -1,17 +1,23 @@
 {% load partials %}
+{% load utilidades %}
 {% load grupos_variantes %}
 
 <div
+  class="{{ class|default:''|add:' col gap-1' }}"
   {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
   x-data="{ 
     abierto: false,
     opciones: {{ opciones|safe }},
     {% if multiple == 0 %}
       multiple: false,
-      seleccionada: {{ opcion_seleccionada|default:'null' }},
+      seleccionada: '{{ seleccionada|default:'' }}',
     {% else %}
       multiple: true,
       opcionesSeleccionadas: new Set({{ opciones_seleccionadas|default:''|safe }}),
+    {% endif %}
+    {% if busqueda_activa %}
+      q: '',
+      filtrarOpciones,
     {% endif %}
     abiertoPorTeclado: false,
     shiftPresionado: false,
@@ -23,9 +29,10 @@
     reiniciar,
   }"
   {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
-  class="{{ class|default:''|add:' col gap-1' }}"
-  x-on:keydown="destacarPrimeraCoincidencia($event.key)"
-  x-on:keydown.esc.window="abierto = false, abiertoPorTeclado = false"
+  {% if not busqueda_activa %}
+    @keydown="destacarPrimeraCoincidencia($event.key)"
+  {% endif %}
+  @keydown.esc.window="abierto = false, abiertoPorTeclado = false"
 >
   <label
     for="{{ name }}-texto"
@@ -63,7 +70,7 @@
           type="button"
           aria-label="eliminar valores"
           data-btn-reiniciar
-          x-on:click="reiniciar()"
+          @click="reiniciar()"
           class="peer ui-btn border border-[--transparente-2] bg-fondo-700 h-full aspect-1 min-w-7 p-0.5 rounded-r-0 border-r-0! "
           {% if hx_post %}
             hx-post="{{ hx_post }}"
@@ -82,11 +89,14 @@
       class="{{ btn_class|default:''|add:' ui-elevado inline-flex justify-between gap-2 w-full outline-2 outline-#0000 outline-offset-2 peer-not-disabled:rounded-l-0 focus-visible:outline-primario dark:focus-visible:outline-primario-600 rounded-campo whitespace-nowrap text-sm' }}"
       aria-haspopup="listbox"
       aria-controls="{{ name }}-lista"
-      x-on:click="abierto = !abierto"
-      x-on:keydown.down.prevent="abiertoPorTeclado = true"
-      x-on:keydown.enter.prevent="abiertoPorTeclado = true"
-      x-on:keydown.space.prevent="abiertoPorTeclado = true"
+      @click="abierto = !abierto"
+      @keydown.down.prevent="abiertoPorTeclado = true"
+      @keydown.enter.prevent="abiertoPorTeclado = true"
+      @keydown.space.prevent="abiertoPorTeclado = true"
       :aria-expanded="abierto || abiertoPorTeclado"
+      {% if disabled %}
+        :disabled="{{ disabled }}"
+      {% endif %}
     >
       <span
         class="p-1 pl-3 pr-1 text-sm overflow-hidden text-ellipsis whitespace-nowrap"
@@ -111,7 +121,7 @@
       </div>
     </button>
 
-    <ul
+    <div
       role="listbox"
       id="{{ name }}-lista"
       {% if multiple  == 0 %}
@@ -119,67 +129,92 @@
       {% else %}
         aria-multiselectable="true"
       {% endif %}
-      class="{{ lista_clases|default:''|add:'absolute z-10 left-0 top-8.5 col max-h-45dvh w-full min-w-max max-w-350px ui-elevado overflow-y-auto py-1.5 select-none empty:hidden' }}"
+      class="{{ lista_clases|default:''|add:'absolute z-10 left-0 top-8.5 col max-h-45dvh w-full min-w-max max-w-350px ui-elevado overflow-y-auto empty:hidden' }}"
       x-cloak
       x-trap="abiertoPorTeclado"
       x-show="abierto || abiertoPorTeclado"
-      x-on:click.outside="abierto = false, abiertoPorTeclado = false"
-      x-on:keydown.down.prevent="$focus.wrap().next()"
-      x-on:keydown.up.prevent="$focus.wrap().previous()"
-      x-on:keydown.home.prevent="$focus.wrap().first()"
-      x-on:keydown.end.prevent="$focus.wrap().last()"
-      x-on:keydown.enter.prevent="if ($event.target !== $event.currentTarget) {
-        $event.target.checked = !$event.target.checked;
-        seleccionarOpcion($event.target)
-      }"
-      x-on:keydown="shiftPresionado = $event.shiftKey"
-      x-on:change="seleccionarOpcion($event.target)"
+      @click.outside="abierto = false, abiertoPorTeclado = false"
+      @keydown="manejarTeclas($event, $focus)"
+      @change="$event.target.type !== 'text' && seleccionarOpcion($event.target)"
       x-transition
     >
-      <template x-for="(item, index) in opciones" :key="item.id">
-        <li
-          role="option"
-          {% if multiple == 0 %}
-            :aria-selected="seleccionada == item.id"
-          {% else %}
-            :aria-selected="opcionesSeleccionadas.has(item.id)"
-          {% endif %}
-        >
-          <label
-            class="flex items-center gap-2.5 p-1.5 px-3"
-            :for="'{{ name }}-opt-'+index"
+      {% if busqueda_activa %}
+        <div class="relative">
+          {% include "notas/iconos.html#lupa" with class="absolute left-3 top-1/2 size-4 -translate-y-1/2" %}
+          <input
+            type="text"
+            class="w-full border-b border-[--borde-caja] py-2 pl-10 pr-4 text-sm focus-visible:border-primario"
+            name="busqueda"
+            x-ref="busqueda"
+            aria-label="buscar"
+            @input="q = $el.value"
+            placeholder="Buscar"
+          />
+        </div>
+      {% endif %}
+
+      <ul class="py-1.5 select-none empty:hidden">
+        {% if busqueda_activa %}
+          <li
+            class="hidden px-4 py-2 text-sm text-texto-sutil"
+            x-ref="sinResultadosMsj"
           >
-            <div
-              class="size-4.5 size-min-4.5 relative [&>input::before,&>input::after]:content-['']"
+            No se encontraron resultados
+          </li>
+        {% endif %}
+
+        <template
+          {% if busqueda_activa %}
+            x-for="(item, index) in filtrarOpciones(opciones)"
+          {% else %}
+            x-for="(item, index) in opciones"
+          {% endif %}
+          :key="item.id"
+        >
+          <li
+            role="option"
+            {% if multiple == 0 %}
+              :aria-selected="seleccionada == item.id"
+            {% else %}
+              :aria-selected="opcionesSeleccionadas.has(item.id)"
+            {% endif %}
+          >
+            <label
+              class="flex items-center gap-2.5 p-1.5 px-3"
+              :for="'{{ name }}-opt-'+index"
             >
-              {% with c="incluido-filtros combobox-opcion ui-opcion"|expandir_variantes %}
-                {% if multiple == 0 %}
-                  <input
-                    type="radio"
-                    class="{{ c|add:' ui-opcion/radio'|expandir_variantes }}"
-                    name="{{ name }}"
-                    :value="item.id"
-                    :checked="seleccionada === item.id"
-                    :id="'{{ name }}-opt-'+index"
-                  />
-                {% else %}
-                  <input
-                    type="checkbox"
-                    :tabindex="index === 0 ? 0 : -1"
-                    class="{{ c|add:' peer ui-opcion/checkbox' }}"
-                    name="{{ name }}"
-                    :value="item.id"
-                    :checked="opcionesSeleccionadas.has(item.id)"
-                    :id="'{{ name }}-opt-'+index"
-                  />
-                  {% include "componentes/checkbox-icono.html" with class="" %}
-                {% endif %}
-              {% endwith %}
-            </div>
-            <span x-text="item.label"></span>
-          </label>
-        </li>
-      </template>
-    </ul>
+              <div
+                class="size-4.5 size-min-4.5 relative [&>input::before,&>input::after]:content-['']"
+              >
+                {% with c="incluido-filtros combobox-opcion ui-opcion"|expandir_variantes %}
+                  {% if multiple == 0 %}
+                    <input
+                      type="radio"
+                      class="{{ c|add:' ui-opcion/radio'|expandir_variantes }}"
+                      name="{{ name }}"
+                      :value="item.id"
+                      :checked="seleccionada === item.id"
+                      :id="'{{ name }}-opt-'+index"
+                    />
+                  {% else %}
+                    <input
+                      type="checkbox"
+                      :tabindex="index === 0 ? 0 : -1"
+                      class="{{ c|add:' peer ui-opcion/checkbox' }}"
+                      name="{{ name }}"
+                      :value="item.id"
+                      :checked="opcionesSeleccionadas.has(item.id)"
+                      :id="'{{ name }}-opt-'+index"
+                    />
+                    {% include "componentes/checkbox-icono.html" with class="" %}
+                  {% endif %}
+                {% endwith %}
+              </div>
+              <span x-text="item.label"></span>
+            </label>
+          </li>
+        </template>
+      </ul>
+    </div>
   </div>
 </div>
