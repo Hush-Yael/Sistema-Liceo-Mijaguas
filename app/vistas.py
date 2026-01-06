@@ -148,7 +148,7 @@ class VistaListaObjetos(Vista, ListView):
                 else None,
                 "permisos": {
                     "editar": self.request.user.has_perm(  # type: ignore
-                        f"{self.nombre_app_modelo}.edit_{self.nombre_modelo}"
+                        f"{self.nombre_app_modelo}.change_{self.nombre_modelo}"
                     ),
                     "crear": self.request.user.has_perm(  # type: ignore
                         f"{self.nombre_app_modelo}.add_{self.nombre_modelo}"
