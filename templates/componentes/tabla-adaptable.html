@@ -55,7 +55,11 @@
   x-init="$el.$$('[name=filas_id]').forEach((el) => ids.add(el.value))"
 >
   <table
-    class="{{ class|default:""|add:" tabla" }}"
+    {% if page_obj.paginator.num_pages > 1 %}
+      class="{{ class|default:""|add:" tabla rounded-b-0! border-b-0! [&_tr:last-child>_td]:rounded-0! [&_tr:last-child>_td]:border-b-0" }}"
+    {% else %}
+      class="{{ class|default:""|add:" tabla" }}"
+    {% endif %}
     {% if id %}
       id="{{ id }}"
     {% endif %}

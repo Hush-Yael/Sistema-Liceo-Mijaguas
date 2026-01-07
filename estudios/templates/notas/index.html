@@ -1,92 +1,74 @@
-{% extends "base.html" %}
-{% block titulo %}
-  Notas
-{% endblock titulo %}
+{% extends "lista-objetos.html" %}
 {% load static %}
 {% load partials %}
 {% load grupos_variantes %}
 
 {% block cabeza %}
-  {# componentes #}
-  <link
-    rel="stylesheet"
-    href="{% static 'css/componentes/htmx-indicator.css' %}"
-  />
+  {{ block.super }}
 
-  <script defer src="{% static 'js/htmx.min.js' %}"></script>
-  <script defer src="{% static 'js/htmx-error-solicitudes.js' %}"></script>
+  <script defer src="{% static 'js/alpine-focus.min.js' %}"></script>
   <script defer src="{% static 'js/componentes/combobox.js' %}"></script>
+  {# Para que se haga la petición por click en form de los filtros #}
+  <script>
+    function verificarClickEnReiniciar() {
+      return (
+        event.target !== event.currentTarget &&
+        event.target.closest("[data-btn-reiniciar]") instanceof
+          HTMLButtonElement
+      );
+    }
+  </script>
 {% endblock cabeza %}
 
 {% block contenido %}
-  <main
-    class="{{ 'col gap-y-6 flex-1 size-full supports-[not(height:1dvh)]:(max-h-[calc(100vh-var(--altura-header))] h-[calc(100vh-var(--altura-header))]) max-h-[calc(100dvh-var(--altura-header))] max-w-1000px h-[calc(100dvh-var(--altura-header))] mxa p-4 overflow-y-auto min-[700px]:p-6 min-[1000px]:p-8!'|expandir_variantes }}"
-    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-    hx-include=".incluido-filtros"
-    hx-target="#tabla-notas"
-    hx-indicator="#indicador-busqueda"
-    hx-swap="outerHTML"
-  >
-    <input
-      class="incluido-filtros"
-      type="hidden"
-      name="solo_tabla"
-      value="true"
-    />
-    {% if total < 1 %}
-      <div
-        id="tabla-notas"
-        role="alert"
-        class="ui-caja col aic gap-y-6 max-w-[400px] max-h-max ma flex-1 p-5 px-6 tac text-balance"
-      >
-        <span
-          class="rounded-full aspect-square size-min-[5rem] p-3 bg-primario-50 dark:bg-primario-800 text-primario-600 dark:text-primario-100 [&>svg]:size-full"
-        >
-          {% include "notas/iconos.html#sin_notas" %}
-        </span>
-
-        <hgroup class="col gap-y-2">
-          {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
-            <h2 class="font-bold text-xl">No se han añadido
-
-              {% if not hay_matriculas %}
-                matrículas</h2>
-                <p class="text-texto-sutil">
-                  estas son necesarias para poder asignar notas
-                </p>
-              {% elif not hay_materias %}
-                asignaturas</h2>
-                <p class="text-texto-sutil">
-                  estas son necesarias para poder asignar notas
-                </p>
-                
-              {% else %}
-                notas</h2>
-                <p class="text-texto-sutil">
-                  Parece que las actividades escolares no han iniciado
-                </p>
-              {% endif %}
-          {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
-        </hgroup>
-      </div>
-    {% else %}
-      <div class="flex flex-wrap gap-2">
-        {% include "notas/estado.html" with label="Totales" dato=total icono='total' %}
-        {% include "notas/estado.html" with label="Filtradas" dato_id="resultados-cantidad" dato=page_obj.paginator.count icono='conjunto' %}
-      </div>
-
-      <div
-        class="{{ 'tabla-contenido col gap-y-2 flex-1 h-full overflow-y-auto [@media_all_and_(display-mode:fullscreen)]:(p-4 bg-fondo-300)'|expandir_variantes }}"
-      >
-        {% include "notas/cabecera-tabla.html" %}
-        {% partial tabla %}
-      </div>
-    {% endif %}
-  </main>
+  {%
+    with
+    main_class='col gap-y-6 flex-1 size-full supports-[not(height:1dvh)]:(max-h-[calc(100vh-var(--altura-header))] h-[calc(100vh-var(--altura-header))]) max-h-[calc(100dvh-var(--altura-header))] max-w-1000px h-[calc(100dvh-var(--altura-header))] mxa p-4 overflow-y-auto min-[700px]:p-6 min-[1000px]:p-8!'|expandir_variantes
+  %}
+    {{ block.super }}
+  {% endwith %}
 {% endblock contenido %}
 
+{% block cabecera %}
+  <div class="flex flex-wrap gap-2">
+    {% include "notas/estado.html" with label="Totales" dato=total icono='total' %}
+    {% include "notas/estado.html" with label="Filtradas" dato_id="resultados-cantidad" dato=page_obj.paginator.count icono='conjunto' %}
+  </div>
+{% endblock cabecera %}
+
+{% block sin_resultados %}
+  {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+    <h2 class="font-bold text-xl">No se han añadido
+
+      {% if not hay_matriculas %}
+        matrículas</h2>
+        <p class="text-texto-sutil">
+          estas son necesarias para poder asignar notas
+        </p>
+      {% elif not hay_materias %}
+        asignaturas</h2>
+        <p class="text-texto-sutil">
+          estas son necesarias para poder asignar notas
+        </p>
+        
+      {% else %}
+        notas</h2>
+        <p class="text-texto-sutil">
+          Parece que las actividades escolares no han iniciado
+        </p>
+      {% endif %}
+  {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+{% endblock sin_resultados %}
+
 {% partialdef tabla %}
-  {% include "notas/contenido-tabla.html" %}
+  {% include "lista-objetos.html#tabla" %}
+
+  {# actualizar la cantidad de resultados #}
+  {% if tabla_reemplazada_por_htmx %}
+    <span hx-swap-oob="innerHTML:#resultados-cantidad">
+      {{ page_obj.paginator.count }}
+    </span>
+  {% endif %}
 {% endpartialdef tabla %}
 
 {% partialdef datos_td %}
@@ -100,3 +82,14 @@
     {{ dato }}
   {% endif %}
 {% endpartialdef datos_td %}
+
+{% partialdef filtros %}
+  {% include "notas/cabecera-tabla.html#filtros" %}
+{% endpartialdef filtros %}
+
+{% partialdef menu_config %}
+  {% include "notas/cabecera-tabla.html#config" %}
+{% endpartialdef menu_config %}
+
+{% partialdef acciones %}
+{% endpartialdef acciones %}
