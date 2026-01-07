@@ -15,7 +15,6 @@ from django.views.generic.detail import SingleObjectTemplateResponseMixin
 from django.views.generic.edit import CreateView, UpdateView
 from app import HTTPResponseHXRedirect
 from django.contrib.auth.mixins import PermissionRequiredMixin
-
 from app.forms import BusquedaFormMixin
 
 
@@ -67,6 +66,9 @@ class VistaListaObjetos(Vista, ListView):
             map(lambda x: {"clave": x.name, "titulo": x.verbose_name}, columnas)
         )
 
+        self.establecer_columnas_ocultables()
+
+    def establecer_columnas_ocultables(self):
         self.columnas_ocultables = list(
             map(lambda col: col["titulo"], self.columnas[1:])
         )
@@ -129,7 +131,7 @@ class VistaListaObjetos(Vista, ListView):
         return queryset
 
     def get_context_data(self, *args, **kwargs):
-        ctx = super().get_context_data(*args, **kwargs)
+        ctx = super().get_context_data(*args)
 
         try:
             ctx["modelos_relacionados"] = list(

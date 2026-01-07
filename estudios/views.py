@@ -93,9 +93,7 @@ class ListaNotas(VistaListaObjetos):
             )
         )
 
-        self.columnas_ocultables = list(
-            map(lambda col: col["titulo"], self.columnas[1:])
-        )
+        self.establecer_columnas_ocultables()
 
     def get_queryset(self, *args, **kwargs) -> "list[dict]":
         queryset = Nota.objects.annotate(
