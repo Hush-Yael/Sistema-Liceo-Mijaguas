@@ -4,7 +4,7 @@
 {% load sekizai_tags %}
 
 {% partialdef tabla_style %}
-  {% include "notas/tabla-style.html" with rango_columnas=columnas_ocultables|length|convertir_a_rango %}
+  {% include "componentes/tabla-style.html" with rango_columnas=columnas_ocultables|length|convertir_a_rango %}
 {% endpartialdef tabla_style %}
 
 {% if not tabla_reemplazada_por_htmx %}
