@@ -7,17 +7,17 @@
   {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
   x-data="{ 
     abierto: false,
-    opciones: {{ opciones|safe }},
+    opciones: {% if opciones_por_script %}{{ opciones_por_script }}{% else %}{{ opciones|safe }}{% endif %},
     {% if multiple == 0 %}
-      multiple: false,
-      seleccionada: '{{ seleccionada|default:'' }}',
+    multiple: false,
+    seleccionada: '{{ seleccionada|default:'' }}',
     {% else %}
-      multiple: true,
-      opcionesSeleccionadas: new Set({{ opciones_seleccionadas|default:''|safe }}),
+    multiple: true,
+    opcionesSeleccionadas: new Set({{ opciones_seleccionadas|default:''|safe }}),
     {% endif %}
     {% if busqueda_activa %}
-      q: '',
-      filtrarOpciones,
+    q: '',
+    filtrarOpciones,
     {% endif %}
     abiertoPorTeclado: false,
     shiftPresionado: false,
