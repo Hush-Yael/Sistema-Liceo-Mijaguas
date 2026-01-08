@@ -5,9 +5,7 @@
 
 {% block cabeza %}
   {{ block.super }}
-
-  <script defer src="{% static 'js/alpine-focus.min.js' %}"></script>
-  <script defer src="{% static 'js/componentes/combobox.js' %}"></script>
+  {% include "componentes/combobox.html#scripts" %}
   {# Para que se haga la petición por click en form de los filtros #}
   <script>
     function verificarClickEnReiniciar() {

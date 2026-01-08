@@ -1,6 +1,12 @@
+{% load static %}
 {% load partials %}
 {% load utilidades %}
 {% load grupos_variantes %}
+
+{% partialdef scripts %}
+  <script defer src="{% static 'js/alpine-focus.min.js' %}"></script>
+  <script defer src="{% static 'js/componentes/combobox.js' %}"></script>
+{% endpartialdef scripts %}
 
 <div
   class="{{ class|default:''|add:' col gap-1' }}"
