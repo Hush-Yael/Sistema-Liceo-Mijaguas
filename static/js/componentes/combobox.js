@@ -25,10 +25,16 @@ function establecerTextoLabel() {
       .filter((item) => this.opcionesSeleccionadas.has(item.id))
       .map((item) => item.label)
       .join(", ");
-  } else
-    return this.seleccionada
-      ? this.opciones.find((item) => item.id === this.seleccionada).label
-      : "";
+  } else {
+    if (this.seleccionada) {
+      seleccionada = this.opciones.find(
+        (item) => item.id === this.seleccionada,
+      );
+      if (seleccionada) return seleccionada.label;
+    }
+
+    return "";
+  }
 }
 
 /**
