@@ -166,6 +166,12 @@
           </li>
         {% endif %}
 
+        <template x-if="opciones.length === 0">
+          <li class="max-w-80 px-4 py-2 text-sm text-texto-sutil">
+            {{ sin_opciones_msj|default:'No hay opciones para escoger' }}
+          </li>
+        </template>
+
         <template
           {% if busqueda_activa %}
             x-for="(item, index) in filtrarOpciones(opciones)"
