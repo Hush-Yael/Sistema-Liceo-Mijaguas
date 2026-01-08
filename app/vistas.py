@@ -239,6 +239,7 @@ class VistaListaObjetos(Vista, ListView):
 class VistaForm(SingleObjectTemplateResponseMixin, Vista):
     model: Type[models.Model]  # type: ignore
     accion_tipo_msg: str
+    invalido_url = "objeto-form.html#invalido"
 
     def __init__(self) -> None:
         super().__init__()
@@ -248,12 +249,19 @@ class VistaForm(SingleObjectTemplateResponseMixin, Vista):
         )
 
     def form_invalid(self, form: forms.ModelForm) -> HttpResponse:
-        messages.error(self.request, "Corrige los errores en el formulario")
+        if not (errores_generales := form.non_field_errors()):
+            messages.error(self.request, "Corrige los errores en el formulario")
+        else:
+            for error in errores_generales:
+                messages.error(self.request, error)  # type: ignore
 
-        r = super().form_invalid(form)  # type: ignore
+        return super().form_invalid(form)  # type: ignore
 
-        if self.template_name:
-            r.template_name = self.template_name + "#invalido"
+    def render_to_response(self, context, **response_kwargs):
+        r = super().render_to_response(context, **response_kwargs)
+
+        if context["form"].errors:
+            r.template_name = self.invalido_url  # type: ignore
 
         return r
 
