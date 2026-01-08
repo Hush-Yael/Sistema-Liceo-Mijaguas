@@ -42,9 +42,14 @@
 >
   <label
     for="{{ name }}-texto"
-    class="{{ label_class|default:''|add:' w-fit pl-0.5 text-sm' }}"
+    class="{{ label_class|default:''|add:' pl-0.5 text-texto-sutil' }}"
   >
-    {{ label }}
+    {% if campo %}
+      {{ campo.label }}
+    {% else %}
+      {{ label }}
+    {% endif %}
+
     <input
       id="{{ name }}-texto"
       type="text"
@@ -77,7 +82,7 @@
         aria-label="eliminar valores"
         data-btn-reiniciar
         @click="reiniciar()"
-        class="peer ui-btn border border-[--transparente-2] bg-fondo-700 h-full aspect-1 min-w-7 p-0.5 rounded-r-0 border-r-0! "
+        class="peer ui-btn border border-[--transparente-2] bg-fondo-700 h-full max-h-7.5 aspect-1 min-w-7 p-0.5 rounded-r-0 border-r-0! "
         {% if hx_post %}
           hx-post="{{ hx_post }}"
         {% elif hx_get %}
@@ -88,43 +93,59 @@
       </button>
     </template>
 
-    <button
-      type="button"
-      role="combobox"
-      class="{{ btn_class|default:''|add:' ui-elevado inline-flex justify-between gap-2 w-full outline-2 outline-#0000 outline-offset-2 peer-not-disabled:rounded-l-0 focus-visible:outline-primario dark:focus-visible:outline-primario-600 rounded-campo whitespace-nowrap text-sm' }}"
-      aria-haspopup="listbox"
-      aria-controls="{{ name }}-lista"
-      @click="abierto = !abierto"
-      @keydown.down.prevent="abiertoPorTeclado = true"
-      @keydown.enter.prevent="abiertoPorTeclado = true"
-      @keydown.space.prevent="abiertoPorTeclado = true"
-      :aria-expanded="abierto || abiertoPorTeclado"
-      {% if disabled %}
-        :disabled="{{ disabled }}"
-      {% endif %}
-    >
-      <span
-        class="p-1 pl-3 pr-1 text-sm overflow-hidden text-ellipsis whitespace-nowrap"
-      >
-        {% if prefijo %}
-          <span aria-hidden="true" class="{{ prefijo_class }}">
-            {{ prefijo }}
-          </span>
+    <div class="col gap-y-1 w-full">
+      <button
+        type="button"
+        role="combobox"
+        {% with c=" peer ui-elevado inline-flex justify-between gap-2 w-full outline-2 outline-#0000 outline-offset-2 peer-not-disabled:rounded-l-0 focus-visible:outline-primario dark:focus-visible:outline-primario-600 rounded-campo whitespace-nowrap text-sm" %}
+          {% if campo.errors %}
+            class="{{ btn_class|default:''|add:c|add:' animate-head-shake animate-delay-200' }}"
+          {% else %}
+            class="{{ btn_class|default:''|add:' '|add:c }}"
+          {% endif %}
+        {% endwith %}
+        aria-haspopup="listbox"
+        aria-controls="{{ name }}-lista"
+        {% if campo.errors %}
+          aria-errormessage="{{ error_id }}" aria-invalid="true"
         {% endif %}
-
-        <span
-          class="{{ valor_class|default:''|add:' w-full empty:before:content-[attr(data-placeholder)] only-of-type:first-letter:uppercase' }}"
-          data-placeholder="{{ placeholder|default:'seleccione una opción' }}"
-          x-text="establecerTextoLabel()"
-        ></span>
-      </span>
-
-      <div
-        class="fc h-full w-7 min-w-max border-l border-[--transparente-2] rounded-r-campo bg-fondo-700"
+        x-ref="btn"
+        @click="abierto = !abierto"
+        @keydown.down.prevent="abiertoPorTeclado = true"
+        @keydown.enter.prevent="abiertoPorTeclado = true"
+        @keydown.space.prevent="abiertoPorTeclado = true"
+        :aria-expanded="abierto || abiertoPorTeclado"
+        {% if disabled %}
+          :disabled="{{ disabled }}"
+        {% endif %}
       >
-        {% include "componentes/iconos/caret.html#abajo" with class="size-5 size-min-max" %}
-      </div>
-    </button>
+        <span
+          class="p-1 pl-3 pr-1 overflow-hidden text-ellipsis whitespace-nowrap"
+        >
+          {% if prefijo %}
+            <span aria-hidden="true" class="{{ prefijo_class }}">
+              {{ prefijo }}
+            </span>
+          {% endif %}
+
+          <span
+            class="{{ valor_class|default:''|add:' w-full empty:before:content-[attr(data-placeholder)] only-of-type:first-letter:uppercase' }}"
+            data-placeholder="{{ placeholder|default:'Seleccionar...' }}"
+            x-text="establecerTextoLabel()"
+          ></span>
+        </span>
+
+        <div
+          class="fc h-full w-7 min-w-max border-l border-[--transparente-2] rounded-r-campo bg-fondo-700"
+        >
+          {% include "componentes/iconos/caret.html#abajo" with class="size-5 size-min-max" %}
+        </div>
+      </button>
+
+      {% if campo %}
+        {% include "componentes/campo.html#campo_error" %}
+      {% endif %}
+    </div>
 
     <div
       role="listbox"
@@ -134,7 +155,7 @@
       {% else %}
         aria-multiselectable="true"
       {% endif %}
-      class="{{ lista_clases|default:''|add:'absolute z-10 left-0 top-8.5 col max-h-45dvh w-full min-w-max max-w-350px ui-elevado overflow-y-auto empty:hidden' }}"
+      class="{{ lista_clase|default:''|add:' absolute z-10 left-0 top-8.5 col max-h-45dvh w-full min-w-max max-w-350px ui-elevado overflow-y-auto empty:hidden' }}"
       {# al ser reemplazado por htmx, se muestra como si estuviera abierto, por lo que se oculta hasta que se interactúe con el trigger #}
       {% if campos_reemplazados_por_htmx %}
         style="display: none;"
@@ -144,7 +165,17 @@
       x-show="abierto || abiertoPorTeclado"
       @click.outside="abierto = false, abiertoPorTeclado = false"
       @keydown="manejarTeclas($event, $focus)"
-      @change="$event.target.type !== 'text' && seleccionarOpcion($event.target)"
+      @change="{{
+        "
+          if ($event.target.type !== 'text')
+            seleccionarOpcion($event.target);
+
+          if ($refs.btn.hasAttribute('aria-invalid')) {
+            $refs.btn.setAttribute('aria-invalid', 'false');
+            $refs.btn.removeAttribute('aria-errormessage');
+          }
+        "|reemplazar_espacios:''
+      }}"
       x-transition
     >
       {% if busqueda_activa %}
