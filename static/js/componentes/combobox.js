@@ -76,8 +76,6 @@ function seleccionarOpcion(opcion) {
       const indiceInicio = Math.min(inicio, fin);
       const indiceFin = Math.max(inicio, fin) + 1;
 
-      console.log({ indiceInicio, indiceFin });
-
       for (let i = indiceInicio; i < indiceFin; i++)
         this.opcionesSeleccionadas[debeAñadir ? "add" : "delete"](
           inputs[i].value,
@@ -163,7 +161,6 @@ function filtrarOpciones() {
       .toLowerCase()
       .normalize("NFD")
       .replace(/\p{Diacritic}/gu, "");
-    console.log(busqueda);
 
     const filtradas = this.opciones.filter((opcion) =>
       opcion.label
