@@ -23,9 +23,7 @@
   <script defer src="{% static 'js/htmx.min.js' %}"></script>
   <script defer src="{% static 'js/htmx-error-solicitudes.js' %}"></script>
   <script defer src="{% static 'js/btn-subir-autohabilitar.js' %}"></script>
-  {% if form.errors %}
-    <script defer src="{% static 'js/limpiar-errores.js' %}"></script>
-  {% endif %}
+  <script defer src="{% static 'js/limpiar-errores.js' %}"></script>
 {% endblock cabeza %}
 
 {% block contenido %}
