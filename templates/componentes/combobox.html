@@ -11,8 +11,7 @@
 <div
   class="{{ class|default:''|add:' col gap-1' }}"
   {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
-  x-data="{ 
-    abierto: false,
+  x-data="combobox({ 
     opciones: {% if opciones_por_script %}{{ opciones_por_script }}{% else %}{{ opciones|safe }}{% endif %},
     {% if multiple == 0 %}
     multiple: false,
@@ -21,19 +20,7 @@
     multiple: true,
     opcionesSeleccionadas: new Set({{ opciones_seleccionadas|default:''|safe }}),
     {% endif %}
-    {% if busqueda_activa %}
-    q: '',
-    filtrarOpciones,
-    {% endif %}
-    abiertoPorTeclado: false,
-    shiftPresionado: false,
-    ultimaSeleccionada: null,
-    {# las funciones se cargan desde el script dedicado #}
-    establecerTextoLabel,
-    destacarPrimeraCoincidencia,
-    seleccionarOpcion,
-    reiniciar,
-  }"
+  })"
   {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
   {% if not busqueda_activa %}
     @keydown="destacarPrimeraCoincidencia($event.key)"

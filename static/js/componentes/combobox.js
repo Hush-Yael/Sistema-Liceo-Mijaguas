@@ -1,4 +1,33 @@
+"use strict";
 /** @typedef {{ id: string, label: string }} ComboboxOpcion */
+
+document.addEventListener("alpine:init", () => {
+  Alpine.data("combobox", (config) => ({
+    /** @type { boolean } */
+    abierto: config.abierto || false,
+    /** @type { boolean } */
+    abiertoPorTeclado: config.abierto || false,
+    /** @type { boolean } */
+    multiple: config.multiple || false,
+    /** @type { ComboboxOpcion[] } **/
+    opciones: config.opciones || [],
+    /** @type { Set<number> } **/
+    opcionesSeleccionadas: config.opcionesSeleccionadas || new Set(),
+    /** @type { ComboboxOpcion['id'] | null } **/
+    seleccionada: config.seleccionada || null,
+    /** @type { HTMLInputElement | null } **/
+    ultimaSeleccionada: null,
+    /** @type { boolean } */
+    shiftPresionado: false,
+    q: "",
+    establecerTextoLabel,
+    destacarPrimeraCoincidencia,
+    seleccionarOpcion,
+    reiniciar,
+    manejarTeclas,
+    filtrarOpciones,
+  }));
+});
 
 /**
  * @typedef {{
@@ -14,8 +43,10 @@
  * }} ComboboxContext
  **/
 
-/** @this {ComboboxContext} **/
-// oxlint-disable-next-line no-unused-vars
+/**
+ * @this { ComboboxContext }
+ * @returns { string }
+ **/
 function establecerTextoLabel() {
   if (this.multiple) {
     if (!this.opcionesSeleccionadas.size) return;
@@ -27,7 +58,7 @@ function establecerTextoLabel() {
       .join(", ");
   } else {
     if (this.seleccionada) {
-      seleccionada = this.opciones.find(
+      const seleccionada = this.opciones.find(
         (item) => item.id === this.seleccionada,
       );
       if (seleccionada) return seleccionada.label;
@@ -38,10 +69,9 @@ function establecerTextoLabel() {
 }
 
 /**
- *  @this {ComboboxContext}
- *  @param {KeyboardEvent['key']} teclaPresionada
+ *  @this { ComboboxContext }
+ *  @param { KeyboardEvent['key'] } teclaPresionada
  * **/
-// oxlint-disable-next-line no-unused-vars
 function destacarPrimeraCoincidencia(teclaPresionada) {
   // no destacar nada si se presiona enter
   if (teclaPresionada === "Enter") return;
@@ -53,7 +83,7 @@ function destacarPrimeraCoincidencia(teclaPresionada) {
 
   if (opcion) {
     const indice = this.opciones.indexOf(opcion);
-    /** @type {NodeListOf<HTMLInputElement>} */
+    /** @type { NodeListOf<HTMLInputElement> } */
     const $todasLasOpciones = this.$el.$$(".combobox-opcion");
 
     if ($todasLasOpciones[indice]) $todasLasOpciones[indice].focus();
@@ -61,17 +91,13 @@ function destacarPrimeraCoincidencia(teclaPresionada) {
 }
 
 /**
- * @this {ComboboxContext}
- * @param {HTMLInputElement} opcion
+ * @this { ComboboxContext }
+ * @param { HTMLInputElement } opcion
  * **/
-// oxlint-disable-next-line no-unused-vars
 function seleccionarOpcion(opcion) {
   // se pueden seleccionar más de una sola opción
   if (this.multiple) {
-    /**
-     * @this {ComboboxContext}
-     * @param {HTMLInputElement} opcionActual
-     * **/
+    /** @param { HTMLInputElement } opcionActual **/
     const variasOpciones = (opcionActual) => {
       // se acaba de seleccionar una opción
       const debeAñadir = opcionActual.checked;
@@ -111,18 +137,16 @@ function seleccionarOpcion(opcion) {
   else this.seleccionada = opcion.value;
 }
 
-/** @this {ComboboxContext} **/
-// oxlint-disable-next-line no-unused-vars
+/** @this { ComboboxContext } **/
 function reiniciar() {
   if (this.multiple) this.opcionesSeleccionadas.clear();
   else this.seleccionada = null;
 }
 
 /**
- * @this {ComboboxContext}
- * @param {KeyboardEvent} e
+ * @this { ComboboxContext }
+ * @param { KeyboardEvent } e
  * **/
-// oxlint-disable-next-line no-unused-vars
 function manejarTeclas(e, $focus) {
   switch (e.key) {
     case "ArrowDown": {
@@ -157,8 +181,7 @@ function manejarTeclas(e, $focus) {
   this.shiftPresionado = e.shiftKey;
 }
 
-/** @this {ComboboxContext} **/
-// oxlint-disable-next-line no-unused-vars
+/** @this { ComboboxContext } **/
 function filtrarOpciones() {
   let busqueda = this.q.trim();
 
