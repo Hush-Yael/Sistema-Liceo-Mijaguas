@@ -82,6 +82,8 @@
 {% endblock contenido %}
 
 {% partialdef invalido %}
-  {% include view.template_name|add:"#campos" %}
-  {% include "componentes/mensajes.html#como_respuesta" %}
+  {% with campos_reemplazados_por_htmx=1 %}
+    {% include view.template_name|add:"#campos" %}
+    {% include "componentes/mensajes.html#como_respuesta" %}
+  {% endwith %}
 {% endpartialdef invalido %}

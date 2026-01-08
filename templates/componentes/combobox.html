@@ -45,8 +45,9 @@
       {% if multiple  == 0 %}
         :value="seleccionada"
       {% else %}
-        :value="opcionesSeleccionadas.size ?
-        Array.from(opcionesSeleccionadas).join(',') : ''"
+        {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+          :value="opcionesSeleccionadas.size ? Array.from(opcionesSeleccionadas).join(',') : ''"
+        {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
       {% endif %}
       hidden
       {% if hx_post %}
@@ -128,6 +129,10 @@
         aria-multiselectable="true"
       {% endif %}
       class="{{ lista_clases|default:''|add:'absolute z-10 left-0 top-8.5 col max-h-45dvh w-full min-w-max max-w-350px ui-elevado overflow-y-auto empty:hidden' }}"
+      {# al ser reemplazado por htmx, se muestra como si estuviera abierto, por lo que se oculta hasta que se interactúe con el trigger #}
+      {% if campos_reemplazados_por_htmx %}
+        style="display: none;"
+      {% endif %}
       x-cloak
       x-trap="abiertoPorTeclado"
       x-show="abierto || abiertoPorTeclado"
