@@ -80,11 +80,11 @@
       </button>
     </template>
 
-    <div class="col gap-y-1 w-full">
+    <div class="col gap-y-1 w-full peer-not-disabled:[&>button]:rounded-l-0">
       <button
         type="button"
         role="combobox"
-        {% with c=" peer ui-elevado inline-flex justify-between gap-2 w-full outline-2 outline-#0000 outline-offset-2 peer-not-disabled:rounded-l-0 focus-visible:outline-primario dark:focus-visible:outline-primario-600 rounded-campo whitespace-nowrap text-sm" %}
+        {% with c=" peer ui-elevado inline-flex justify-between gap-2 w-full outline-2 outline-#0000 outline-offset-2  focus-visible:outline-primario dark:focus-visible:outline-primario-600 rounded-campo whitespace-nowrap text-sm" %}
           {% if campo.errors %}
             class="{{ btn_class|default:''|add:c|add:' animate-head-shake animate-delay-200' }}"
           {% else %}
