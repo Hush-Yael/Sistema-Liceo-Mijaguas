@@ -246,9 +246,9 @@
 
   {% if url_parcial_acciones %}
     <div
-      class="sticky bottom-0 w-full flex flex-wrap aic justify-between gap-y-2 gap-x-6 p-2 px-3 bg-secundario-400 text-secundario-texto max-[500px]:text-sm transition-[transform,opacity] duration-200 ease-in-out"
-      x-show="filasSeleccionadas.size > 0"
+      class="sticky bottom-0 z-3 w-full flex flex-wrap aic justify-between gap-y-2 gap-x-6 p-2 px-3 bg-secundario-400 text-secundario-texto max-[500px]:text-sm transition-[transform,opacity] duration-200 ease-in-out"
       x-cloak
+      x-show="filasSeleccionadas.size > 0"
       x-transition:enter-start="opacity-0 -translate-y-1"
       x-transition:enter-end="opacity-100 translate-y-0"
       x-transition:leave-start="opacity-100 translate-y-0"
