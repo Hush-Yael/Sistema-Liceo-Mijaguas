@@ -22,11 +22,13 @@
     abiertoPorBtn: false,
     minimoAnchoCumplido: window.matchMedia("(min-width: 800px)").matches
   }'
-  x-init='
-    anchoMedia.addEventListener
-      ? anchoMedia.addEventListener("change", (e) => (minimoAnchoCumplido = e.matches))
-      : anchoMedia.addListener((e) => (minimoAnchoCumplido = e.matches))
-  '
+  x-init="{{
+    '
+      anchoMedia.addEventListener
+        ? anchoMedia.addEventListener("change", (e) => (minimoAnchoCumplido = e.matches))
+        : anchoMedia.addListener((e) => (minimoAnchoCumplido = e.matches))
+    '|reemplazar_espacios:''
+  }}"
 >
   <header
     class="{{
