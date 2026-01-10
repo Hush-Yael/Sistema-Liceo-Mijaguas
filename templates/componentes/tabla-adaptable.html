@@ -3,15 +3,15 @@
 {% load static %}
 {% load sekizai_tags %}
 
-{% partialdef tabla_style %}
+{% partialdef tabla_estilos %}
   {% include "componentes/tabla-style.html" with rango_columnas=columnas_ocultables|length|convertir_a_rango %}
-{% endpartialdef tabla_style %}
+  <link rel="stylesheet" href="{% static 'css/componentes/tabla.css' %}" />
+{% endpartialdef tabla_estilos %}
 
 {% if not tabla_reemplazada_por_htmx %}
   {% addtoblock "cabeza" %}
     {# estilos generales #}
-    <link rel="stylesheet" href="{% static 'css/componentes/tabla.css' %}" />
-    {% partial tabla_style %}
+    {% partial tabla_estilos %}
 
     <script defer src="{% static 'js/alpine-focus.min.js' %}"></script>
 
@@ -26,7 +26,7 @@
   {% endaddtoblock %}
 {% else %}
   <head>
-    {% partial tabla_style %}
+    {% partial tabla_estilos %}
   </head>
 {% endif %}
 
@@ -219,9 +219,9 @@
                     {% endif %}
 
                     {% if not forloop.parentloop.first and dato == dato_anterior %}
-                      data-igual-anterior
+                      data-repetido
                     {% elif not forloop.parentloop.last and dato == dato_siguiente %}
-                      data-me-voy-a-repetir
+                      data-se-repite
                     {% endif %}
                   >
                     {# se pasa a todas las columnas un parcial común #}

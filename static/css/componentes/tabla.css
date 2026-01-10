@@ -100,40 +100,40 @@
 }
 
 /* 1: ocultar las celdas y su contenido de las filas con datos repetidos */
-tr:not(.fila-sticky):not(:hover) td[data-igual-anterior] {
+tr:not(.fila-sticky):not(:hover) td[data-repetido] {
   color: #0000;
   border-bottom-color: var(--transparente-1);
 }
 
 /* 1 */
-tr:not(.fila-sticky):not(:hover) td[data-igual-anterior] * {
+tr:not(.fila-sticky):not(:hover) td[data-repetido] * {
   visibility: hidden;
 }
 
 /* 2: se remarcan las celdas de las filas con datos repetidos y la primera antes de empezar a repetirse, para indicar visualmente que los datos invisibles son iguales a esta */
-td[data-igual-anterior],
-td[data-me-voy-a-repetir] {
+td[data-repetido],
+td[data-se-repite] {
   background-color: hsl(var(--hue) 100% 50% / var(--alpha));
 }
 
 /* 2 */
-.fila-sticky [data-igual-anterior],
-td[data-me-voy-a-repetir] {
+.fila-sticky [data-repetido],
+td[data-se-repite] {
   --alpha: 15%;
 }
 
 /* 2 */
-.oscuro .fila-sticky [data-igual-anterior],
-.oscuro td[data-me-voy-a-repetir] {
+.oscuro .fila-sticky [data-repetido],
+.oscuro td[data-se-repite] {
   --alpha: 5%;
 }
 
 /* 2 */
-td[data-igual-anterior] {
+td[data-repetido] {
   --alpha: 20%;
 }
 
 /* 2 */
-.oscuro td[data-igual-anterior] {
+.oscuro td[data-repetido] {
   --alpha: 15%;
 }

@@ -49,28 +49,35 @@ const TablaConFilaSticky = class {
     requestAnimationFrame(() => this.establecerFilaSticky(0));
   }
 
-  // Asignar colores a las filas y definir donde empiezan y terminan las filas con datos repetidos
+  // Asignar colores a los datos de has filas de acuerdo a donde empiezan y terminan los repetidos
   montarRangosYColores() {
-    let seRepetiraEncontrado = false,
-      /** @type {number | null} */
-      ultimoRepetiraIndice = null,
-      hue = 0;
+    const cantidadColumnas = this.filas[0].children.length;
+    const coloresColumnas = Array.from({ length: cantidadColumnas }, () => 0);
+
+    /** @type { number | null } */
+    let ultimaFilaRepetidos = null;
 
     for (let i = 0; i < this.filas.length; i++) {
       const fila = this.filas[i];
-      const seRepetira = fila.$("[data-me-voy-a-repetir]") !== null;
-      const tieneRepetidos = fila.$("[data-igual-anterior]") !== null;
+      let repetidos = 0;
 
-      if (seRepetira) {
-        seRepetiraEncontrado = true;
-        hue = ultimoRepetiraIndice === null ? 0 : (hue + 20) % 360;
-        ultimoRepetiraIndice = i;
-        fila.setAttribute("data-empiezan-los-repetidos", "");
-        fila.style.setProperty("--hue", hue);
-      } else if (tieneRepetidos && seRepetiraEncontrado !== false) {
-        fila.style.setProperty("--hue", hue);
-        fila.setAttribute("data-contiene-repetidos", "");
-      } else if (!seRepetira && !tieneRepetidos) seRepetiraEncontrado = false;
+      for (let j = 0; j < fila.children.length; j++) {
+        const td = fila.children[j];
+        const seRepite = td.hasAttribute("data-se-repite");
+        const datoRepetido = td.hasAttribute("data-repetido");
+
+        if (seRepite) {
+          if (ultimaFilaRepetidos !== null)
+            coloresColumnas[j] = (coloresColumnas[j] + 15) % 360;
+
+          repetidos++;
+        }
+
+        if (seRepite || datoRepetido)
+          td.style.setProperty("--hue", coloresColumnas[j]);
+      }
+
+      if (repetidos > 0) ultimaFilaRepetidos = i;
     }
   }
 
