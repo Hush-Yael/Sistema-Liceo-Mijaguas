@@ -1,3 +1,4 @@
+import json
 from django import template
 import re
 
@@ -65,13 +66,30 @@ def a_negativo(valor):
 
 
 @register.filter
-def obtener_lista_opciones(campo_choices):
-    return list(
-        map(
-            lambda t: {"id": str(t[0].value), "label": t[1]},
-            campo_choices,
-        )
-    )
+def obtener_lista_opciones(campo):
+    """
+    Convierte las opciones de un ModelChoiceField o ModelMultipleChoiceField
+    a una lista de objetos JSON con id y label.
+
+    Uso en templates:
+    {{ campo|choices_to_json }}
+    """
+    try:
+        opciones = []
+
+        if hasattr(campo.field, "choices"):
+            for value, label in campo.field.choices:
+                if value:  # Ignorar opciones vacías
+                    opciones.append({"id": str(value), "label": label})
+
+        return opciones
+    except Exception:
+        return ()
+
+
+@register.filter
+def obtener_lista_opciones_json(campo):
+    return json.dumps(obtener_lista_opciones(campo))
 
 
 @register.filter
