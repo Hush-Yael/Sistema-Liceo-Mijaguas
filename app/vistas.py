@@ -1,4 +1,5 @@
-from typing import Mapping, Type, Any
+from typing import Mapping, Type, Any, TypedDict
+from typing_extensions import NotRequired
 from django import forms
 from django.contrib import messages
 from django.db import models
@@ -39,38 +40,72 @@ class Vista(PermissionRequiredMixin):
         super().__init__()
 
 
+class Columna(TypedDict):
+    clave: str
+    titulo: str
+    alinear: NotRequired[str]
+
+
+class ColumnaFija(Columna):
+    anotada: NotRequired[bool]
+
+
 class VistaListaObjetos(Vista, ListView):
     model: Type[models.Model]  # type: ignore
     tipo_permiso = "view"
     context_object_name = "lista_objetos"
     articulo_nombre_plural = "los"
-    columnas: "list[dict[str, str]]"
-    columnas_a_evitar: "set[str]" = set()
+    columnas_totales: "tuple[ColumnaFija, ...]"
+    columnas_mostradas: "list[Columna]"
+    columnas_a_evitar: "set[str]"
     columnas_ocultables: "list[str]"
     form_filtros: BusquedaFormMixin
 
     def __init__(self):
         setattr(self, "nombre_modelo_plural", self.model._meta.verbose_name_plural)
 
-        if not hasattr(self, "columnas") or not self.columnas:
+        if not hasattr(self, "columnas_mostradas") or not self.columnas_mostradas:
             self.establecer_columnas()
 
         super().__init__()
 
     def establecer_columnas(self):
-        columnas = filter(
-            lambda col: col.name != "id" and col.name not in self.columnas_a_evitar,
-            self.model._meta.fields,  # type: ignore
+        tiene_columnas_totales = (
+            hasattr(self, "columnas_totales") and self.columnas_totales
         )
-        self.columnas = list(
-            map(lambda x: {"clave": x.name, "titulo": x.verbose_name}, columnas)
-        )
+        tiene_columnas_a_evitar = hasattr(self, "columnas_a_evitar")
+
+        if not tiene_columnas_totales:
+            if tiene_columnas_a_evitar:
+                self.columnas_mostradas = [  # type: ignore
+                    {"clave": col.name, "titulo": col.verbose_name}
+                    for col in self.model._meta.fields
+                    if col.name != "id" and col.name not in self.columnas_a_evitar
+                ]
+            else:
+                self.columnas_mostradas = [  # type: ignore
+                    {"clave": col.name, "titulo": col.verbose_name}
+                    for col in self.model._meta.fields
+                    if col.name != "id"
+                ]
+        else:
+            if tiene_columnas_a_evitar:
+                self.columnas_mostradas = [
+                    col
+                    for col in self.columnas_totales
+                    if col.get("clave") not in self.columnas_a_evitar
+                ]
+            else:
+                if isinstance(self.columnas_totales, tuple):
+                    self.columnas_mostradas = list(self.columnas_totales)
+                else:
+                    self.columnas_mostradas = self.columnas_totales
 
         self.establecer_columnas_ocultables()
 
     def establecer_columnas_ocultables(self):
         self.columnas_ocultables = list(
-            map(lambda col: col["titulo"], self.columnas[1:])
+            map(lambda col: col["titulo"], self.columnas_mostradas[1:])
         )
 
     def get_queryset(self, queryset: models.QuerySet) -> "list[dict]":  # type: ignore
@@ -230,7 +265,7 @@ class VistaListaObjetos(Vista, ListView):
             if self.form_filtros.is_valid():
                 self.form_filtros.guardar_en_cookies(response)
 
-            # Recalcular columnas, pues pueden haberse ocultado o mostrado algunas
+            # Recalcular las columnas mostradas, pues pueden haberse ocultado o vuelto a mostrarse algunas
             self.establecer_columnas()
 
         return response

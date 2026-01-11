@@ -5,7 +5,7 @@ from django.http import (
 from django.http.request import QueryDict
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count, Q, F
+from django.db.models import Count, Q, F, Value
 from django.urls import reverse_lazy
 from app.vistas import VistaActualizarObjeto, VistaCrearObjeto, VistaListaObjetos
 from estudios.formularios import FormAsignaciones, FormLapso, FormMateria, FormAño
@@ -22,6 +22,8 @@ from .models import (
     Matricula,
     Nota,
 )
+from django.db.models.functions import Concat
+from django.contrib import messages
 
 
 def inicio(request: HttpRequest):
@@ -58,49 +60,25 @@ class ListaNotas(VistaListaObjetos):
     template_name = "notas/index.html"
     paginate_by = 50
     form_filtros = NotasBusquedaForm  # type: ignore
-    todas_las_columnas = [
-        {"nombre_col": "materia", "titulo": "Materia", "clave": "materia"},
+    columnas_a_evitar = set()
+    columnas_totales = (
+        {"titulo": "Estudiante", "clave": "estudiante_nombres", "anotada": True},
+        {"titulo": "Materia", "clave": "materia_nombre", "anotada": True},
+        {"titulo": "Sección", "clave": "seccion_nombre", "anotada": True},
+        {"titulo": "Valor", "clave": "valor", "alinear": "derecha"},
         {
-            "nombre_col": "matricula__seccion__nombre",
-            "titulo": "Sección",
-            "clave": "seccion_corta",
-        },
-        {
-            "nombre_col": "valor",
-            "titulo": "Valor",
-            "clave": "valor",
-            "alinear": "derecha",
-        },
-        {
-            "nombre_col": "matricula__lapso__nombre",
             "titulo": "Lapso",
             "clave": "lapso_nombre",
+            "anotada": True,
             "alinear": "derecha",
         },
-        {"nombre_col": "fecha", "titulo": "Fecha", "clave": "fecha_añadida"},
-    ]
-
-    def establecer_columnas(self):
-        self.columnas = list(
-            filter(
-                lambda col: col["clave"] not in self.columnas_a_evitar,
-                self.todas_las_columnas,
-            )
-        )
-
-        self.columnas.insert(
-            0,
-            {
-                "titulo": "Estudiante",
-                "clave": "estudiante_nombres",
-            },
-        )
-
-        self.establecer_columnas_ocultables()
+        {"titulo": "Fecha", "clave": "fecha_añadida", "anotada": True},
+    )
 
     def get_queryset(self, *args, **kwargs) -> "list[dict]":
         queryset = Nota.objects.annotate(
-            seccion_corta=F("matricula__seccion__nombre"),
+            materia_nombre=F("materia__nombre"),
+            seccion_nombre=F("matricula__seccion__nombre"),
             lapso_nombre=F("matricula__lapso__nombre"),
             estudiante_nombres=Concat(
                 "matricula__estudiante__nombres",
@@ -108,7 +86,13 @@ class ListaNotas(VistaListaObjetos):
                 "matricula__estudiante__apellidos",
             ),
             fecha_añadida=TruncMinute("fecha"),
-        ).only(*[col["nombre_col"] for col in self.todas_las_columnas])
+        ).only(
+            *(
+                col["clave"]
+                for col in self.columnas_totales
+                if not col.get("anotada", False)
+            )
+        )
 
         self.total = queryset.count()
 
@@ -197,7 +181,9 @@ class ListaMaterias(VistaListaObjetos):
 
     def establecer_columnas(self):
         super().establecer_columnas()
-        self.columnas.insert(1, {"clave": "asignaciones", "titulo": "Asignaciones"})
+        self.columnas_mostradas.insert(
+            1, {"clave": "asignaciones", "titulo": "Asignaciones"}
+        )
         self.columnas_ocultables.insert(0, "Asignaciones")
 
     def get_context_data(self, *args, **kwargs):
@@ -325,9 +311,9 @@ class ListaLapsos(VistaListaObjetos):
 
     def establecer_columnas(self):
         super().establecer_columnas()
-        self.columnas[0]["alinear"] = "derecha"
-        col_n_lapso = self.columnas.pop(0)
-        self.columnas.insert(1, col_n_lapso)
+        self.columnas_mostradas[0]["alinear"] = "derecha"
+        col_n_lapso = self.columnas_mostradas.pop(0)
+        self.columnas_mostradas.insert(1, col_n_lapso)
 
 
 class CrearLapso(VistaCrearObjeto):
@@ -348,7 +334,7 @@ class ListaAños(VistaListaObjetos):
     template_name = "años/index.html"
     model = Año
 
-    def get_queryset(self, *args, **kwargs) -> "list[dict]":
+    def get_queryset(self, *args, **kwargs):
         return super().get_queryset(Año.objects.all())
 
 
