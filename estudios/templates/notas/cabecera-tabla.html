@@ -46,68 +46,40 @@
 {% endpartialdef filtros %}
 
 {% partialdef config %}
-  <details
-    name="config-submenu"
-    x-data="{ abierto: false }"
-    :open="abierto"
-    @click.outside="abierto = false"
-    @keydown.escape="abierto = false"
-    class="menu submenu"
+  <div
+    class="col gap-y-4"
     hx-post
     {# se evita que se ejecute la request de "/notas" al cambiar los filtros específicos de búsqueda cuando el campo de búsqueda está vacío, ya que no tendría sentido, pues los resultados serían los mismos #}
     hx-trigger="change[$id('q').value.trim() !== ''] changed delay:600ms"
   >
-    <summary class="flex aic gap-x-2" @click.prevent="abierto = !abierto">
-      {% include "componentes/iconos/caret.html#izquierda" with class="size-5" %}
-      Búsqueda
-    </summary>
-
-    <div class="contenido-menu p-4">
-      <div class="col gap-y-1">
-        {{ form_filtros.notas_tipo_busqueda.label_tag }}
-        {% render_field form_filtros.notas_tipo_busqueda class="ui-elevado-2 incluido-filtros" %}
-      </div>
-
-      <div class="col gap-y-1">
-        {{ form_filtros.notas_columna_buscada.label_tag }}
-        {% render_field form_filtros.notas_columna_buscada class="ui-elevado-2 incluido-filtros" %}
-      </div>
+    <div class="col gap-y-1">
+      {{ form_filtros.notas_tipo_busqueda.label_tag }}
+      {% render_field form_filtros.notas_tipo_busqueda class="ui-elevado-2 incluido-filtros" %}
     </div>
-  </details>
 
-  <details
-    name="config-submenu"
-    x-data="{ abierto: false }"
-    :open="abierto"
-    @click.outside="abierto = false"
-    @keydown.escape="abierto = false"
-    class="menu submenu"
-    hx-post
-    hx-trigger="input changed delay:600ms"
-  >
-    <summary class="flex aic gap-x-2" @click.prevent="abierto = !abierto">
-      {% include "componentes/iconos/caret.html#izquierda" with class="size-5" %}
-      Valores de las notas
-    </summary>
-
-    <div class="contenido-menu p-4" hx-trigger="change changed" hx-post>
-      <div class="flex gap-x-3 valor-nota">
-        {{ form_filtros.notas_valor_minimo.label_tag }}
-        {% render_field form_filtros.notas_valor_minimo class="ui-elevado-2 py-0! incluido-filtros" style="width: 6ch;" %}
-      </div>
-
-      <div class="flex gap-x-3 valor-nota">
-        {{ form_filtros.notas_valor_maximo.label_tag }}
-        {% render_field form_filtros.notas_valor_maximo class="ui-elevado-2 py-0! incluido-filtros" style="width: 6ch;" %}
-      </div>
+    <div class="col gap-y-1">
+      {{ form_filtros.notas_columna_buscada.label_tag }}
+      {% render_field form_filtros.notas_columna_buscada class="ui-elevado-2 incluido-filtros" %}
     </div>
-  </details>
+  </div>
+
+  <div class="col gap-y-4" hx-trigger="change changed" hx-post>
+    <div class="flex aic jb gap-x-3 valor-nota">
+      {{ form_filtros.notas_valor_minimo.label_tag }}
+      {% render_field form_filtros.notas_valor_minimo class="ui-elevado-2 py-0! incluido-filtros" style="width: 6ch;" %}
+    </div>
+
+    <div class="flex aic jb gap-x-3 valor-nota">
+      {{ form_filtros.notas_valor_maximo.label_tag }}
+      {% render_field form_filtros.notas_valor_maximo class="ui-elevado-2 py-0! incluido-filtros" style="width: 6ch;" %}
+    </div>
+  </div>
 
   <div
     class="flex gap-x-3 flex aic [&_label]:min-w-max"
-    hx-vals='{"solo_tabla": true}'
+    hx-vals="{ 'solo_tabla': true }"
   >
     {{ form_filtros.notas_cantidad_por_pagina.label_tag }}
-    {% render_field form_filtros.notas_cantidad_por_pagina class="ui-elevado-2 incluido-filtros" style="max-width: 6ch;" hx-trigger="input changed delay:600ms" hx-post="" %}
+    {% render_field form_filtros.notas_cantidad_por_pagina class="ui-elevado-2 py-0! incluido-filtros" style="max-width: 6ch;" hx-trigger="input changed delay:600ms" hx-post="" %}
   </div>
 {% endpartialdef config %}
