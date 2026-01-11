@@ -59,16 +59,11 @@ class ListaNotas(VistaListaObjetos):
     paginate_by = 50
     form_filtros = NotasBusquedaForm  # type: ignore
     todas_las_columnas = [
-        {
-            "nombre_col": "matricula__estudiante",
-            "titulo": "Estudiante",
-            "clave": "estudiante",
-        },
         {"nombre_col": "materia", "titulo": "Materia", "clave": "materia"},
         {
             "nombre_col": "matricula__seccion__nombre",
             "titulo": "Sección",
-            "clave": "seccion_nombre",
+            "clave": "seccion_corta",
         },
         {
             "nombre_col": "valor",
@@ -82,7 +77,7 @@ class ListaNotas(VistaListaObjetos):
             "clave": "lapso_nombre",
             "alinear": "derecha",
         },
-        {"nombre_col": "fecha", "titulo": "Fecha", "clave": "fecha"},
+        {"nombre_col": "fecha", "titulo": "Fecha", "clave": "fecha_añadida"},
     ]
 
     def establecer_columnas(self):
@@ -93,12 +88,26 @@ class ListaNotas(VistaListaObjetos):
             )
         )
 
+        self.columnas.insert(
+            0,
+            {
+                "titulo": "Estudiante",
+                "clave": "estudiante_nombres",
+            },
+        )
+
         self.establecer_columnas_ocultables()
 
     def get_queryset(self, *args, **kwargs) -> "list[dict]":
         queryset = Nota.objects.annotate(
-            seccion_nombre=F("matricula__seccion__nombre"),
+            seccion_corta=F("matricula__seccion__nombre"),
             lapso_nombre=F("matricula__lapso__nombre"),
+            estudiante_nombres=Concat(
+                "matricula__estudiante__nombres",
+                Value(" "),
+                "matricula__estudiante__apellidos",
+            ),
+            fecha_añadida=TruncMinute("fecha"),
         ).only(*[col["nombre_col"] for col in self.todas_las_columnas])
 
         self.total = queryset.count()
