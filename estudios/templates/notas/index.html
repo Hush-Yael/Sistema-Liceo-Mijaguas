@@ -6,16 +6,7 @@
 {% block cabeza %}
   {{ block.super }}
   {% include "componentes/combobox.html#scripts" %}
-  {# Para que se haga la petición por click en form de los filtros #}
-  <script>
-    function verificarClickEnReiniciar() {
-      return (
-        event.target !== event.currentTarget &&
-        event.target.closest("[data-btn-reiniciar]") instanceof
-          HTMLButtonElement
-      );
-    }
-  </script>
+  {% include "lista-objetos.html#script_fn_verificar_click_reiniciar" %}
 {% endblock cabeza %}
 
 {% block contenido %}

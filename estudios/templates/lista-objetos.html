@@ -311,6 +311,19 @@
   </header>
 {% endpartialdef busqueda_y_config %}
 
+{% partialdef script_fn_verificar_click_reiniciar %}
+  {# Para que se haga la petición al hacer click en el botón de reiniciar de algún combobox en el form de los filtros #}
+  <script>
+    function verificarClickEnReiniciar() {
+      return (
+        event.target !== event.currentTarget &&
+        event.target.closest("[data-btn-reiniciar]") instanceof
+          HTMLButtonElement
+      );
+    }
+  </script>
+{% endpartialdef script_fn_verificar_click_reiniciar %}
+
 {% partialdef respuesta_cambios_tabla %}
   {% with url_tabla_parcial=view.template_name|add:"#tabla" %}
     {# El parcial de la tabla devuelta al cambiar sus datos debe definirse en la plantilla extendida #}
