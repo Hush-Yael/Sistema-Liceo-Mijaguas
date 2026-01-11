@@ -152,7 +152,7 @@ class VistaListaObjetos(Vista, ListView):
     ):
         """Modifica el queryset de acuerdo a los filtros indicados en el form de filtros. Por defecto solo aplica la paginación."""
 
-        if hasattr(self.form_filtros, "cantidad_por_pagina"):
+        if self.form_filtros.fields.get("cantidad_por_pagina"):
             try:
                 cantidad_por_pagina = int(
                     datos_form.get(
