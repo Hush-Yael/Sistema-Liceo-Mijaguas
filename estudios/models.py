@@ -204,16 +204,18 @@ class ProfesorMateria(models.Model):
         return f"{self.profesor} - {self.materia}{seccion_info}"
 
 
-class Matricula(models.Model):
-    ESTADOS = [
-        ("activo", "Activo"),
-        ("inactivo", "Inactivo"),
-    ]
+class MatriculaEstados(models.TextChoices):
+    ACTIVO = "A", "Activo"
+    INACTIVO = "I", "Inactivo"
 
+
+class Matricula(models.Model):
     estudiante = models.ForeignKey(Estudiante, on_delete=models.CASCADE)
     seccion = models.ForeignKey(Seccion, on_delete=models.CASCADE)
     fecha_añadida = models.DateTimeField(default=timezone.now)
-    estado = models.CharField(max_length=10, choices=ESTADOS, default="activo")
+    estado = models.CharField(
+        max_length=10, choices=MatriculaEstados.choices, default=MatriculaEstados.ACTIVO
+    )
     lapso = models.ForeignKey(
         Lapso,
         on_delete=models.CASCADE,
