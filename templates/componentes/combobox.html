@@ -15,7 +15,7 @@
     opciones: {% if opciones_por_script %}{{ opciones_por_script }}{% else %}{{ opciones|safe }}{% endif %},
     {% if multiple == 0 %}
     multiple: false,
-    seleccionada: '{{ seleccionada|default:'' }}',
+    seleccionada: '{{ seleccionada|default_if_none:'' }}',
     {% else %}
     multiple: true,
     opcionesSeleccionadas: new Set({{ opciones_seleccionadas|default:''|safe }}),
