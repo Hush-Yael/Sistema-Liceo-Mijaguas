@@ -197,6 +197,13 @@ class BusquedaFormMixin(CookieFormMixin, forms.Form):
         min_value=1,
         initial=50,
         required=False,
+        widget=forms.NumberInput(
+            attrs={
+                "style": "max-width: 6ch;",
+                "hx-trigger": "input changed delay:600ms",
+                "hx-post": "",
+            }
+        ),
     )
 
     tipo_busqueda = forms.ChoiceField(
