@@ -6,12 +6,12 @@ from .models import Lapso, Materia, Seccion
 
 class NotasBusquedaForm(BusquedaFormMixin):
     seccion_prefijo_cookie = "notas"
-    opciones_columna_buscar = [
+    opciones_columna_buscar = (
         ("nombres_y_apellidos", "Nombres y apellidos"),
         ("matricula__estudiante__nombres", "Nombres"),
         ("matricula__estudiante__apellidos", "Apellidos"),
         ("matricula__estudiante__cedula", "Cédula"),
-    ]
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

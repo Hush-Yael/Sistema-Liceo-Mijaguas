@@ -123,18 +123,40 @@ class CookieFormMixin:
             return str(valor) if valor is not None else ""
 
 
-opciones_tipo_busqueda = [
+opciones_tipo_busqueda = (
     ("contains", "Contiene"),
     ("iexact", "Exacta"),
     ("startswith", "Empieza con"),
     ("endswith", "Termina con"),
-]
+)
+
+
+def busqueda_campo(placeholder="Buscar", attrs: "dict[str, str] | None" = None):
+    _attrs = {
+        "placeholder": placeholder,
+        "id": "q",
+        "name": "q",
+        "type": "search",
+        "hx-post": "",
+        "hx-trigger": "input changed delay:600ms",
+    }
+
+    if attrs is not None:
+        _attrs.update(attrs)
+
+    return forms.CharField(
+        label="Buscar",
+        required=False,
+        widget=forms.TextInput(attrs=_attrs),
+    )
 
 
 class BusquedaFormMixin(CookieFormMixin, forms.Form):
     seccion_prefijo_cookie: str
-    opciones_columna_buscar: "list[tuple[str, str]]"
+    opciones_columna_buscar: "tuple[tuple[str, str], ...]"
+    opciones_tipo_busqueda = opciones_tipo_busqueda
     columnas_a_evitar: "set[str]" = set()
+    campos_sin_cookies = ("q",)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -154,8 +176,8 @@ class BusquedaFormMixin(CookieFormMixin, forms.Form):
 
         tipo_busqueda = forms.ChoiceField(
             label="Tipo de búsqueda",
-            initial=opciones_tipo_busqueda[0][0],
-            choices=opciones_tipo_busqueda,
+            initial=self.opciones_tipo_busqueda[0][0],
+            choices=self.opciones_tipo_busqueda,
             required=False,
         )
         self.fields[f"{self.seccion_prefijo_cookie}_tipo_busqueda"] = tipo_busqueda
@@ -178,3 +200,5 @@ class BusquedaFormMixin(CookieFormMixin, forms.Form):
         self.base_fields[f"{self.seccion_prefijo_cookie}_columna_buscada"] = (
             columna_buscada
         )
+
+    q = busqueda_campo()

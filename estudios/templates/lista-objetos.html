@@ -3,6 +3,7 @@
 {% load utilidades %}
 {% load partials %}
 {% load sekizai_tags %}
+{% load widget_tweaks %}
 {% load grupos_variantes %}
 
 {% block titulo %}
@@ -235,38 +236,36 @@
   {% include view.template_name|add:'#filtros' %}
 
   <header class="col gap-y-2">
-    <div role="group" class="flex gap-x-1 *:h-8.5">
-      <label
-        class="flex flex-1 rounded-campo ui-elevado outline-#0000 outline-2 -outline-offset-1 focus-within:outline-current"
-      >
-        <span class="sr-only">Buscar</span>
-
-        <span
-          class="fc h-full w-8 min-w-max border-r border-[--transparente-2] rounded-l-campo bg-fondo-700"
+    <div role="group" class="flex gap-x-1">
+      {% partialdef barra_busqueda inline %}
+        <label
+          class="flex flex-1 rounded-campo ui-elevado outline-#0000 outline-2 -outline-offset-1 focus-within:outline-current"
         >
-          <div
-            role="alert"
-            id="indicador-busqueda"
-            aria-label="Buscando..."
-            class="htmx-indicator peer"
-          ></div>
-          <div
-            class="ui-loader ui-loader/primario peer-not-[.htmx-request]:hidden"
-          ></div>
+          <span class="sr-only">
+            {{ form_filtros.q.label|default:"Buscar" }}
+          </span>
 
-          {% include "componentes/iconos/tabla.html#lupa" with class="peer-[.htmx-request]:hidden size-4 text-texto-sutil" %}
-        </span>
+          <span
+            class="fc min-w-8 border-r border-[--transparente-2] rounded-l-campo bg-fondo-700"
+          >
+            <div
+              role="alert"
+              id="indicador-busqueda"
+              aria-label="Buscando..."
+              class="htmx-indicator peer"
+            ></div>
+            <div
+              class="ui-loader ui-loader/primario peer-not-[.htmx-request]:hidden"
+            ></div>
 
-        <input
-          id="q"
-          name="q"
-          class="incluido-filtros flex-1 p-[.25rem_.75rem]  outline-0"
-          type="search"
-          hx-post
-          hx-trigger="input changed delay:600ms"
-          placeholder="Buscar..."
-        />
-      </label>
+            {% include "componentes/iconos/tabla.html#lupa" with class="peer-[.htmx-request]:hidden size-4 text-texto-sutil" %}
+          </span>
+
+          {% with c=input_busqueda_class|default:'flex-1 p-[.25rem_.75rem] outline-0'|add:' incluido-filtros' %}
+            {% render_field form_filtros.q class=c %}
+          {% endwith %}
+        </label>
+      {% endpartialdef barra_busqueda %}
 
       <details
         class="menu z-4 [&_details[open]]:z-4 [&_label]:text-texto-sutil"
