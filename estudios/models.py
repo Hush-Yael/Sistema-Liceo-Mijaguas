@@ -123,6 +123,14 @@ class Estudiante(models.Model):
         default=timezone.now, verbose_name="fecha de ingreso"
     )
 
+    @property
+    def edad(self):
+        return abs(timezone.now().year - self.fecha_nacimiento.year)
+
+    @property
+    def nombre_completo(self):
+        return f"{self.nombres} {self.apellidos}"
+
     class Meta:
         ordering = ["apellidos", "nombres"]
         db_table = "estudiantes"
