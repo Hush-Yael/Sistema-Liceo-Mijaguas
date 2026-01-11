@@ -150,18 +150,21 @@ class VistaListaObjetos(Vista, ListView):
         datos_request: "dict[str, Any]",
         datos_form: "dict[str, Any] | Mapping[str, Any]",
     ):
-        try:
-            cantidad_por_pagina = int(
-                datos_form.get(
-                    f"{self.form_filtros.seccion_prefijo_cookie}_cantidad_por_pagina",
-                    "0",
-                )
-            )
-        except (TypeError, ValueError):
-            cantidad_por_pagina = 0
+        """Modifica el queryset de acuerdo a los filtros indicados en el form de filtros. Por defecto solo aplica la paginación."""
 
-        if cantidad_por_pagina > 0:
-            self.paginate_by = cantidad_por_pagina
+        if hasattr(self.form_filtros, "cantidad_por_pagina"):
+            try:
+                cantidad_por_pagina = int(
+                    datos_form.get(
+                        f"{self.form_filtros.seccion_prefijo_cookie}_cantidad_por_pagina",
+                        "0",
+                    )
+                )
+            except (TypeError, ValueError):
+                cantidad_por_pagina = 0
+
+            if cantidad_por_pagina > 0:
+                self.paginate_by = cantidad_por_pagina
 
         return queryset
 
