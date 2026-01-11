@@ -92,7 +92,10 @@
         <div
           class="{{ 'tabla-contenido col gap-y-2 flex-1 h-full overflow-y-auto [@media_all_and_(display-mode:fullscreen)]:(p-4 bg-fondo-300)'|expandir_variantes }}"
         >
-          {% partial filtros %}
+          {% block filtros %}
+            {% include view.template_name|add:'#filtros' %}
+            {% partial busqueda_y_config %}
+          {% endblock filtros %}
           {% partial tabla %}
         </div>
       {% else %}
@@ -232,9 +235,7 @@
   {% endif %}
 {% endpartialdef tabla %}
 
-{% partialdef filtros %}
-  {% include view.template_name|add:'#filtros' %}
-
+{% partialdef busqueda_y_config %}
   <header class="col gap-y-2">
     <div role="group" class="flex gap-x-1">
       {% partialdef barra_busqueda inline %}
@@ -289,24 +290,26 @@
         </div>
       </details>
 
-      <button
-        class="ui-btn ui-elevado min-h-full min-w-8"
-        aria-label="Ver tabla en pantalla completa"
-        onclick="!document.fullscreenElement ? window.$('.tabla-contenido').requestFullscreen() : document.exitFullscreen()"
-      >
-        <svg
-          class="size-5"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
+      {% partialdef btn_pantalla_completa inline %}
+        <button
+          class="ui-btn ui-elevado min-h-full min-w-8"
+          aria-label="Ver tabla en pantalla completa"
+          onclick="!document.fullscreenElement ? window.$('.tabla-contenido').requestFullscreen() : document.exitFullscreen()"
         >
-          <path
-            d="M5 5h5V3H3v7h2zm5 14H5v-5H3v7h7zm11-5h-2v5h-5v2h7zm-2-4h2V3h-7v2h5z"
-          ></path>
-        </svg>
-      </button>
+          <svg
+            class="size-5"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M5 5h5V3H3v7h2zm5 14H5v-5H3v7h7zm11-5h-2v5h-5v2h7zm-2-4h2V3h-7v2h5z"
+            ></path>
+          </svg>
+        </button>
+      {% endpartialdef btn_pantalla_completa %}
     </div>
   </header>
-{% endpartialdef filtros %}
+{% endpartialdef busqueda_y_config %}
 
 {% partialdef respuesta_cambios_tabla %}
   {% with url_tabla_parcial=view.template_name|add:"#tabla" %}
