@@ -6,6 +6,8 @@ from django import forms
 class CookieFormMixin:
     """Mixin para manejar valores de formulario en cookies"""
 
+    campos_sin_cookies: "list[str] | tuple[str, ...]"
+
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request", None)
         super().__init__(*args, **kwargs)
@@ -15,7 +17,11 @@ class CookieFormMixin:
 
     def cargar_desde_cookies(self):
         """Cargar valores iniciales desde cookies"""
+        hay_excepciones = hasattr(self, "campos_sin_cookies")
         for campo_nombre, field in self.fields.items():  # type: ignore
+            if hay_excepciones and campo_nombre in self.campos_sin_cookies:
+                continue
+
             nombre_cookie = campo_nombre
             cookie_valor = self.request.COOKIES.get(nombre_cookie)
 
@@ -65,7 +71,11 @@ class CookieFormMixin:
 
     def guardar_en_cookies(self, response):
         """Guardar valores del formulario en cookies"""
+        hay_excepciones = hasattr(self, "campos_sin_cookies")
         for campo_nombre, valor in self.cleaned_data.items():  # type: ignore
+            if hay_excepciones and campo_nombre in self.campos_sin_cookies:
+                continue
+
             if valor is not None:
                 nombre_cookie = campo_nombre
                 cookie_valor = self.serializar_campo(self.fields[campo_nombre], valor)  # type: ignore
