@@ -17,8 +17,12 @@ const TablaConFilaSticky = class {
         // ya no hay que observar sus filas
         this.destruir();
 
+        const contenedorNuevo = $id(this.contenedorId);
         // Se cambió por la misma tabla, hay que volver a inicializar
-        if ($id(this.contenedorId)) this.init();
+        if (contenedorNuevo) {
+          // a veces se reemplaza la tabla por otro elemento, como un mensaje de vacío, por lo que se asegura que haya una tabla para ini
+          if (contenedorNuevo.$("table")) this.init();
+        }
       }
     });
 
