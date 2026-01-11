@@ -323,6 +323,12 @@ class ListaLapsos(VistaListaObjetos):
     def get_queryset(self, *args, **kwargs) -> "list[dict]":
         return super().get_queryset(Lapso.objects.all().order_by("numero"))
 
+    def establecer_columnas(self):
+        super().establecer_columnas()
+        self.columnas[0]["alinear"] = "derecha"
+        col_n_lapso = self.columnas.pop(0)
+        self.columnas.insert(1, col_n_lapso)
+
 
 class CrearLapso(VistaCrearObjeto):
     template_name = "lapsos/form.html"
