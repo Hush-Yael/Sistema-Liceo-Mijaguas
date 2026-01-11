@@ -84,7 +84,7 @@ def obtener_lista_opciones(campo):
 
         return opciones
     except Exception:
-        return ()
+        return "[]"
 
 
 @register.filter
