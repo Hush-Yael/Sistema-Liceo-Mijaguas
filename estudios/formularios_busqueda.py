@@ -5,7 +5,13 @@ from .models import Lapso, Materia, Seccion
 
 
 class NotasBusquedaForm(BusquedaFormMixin):
-    seccion_prefijo_cookie = "notas"
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["secciones"].label_from_instance = lambda obj: obj.nombre  # type: ignore
+        self.fields["lapsos"].label_from_instance = lambda obj: obj.nombre  # type: ignore
+
+    campos_prefijo_cookie = "notas"
     opciones_columna_buscar = (
         ("nombres_y_apellidos", "Nombres y apellidos"),
         ("matricula__estudiante__nombres", "Nombres"),
@@ -13,30 +19,25 @@ class NotasBusquedaForm(BusquedaFormMixin):
         ("matricula__estudiante__cedula", "Cédula"),
     )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["notas_secciones"].label_from_instance = lambda obj: obj.nombre  # type: ignore
-        self.fields["notas_lapsos"].label_from_instance = lambda obj: obj.nombre  # type: ignore
-
-    notas_materias = forms.ModelMultipleChoiceField(
-        label="Asignatura",
-        queryset=Materia.objects.all().order_by("nombre"),
-        required=False,
-    )
-
-    notas_secciones = forms.ModelMultipleChoiceField(
+    secciones = forms.ModelMultipleChoiceField(
         label="Sección",
         queryset=Seccion.objects.all().order_by("año", "letra"),
         required=False,
     )
 
-    notas_lapsos = forms.ModelMultipleChoiceField(
+    lapsos = forms.ModelMultipleChoiceField(
         label="Lapso",
         queryset=Lapso.objects.all().order_by("-id"),
         required=False,
     )
 
-    notas_valor_maximo = forms.FloatField(
+    materias = forms.ModelMultipleChoiceField(
+        label="Asignatura",
+        queryset=Materia.objects.all().order_by("nombre"),
+        required=False,
+    )
+
+    valor_maximo = forms.FloatField(
         label="Valor máximo",
         min_value=1,
         max_value=20,
@@ -45,7 +46,7 @@ class NotasBusquedaForm(BusquedaFormMixin):
         required=False,
     )
 
-    notas_valor_minimo = forms.FloatField(
+    valor_minimo = forms.FloatField(
         label="Valor mínimo",
         min_value=0,
         max_value=20,

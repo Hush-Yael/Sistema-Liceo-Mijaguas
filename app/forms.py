@@ -1,11 +1,13 @@
 # forms.py
 import json
 from django import forms
+from django.db import models
 
 
 class CookieFormMixin:
     """Mixin para manejar valores de formulario en cookies"""
 
+    campos_prefijo_cookie: str
     campos_sin_cookies: "list[str] | tuple[str, ...]"
 
     def __init__(self, *args, **kwargs):
@@ -22,7 +24,7 @@ class CookieFormMixin:
             if hay_excepciones and campo_nombre in self.campos_sin_cookies:
                 continue
 
-            nombre_cookie = campo_nombre
+            nombre_cookie = f"{self.campos_prefijo_cookie}_{campo_nombre}"
             cookie_valor = self.request.COOKIES.get(nombre_cookie)
 
             if cookie_valor:
@@ -31,9 +33,9 @@ class CookieFormMixin:
                     valor_inicial = self.deserializar_campo(field, cookie_valor)
                     if valor_inicial is not None:
                         self.initial[campo_nombre] = valor_inicial  # type: ignore
-                except (ValueError, json.JSONDecodeError) as err:
+                # Si hay error, usar valor por defecto
+                except (ValueError, json.JSONDecodeError):
                     # print(f"Err {err}", nombre_cookie, cookie_valor)
-                    # Si hay error, usar valor por defecto
                     pass
 
     def deserializar_campo(self, field, cookie_valor):
@@ -77,7 +79,7 @@ class CookieFormMixin:
                 continue
 
             if valor is not None:
-                nombre_cookie = campo_nombre
+                nombre_cookie = f"{self.campos_prefijo_cookie}_{campo_nombre}"
                 cookie_valor = self.serializar_campo(self.fields[campo_nombre], valor)  # type: ignore
 
                 # Establecer cookie (válida por 30 días)
@@ -152,53 +154,59 @@ def busqueda_campo(placeholder="Buscar", attrs: "dict[str, str] | None" = None):
 
 
 class BusquedaFormMixin(CookieFormMixin, forms.Form):
-    seccion_prefijo_cookie: str
     opciones_columna_buscar: "tuple[tuple[str, str], ...]"
     opciones_tipo_busqueda = opciones_tipo_busqueda
-    columnas_a_evitar: "set[str]" = set()
+    columnas_a_evitar: "set[str]"
     campos_sin_cookies = ("q",)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        cantidad_por_pagina = forms.IntegerField(
-            label="Cantidad por página",
-            min_value=1,
-            initial=50,
-            required=False,
-        )
-        self.fields[f"{self.seccion_prefijo_cookie}_cantidad_por_pagina"] = (
-            cantidad_por_pagina
-        )
-        self.base_fields[f"{self.seccion_prefijo_cookie}_cantidad_por_pagina"] = (
-            cantidad_por_pagina
-        )
+        if (
+            not hasattr(self, "opciones_columna_buscar")
+            or not self.opciones_columna_buscar
+        ):
+            campos: "list[models.Field]" = self.model._meta.fields  # type: ignore
 
-        tipo_busqueda = forms.ChoiceField(
-            label="Tipo de búsqueda",
-            initial=self.opciones_tipo_busqueda[0][0],
-            choices=self.opciones_tipo_busqueda,
-            required=False,
-        )
-        self.fields[f"{self.seccion_prefijo_cookie}_tipo_busqueda"] = tipo_busqueda
-        self.base_fields[f"{self.seccion_prefijo_cookie}_tipo_busqueda"] = tipo_busqueda
+            if hasattr(self, "columnas_a_evitar"):
+                self.opciones_columna_buscar = [
+                    (f.name, f.verbose_name)  # type: ignore
+                    for f in campos
+                    if f.name not in self.columnas_a_evitar
+                ]
+            else:
+                self.opciones_columna_buscar = [
+                    (f.name, f.verbose_name)  # type: ignore
+                    for f in campos
+                ]
 
-        if not self.opciones_columna_buscar:
-            self.opciones_columna_buscar = [
-                (f.name, f.verbose_name)
-                for f in self.model._meta.fields  # type: ignore
-                if f.name not in self.columnas_a_evitar
-            ]
+        if not self.fields["columna_buscada"].choices:  # type: ignore
+            self.fields["columna_buscada"].choices = self.opciones_columna_buscar  # type: ignore
 
-        columna_buscada = forms.ChoiceField(
-            label="Buscar por",
-            initial=self.opciones_columna_buscar[0][0],
-            choices=self.opciones_columna_buscar,
-            required=False,
-        )
-        self.fields[f"{self.seccion_prefijo_cookie}_columna_buscada"] = columna_buscada
-        self.base_fields[f"{self.seccion_prefijo_cookie}_columna_buscada"] = (
-            columna_buscada
-        )
+        if not self.fields["columna_buscada"].initial:
+            self.fields["columna_buscada"].initial = self.opciones_columna_buscar[0][0]
+
+        if not self.fields["tipo_busqueda"].choices:  # type: ignore
+            self.fields["tipo_busqueda"].choices = self.opciones_columna_buscar  # type: ignore
+
+        if not self.fields["tipo_busqueda"].initial:
+            self.fields["tipo_busqueda"].initial = self.opciones_columna_buscar[0][0]
+
+    cantidad_por_pagina = forms.IntegerField(
+        label="Cantidad por página",
+        min_value=1,
+        initial=50,
+        required=False,
+    )
+
+    tipo_busqueda = forms.ChoiceField(
+        label="Tipo de búsqueda",
+        required=False,
+    )
+
+    columna_buscada = forms.ChoiceField(
+        label="Buscar por",
+        required=False,
+    )
 
     q = busqueda_campo()

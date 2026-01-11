@@ -156,7 +156,7 @@ class VistaListaObjetos(Vista, ListView):
             try:
                 cantidad_por_pagina = int(
                     datos_form.get(
-                        f"{self.form_filtros.seccion_prefijo_cookie}_cantidad_por_pagina",
+                        "cantidad_por_pagina",
                         "0",
                     )
                 )
