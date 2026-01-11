@@ -37,7 +37,7 @@ class NotasBusquedaForm(BusquedaFormMixin):
     )
 
     notas_valor_maximo = forms.FloatField(
-        label="Máxima",
+        label="Valor máximo",
         min_value=1,
         max_value=20,
         initial=20,
@@ -46,7 +46,7 @@ class NotasBusquedaForm(BusquedaFormMixin):
     )
 
     notas_valor_minimo = forms.FloatField(
-        label="Mínima",
+        label="Valor mínimo",
         min_value=0,
         max_value=20,
         initial=0,
