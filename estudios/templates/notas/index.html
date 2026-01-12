@@ -14,18 +14,12 @@
 {% block contenido %}
   {%
     with
-    main_class='col gap-y-6 flex-1 size-full supports-[not(height:1dvh)]:(max-h-[calc(100vh-var(--altura-header))] h-[calc(100vh-var(--altura-header))]) max-h-[calc(100dvh-var(--altura-header))] max-w-1000px h-[calc(100dvh-var(--altura-header))] mxa p-4 overflow-y-auto min-[700px]:p-6 min-[1000px]:p-8!'|expandir_variantes
+    main_class='col gap-y-4 flex-1 size-full supports-[not(height:1dvh)]:(max-h-[calc(100vh-var(--altura-header))] h-[calc(100vh-var(--altura-header))]) max-h-[calc(100dvh-var(--altura-header))] max-w-1000px h-[calc(100dvh-var(--altura-header))] mxa p-4 overflow-y-auto min-[600px]:p-5 min-[700px]:p-6 min-[1000px]:p-8!'|expandir_variantes
+    nombre_url_crear='crear_materia'
   %}
     {{ block.super }}
   {% endwith %}
 {% endblock contenido %}
-
-{% block cabecera %}
-  <div class="flex flex-wrap gap-2">
-    {% include "notas/estado.html" with label="Totales" dato=view.total icono='total' %}
-    {% include "notas/estado.html" with label="Filtradas" dato_id="filtrados-cantidad" dato=page_obj.paginator.count icono='conjunto' %}
-  </div>
-{% endblock cabecera %}
 
 {% block sin_resultados %}
   {% comment %}<!-- prettier-ignore-start -->{% endcomment %}

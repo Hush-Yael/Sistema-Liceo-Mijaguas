@@ -61,19 +61,53 @@
       </div>
     {% else %}
       {% block cabecera %}
-        <header class="flex aic jb gap-x-4">
-          <h1 class="text-lg font-bold min-[500px]:text-xl">
-            Lista de {{ view.nombre_objeto_plural }}
-          </h1>
+        <header
+          class="{{ 'col gap-y-2 gap-x-5 min-[600px]:(flex-row aic jb pb-2 border-b border-[--transparente-2])'|expandir_variantes }}"
+        >
+          <div
+            class="flex aic gap-x-4 max-[600px]:jb min-[600px]:flex-row-reverse"
+          >
+            <h1 class="text-lg font-bold min-[500px]:text-xl">
+              Lista de {{ view.nombre_objeto_plural }}
+            </h1>
 
-          {% if permisos.crear and nombre_url_crear %}
-            <a
-              class="ui-btn ui-btn/primario rounded-full size-7 p-1.25"
-              href="{% url nombre_url_crear %}"
-              aria-label="Añadir {{ view.nombre_objeto }}"
+            <hr
+              class="max-[600px]:hidden h-6 w-1px border-0 bg-[--transparente-2]"
+            />
+
+            {% if permisos.crear and nombre_url_crear %}
+              <a
+                class="ui-btn ui-btn/primario rounded-full p-1.25 size-7 text-sm"
+                href="{% url nombre_url_crear %}"
+                aria-label="Añadir {{ view.nombre_objeto }}"
+              >
+                {% include "componentes/iconos/edicion.html#suma" with class="" %}
+              </a>
+            {% endif %}
+          </div>
+
+          {% if view.total is not None or view.is_paginated %}
+            <div
+              class="{{ 'flex gap-2 max-[600px]:(border-t border-t-[--transparente-2] pt-3)'|expandir_variantes }}"
             >
-              {% include "componentes/iconos/edicion.html#suma" %}
-            </a>
+              {% with label="Totales:"  icono='total' %}
+                {% if view.total is not None %}
+                  {% with dato=view.total %}
+                    {% partial cantidad %}
+                  {% endwith %}
+                {% else %}
+                  {% with dato=page_obj.paginator.count %}
+                    {% partial cantidad %}
+                  {% endwith %}
+                {% endif %}
+              {% endwith %}
+
+              {% if form_filtros %}
+                {% with label="Filtradas:" dato_id="filtrados-cantidad" dato=page_obj.paginator.count icono='conjunto' %}
+                  {% partial cantidad %}
+                {% endwith %}
+              {% endif %}
+            </div>
           {% endif %}
         </header>
       {% endblock cabecera %}
@@ -370,3 +404,15 @@
     </a>
   {% endif %}
 {% endpartialdef acciones %}
+
+{% partialdef cantidad %}
+  <div role="status" class="ui-caja flex aic gap-x-3 p-2 px-3 flex-1">
+    <span
+      class="inline-flex aic jcc rounded size-6 p-1 bg-secundario text-secundario-texto dark:bg-secundario-600"
+    >
+      {% include "componentes/iconos/tabla.html#"|add:icono %}
+    </span>
+    <p class="text-texto-sutil">{{ label }}</p>
+    <b id="{{ dato_id }}" class="mla">{{ dato }}</b>
+  </div>
+{% endpartialdef cantidad %}
