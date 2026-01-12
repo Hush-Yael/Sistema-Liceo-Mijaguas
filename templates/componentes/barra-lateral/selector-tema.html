@@ -21,17 +21,12 @@
     aria-label="Abrir menú de temas"
   >
     <svg
-      class="size-6"
-      fill="none"
+      class="size-6 sidebar:size-7"
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
     >
-      <path fill="currentColor" d="M12 16a4 4 0 0 0 0-8v8Z"></path>
       <path
-        fill="currentColor"
-        fill-rule="evenodd"
-        d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2Zm0 2v4a4 4 0 1 0 0 8v4a8 8 0 1 0 0-16Z"
-        clip-rule="evenodd"
+        d="M12 21.997c-5.523 0-10-4.478-10-10 0-5.523 4.477-10 10-10s10 4.477 10 10c0 5.522-4.477 10-10 10Zm0-2a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm-5-4.681a8.965 8.965 0 0 0 5.707-2.612 8.965 8.965 0 0 0 2.612-5.707A6 6 0 1 1 7 15.316Z"
       ></path>
     </svg>
   </button>
@@ -124,17 +119,17 @@
       class="{{
         '
           flex aic gap-x-2 transition-[background-color,color] ease-in-out
+          [&>svg]:size-4.5
           peer-checked:[&>svg:not(.lineas)]:hidden
           peer-not-checked:[&>svg.lineas]:hidden
           peer-checked:(bg-primario-texto text-primario)
           peer-not-checked:pover:bg-[--transparente-2]
+          sidebar:(gap-x-3 [&>svg]:size-5)
           max-sidebar_full:(
             p-1.5 px-3
-            [&>svg]:size-4.5
           )
           sidebar_full:(
             rounded-full text-primario-texto bg-#fff3
-            [&>svg]:size-5
             peer-not-checked:[&>span]:sr-only
             peer-checked:(p-1 px-3 [&>svg:not(.lineas)]:hidden)
             peer-not-checked:(size-6 p-1 aspect-square pover:bg-#fff4 [&>svg.lineas]:hidden)
