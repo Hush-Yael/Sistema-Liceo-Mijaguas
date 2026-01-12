@@ -68,12 +68,11 @@
 
           {% if permisos.crear and nombre_url_crear %}
             <a
-              class="{{ "ui-btn ui-btn/primario max-[350px]:(size-6 p-1.25) min-[350px]:ui-btn/sm"|expandir_variantes }}"
-              href="{% url nombre_url_crear %}
-"
+              class="ui-btn ui-btn/primario rounded-full size-7 p-1.25"
+              href="{% url nombre_url_crear %}"
+              aria-label="Añadir {{ view.nombre_objeto }}"
             >
-              {% include "componentes/iconos/edicion.html#suma_circulo" %}
-              <span class="max-[350px]:sr-only">Añadir</span>
+              {% include "componentes/iconos/edicion.html#suma" %}
             </a>
           {% endif %}
         </header>
