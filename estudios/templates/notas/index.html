@@ -21,7 +21,7 @@
 {% block cabecera %}
   <div class="flex flex-wrap gap-2">
     {% include "notas/estado.html" with label="Totales" dato=total icono='total' %}
-    {% include "notas/estado.html" with label="Filtradas" dato_id="resultados-cantidad" dato=page_obj.paginator.count icono='conjunto' %}
+    {% include "notas/estado.html" with label="Filtradas" dato_id="filtrados-cantidad" dato=page_obj.paginator.count icono='conjunto' %}
   </div>
 {% endblock cabecera %}
 
@@ -51,13 +51,6 @@
 
 {% partialdef tabla %}
   {% include "lista-objetos.html#tabla" %}
-
-  {# actualizar la cantidad de resultados #}
-  {% if tabla_reemplazada_por_htmx %}
-    <span hx-swap-oob="innerHTML:#resultados-cantidad">
-      {{ page_obj.paginator.count }}
-    </span>
-  {% endif %}
 {% endpartialdef tabla %}
 
 {% partialdef datos_td %}

@@ -232,6 +232,13 @@
       url_parcial_acciones=view.template_name|add:'#acciones'
       tabla_contenedor_id="tabla-objetos"
     %}
+
+    {# actualizar la cantidad de resultados #}
+    {% if view.form_filtros and tabla_reemplazada_por_htmx %}
+      <span hx-swap-oob="innerHTML:#filtrados-cantidad">
+        {{ page_obj.paginator.count }}
+      </span>
+    {% endif %}
   {% endif %}
 {% endpartialdef tabla %}
 
