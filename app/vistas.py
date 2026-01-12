@@ -8,6 +8,7 @@ from django.http import (
     HttpResponse,
     HttpResponseBadRequest,
     HttpResponseForbidden,
+    QueryDict,
 )
 from django.shortcuts import render
 from django.urls import path
@@ -131,12 +132,23 @@ class VistaListaObjetos(Vista, ListView):
             return []
 
     def establecer_form_filtros(self):
-        # al crear el form de filtros, se debe distinguir entre GET y POST, ya que por alguna razón GET no funciona correctamente (evita que se recuperen los datos de las cookies) si se le pasan los datos
+        # al crear el form de filtros, se debe distinguir entre GET y los otros métodos, ya que por alguna razón GET no funciona correctamente (evita que se recuperen los datos de las cookies) si se le pasan los datos
         if self.request.method == "GET":
             self.form_filtros = self.form_filtros(request=self.request)  # type: ignore
-        elif self.request.method == "POST":
+        else:
+            if self.request.method == "POST":
+                datos = self.request.POST
+            elif self.request.method == "PUT" and self.request.body:
+                datos = QueryDict(self.request.body)  # type: ignore
+            elif self.request.method == "DELETE":
+                datos = self.request.GET
+            elif getattr(self.form_filtros, "initial", None):
+                datos = self.form_filtros.initial
+            else:
+                datos = {}
+
             self.form_filtros = self.form_filtros(  # type: ignore
-                self.request.POST, request=self.request
+                datos, request=self.request
             )
 
         if self.form_filtros.is_valid():
@@ -170,7 +182,7 @@ class VistaListaObjetos(Vista, ListView):
         return queryset
 
     def get_context_data(self, *args, **kwargs):
-        ctx = super().get_context_data(*args)
+        ctx = super().get_context_data()
 
         try:
             ctx["modelos_relacionados"] = list(
@@ -226,8 +238,8 @@ class VistaListaObjetos(Vista, ListView):
 
         return HttpResponse("No se indicó un form de filtros", status=405)
 
-    def delete(self, request, *args, **kwargs):
-        if not self.request.user.has_perm(  # type: ignore
+    def delete(self, request: HttpRequest, *args, **kwargs):
+        if not request.user.has_perm(  # type: ignore
             f"{self.nombre_app_modelo}.delete_{self.nombre_modelo}"
         ):
             return HttpResponseForbidden(
