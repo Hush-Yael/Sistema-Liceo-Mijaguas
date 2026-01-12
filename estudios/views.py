@@ -94,8 +94,6 @@ class ListaNotas(VistaListaObjetos):
             )
         )
 
-        self.total = queryset.count()
-
         return super().get_queryset(queryset)
 
     def aplicar_filtros(self, queryset, datos_form):
@@ -147,7 +145,6 @@ class ListaNotas(VistaListaObjetos):
             {
                 "hay_matriculas": Matricula.objects.exists(),
                 "hay_materias": Materia.objects.exists(),
-                "total": self.total,
             }
         )
 

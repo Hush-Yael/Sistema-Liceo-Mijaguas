@@ -20,7 +20,7 @@
 
 {% block cabecera %}
   <div class="flex flex-wrap gap-2">
-    {% include "notas/estado.html" with label="Totales" dato=total icono='total' %}
+    {% include "notas/estado.html" with label="Totales" dato=view.total icono='total' %}
     {% include "notas/estado.html" with label="Filtradas" dato_id="filtrados-cantidad" dato=page_obj.paginator.count icono='conjunto' %}
   </div>
 {% endblock cabecera %}

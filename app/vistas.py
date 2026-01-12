@@ -60,6 +60,7 @@ class VistaListaObjetos(Vista, ListView):
     columnas_a_evitar: "set[str]"
     columnas_ocultables: "list[str]"
     form_filtros: BusquedaFormMixin
+    total: "int | None" = None
 
     def __init__(self):
         setattr(self, "nombre_modelo_plural", self.model._meta.verbose_name_plural)
@@ -204,10 +205,12 @@ class VistaListaObjetos(Vista, ListView):
     def get(self, request: HttpRequest, *args, **kwargs):  # noqa: F811
         respuesta = super().get(request, *args, **kwargs)
 
-        # cambio la tabla pero no por filtros
+        # cambió la tabla pero no por filtros
         if hasattr(self, "form_filtros") and request.GET.get("solo_tabla"):
             respuesta.context_data["tabla_reemplazada_por_htmx"] = 1  # type: ignore
             respuesta.template_name = self.template_name + "#tabla"  # type: ignore
+        elif self.paginate_by:
+            self.total = self.model.objects.count()
 
         return respuesta
 
