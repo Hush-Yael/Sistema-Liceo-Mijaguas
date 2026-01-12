@@ -98,8 +98,7 @@ class ListaNotas(VistaListaObjetos):
 
         return super().get_queryset(queryset)
 
-    def aplicar_filtros(self, queryset, datos_request, datos_form):
-        queryset = super().aplicar_filtros(queryset, datos_request, datos_form)
+    def aplicar_filtros(self, queryset, datos_form):
 
         if secciones := al_menos_un_filtro_aplicado(datos_form.get("notas_secciones")):  # type: ignore
             queryset = queryset.filter(matricula__seccion_id__in=secciones)

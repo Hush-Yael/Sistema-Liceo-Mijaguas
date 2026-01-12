@@ -109,49 +109,43 @@ class VistaListaObjetos(Vista, ListView):
         )
 
     def get_queryset(self, queryset: models.QuerySet) -> "list[dict]":  # type: ignore
-        """Retorna una lista de diccionarios con los datos de los objetos de la base de datos. Si se indica un form de filtros, se modifican los datos de acuerdo a los filtros indicados en el form."""
+        """Transforma el queryset en una lista, ya que esto permite utilizar cierto filtros específicos en la plantilla. Si se indica un form de filtros, se modifican los datos de acuerdo a los filtros indicados en el form."""
 
         if queryset:
             # se indicó un form de filtros
             if hasattr(self, "form_filtros"):
-                datos_request = (
-                    self.request.GET
-                    if self.request.method == "GET"
-                    else self.request.POST
-                )
+                datos_form = self.establecer_form_filtros()
 
-                # se debe distinguir entre GET y POST, ya que por alguna razón GET no funciona correctamente si se le pasan los datos: evita que se recuperen los datos de las cookies
-                if self.request.method == "GET":
-                    self.form_filtros = self.form_filtros(request=self.request)  # type: ignore
-                elif self.request.method == "POST":
-                    self.form_filtros = self.form_filtros(  # type: ignore
-                        datos_request, request=self.request
-                    )
-
-                if self.form_filtros.is_valid():
-                    form_datos = self.form_filtros.cleaned_data
-                else:
-                    form_datos = self.form_filtros.initial
+                # modificar paginación de acuerdo a los filtros
+                self.modificar_paginacion_por_filtro(datos_form)
 
                 # modificar queryset de acuerdo a los filtros
                 queryset = self.aplicar_filtros(
                     queryset=queryset,
-                    datos_request=datos_request,
-                    datos_form=form_datos,
+                    datos_form=datos_form,
                 )
 
             return list(queryset)
         else:
             return []
 
-    def aplicar_filtros(
-        self,
-        queryset: models.QuerySet,
-        datos_request: "dict[str, Any]",
-        datos_form: "dict[str, Any] | Mapping[str, Any]",
-    ):
-        """Modifica el queryset de acuerdo a los filtros indicados en el form de filtros. Por defecto solo aplica la paginación."""
+    def establecer_form_filtros(self):
+        # al crear el form de filtros, se debe distinguir entre GET y POST, ya que por alguna razón GET no funciona correctamente (evita que se recuperen los datos de las cookies) si se le pasan los datos
+        if self.request.method == "GET":
+            self.form_filtros = self.form_filtros(request=self.request)  # type: ignore
+        elif self.request.method == "POST":
+            self.form_filtros = self.form_filtros(  # type: ignore
+                self.request.POST, request=self.request
+            )
 
+        if self.form_filtros.is_valid():
+            return self.form_filtros.cleaned_data
+        else:
+            return self.form_filtros.initial
+
+    def modificar_paginacion_por_filtro(
+        self, datos_form: "dict[str, Any] | Mapping[str, Any]"
+    ):
         if self.form_filtros.fields.get("cantidad_por_pagina"):
             try:
                 cantidad_por_pagina = int(
@@ -166,6 +160,12 @@ class VistaListaObjetos(Vista, ListView):
             if cantidad_por_pagina > 0:
                 self.paginate_by = cantidad_por_pagina
 
+    def aplicar_filtros(
+        self,
+        queryset: models.QuerySet,
+        datos_form: "dict[str, Any] | Mapping[str, Any]",
+    ):
+        """Modifica el queryset de acuerdo a los filtros indicados en el form de filtros"""
         return queryset
 
     def get_context_data(self, *args, **kwargs):
