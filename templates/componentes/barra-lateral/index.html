@@ -57,7 +57,7 @@
       {% include "componentes/barra-lateral/selector-tema.html" %}
 
       <button
-        style="--h: 17px; --w: 25px;"
+        style="--h: 15px; --w: 22px;"
         class="{{ 'group relative h-[--h] w-[--w] rounded-campo transition-background-color ease-in-out sidebar:hidden [&>span]:(absolute left-0 block w-full h-10% opacity-100 bg-current rounded-20px transition-[transform,top,width,left] ease-in-out duration-250 origin-left-center)'|expandir_variantes }}"
         x-ref="btnNav"
         @click="abiertoPorBtn = !abiertoPorBtn"
