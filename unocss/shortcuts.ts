@@ -30,7 +30,7 @@ const btn = {
     "fc gap-x-2 rounded-campo cursor-pointer active:scale-99 transition-[background-color,color,transform,border-color,outline-color] duration-200 ease-in-out select-none",
 
   ["ui-btn/primario"]:
-    "bg-primario text-primario-texto font-bold pover:bg-primario-600",
+    "bg-primario dark:bg-primario-600 text-primario-texto font-bold pover:bg-primario-600 dark:pover:bg-primario-700",
 
   ["ui-btn/secundario"]: "bg-secundario text-secundario-texto font-bold",
 
