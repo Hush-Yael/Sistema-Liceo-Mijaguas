@@ -187,10 +187,10 @@ class BusquedaFormMixin(CookieFormMixin, forms.Form):
             self.fields["columna_buscada"].initial = self.opciones_columna_buscar[0][0]
 
         if not self.fields["tipo_busqueda"].choices:  # type: ignore
-            self.fields["tipo_busqueda"].choices = self.opciones_columna_buscar  # type: ignore
+            self.fields["tipo_busqueda"].choices = self.opciones_tipo_busqueda  # type: ignore
 
         if not self.fields["tipo_busqueda"].initial:
-            self.fields["tipo_busqueda"].initial = self.opciones_columna_buscar[0][0]
+            self.fields["tipo_busqueda"].initial = self.opciones_tipo_busqueda[0][0]
 
     cantidad_por_pagina = forms.IntegerField(
         label="Cantidad por página",
