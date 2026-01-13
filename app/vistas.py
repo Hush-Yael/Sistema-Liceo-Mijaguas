@@ -159,6 +159,17 @@ class VistaListaObjetos(Vista, ListView):
     def modificar_paginacion_por_filtro(
         self, datos_form: "dict[str, Any] | Mapping[str, Any]"
     ):
+        # ya que la paginación se hace por post, se debe modificar el kwarg que se usa para ella
+        if self.form_filtros.fields.get("pagina"):
+            self.kwargs[self.page_kwarg] = int(
+                datos_form.get(
+                    "pagina",
+                    "1",
+                )
+            )
+        elif p := self.request.POST.get("page"):
+            self.kwargs[self.page_kwarg] = int(p)
+
         if self.form_filtros.fields.get("cantidad_por_pagina"):
             try:
                 cantidad_por_pagina = int(
