@@ -99,6 +99,7 @@
           <div class="relative fc size-4">
             <input
               type="checkbox"
+              autocomplete="off"
               class="peer ui-opcion ui-opcion/checkbox cursor-pointer"
               id="seleccionar-todos"
               aria-label="Seleccionar todas las filas"
@@ -170,6 +171,7 @@
                 :checked="filasSeleccionadas.has($el.value)"
                 class="peer ui-opcion ui-opcion/checkbox cursor-pointer"
                 type="checkbox"
+                autocomplete="off"
                 aria-label="Seleccionar fila"
                 {% if not forloop.first %}
                   tabindex="-1"
