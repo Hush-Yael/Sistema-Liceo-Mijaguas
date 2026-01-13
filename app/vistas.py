@@ -262,18 +262,9 @@ class VistaListaObjetos(Vista, ListView):
         if not ids or not isinstance(ids, list):
             return HttpResponseBadRequest("No se indicó una lista de ids")
 
-        eliminados, _ = self.model.objects.filter(id__in=ids).delete()  # type: ignore
+        eliminados, _ = self.eliminar_seleccionados(ids)
 
-        if eliminados > 0:
-            messages.success(
-                request,
-                f"Se eliminaron {self.articulo_nombre_plural} {self.model._meta.verbose_name_plural} seleccionad{'as' if self.articulo_nombre_plural == 'las' else 'os'}",
-            )
-        else:
-            messages.error(
-                request,
-                f"No se eliminaron {self.articulo_nombre_plural} {self.model._meta.verbose_name_plural} seleccionad{'as' if self.articulo_nombre_plural == 'las' else 'os'}",
-            )
+        self.incluir_eliminados_mensajes(request, eliminados)
 
         self.object_list = self.get_queryset(queryset=self.queryset)  # type: ignore
 
@@ -285,6 +276,21 @@ class VistaListaObjetos(Vista, ListView):
             "lista-objetos.html#respuesta_cambios_tabla",
             ctx,
         )
+
+    def incluir_eliminados_mensajes(self, request: HttpRequest, eliminados: int):
+        if eliminados > 0:
+            messages.success(
+                request,
+                f"Se eliminaron {self.articulo_nombre_plural} {self.model._meta.verbose_name_plural} seleccionad{'as' if self.articulo_nombre_plural == 'las' else 'os'}",
+            )
+        else:
+            messages.error(
+                request,
+                f"No se pudieron eliminar {self.articulo_nombre_plural} {self.model._meta.verbose_name_plural} seleccionad{'as' if self.articulo_nombre_plural == 'las' else 'os'}",
+            )
+
+    def eliminar_seleccionados(self, ids: "list[str]") -> "tuple[int, dict[str, int]]":
+        return self.model.objects.filter(id__in=ids).delete()  # type: ignore
 
     def render_to_response(self, context, **response_kwargs):
         response = super().render_to_response(context, **response_kwargs)
