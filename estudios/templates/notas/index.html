@@ -86,6 +86,7 @@
             prefijo=form_filtros.materias.label
             opciones=form_filtros.materias|obtener_lista_opciones
             opciones_seleccionadas=form_filtros.materias.value
+            mostrar_cantidad=1
           %}
 
           {% include "componentes/combobox.html" with
@@ -94,6 +95,7 @@
             prefijo=form_filtros.secciones.label
             opciones=form_filtros.secciones.field.choices|obtener_lista_opciones
             opciones_seleccionadas=form_filtros.secciones.value
+            mostrar_cantidad=1
           %}
 
           {% include "componentes/combobox.html" with
@@ -102,6 +104,7 @@
             prefijo=form_filtros.lapsos.label
             opciones=form_filtros.lapsos.field.choices|obtener_lista_opciones
             opciones_seleccionadas=form_filtros.lapsos.value
+            mostrar_cantidad=1
           %}
         {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
       {% endwith %}

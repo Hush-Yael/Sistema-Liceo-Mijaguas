@@ -20,6 +20,7 @@
     multiple: true,
     opcionesSeleccionadas: new Set({{ opciones_seleccionadas|default:''|safe }}),
     {% endif %}
+    mostrarCantidad: {% if mostrar_cantidad %}true{% else %}false{% endif %},
   })"
   {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
   {% if not busqueda_activa %}
@@ -248,6 +249,34 @@
           </li>
         </template>
       </ul>
+
+      {% if mostrar_cantidad %}
+        <div
+          role="status"
+          class="sticky bottom-0 col gap-y-1.5 max-w-200px p-1 px-2 border-t border-[--borde-caja] bg-fondo-600 text-sm"
+        >
+          {% if busqueda_activa %}
+            <span class="flex aic jb gap-x-2">
+              <span class="text-texto-sutil">Se encontraron:</span>
+              <b x-text="cantidadFiltradas"></b>
+            </span>
+          {% else %}
+            <span class="flex aic jb gap-x-2">
+              <span class="text-texto-sutil">Disponibles:</span>
+              <b x-text="opciones.length"></b>
+            </span>
+          {% endif %}
+
+          {% if multiple != 0 %}
+            <hr class="h-1px border-[--borde-caja]" />
+
+            <span class="flex aic jb gap-x-2">
+              <span class="text-texto-sutil">Se seleccionaron:</span>
+              <b x-text="opcionesSeleccionadas.size"></b>
+            </span>
+          {% endif %}
+        </div>
+      {% endif %}
     </div>
   </div>
 </div>

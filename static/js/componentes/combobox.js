@@ -20,6 +20,10 @@ document.addEventListener("alpine:init", () => {
     /** @type { boolean } */
     shiftPresionado: false,
     q: "",
+    /** @type { boolean } */
+    mostrarCantidad: config.mostrarCantidad || false,
+    /** @type { number } */
+    cantidadFiltradas: config.opciones?.length || 0,
     establecerTextoLabel,
     destacarPrimeraCoincidencia,
     seleccionarOpcion,
@@ -39,6 +43,8 @@ document.addEventListener("alpine:init", () => {
  *   multiple: boolean,
  *   reiniciar: () => void,
  *   q: string,
+ *   mostrarCantidad: boolean,
+ *   cantidadFiltradas: number,
  *   $el: HTMLDivElement
  * }} ComboboxContext
  **/
@@ -204,9 +210,12 @@ function filtrarOpciones() {
       this.$refs.sinResultadosMsj.classList.remove("hidden");
     else this.$refs.sinResultadosMsj.classList.add("hidden");
 
+    if (this.mostrarCantidad) this.cantidadFiltradas = filtradas.length;
     return filtradas;
   }
 
   this.$refs.sinResultadosMsj.classList.add("hidden");
+
+  if (this.mostrarCantidad) this.cantidadFiltradas = this.opciones.length;
   return this.opciones;
 }
