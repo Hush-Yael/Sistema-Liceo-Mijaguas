@@ -136,7 +136,11 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
             ],
         },
         (
-            {"label": "Panel de administración", "icono_nombre": "panel"}
+            {
+                "label": "Panel de administración",
+                "icono_nombre": "panel",
+                "href": "/admin/",
+            }
             if request.user.is_staff  # type: ignore
             else None
         ),
