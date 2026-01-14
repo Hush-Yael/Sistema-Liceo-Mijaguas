@@ -21,46 +21,6 @@
   {% endwith %}
 {% endblock contenido %}
 
-{% block sin_resultados %}
-  {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
-    <h2 class="font-bold text-xl">No se han añadido
-
-      {% if not hay_matriculas %}
-        matrículas</h2>
-        <p class="text-texto-sutil">
-          estas son necesarias para poder asignar notas
-        </p>
-      {% elif not hay_materias %}
-        asignaturas</h2>
-        <p class="text-texto-sutil">
-          estas son necesarias para poder asignar notas
-        </p>
-        
-      {% else %}
-        notas</h2>
-        <p class="text-texto-sutil">
-          Parece que las actividades escolares no han iniciado
-        </p>
-      {% endif %}
-  {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
-{% endblock sin_resultados %}
-
-{% partialdef tabla %}
-  {% include "lista-objetos.html#tabla" %}
-{% endpartialdef tabla %}
-
-{% partialdef datos_td %}
-  {% if clave == 'valor' %}
-    {% with valor=dato|floatformat:"-1" %}
-      {{ valor }}
-    {% endwith %}
-  {% elif 'fecha' in columna.clave %}
-    {{ dato|date:"D. d M. Y, h:i A" }}
-  {% else %}
-    {{ dato }}
-  {% endif %}
-{% endpartialdef datos_td %}
-
 {% block filtros %}
   <div
     class="{{ 'col gap-y-2 gap-x-5 min-[600px]:(flex-row)'|expandir_variantes }}"
@@ -110,10 +70,10 @@
       {% endwith %}
     </form>
   </div>
-  {% include "lista-objetos.html#busqueda_y_config" %}
+  {{ block.super }}
 {% endblock filtros %}
 
-{% partialdef menu_config %}
+{% block menu_config %}
   <div
     class="col gap-y-4"
     hx-post
@@ -150,7 +110,47 @@
     {{ form_filtros.cantidad_por_pagina.label_tag }}
     {% render_field form_filtros.cantidad_por_pagina class="ui-elevado-2 py-0! incluido-filtros" %}
   </div>
-{% endpartialdef menu_config %}
+{% endblock menu_config %}
+
+{% partialdef tabla %}
+  {% include "lista-objetos.html#tabla" %}
+{% endpartialdef tabla %}
+
+{% block sin_resultados %}
+  {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+    <h2 class="font-bold text-xl">No se han añadido
+
+      {% if not hay_matriculas %}
+        matrículas</h2>
+        <p class="text-texto-sutil">
+          estas son necesarias para poder asignar notas
+        </p>
+      {% elif not hay_materias %}
+        asignaturas</h2>
+        <p class="text-texto-sutil">
+          estas son necesarias para poder asignar notas
+        </p>
+        
+      {% else %}
+        notas</h2>
+        <p class="text-texto-sutil">
+          Parece que las actividades escolares no han iniciado
+        </p>
+      {% endif %}
+  {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+{% endblock sin_resultados %}
+
+{% partialdef datos_td %}
+  {% if clave == 'valor' %}
+    {% with valor=dato|floatformat:"-1" %}
+      {{ valor }}
+    {% endwith %}
+  {% elif 'fecha' in columna.clave %}
+    {{ dato|date:"D. d M. Y, h:i A" }}
+  {% else %}
+    {{ dato }}
+  {% endif %}
+{% endpartialdef datos_td %}
 
 {% partialdef acciones %}
 {% endpartialdef acciones %}
