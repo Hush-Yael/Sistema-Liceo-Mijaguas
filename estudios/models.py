@@ -242,6 +242,28 @@ class Matricula(models.Model):
         else:
             return super().unique_error_message(model_class, unique_check)
 
+    # Imponer la validación de la cantidad de estudiantes de la sección al matricular
+    def clean(self):
+        super().clean()
+
+        if not self.pk and hasattr(self, "seccion"):
+            matriculas_existentes = Matricula.objects.filter(
+                seccion=self.seccion, lapso=self.lapso
+            )
+
+            cantidad_matriculas = matriculas_existentes.count()
+            capacidad_maxima = self.seccion.capacidad
+
+            if cantidad_matriculas >= capacidad_maxima:
+                raise ValidationError(
+                    f"La sección {self.seccion.nombre} está llena (capacidad: {self.seccion.capacidad} alumnos)"
+                )
+
+    def save(self, *args, **kwargs):
+        # Ejecutar validación
+        self.full_clean()
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.estudiante} - {self.seccion} ({self.lapso.nombre})"
 
