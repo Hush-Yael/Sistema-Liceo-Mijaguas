@@ -103,7 +103,7 @@
               {% endwith %}
 
               {% if form_filtros %}
-                {% with label="Filtradas:" dato_id="filtrados-cantidad" dato=page_obj.paginator.count icono='conjunto' %}
+                {% with label="Filtrad"|add:view.vocal_del_genero|add:"s:" dato_id="filtrados-cantidad" dato=page_obj.paginator.count icono='conjunto' %}
                   {% partial cantidad %}
                 {% endwith %}
               {% endif %}
