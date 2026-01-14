@@ -1,4 +1,4 @@
-from typing import Mapping, Type, Any, TypedDict
+from typing import Literal, Mapping, Type, Any, TypedDict
 from typing_extensions import NotRequired
 from django import forms
 from django.contrib import messages
@@ -26,6 +26,10 @@ class Vista(PermissionRequiredMixin):
     nombre_app_modelo: str
     nombre_objeto: str
     nombre_objeto_plural: str
+    genero_sustantivo_objeto: "Literal['M', 'F']" = "M"
+    articulo_sustantivo: str
+    articulo_sustantivo_plural: str
+    vocal_del_genero: Literal["a", "o"]
     model: Type[models.Model]
 
     def __init__(self):
@@ -33,6 +37,18 @@ class Vista(PermissionRequiredMixin):
         self.nombre_app_modelo = self.model._meta.app_label
         self.nombre_objeto = self.model._meta.verbose_name  # type: ignore
         self.nombre_objeto_plural = self.model._meta.verbose_name_plural  # type: ignore
+
+        genero = self.genero_sustantivo_objeto
+
+        if genero == "M":
+            self.articulo_sustantivo = "el"
+            self.articulo_sustantivo_plural = "los"
+            self.vocal_del_genero = "o"
+
+        elif genero == "F":
+            self.articulo_sustantivo = "la"
+            self.articulo_sustantivo_plural = "las"
+            self.vocal_del_genero = "a"
 
         self.permission_required = (
             f"{self.nombre_app_modelo}.{self.tipo_permiso}_{self.nombre_modelo}"
@@ -55,7 +71,6 @@ class VistaListaObjetos(Vista, ListView):
     model: Type[models.Model]  # type: ignore
     tipo_permiso = "view"
     context_object_name = "lista_objetos"
-    articulo_nombre_plural = "los"
     columnas_totales: "tuple[ColumnaFija, ...]"
     columnas_mostradas: "list[Columna]"
     columnas_a_evitar: "set[str]"
@@ -254,7 +269,7 @@ class VistaListaObjetos(Vista, ListView):
             f"{self.nombre_app_modelo}.delete_{self.nombre_modelo}"
         ):
             return HttpResponseForbidden(
-                f"No tienes permisos para eliminar {self.model._meta.verbose_name_plural}"
+                f"No tienes permisos para eliminar {self.nombre_objeto_plural}"
             )
 
         ids = request.GET.getlist("ids")
@@ -281,12 +296,12 @@ class VistaListaObjetos(Vista, ListView):
         if eliminados > 0:
             messages.success(
                 request,
-                f"Se eliminaron {self.articulo_nombre_plural} {self.model._meta.verbose_name_plural} seleccionad{'as' if self.articulo_nombre_plural == 'las' else 'os'}",
+                f"Se eliminaron {self.articulo_sustantivo_plural} {self.nombre_objeto_plural} seleccionad{self.vocal_del_genero}s",
             )
         else:
             messages.error(
                 request,
-                f"No se pudieron eliminar {self.articulo_nombre_plural} {self.model._meta.verbose_name_plural} seleccionad{'as' if self.articulo_nombre_plural == 'las' else 'os'}",
+                f"No se pudieron eliminar {self.articulo_sustantivo_plural} {self.nombre_objeto_plural} seleccionad{self.vocal_del_genero}s",
             )
 
     def eliminar_seleccionados(self, ids: "list[str]") -> "tuple[int, dict[str, int]]":
@@ -308,7 +323,7 @@ class VistaListaObjetos(Vista, ListView):
 
 class VistaForm(SingleObjectTemplateResponseMixin, Vista):
     model: Type[models.Model]  # type: ignore
-    accion_tipo_msg: str
+    tipo_accion_palabra: str
     invalido_url = "objeto-form.html#invalido"
 
     def __init__(self) -> None:
@@ -340,9 +355,9 @@ class VistaForm(SingleObjectTemplateResponseMixin, Vista):
 
         nombre_modelo: str = self.model._meta.verbose_name  # type: ignore
 
-        vocal = "a" if nombre_modelo.endswith("a") else "o"
         messages.success(
-            self.request, f"{nombre_modelo} {self.accion_tipo_msg}{vocal} correctamente"
+            self.request,
+            f"{nombre_modelo} {self.tipo_accion_palabra}{self.vocal_del_genero} correctamente",
         )
 
         # ya que la petición se hace por HTMX, se debe usar la clase que permite redireccionar con este
@@ -352,13 +367,13 @@ class VistaForm(SingleObjectTemplateResponseMixin, Vista):
 class VistaCrearObjeto(VistaForm, CreateView):
     model: Type[models.Model]  # type: ignore
     tipo_permiso = "add"
-    accion_tipo_msg = "cread"
+    tipo_accion_palabra = "cread"
 
 
 class VistaActualizarObjeto(VistaForm, UpdateView):
     model: Type[models.Model]  # type: ignore
     tipo_permiso = "edit"
-    accion_tipo_msg = "editad"
+    tipo_accion_palabra = "editad"
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)

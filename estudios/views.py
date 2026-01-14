@@ -74,6 +74,7 @@ class ListaNotas(VistaListaObjetos):
         },
         {"titulo": "Fecha", "clave": "fecha_añadida", "anotada": True},
     )
+    genero_sustantivo_objeto = "F"
 
     def get_queryset(self, *args, **kwargs) -> "list[dict]":
         queryset = Nota.objects.annotate(
@@ -234,6 +235,7 @@ class CrearMateria(VistaCrearObjeto):
     template_name = "materias/form.html"
     model = Materia
     form_class = FormMateria
+    genero_sustantivo_objeto = "F"
     success_url = reverse_lazy("materias")
 
     def form_valid(self, form):
@@ -252,6 +254,7 @@ class ActualizarMateria(VistaActualizarObjeto):
     template_name = "materias/form.html"
     model = Materia
     form_class = FormMateria
+    genero_sustantivo_objeto = "F"
     success_url = reverse_lazy("materias")
 
     def form_valid(self, form):
