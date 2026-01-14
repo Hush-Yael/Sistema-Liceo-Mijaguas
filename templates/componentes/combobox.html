@@ -167,19 +167,21 @@
       x-transition
     >
       {% if busqueda_activa %}
-        <div class="sticky top-0 z-1 bg-fondo-600">
+        <label class="sticky top-0 z-1 bg-fondo-600">
+          <span class="sr-only">Buscar</span>
+
           {% include "componentes/iconos/tabla.html#lupa" with class="absolute left-3 top-1/2 size-4 -translate-y-1/2" %}
+
           <input
             type="text"
             class="w-full border-b border-[--borde-caja] py-2 pl-10 pr-4 text-sm focus-visible:border-primario"
             name="busqueda"
             x-ref="busqueda"
-            aria-label="buscar"
             @input="q = $el.value"
             autocomplete="off"
             placeholder="Buscar"
           />
-        </div>
+        </label>
       {% endif %}
 
       <ul class="py-1.5 select-none empty:hidden">
