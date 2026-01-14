@@ -52,7 +52,12 @@
     ultimaSeleccionadaIndice: null
   }"
   x-effect="$el.$(`th[data-i='${indiceColActual}']>div`).appendChild($el.$('#columna-cambiador'));"
-  x-init="$el.$$('[name=filas_id]').forEach((el) => ids.add(el.value))"
+  x-init="{{
+    "
+      $el.$$('[name=filas_id]').forEach((el) => ids.add(el.value));
+      if (!$el.$('[name=filas_id]')) $el.setAttribute('data-sin-filas-seleccionar', '');
+    "|reemplazar_espacios:''
+  }}"
 >
   <table
     {% if page_obj.paginator.num_pages > 1 %}
@@ -162,24 +167,26 @@
     >
       {% for objeto in lista_objetos %}
         <tr data-indice="{{ forloop.counter0 }}">
-          <td class="fila-check w-4">
-            <div class="relative fc size-4">
-              <input
-                name="filas_id"
-                value="{{ objeto.id }}"
-                data-i="{{ forloop.counter0 }}"
-                :checked="filasSeleccionadas.has($el.value)"
-                class="peer ui-opcion ui-opcion/checkbox cursor-pointer"
-                type="checkbox"
-                autocomplete="off"
-                aria-label="Seleccionar fila"
-                {% if not forloop.first %}
-                  tabindex="-1"
-                {% endif %}
-              />
-              {% include "componentes/checkbox-icono.html" with class="pointer-events-none" %}
-            </div>
-          </td>
+          {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+          <td class="fila-check w-4">{% if not objeto.no_seleccionable %}
+              <div class="relative fc size-4">
+                <input
+                  name="filas_id"
+                  value="{{ objeto.id }}"
+                  data-i="{{ forloop.counter0 }}"
+                  :checked="filasSeleccionadas.has($el.value)"
+                  class="peer ui-opcion ui-opcion/checkbox cursor-pointer"
+                  type="checkbox"
+                  autocomplete="off"
+                  aria-label="Seleccionar fila"
+                  {% if not forloop.first %}
+                    tabindex="-1"
+                  {% endif %}
+                />
+                {% include "componentes/checkbox-icono.html" with class="pointer-events-none" %}
+              </div>
+            {% endif %}</td>
+          {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
 
           <td class="fila-n numeros">
             {% if page_obj.paginator.num_pages > 1 %}

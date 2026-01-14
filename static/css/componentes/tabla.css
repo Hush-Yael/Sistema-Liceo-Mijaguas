@@ -76,9 +76,13 @@
   border-bottom-right-radius: calc(var(--radio-campo) - 1px);
 }
 
-.fila-check+.fila-n,
-.fila-check+.fila-n {
+.fila-check:not(:empty)+.fila-n,
+.fila-check:not(:empty)+.fila-n {
   padding-left: 0;
+}
+
+[data-sin-filas-seleccionar] .fila-check {
+  display: none;
 }
 
 .tabla .numeros {
