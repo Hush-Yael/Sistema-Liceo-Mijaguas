@@ -155,6 +155,10 @@ class Lapso(models.Model):
         return f"{self.nombre} - {self.fecha_inicio} / {self.fecha_fin}"
 
 
+def obtener_lapso_actual():
+    return Lapso.objects.last()
+
+
 class AñoMateria(models.Model):
     año = models.ForeignKey(Año, on_delete=models.CASCADE)
     materia = models.ForeignKey(Materia, on_delete=models.CASCADE)
