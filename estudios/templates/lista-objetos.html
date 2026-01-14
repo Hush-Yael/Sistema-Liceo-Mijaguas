@@ -399,9 +399,12 @@
 {% endpartialdef acciones %}
 
 {% partialdef cantidad %}
-  <div role="status" class="ui-caja flex aic gap-x-3 p-2 px-3 flex-1">
+  <div
+    role="status"
+    class="{{ "ui-caja flex aic gap-x-2 p-1.5 px-3 flex-1 max-[500px]:text-sm min-[500px]:(gap-x-3 py-2)"|expandir_variantes }}"
+  >
     <span
-      class="inline-flex aic jcc rounded size-6 p-1 bg-secundario text-secundario-texto dark:bg-secundario-600"
+      class="inline-flex aic jcc rounded size-5 p-1 bg-secundario text-secundario-texto dark:bg-secundario-600 min-[500px]:size-6"
     >
       {% include "componentes/iconos/tabla.html#"|add:icono %}
     </span>
