@@ -153,7 +153,23 @@ def busqueda_campo(placeholder="Buscar", attrs: "dict[str, str] | None" = None):
     )
 
 
-class BusquedaFormMixin(CookieFormMixin, forms.Form):
+class PaginacionFormMixin(forms.Form):
+    cantidad_por_pagina = forms.IntegerField(
+        label="Cantidad por página",
+        min_value=1,
+        initial=50,
+        required=False,
+        widget=forms.NumberInput(
+            attrs={
+                "style": "max-width: 6ch;",
+                "hx-trigger": "input changed delay:600ms",
+                "hx-post": "",
+            }
+        ),
+    )
+
+
+class BusquedaFormMixin(CookieFormMixin, PaginacionFormMixin):
     opciones_columna_buscar: "tuple[tuple[str, str], ...]"
     opciones_tipo_busqueda = opciones_tipo_busqueda
     columnas_a_evitar: "set[str]"
@@ -191,20 +207,6 @@ class BusquedaFormMixin(CookieFormMixin, forms.Form):
 
         if not self.fields["tipo_busqueda"].initial:
             self.fields["tipo_busqueda"].initial = self.opciones_tipo_busqueda[0][0]
-
-    cantidad_por_pagina = forms.IntegerField(
-        label="Cantidad por página",
-        min_value=1,
-        initial=50,
-        required=False,
-        widget=forms.NumberInput(
-            attrs={
-                "style": "max-width: 6ch;",
-                "hx-trigger": "input changed delay:600ms",
-                "hx-post": "",
-            }
-        ),
-    )
 
     tipo_busqueda = forms.ChoiceField(
         label="Tipo de búsqueda",
