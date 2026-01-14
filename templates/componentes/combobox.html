@@ -124,7 +124,7 @@
         </span>
 
         <div
-          class="fc h-full w-7 min-w-max border-l border-[--transparente-2] rounded-r-campo bg-fondo-700"
+          class="{{ caret_class|default:''|add:' fc h-full w-7 min-w-max border-l border-[--transparente-2] rounded-r-campo bg-fondo-700' }}"
         >
           {% include "componentes/iconos/caret.html#abajo" with class="size-5 size-min-max" %}
         </div>
