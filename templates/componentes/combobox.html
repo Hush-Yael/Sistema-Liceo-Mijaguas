@@ -57,7 +57,7 @@
     />
   </label>
 
-  <div class="relative flex">
+  <div class="{{ btn_contenedor_class|default:''|add:' relative flex' }}">
     <template
       {% if multiple == 0 %}
         x-if="!!seleccionada"
