@@ -58,28 +58,30 @@
   </label>
 
   <div class="{{ btn_contenedor_class|default:''|add:' relative flex' }}">
-    <template
-      {% if multiple == 0 %}
-        x-if="!!seleccionada"
-      {% else %}
-        x-if="opcionesSeleccionadas.size"
-      {% endif %}
-    >
-      <button
-        type="button"
-        aria-label="eliminar valores"
-        data-btn-reiniciar
-        @click="reiniciar()"
-        class="peer ui-btn border border-[--transparente-2] bg-fondo-700 max-h-[min(100%,40px)] aspect-1 min-w-7 p-0.5 rounded-r-0 border-r-0! "
-        {% if hx_post %}
-          hx-post="{{ hx_post }}"
-        {% elif hx_get %}
-          hx-get="{{ hx_get }}"
+    {% if not sin_valor_nulo %}
+      <template
+        {% if multiple == 0 %}
+          x-if="!!seleccionada"
+        {% else %}
+          x-if="opcionesSeleccionadas.size"
         {% endif %}
       >
-        {% include "componentes/iconos/edicion.html#x" with class="size-4" %}
-      </button>
-    </template>
+        <button
+          type="button"
+          aria-label="eliminar valores"
+          data-btn-reiniciar
+          @click="reiniciar()"
+          class="peer ui-btn border border-[--transparente-2] bg-fondo-700 max-h-[min(100%,40px)] aspect-1 min-w-7 p-0.5 rounded-r-0 border-r-0! "
+          {% if hx_post %}
+            hx-post="{{ hx_post }}"
+          {% elif hx_get %}
+            hx-get="{{ hx_get }}"
+          {% endif %}
+        >
+          {% include "componentes/iconos/edicion.html#x" with class="size-4" %}
+        </button>
+      </template>
+    {% endif %}
 
     <div
       class="col gap-y-1 w-full peer-not-disabled:[&>button]:rounded-l-0 overflow-hidden"
