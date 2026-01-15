@@ -1,5 +1,6 @@
 # forms.py
 import json
+import re
 from django import forms
 from django.db import models
 
@@ -207,6 +208,29 @@ class BusquedaFormMixin(CookieFormMixin, PaginacionFormMixin):
 
         if not self.fields["tipo_busqueda"].initial:
             self.fields["tipo_busqueda"].initial = self.opciones_tipo_busqueda[0][0]
+
+        self.establecer_placeholder_q_dinamico()
+
+    def establecer_placeholder_q_dinamico(self):
+        self.fields["q"].widget.attrs[":placeholder"] = (
+            "`Buscar por: ${columnaBuscada}, ${tipoBusqueda}`"
+        )
+
+        self.fields["tipo_busqueda"].widget.attrs["@change"] = (
+            "tipoBusqueda = $event.target.selectedOptions[0].textContent"
+        )
+        self.fields["columna_buscada"].widget.attrs["@change"] = (
+            "columnaBuscada = $event.target.selectedOptions[0].textContent"
+        )
+
+        self.campos_contenedor_x_data = re.sub(
+            r"\s{2,}|\ng",
+            "",
+            """{
+              columnaBuscada: $el.$('[name=columna_buscada]').selectedOptions[0].textContent,
+              tipoBusqueda: $el.$('[name=tipo_busqueda]').selectedOptions[0].textContent
+            }""",
+        )
 
     tipo_busqueda = forms.ChoiceField(
         label="Tipo de búsqueda",

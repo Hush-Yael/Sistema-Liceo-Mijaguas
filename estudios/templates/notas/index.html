@@ -73,7 +73,10 @@
       {% endwith %}
     </form>
   </div>
-  {{ block.super }}
+
+  <div x-data="{{ form_filtros.campos_contenedor_x_data }}">
+    {{ block.super }}
+  </div>
 {% endblock filtros %}
 
 {% block menu_config %}
