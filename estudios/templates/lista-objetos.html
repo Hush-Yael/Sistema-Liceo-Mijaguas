@@ -361,7 +361,7 @@
   {% endif %}
 
   {# actualizar la cantidad de resultados #}
-  {% if view.form_filtros and tabla_reemplazada_por_htmx %}
+  {% if view.form_filtros and tabla_reemplazada_por_htmx and view.is_paginated %}
     <span hx-swap-oob="innerHTML:#filtrados-cantidad">
       {{ page_obj.paginator.count }}
     </span>
