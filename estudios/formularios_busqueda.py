@@ -234,3 +234,61 @@ class MatriculaBusquedaForm(LapsoYSeccionBusquedaFormMixin):
         choices=MatriculaEstados.choices,
         required=False,
     )
+
+
+class AsignacionesBuscarTipoOpciones(Enum):
+    TODOS = "1", "Asignada en los seleccionados"
+    NO_TODOS = "2", "No asignada en ninguno de los seleccionados"
+    ALGUNOS = "3", "Asignada en alguno de los seleccionados"
+    NO_ALGUNOS = "4", "No asignada en ninguno de los seleccionados"
+
+
+class MateriaBusquedaForm(CookieFormMixin, forms.Form):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["anios_asignados"].label_from_instance = (  # type: ignore
+            lambda obj: obj.nombre_corto
+        )
+
+        self.campos_contenedor_x_data = "{ tipoBusqueda: $el.$('[name=tipo_busqueda]').selectedOptions[0].textContent }"
+
+    campos_sin_cookies = ("q",)
+
+    campos_prefijo_cookie = "materias"
+
+    q = busqueda_campo(
+        attrs={
+            "placeholder": "Buscar por: Nombre",
+            ":placeholder": "'Buscar por: Nombre, ' + tipoBusqueda ",
+        }
+    )
+
+    tipo_busqueda = forms.ChoiceField(
+        label="Tipo de búsqueda por nombre",
+        initial=None,
+        choices=opciones_tipo_busqueda,
+        required=False,
+        widget=forms.Select(
+            attrs={
+                "@change": "tipoBusqueda = $event.target.selectedOptions[0].textContent"
+            }
+        ),
+    )
+
+    tipo_busqueda_anios = forms.ChoiceField(
+        label="Condición de búsqueda:",
+        choices=(opcion.value for opcion in AsignacionesBuscarTipoOpciones),
+        required=False,
+        initial=AsignacionesBuscarTipoOpciones.TODOS.value,
+    )
+
+    anios_asignados = forms.ModelMultipleChoiceField(
+        label="Búsqueda por años:",
+        queryset=Año.objects.all(),
+        initial=(),
+        required=False,
+        widget=forms.CheckboxSelectMultiple(
+            attrs={":class": '{"opacity-0.5": sin_asignaciones}'}
+        ),
+    )

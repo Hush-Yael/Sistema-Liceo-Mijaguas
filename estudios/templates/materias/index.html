@@ -1,19 +1,67 @@
 {% extends "lista-objetos.html" %}
 {% load partials %}
+{% load widget_tweaks %}
+{% load utilidades %}
+{% load grupos_variantes %}
+
+{% block cabeza %}
+  {{ block.super }}
+  {% include "componentes/combobox.html#scripts" %}
+  {% include "lista-objetos.html#script_fn_verificar_click_reiniciar" %}
+{% endblock cabeza %}
 
 {% block contenido %}
+
   {%
     with
-    main_class="col gap-y-3 flex-1 max-h-[calc(100dvh-var(--altura-header))] max-w-800px mxa w-full p-4 py-6 min-[500px]:py-8 sidebar:jcc sidebar:p-10"
+    main_class="col gap-y-3 flex-1 max-h-[calc(100dvh-var(--altura-header))] max-w-800px mxa w-full p-4 py-2 min-[500px]:p-6 sidebar:(jcc p-8)"|expandir_variantes
     nombre_url_crear="crear_materia"
   %}
     {{ block.super }}
   {% endwith %}
 {% endblock contenido %}
 
-{% partialdef tabla %}
-  {% include "lista-objetos.html#tabla" %}
-{% endpartialdef tabla %}
+{% block filtros %}
+  <form
+    hx-post
+    {# se evita que se filtre si se cambió 'tipo_busqueda_anios' pero 'anios_asignados' está vacío, ya que no tendría sentido, pues los resultados serían los mismos #}
+    hx-trigger="click[verificarClickEnReiniciar()], change[event.target.name === '{{ form_filtros.anios_asignados.name }}' || this.$('#{{ form_filtros.anios_asignados.name }}-texto').value !== ''] delay:600"
+    class="col gap-y-1 min-[600px]:gap-y-2"
+  >
+    {% with class="flex-row aic gap-x-2 max-w-full max-[600px]:(jb w-full) min-[600px]:gap-x-4"|expandir_variantes valor_class="font-bold" label_class="text-sm" %}
+      {%
+        include "componentes/combobox.html" with
+        name=form_filtros.anios_asignados.name
+        label=form_filtros.anios_asignados.label
+        placeholder="cualquiera"
+        opciones=form_filtros.anios_asignados|obtener_lista_opciones
+        opciones_seleccionadas=form_filtros.anios_asignados.value
+      %}
+      {%
+        include "componentes/combobox.html" with
+        btn_contenedor_class="max-[600px]:max-w-60%"
+        lista_clase="[&_ul]:max-w-300px"
+        name=form_filtros.tipo_busqueda_anios.name
+        label=form_filtros.tipo_busqueda_anios.label
+        opciones=form_filtros.tipo_busqueda_anios|obtener_lista_opciones
+        seleccionada=form_filtros.tipo_busqueda_anios.value.0
+        multiple=0
+        sin_valor_nulo=1
+      %}
+    {% endwith %}
+  </form>
+
+  <div x-data="{{ form_filtros.campos_contenedor_x_data }}">
+    {{ block.super }}
+  </div>
+{% endblock filtros %}
+
+{% block menu_config %}
+  <div class="col gap-y-1">
+    {{ form_filtros.tipo_busqueda.label_tag }}
+    {% render_field form_filtros.tipo_busqueda class="ui-elevado-2 incluido-filtros" %}
+  </div>
+{% endblock menu_config %}
 
 {% block modales %}
   {{ block.super }}
@@ -79,6 +127,10 @@
   {% endif %}
 {% endblock modales %}
 
+{% partialdef tabla %}
+  {% include "lista-objetos.html#tabla" %}
+{% endpartialdef tabla %}
+
 {% partialdef acciones %}
   {% include "lista-objetos.html#acciones" %}
 
@@ -141,7 +193,7 @@
         {% endfor %}
       </ul>
     {% endif %}
-  {% elif columna.clave == 'fecha_creacion' %}
+  {% elif 'fecha' in columna.clave %}
     {{ dato|date:"d M. Y, h:i A" }}
   {% else %}
     {{ dato }}

@@ -25,6 +25,8 @@ from estudios.formularios import (
 )
 from estudios.formularios_busqueda import (
     OPCION_BUSCAR_NOMBRES_Y_APELLIDOS,
+    AsignacionesBuscarTipoOpciones,
+    MateriaBusquedaForm,
     MatriculaBusquedaForm,
     NotasBusquedaForm,
     OpcionesFormSeccion,
@@ -210,9 +212,27 @@ class ListaMaterias(VistaListaObjetos):
     form_asignaciones = FormAsignaciones
     genero_sustantivo_objeto = "F"
     lista_años: "list[dict]"
+    form_filtros = MateriaBusquedaForm  # type: ignore
+    columnas_totales = (
+        {"titulo": "Nombre", "clave": "nombre"},
+        {"clave": "asignaciones", "titulo": "Años asignados", "anotada": True},
+        {"clave": "fecha", "titulo": "Fecha de creación", "anotada": True},
+    )
 
     def get_queryset(self, *args, **kwargs) -> "list[dict]":
-        materias = list(Materia.objects.values().order_by("nombre"))
+        queryset = (
+            Materia.objects.annotate(
+                fecha=TruncMinute("fecha_creacion"),
+            )
+            .values(
+                "id",
+                "nombre",
+                "fecha",
+            )
+            .order_by("nombre")
+        )
+
+        materias = super().get_queryset(queryset)
 
         if materias:
             años = Año.objects.values("id", "nombre_corto")
@@ -228,12 +248,64 @@ class ListaMaterias(VistaListaObjetos):
 
         return materias
 
-    def establecer_columnas(self):
-        super().establecer_columnas()
-        self.columnas_mostradas.insert(
-            1, {"clave": "asignaciones", "titulo": "Asignaciones"}
-        )
-        self.columnas_ocultables.insert(0, "Asignaciones")
+    def aplicar_filtros(
+        self,
+        queryset: models.QuerySet,
+        datos_form: "dict[str, Any] | Mapping[str, Any]",
+    ):
+        if años_asignados := datos_form.get("anios_asignados"):
+            tipo_busqueda_anios = (
+                datos_form.get(
+                    "tipo_busqueda_anios",
+                )
+                or self.form_filtros.fields["tipo_busqueda_anios"].initial[0]
+            )
+
+            # busqueda exacta de años asignados, ya sea todos o ninguno
+            if (
+                todos := tipo_busqueda_anios
+                == AsignacionesBuscarTipoOpciones.TODOS.value[0]
+            ) or tipo_busqueda_anios == AsignacionesBuscarTipoOpciones.NO_TODOS.value[
+                0
+            ]:
+                queryset = queryset.annotate(
+                    total_asignaciones=Count("añomateria"),
+                    asignaciones_especificas=Count(
+                        "añomateria", filter=Q(añomateria__año__in=años_asignados)
+                    ),
+                )
+
+                if todos:
+                    queryset = queryset.filter(
+                        total_asignaciones=len(años_asignados),
+                        asignaciones_especificas=len(años_asignados),
+                    )
+                else:
+                    queryset = queryset.exclude(
+                        total_asignaciones=len(años_asignados),
+                        asignaciones_especificas=len(años_asignados),
+                    )
+
+            # busqueda de al menos un año asignado o no asignado en la lista
+            elif (
+                algunos := tipo_busqueda_anios
+                == AsignacionesBuscarTipoOpciones.ALGUNOS.value[0]
+            ) or tipo_busqueda_anios == AsignacionesBuscarTipoOpciones.NO_ALGUNOS.value[
+                0
+            ]:
+                if algunos:
+                    queryset = queryset.filter(añomateria__año__in=años_asignados)
+                else:
+                    queryset = queryset.exclude(añomateria__año__in=años_asignados)
+
+        busqueda = datos_form.get("q")
+
+        if isinstance(busqueda, str) and busqueda.strip() != "":
+            tipo_busqueda = datos_form.get("tipo_busqueda")
+            columna_y_valor = {f"nombre__{tipo_busqueda}": busqueda}
+            queryset = queryset.filter(**columna_y_valor)
+
+        return queryset
 
     def get_context_data(self, *args, **kwargs):
         if not self.object_list:
