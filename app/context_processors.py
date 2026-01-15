@@ -43,7 +43,11 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
                 ),
                 si_permitido(
                     "estudios.view_matricula",
-                    {"label": "Matrículas", "icono_nombre": "tabla"},
+                    {
+                        "label": "Matrículas",
+                        "icono_nombre": "tabla",
+                        "href": reverse_lazy("matriculas"),
+                    },
                 ),
             ],
         },
@@ -105,7 +109,11 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
                 ),
                 si_permitido(
                     "estudios.view_seccion",
-                    {"label": "Secciones", "icono_nombre": "secciones"},
+                    {
+                        "label": "Secciones",
+                        "icono_nombre": "secciones",
+                        "href": reverse_lazy("secciones"),
+                    },
                 ),
                 si_permitido(
                     "estudios.view_lapso",

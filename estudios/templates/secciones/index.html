@@ -1,0 +1,161 @@
+{% extends "lista-objetos.html" %}
+{% load partials %}
+{% load static %}
+{% load widget_tweaks %}
+{% load grupos_variantes %}
+{% load utilidades %}
+
+{% block cabeza %}
+  {{ block.super }}
+  <link
+    rel="stylesheet"
+    href="{% static 'css/componentes/htmx-indicator.css' %}"
+  />
+  {% include "componentes/combobox.html#scripts" %}
+  {% include "lista-objetos.html#script_fn_verificar_click_reiniciar" %}
+{% endblock cabeza %}
+
+{% block contenido %}
+  {%
+    with
+    main_class="col gap-y-3 flex-1 max-h-[calc(100dvh-var(--altura-header))] mxa w-full max-w-1000px p-3 px-4 min-[525px]:(p-5 gap-y-4) min-[600px]:px-8 sidebar:jcc sidebar:px-10"|expandir_variantes
+    nombre_url_crear="crear_seccion"
+  %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock contenido %}
+
+{% block filtros %}
+  <div class="col gap-y-3 min-[525px]:gap-y-4">
+    <form
+      class="{{ 'flex flex-wrap gap-2 min-[525px]:(aic content-center)'|expandir_variantes }}"
+      hx-trigger="click[verificarClickEnReiniciar()], change delay:800ms"
+      hx-post
+    >
+      {%
+        with
+        label_class="sr-only"
+        prefijo_class="text-texto-sutil"
+        btn_class="max-[500px]:text-xs"
+      %}
+        {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+          {%
+            include "componentes/combobox.html" with
+            name=form_filtros.anio.name
+            label=form_filtros.anio.label
+            placeholder="cualquiera"
+            prefijo=form_filtros.anio.label|add:':'
+            opciones=form_filtros.anio|obtener_lista_opciones
+            opciones_seleccionadas=form_filtros.anio.value
+          %}
+    
+          {%
+            include "componentes/combobox.html" with
+            name=form_filtros.letra.name
+            label=form_filtros.letra.label
+            placeholder="cualquiera"
+            prefijo=form_filtros.letra.label|add:':'
+            opciones=form_filtros.letra|obtener_lista_opciones
+            opciones_seleccionadas=form_filtros.letra.value
+            busqueda_activa=1
+            mostrar_cantidad=1
+          %}
+    
+          {%
+            include "componentes/combobox.html" with
+            name=form_filtros.tiene_vocero.name
+            label=form_filtros.tiene_vocero.label
+            placeholder="no indicado"
+            prefijo=form_filtros.tiene_vocero.label|add:':'
+            opciones=form_filtros.tiene_vocero|obtener_lista_opciones
+            seleccionada=form_filtros.tiene_vocero.value
+            multiple=0
+          %}
+    
+          {%
+            include "componentes/combobox.html" with
+            name=form_filtros.disponibilidad.name
+            label=form_filtros.disponibilidad.label
+            placeholder="no indicada"
+            prefijo=form_filtros.disponibilidad.label|add:':'
+            prefijo_class="text-texto-sutil"
+            opciones=form_filtros.disponibilidad|obtener_lista_opciones
+            seleccionada=form_filtros.disponibilidad.value
+            multiple=0
+          %}
+        {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+      {% endwith %}
+    </form>
+
+    <div
+      x-data="{{ form_filtros.campos_contenedor_x_data }}"
+      x-init="establecerPlaceholderBusqueda()"
+    >
+      {{ block.super }}
+    </div>
+  </div>
+{% endblock filtros %}
+
+{% block menu_config %}
+  <div
+    class="col gap-y-5"
+    hx-post
+    hx-trigger="change[$id('q').value.trim() !== ''] changed delay:600ms"
+    @change="if ($event.target.name !== 'q') establecerPlaceholderBusqueda()"
+  >
+    <div class="col gap-y-1" @change="columnaBuscada = $event.target.value">
+      {{ form_filtros.columna_buscada.label_tag }}
+      {% render_field form_filtros.columna_buscada class="ui-elevado-2 incluido-filtros" %}
+    </div>
+
+    <div
+      class="col gap-y-1"
+      {# ocultar el tipo de búsqueda si la columna buscada no es de tipo texto #}
+      x-show="opcionesBusquedaTexto.includes(columnaBuscada)"
+    >
+      {{ form_filtros.tipo_busqueda_texto.label_tag }}
+      {% render_field form_filtros.tipo_busqueda_texto class="ui-elevado-2 incluido-filtros" %}
+    </div>
+
+    <div
+      class="col gap-y-1"
+      {# ocultar el tipo de búsqueda si la columna buscada no es de tipo numérico #}
+      x-show="!opcionesBusquedaTexto.includes(columnaBuscada)"
+    >
+      {{ form_filtros.tipo_busqueda_numerica.label_tag }}
+      {% render_field form_filtros.tipo_busqueda_numerica class="ui-elevado-2 incluido-filtros" %}
+    </div>
+
+    <div
+      class="flex gap-x-3 flex aic [&_label]:min-w-max"
+      hx-vals='{"solo_tabla": true}'
+    >
+      {{ form_filtros.cantidad_por_pagina.label_tag }}
+      {% render_field form_filtros.cantidad_por_pagina class="ui-elevado-2 py-0! incluido-filtros" %}
+    </div>
+  </div>
+{% endblock menu_config %}
+
+{% partialdef tabla %}
+  {% include "lista-objetos.html#tabla" %}
+{% endpartialdef tabla %}
+
+{% partialdef acciones %}
+  {% include "lista-objetos.html#acciones" %}
+{% endpartialdef acciones %}
+
+{% partialdef datos_td %}
+  {% if clave == 'vocero' %}
+    {% if dato is not None %}
+      <a {# href="{% url 'estudiantes' objeto.vocero.id %}" #}> {{ dato }} </a>
+    {% else %}
+      <i class="text-texto-sutil">Sin vocero</i>
+    {% endif %}
+  {% elif clave == 'cantidad_matriculas' %}
+    {{ dato }}
+  {% elif 'fecha' in clave %}
+    {{ dato|date:"d M. Y, h:i A" }}
+  {% else %}
+    {{ dato }}
+  {% endif %}
+{% endpartialdef datos_td %}

@@ -1,17 +1,38 @@
+from typing import Any, Mapping
+from django.db import models
+from django.db.models.functions.datetime import TruncMinute
 from django.http import (
     HttpRequest,
     HttpResponseBadRequest,
 )
 from django.http.request import QueryDict
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count, Q, F, Value
+from django.db.models import Case, Count, Q, F, Value, When
 from django.urls import reverse_lazy
-from app.vistas import VistaActualizarObjeto, VistaCrearObjeto, VistaListaObjetos
-from estudios.formularios import FormAsignaciones, FormLapso, FormMateria, FormAño
-from estudios.formularios_busqueda import NotasBusquedaForm
+from app.vistas import (
+    VistaActualizarObjeto,
+    VistaCrearObjeto,
+    VistaListaObjetos,
+)
+from estudios.formularios import (
+    FormAsignaciones,
+    FormLapso,
+    FormMateria,
+    FormMatricula,
+    FormSeccion,
+    FormAño,
+)
+from estudios.formularios_busqueda import (
+    OPCION_BUSCAR_NOMBRES_Y_APELLIDOS,
+    MatriculaBusquedaForm,
+    NotasBusquedaForm,
+    OpcionesFormSeccion,
+    SeccionBusquedaForm,
+)
 from .models import (
     Lapso,
+    MatriculaEstados,
     Seccion,
     Año,
     Estudiante,
@@ -21,6 +42,7 @@ from .models import (
     ProfesorMateria,
     Matricula,
     Nota,
+    obtener_lapso_actual,
 )
 from django.db.models.functions import Concat
 from django.contrib import messages
@@ -49,10 +71,55 @@ def inicio(request: HttpRequest):
     return render(request, "inicio.html", contexto)
 
 
-def al_menos_un_filtro_aplicado(lista: "list[str]"):
-    if lista and ((len(lista) == 1 and lista[0] != "") or len(lista) > 1):
-        return lista
-    return None
+def aplicar_filtros_secciones_y_lapsos(
+    cls: VistaListaObjetos,
+    queryset: models.QuerySet,
+    datos_form: "dict[str, Any] | Mapping[str, Any]",
+    seccion_col_nombre: str = "seccion",
+    lapso_col_nombre: str = "lapso",
+):
+    if secciones := datos_form.get("secciones"):  # type: ignore
+        kwargs = {f"{seccion_col_nombre}_id__in": secciones}
+        queryset = queryset.filter(**kwargs)
+        cls.columnas_a_evitar.add("seccion_nombre")
+    else:
+        cls.columnas_a_evitar.discard("seccion_nombre")
+
+    if lapsos := datos_form.get("lapsos"):  # type: ignore
+        kwargs = {f"{lapso_col_nombre}_id__in": lapsos}
+        queryset = queryset.filter(**kwargs)
+        cls.columnas_a_evitar.add("lapso_nombre")
+    else:
+        cls.columnas_a_evitar.discard("lapso_nombre")
+
+    return queryset
+
+
+def aplicar_busqueda_estudiante(
+    queryset: models.QuerySet,
+    datos_form: "dict[str, Any] | Mapping[str, Any]",
+    estudiante_col_nombre: str,
+):
+    busqueda = datos_form.get("q")
+    if isinstance(busqueda, str) and busqueda.strip() != "":
+        tipo_busqueda = datos_form.get("tipo_busqueda")
+        columna_buscada = datos_form.get("columna_buscada")
+
+        columna_y_valor = {f"{columna_buscada}__{tipo_busqueda}": busqueda}
+
+        if columna_buscada == OPCION_BUSCAR_NOMBRES_Y_APELLIDOS[0]:
+            valor_compuesto = {
+                f"{columna_buscada}": Concat(
+                    f"{estudiante_col_nombre}__nombres",
+                    Value(" "),
+                    f"{estudiante_col_nombre}__apellidos",
+                )
+            }
+            queryset = queryset.annotate(**valor_compuesto).filter(**columna_y_valor)
+        else:
+            queryset = queryset.filter(**columna_y_valor)
+
+    return queryset
 
 
 class ListaNotas(VistaListaObjetos):
@@ -72,7 +139,7 @@ class ListaNotas(VistaListaObjetos):
             "anotada": True,
             "alinear": "derecha",
         },
-        {"titulo": "Fecha", "clave": "fecha_añadida", "anotada": True},
+        {"titulo": "Fecha de añadida", "clave": "fecha_añadida", "anotada": True},
     )
     genero_sustantivo_objeto = "F"
 
@@ -98,44 +165,29 @@ class ListaNotas(VistaListaObjetos):
         return super().get_queryset(queryset)
 
     def aplicar_filtros(self, queryset, datos_form):
+        queryset = aplicar_filtros_secciones_y_lapsos(
+            self,
+            queryset,
+            datos_form,
+            seccion_col_nombre="matricula__seccion",
+            lapso_col_nombre="matricula__lapso",
+        )
 
-        if secciones := al_menos_un_filtro_aplicado(datos_form.get("notas_secciones")):  # type: ignore
-            queryset = queryset.filter(matricula__seccion_id__in=secciones)
-            self.columnas_a_evitar.add("seccion_nombre")
-        else:
-            self.columnas_a_evitar.discard("seccion_nombre")
-
-        if lapsos := al_menos_un_filtro_aplicado(datos_form.get("notas_lapsos")):  # type: ignore
-            queryset = queryset.filter(matricula__lapso_id__in=lapsos)
-            self.columnas_a_evitar.add("lapso_nombre")
-        else:
-            self.columnas_a_evitar.discard("lapso_nombre")
-
-        if materias := al_menos_un_filtro_aplicado(datos_form.get("notas_materias")):  # type: ignore
+        if materias := datos_form.get("materias"):  # type: ignore
             queryset = queryset.filter(materia_id__in=materias)
             self.columnas_a_evitar.add("materia")
         else:
             self.columnas_a_evitar.discard("materia")
 
-        nota_minima = float(datos_form.get("notas_valor_minimo", 0))  # type: ignore
-        nota_maxima = float(datos_form.get("notas_valor_maximo", 20))  # type: ignore
+        nota_minima = float(datos_form.get("valor_minimo", 0))  # type: ignore
+        nota_maxima = float(datos_form.get("valor_maximo", 20))  # type: ignore
 
         if nota_minima <= nota_maxima:
             queryset = queryset.filter(valor__range=(nota_minima, nota_maxima))
 
-        busqueda = datos_request.get("q")
-        if isinstance(busqueda, str) and busqueda.strip() != "":
-            tipo_busqueda = datos_form["notas_tipo_busqueda"]
-            columna_buscada = datos_form["notas_columna_buscada"]
-
-            if columna_buscada == "nombres_y_apellidos":
-                queryset = queryset.filter(
-                    Q(matricula__estudiante__nombres__icontains=busqueda)
-                    | Q(matricula__estudiante__apellidos__icontains=busqueda)
-                )
-            else:
-                columna = {f"{columna_buscada}__{tipo_busqueda}": busqueda}
-                queryset = queryset.filter(**columna)
+        queryset = aplicar_busqueda_estudiante(
+            queryset, datos_form, "matricula__estudiante"
+        )
 
         return queryset
 
@@ -156,7 +208,7 @@ class ListaMaterias(VistaListaObjetos):
     template_name = "materias/index.html"
     model = Materia
     form_asignaciones = FormAsignaciones
-    articulo_nombre_plural = "las"
+    genero_sustantivo_objeto = "F"
     lista_años: "list[dict]"
 
     def get_queryset(self, *args, **kwargs) -> "list[dict]":
@@ -351,18 +403,236 @@ class ActualizarAño(VistaActualizarObjeto):
     success_url = reverse_lazy("años")
 
 
-@login_required
-def estudiantes_matriculados_por_año(request: HttpRequest):
-    """Consulta para ver estudiantes matriculados por año"""
-    matriculas = (
-        Matricula.objects.filter(estado="activo")
-        .select_related("estudiante", "año")
-        .order_by("año__numero", "estudiante__apellido")
+class ListaSecciones(VistaListaObjetos):
+    template_name = "secciones/index.html"
+    model = Seccion
+    paginate_by = 50
+    genero_sustantivo_objeto = "F"
+    form_filtros = SeccionBusquedaForm  # type: ignore
+    columnas_a_evitar = set()
+    columnas_totales = (
+        {"titulo": "Año", "clave": "nombre_año", "anotada": True},
+        {"titulo": "Nombre", "clave": "nombre"},
+        {"titulo": "Letra", "clave": "letra"},
+        {"titulo": "Capacidad", "clave": "capacidad", "alinear": "derecha"},
+        {
+            "titulo": "Alumnos",
+            "clave": "cantidad_matriculas",
+            "alinear": "derecha",
+            "anotada": True,
+        },
+        {"titulo": "Vocero", "clave": "vocero_nombre", "anotada": True},
+    )
+    columnas_texto = tuple(
+        o[0] for o in OpcionesFormSeccion.ColumnasTexto._value2member_map_
     )
 
-    return render(
-        request, "consultas/estudiantes_matriculados.html", {"matriculas": matriculas}
+    def get_queryset(self, *args, **kwargs) -> "list[dict]":
+        return super().get_queryset(
+            Seccion.objects.annotate(
+                nombre_año=F("año__nombre"),
+                vocero_nombre=Concat(
+                    F("vocero__nombres"), Value(" "), F("vocero__apellidos")
+                ),
+                cantidad_matriculas=Count(
+                    "matricula", filter=Q(matricula__estado="activo")
+                ),
+            ).only(
+                *(
+                    col["clave"]
+                    for col in self.columnas_mostradas
+                    if not col.get("anotada", False)
+                )
+            )
+        )
+
+    def aplicar_filtros(self, queryset, datos_form):
+        if año := datos_form.get("anio"):  # type: ignore
+            queryset = queryset.filter(año__in=año)
+            self.columnas_a_evitar.add("año")
+        else:
+            self.columnas_a_evitar.discard("año")
+
+        if letra := datos_form.get("letra"):  # type: ignore
+            queryset = queryset.filter(letra__in=letra)
+            self.columnas_a_evitar.add("letra")
+        else:
+            self.columnas_a_evitar.discard("letra")
+
+        if vocero := datos_form.get("vocero"):
+            if vocero == self.form_filtros.OpcionesVocero.CON_VOCERO.value[0]:  # type: ignore
+                queryset = queryset.filter(vocero__isnull=False)
+            elif vocero == self.form_filtros.OpcionesVocero.SIN_VOCERO.value[0]:  # type: ignore
+                queryset = queryset.filter(vocero__isnull=True)
+
+            self.columnas_a_evitar.add("vocero")
+        else:
+            self.columnas_a_evitar.discard("vocero")
+
+        if disponibilidad := datos_form.get("disponibilidad"):
+            if disponibilidad == OpcionesFormSeccion.Disponibilidad.LLENA.value[0]:
+                queryset = queryset.filter(cantidad_matriculas__gte=F("capacidad"))
+            elif (
+                disponibilidad == OpcionesFormSeccion.Disponibilidad.DISPONIBLE.value[0]
+            ):
+                queryset = queryset.filter(cantidad_matriculas__lt=F("capacidad"))
+            elif disponibilidad == OpcionesFormSeccion.Disponibilidad.VACIA.value[0]:
+                queryset = queryset.filter(cantidad_matriculas=0)
+
+        busqueda = datos_form.get("q")
+
+        if isinstance(busqueda, str) and busqueda.strip() != "":
+            columna_buscada = datos_form.get("columna_buscada")
+
+            opcion_de_texto = columna_buscada in self.columnas_texto
+
+            if opcion_de_texto:
+                tipo_busqueda = datos_form.get("tipo_busqueda_texto")
+
+                columna_y_valor = {f"{columna_buscada}__{tipo_busqueda}": busqueda}
+
+                if (
+                    columna_buscada
+                    == OpcionesFormSeccion.ColumnasTexto.NOMBRE_VOCERO.value[0]
+                ):
+                    valor_compuesto = {
+                        f"{columna_buscada}": Concat(
+                            F("vocero__nombres"), Value(" "), F("vocero__apellidos")
+                        )
+                    }
+
+                    queryset = queryset.annotate(**valor_compuesto)
+
+                queryset = queryset.filter(**columna_y_valor)
+            else:
+                try:
+                    busqueda = int(busqueda)
+                    tipo_busqueda = datos_form.get("tipo_busqueda_numerica")
+                    columna_y_valor = {f"{columna_buscada}__{tipo_busqueda}": busqueda}
+
+                    queryset = queryset.filter(**columna_y_valor)
+                except (ValueError, TypeError):
+                    pass
+
+        return queryset
+
+
+class CrearSeccion(VistaCrearObjeto):
+    template_name = "secciones/form.html"
+    model = Seccion
+    form_class = FormSeccion
+    genero_sustantivo_objeto = "F"
+    success_url = reverse_lazy("secciones")
+
+
+class ActualizarSeccion(VistaActualizarObjeto):
+    template_name = "secciones/form.html"
+    model = Seccion
+    form_class = FormSeccion
+    genero_sustantivo_objeto = "F"
+    success_url = reverse_lazy("secciones")
+
+
+class ListaMatriculas(VistaListaObjetos):
+    template_name = "matriculas/index.html"
+    model = Matricula
+    genero_sustantivo_objeto = "F"
+    form_filtros = MatriculaBusquedaForm  # type: ignore
+    paginate_by = 50
+    columnas_totales = (
+        {"titulo": "Estudiante", "clave": "estudiante_nombres"},
+        {"titulo": "Sección", "clave": "seccion_nombre"},
+        {"titulo": "Estado", "clave": "estado"},
+        {"titulo": "Lapso", "clave": "lapso_nombre"},
+        {"titulo": "Fecha de añadida", "clave": "fecha_añadida"},
     )
+    columnas_a_evitar = set()
+    estados_opciones = dict(MatriculaEstados.choices)
+    lapso_actual: "Lapso | None" = None
+
+    def get_queryset(self, *args, **kwargs):
+        return super().get_queryset(
+            Matricula.objects.annotate(
+                seccion_nombre=F("seccion__nombre"),
+                lapso_nombre=F("lapso__nombre"),
+                estudiante_nombres=Concat(
+                    "estudiante__nombres", Value(" "), "estudiante__apellidos"
+                ),
+                fecha=TruncMinute("fecha_añadida"),
+                # no se pueden seleccionar las matriculas de un lapso distinto al actual
+                no_seleccionable=Case(
+                    When(Q(lapso=obtener_lapso_actual()), then=0), default=1
+                ),
+            ).order_by(
+                "-lapso__id",
+                "-fecha",
+                "seccion__letra",
+                "estudiante__apellidos",
+                "estudiante__nombres",
+            )
+        )
+
+    def aplicar_filtros(self, queryset, datos_form):
+        queryset = aplicar_filtros_secciones_y_lapsos(
+            self, queryset, datos_form, "seccion"
+        )
+
+        if estado := datos_form.get("estado"):
+            queryset = queryset.filter(estado=estado)
+            self.columnas_a_evitar.add("estado")
+        else:
+            self.columnas_a_evitar.discard("estado")
+
+        queryset = aplicar_busqueda_estudiante(queryset, datos_form, "estudiante")
+
+        return queryset
+
+    def get(self, request: HttpRequest, *args, **kwargs):
+        self.lapso_actual = obtener_lapso_actual()
+        return super().get(request, *args, **kwargs)
+
+    def eliminar_seleccionados(self, ids):
+        return Matricula.objects.filter(id__in=ids, lapso=self.lapso_actual).delete()
+
+
+class CrearMatricula(VistaCrearObjeto):
+    template_name = "matriculas/form.html"
+    model = Matricula
+    form_class = FormMatricula
+    genero_sustantivo_objeto = "F"
+    success_url = reverse_lazy("matriculas")
+
+
+class ActualizarMatricula(VistaActualizarObjeto):
+    template_name = "matriculas/form.html"
+    model = Matricula
+    form_class = FormMatricula
+    genero_sustantivo_objeto = "F"
+    success_url = reverse_lazy("matriculas")
+
+    def no_se_puede_actualizar(self, request: HttpRequest):
+        if self.object.lapso != obtener_lapso_actual():  # type: ignore
+            messages.error(
+                request,
+                "No se puede actualizar una matricula de un lapso distinto al actual",
+            )
+            return True
+
+    def get(self, request: HttpRequest, *args, **kwargs):
+        r = super().get(request, *args, **kwargs)
+
+        if self.no_se_puede_actualizar(request):
+            return redirect(self.success_url)  # type: ignore
+
+        return r
+
+    def post(self, request: HttpRequest, *args, **kwargs):
+        r = super().post(request, *args, **kwargs)
+
+        if self.no_se_puede_actualizar(request):
+            return redirect(self.success_url)  # type: ignore
+
+        return r
 
 
 def estudiantes_por_seccion(request, año_id):

@@ -6,11 +6,7 @@ from . import views
 urlpatterns = [
     path("", views.inicio, name="inicio"),
     path("notas/", views.ListaNotas.as_view(), name="notas"),
-    path(
-        "estudiantes-matriculados/",
-        views.estudiantes_matriculados_por_año,
-        name="estudiantes_matriculados",
-    ),
+    path("notas/crear/", views.ListaNotas.as_view(), name="crear_nota"),
     path(
         "materias-profesores/",
         views.materias_por_año_con_profesores,
@@ -41,4 +37,20 @@ urlpatterns += crear_crud_urls(
 
 urlpatterns += crear_crud_urls(
     "lapso", "lapsos", views.ListaLapsos, views.CrearLapso, views.ActualizarLapso
+)
+
+urlpatterns += crear_crud_urls(
+    "seccion",
+    "secciones",
+    views.ListaSecciones,
+    views.CrearSeccion,
+    views.ActualizarSeccion,
+)
+
+urlpatterns += crear_crud_urls(
+    "matricula",
+    "matriculas",
+    views.ListaMatriculas,
+    views.CrearMatricula,
+    views.ActualizarMatricula,
 )
