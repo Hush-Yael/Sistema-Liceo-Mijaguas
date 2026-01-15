@@ -123,7 +123,7 @@ class SeccionBusquedaForm(CookieFormMixin, PaginacionFormMixin, forms.Form):
             f"""{{
                     opcionesBusquedaTexto: [{opciones_texto}],
 
-                    columnaBuscada: $el.$('[name=columna_buscada]').selectedOptions[0].value,
+                    columnaBuscada: $el.$('[name=columna_buscada]').selectedOptions[0].textContent,
 
                     establecerPlaceholderBusqueda() {{
                       const inputColumna = $el.$('[name=columna_buscada]');
