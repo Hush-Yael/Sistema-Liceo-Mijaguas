@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
 from django.forms import ValidationError
 from django.utils import timezone
 
@@ -29,7 +29,12 @@ class Año(models.Model):
 
 class Seccion(models.Model):
     año = models.ForeignKey(Año, on_delete=models.CASCADE)
-    letra = models.CharField(max_length=1)
+    letra = models.CharField(
+        max_length=1,
+        validators=[
+            RegexValidator("^[a-zA-Z]$", "El valor debe ser una letra del alfabeto.")
+        ],
+    )
     nombre = models.CharField(max_length=100)
     capacidad = models.IntegerField(default=30)
     vocero = models.ForeignKey(
@@ -59,6 +64,12 @@ class Seccion(models.Model):
 
     def __str__(self):
         return f"{self.año.nombre} - Sección {self.letra}"
+
+    def clean_letra(self):
+        super().clean()
+
+        if isinstance(self.letra, str) and self.letra:
+            self.letra = self.letra.upper()
 
 
 class Materia(models.Model):
