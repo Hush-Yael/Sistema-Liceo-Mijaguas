@@ -1,0 +1,17 @@
+{% extends "componentes/tabla-adaptable.html" %}
+
+{% block td %}
+  {% if clave == 'vocero' %}
+    {% if dato is not None %}
+      <a {# href="{% url 'estudiantes' objeto.vocero.id %}" #}> {{ dato }} </a>
+    {% else %}
+      <i class="text-texto-sutil">Sin vocero</i>
+    {% endif %}
+  {% elif clave == 'cantidad_matriculas' %}
+    {{ dato }}
+  {% elif 'fecha' in clave %}
+    {{ dato|date:"d M. Y, h:i A" }}
+  {% else %}
+    {{ dato }}
+  {% endif %}
+{% endblock td %}

@@ -135,27 +135,3 @@
     </div>
   </div>
 {% endblock menu_config %}
-
-{% partialdef tabla %}
-  {% include "lista-objetos.html#tabla" %}
-{% endpartialdef tabla %}
-
-{% partialdef acciones %}
-  {% include "lista-objetos.html#acciones" %}
-{% endpartialdef acciones %}
-
-{% partialdef datos_td %}
-  {% if clave == 'vocero' %}
-    {% if dato is not None %}
-      <a {# href="{% url 'estudiantes' objeto.vocero.id %}" #}> {{ dato }} </a>
-    {% else %}
-      <i class="text-texto-sutil">Sin vocero</i>
-    {% endif %}
-  {% elif clave == 'cantidad_matriculas' %}
-    {{ dato }}
-  {% elif 'fecha' in clave %}
-    {{ dato|date:"d M. Y, h:i A" }}
-  {% else %}
-    {{ dato }}
-  {% endif %}
-{% endpartialdef datos_td %}

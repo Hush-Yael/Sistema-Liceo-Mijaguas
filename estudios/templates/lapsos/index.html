@@ -10,23 +10,3 @@
     {{ block.super }}
   {% endwith %}
 {% endblock contenido %}
-
-{% partialdef tabla %}
-  {% include "lista-objetos.html#tabla" %}
-{% endpartialdef tabla %}
-
-{% block modales %}
-  {{ block.super }}
-{% endblock modales %}
-
-{% partialdef acciones %}
-  {% include "lista-objetos.html#acciones" %}
-{% endpartialdef acciones %}
-
-{% partialdef datos_td %}
-  {% if 'fecha_' in columna.clave %}
-    {{ dato|date:"d F Y" }}
-  {% else %}
-    {{ dato }}
-  {% endif %}
-{% endpartialdef datos_td %}

@@ -99,21 +99,3 @@
     {% render_field form_filtros.cantidad_por_pagina class="ui-elevado-2 py-0! incluido-filtros" %}
   </div>
 {% endblock menu_config %}
-
-{% partialdef tabla %}
-  {% include "lista-objetos.html#tabla" %}
-{% endpartialdef tabla %}
-
-{% partialdef acciones %}
-  {% include "lista-objetos.html#acciones" %}
-{% endpartialdef acciones %}
-
-{% partialdef datos_td %}
-  {% if 'fecha_' in columna.clave %}
-    {{ dato|date:"d M. Y, h:i A" }}
-  {% elif columna.clave == 'estado' %}
-    {{ view.estados_opciones|valor_por_clave:dato }}
-  {% else %}
-    {{ dato }}
-  {% endif %}
-{% endpartialdef datos_td %}

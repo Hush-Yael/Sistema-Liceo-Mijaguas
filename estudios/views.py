@@ -127,6 +127,7 @@ def aplicar_busqueda_estudiante(
 class ListaNotas(VistaListaObjetos):
     model = Nota
     template_name = "notas/index.html"
+    plantilla_lista = "notas/lista.html"
     paginate_by = 50
     form_filtros = NotasBusquedaForm  # type: ignore
     columnas_a_evitar = set()
@@ -208,6 +209,7 @@ class ListaNotas(VistaListaObjetos):
 
 class ListaMaterias(VistaListaObjetos):
     template_name = "materias/index.html"
+    plantilla_lista = "materias/lista.html"
     model = Materia
     form_asignaciones = FormAsignaciones
     genero_sustantivo_objeto = "F"
@@ -346,11 +348,12 @@ class ListaMaterias(VistaListaObjetos):
         self.object_list = self.get_queryset()
 
         ctx = self.get_context_data(*args, **kwargs)
-        ctx["tabla_reemplazada_por_htmx"] = 1
+        ctx["tabla_reemplazada_por_htmx"] = 1  # indicar que solo se cambia la tabla
+        ctx["mensajes_recibidos"] = 1  # mostrar mensajes
 
         return render(
             request,
-            f"{self.template_name}#respuesta_cambios_tabla",
+            self.plantilla_lista,
             ctx,
         )
 
@@ -427,6 +430,7 @@ class ActualizarMateria(VistaActualizarObjeto):
 
 class ListaLapsos(VistaListaObjetos):
     template_name = "lapsos/index.html"
+    plantilla_lista = "lapsos/lista.html"
     model = Lapso
 
     def get_queryset(self, *args, **kwargs) -> "list[dict]":
@@ -455,6 +459,7 @@ class ActualizarLapso(VistaActualizarObjeto):
 
 class ListaAños(VistaListaObjetos):
     template_name = "años/index.html"
+    plantilla_lista = "años/lista.html"
     model = Año
 
     def get_queryset(self, *args, **kwargs):
@@ -477,6 +482,7 @@ class ActualizarAño(VistaActualizarObjeto):
 
 class ListaSecciones(VistaListaObjetos):
     template_name = "secciones/index.html"
+    plantilla_lista = "secciones/lista.html"
     model = Seccion
     paginate_by = 50
     genero_sustantivo_objeto = "F"
@@ -607,6 +613,7 @@ class ActualizarSeccion(VistaActualizarObjeto):
 
 class ListaMatriculas(VistaListaObjetos):
     template_name = "matriculas/index.html"
+    plantilla_lista = "matriculas/lista.html"
     model = Matricula
     genero_sustantivo_objeto = "F"
     form_filtros = MatriculaBusquedaForm  # type: ignore

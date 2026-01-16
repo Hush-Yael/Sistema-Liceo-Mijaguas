@@ -77,6 +77,7 @@ class VistaListaObjetos(Vista, ListView):
     columnas_ocultables: "list[str]"
     form_filtros: BusquedaFormMixin
     total: "int | None" = None
+    plantilla_lista: str
 
     def __init__(self):
         setattr(self, "nombre_modelo_plural", self.model._meta.verbose_name_plural)
@@ -246,7 +247,7 @@ class VistaListaObjetos(Vista, ListView):
         # cambió la tabla pero no por filtros
         if hasattr(self, "form_filtros") and request.GET.get("solo_tabla"):
             respuesta.context_data["tabla_reemplazada_por_htmx"] = 1  # type: ignore
-            respuesta.template_name = self.template_name + "#tabla"  # type: ignore
+            respuesta.template_name = self.plantilla_lista  # type: ignore
         elif self.paginate_by:
             self.total = self.model.objects.count()
 
@@ -258,7 +259,7 @@ class VistaListaObjetos(Vista, ListView):
             respuesta = super().get(request, *args, **kwargs)
 
             respuesta.context_data["tabla_reemplazada_por_htmx"] = 1  # type: ignore
-            respuesta.template_name = self.template_name + "#tabla"  # type: ignore
+            respuesta.template_name = self.plantilla_lista  # type: ignore
 
             return respuesta
 
@@ -284,11 +285,12 @@ class VistaListaObjetos(Vista, ListView):
         self.object_list = self.get_queryset(queryset=self.queryset)  # type: ignore
 
         ctx = self.get_context_data(self, *args, **kwargs)
-        ctx["tabla_reemplazada_por_htmx"] = 1
+        ctx["tabla_reemplazada_por_htmx"] = 1  # indicar que solo se cambia la tabla
+        ctx["mensajes_recibidos"] = 1  # mostrar mensajes
 
         return render(
             request,
-            "lista-objetos.html#respuesta_cambios_tabla",
+            self.plantilla_lista,
             ctx,
         )
 

@@ -1,0 +1,70 @@
+{% extends "componentes/tabla-adaptable.html" %}
+
+{% block acciones_opciones %}
+  {{ block.super }}
+
+  <button
+    role="menuitem"
+    class="{{ accion_btn_class|add:' deshabilitar-al-subir' }}"
+    :disabled="filasSeleccionadas.size === 0"
+    aria-haspopup="dialog"
+    :aria-expanded="modalAbierto === 'asignar'"
+    @click="modalAbierto = 'asignar'"
+  >
+    <svg
+      fill="none"
+      class="size-4"
+      stroke-width="2"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+      <path
+        d="M4 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"
+      ></path>
+      <path
+        d="M14 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"
+      ></path>
+      <path
+        d="M4 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"
+      ></path>
+      <path d="M14 17h6m-3 -3v6"></path>
+    </svg>
+    Establecer años asignados...
+  </button>
+{% endblock acciones_opciones %}
+
+{% block td %}
+  {% if columna.clave == 'asignaciones' %}
+    {% if objeto.asignaciones|length == 0 %}
+      <span
+        role="status"
+        class="flex aic gap-2 rounded-full w-max p-1 px-3 text-sm bg-advertencia text-advertencia-texto"
+      >
+        {% include "componentes/iconos/mensajes.html#alerta" with class="size-4" %}
+        Ningún año
+      </span>
+    {% else %}
+      <ul class="flex flex-wrap gap-2">
+        {% for año in lista_años %}
+          {% if año.id in objeto.asignaciones %}
+            <li>
+              <span
+                class="rounded-full p-0.5 px-2 text-sm ui-elevado-2"
+                role="status"
+              >
+                {{ año.nombre_corto }}
+              </span>
+            </li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% elif 'fecha' in columna.clave %}
+    {{ dato|date:"d M. Y, h:i A" }}
+  {% else %}
+    {{ dato }}
+  {% endif %}
+{% endblock td %}

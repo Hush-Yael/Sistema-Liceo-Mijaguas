@@ -1,0 +1,9 @@
+{% extends "componentes/tabla-adaptable.html" %}
+
+{% block td %}
+  {% if 'fecha' in columna.clave %}
+    {{ dato|date:"d F Y" }}
+  {% else %}
+    {{ dato }}
+  {% endif %}
+{% endblock td %}

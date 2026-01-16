@@ -52,11 +52,11 @@
         </span>
 
         <hgroup class="col gap-y-2">
-          {% block sin_resultados %}
+          {% block sin_objetos %}
             <h2 class="font-bold text-xl">
               No se encontraron {{ view.nombre_objeto_plural }}
             </h2>
-          {% endblock %}
+          {% endblock sin_objetos %}
         </hgroup>
       </div>
     {% else %}
@@ -241,10 +241,10 @@
               {% endpartialdef btn_pantalla_completa %}
             </div>
           {% endblock filtros %}
-          {% partial tabla %}
+          {% include view.plantilla_lista %}
         </div>
       {% else %}
-        {% partial tabla %}
+        {% include view.plantilla_lista %}
       {% endif %}
 
       {%
@@ -341,53 +341,6 @@
   </main>
 {% endblock contenido %}
 
-{# Este parcial define la tabla y se debe usar en la plantilla extendida para definir su propio parcial de la tabla, por si se debe cambiar luego de una petición #}
-{% partialdef tabla %}
-  {# no hay objetos con los filtros seleccionados #}
-  {% if lista_objetos|length == 0 %}
-    <div
-      id="tabla-objetos"
-      role="alert"
-      class="ui-caja col aic gap-y-6 max-w-[400px] max-h-max ma flex-1 p-5 px-6 tac text-balance"
-    >
-      <span
-        class="rounded-full aspect-square size-min-[5rem] p-3 bg-primario-50 dark:bg-primario-800 text-primario-600 dark:text-primario-100 [&>svg]:size-full"
-      >
-        {% include "componentes/iconos/tabla.html#sin_notas" %}
-      </span>
-
-      <hgroup class="col gap-y-2">
-        {% block sin_resultados_filtros %}
-          <h2 class="font-bold text-[1.2rem]">
-            No se encontraron {{ view.nombre_objeto_plural }}
-          </h2>
-          <p class="text-texto-sutil">
-            Intenta cambiar los filtros o buscar algo distinto
-          </p>
-        {% endblock %}
-      </hgroup>
-    </div>
-  {% else %}
-    {%
-      include "componentes/tabla-adaptable.html" with
-      contenedor_class=contenedor_class|default_if_none:"flex-1 overflow-y-auto"
-      columnas=view.columnas_mostradas
-      columnas_ocultables=view.columnas_ocultables
-      titulo_col_actual=titulo_col_actual|default_if_none:view.columnas_ocultables.0
-      url_parcial_td_contenido=view.template_name|add:'#datos_td'
-      url_parcial_acciones=view.template_name|add:'#acciones'
-      tabla_contenedor_id="tabla-objetos"
-    %}
-  {% endif %}
-
-  {# actualizar la cantidad de resultados #}
-  {% if view.form_filtros and tabla_reemplazada_por_htmx and view.is_paginated %}
-    <span hx-swap-oob="innerHTML:#filtrados-cantidad">
-      {{ page_obj.paginator.count }}
-    </span>
-  {% endif %}
-{% endpartialdef tabla %}
-
 {% partialdef script_fn_verificar_click_reiniciar %}
   {# Para que se haga la petición al hacer click en el botón de reiniciar de algún combobox en el form de los filtros #}
   <script>
@@ -400,47 +353,6 @@
     }
   </script>
 {% endpartialdef script_fn_verificar_click_reiniciar %}
-
-{% partialdef respuesta_cambios_tabla %}
-  {% with url_tabla_parcial=view.template_name|add:"#tabla" %}
-    {# El parcial de la tabla devuelta al cambiar sus datos debe definirse en la plantilla extendida #}
-    {% include url_tabla_parcial %}
-    {% include "componentes/mensajes.html#como_respuesta" %}
-  {% endwith %}
-{% endpartialdef respuesta_cambios_tabla %}
-
-{% partialdef acciones %}
-  {% if permisos.eliminar %}
-    <button
-      id="eliminar-btn"
-      role="menuitem"
-      class="{{ accion_btn_class }}"
-      aria-haspopup="dialog"
-      :aria-expanded="modalAbierto === 'eliminar'"
-      @click="modalAbierto = 'eliminar'"
-      :disabled="filasSeleccionadas.size === 0"
-    >
-      {% include "componentes/iconos/edicion.html#borrar" with class="size-4" %}
-      Eliminar...
-    </button>
-  {% endif %}
-
-  {% if permisos.editar %}
-    <a
-      role="menuitem"
-      class="{{ accion_btn_class }}"
-      :href="
-        filasSeleccionadas.size === 1
-          ? 'editar/'+filasSeleccionadas.values().next().value
-          : false
-      "
-      :aria-disabled="filasSeleccionadas.size !== 1"
-    >
-      {% include "componentes/iconos/edicion.html#lapiz" with class="size-4" %}
-      Editar
-    </a>
-  {% endif %}
-{% endpartialdef acciones %}
 
 {% partialdef cantidad %}
   <div

@@ -1,0 +1,13 @@
+{% extends "componentes/tabla-adaptable.html" %}
+
+{% block td %}
+  {% if clave == 'valor' %}
+    {% with valor=dato|floatformat:"-1" %}
+      {{ valor }}
+    {% endwith %}
+  {% elif 'fecha' in columna.clave %}
+    {{ dato|date:"D. d M. Y, h:i A" }}
+  {% else %}
+    {{ dato }}
+  {% endif %}
+{% endblock td %}

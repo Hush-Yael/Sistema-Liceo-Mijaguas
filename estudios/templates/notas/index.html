@@ -118,11 +118,7 @@
   </div>
 {% endblock menu_config %}
 
-{% partialdef tabla %}
-  {% include "lista-objetos.html#tabla" %}
-{% endpartialdef tabla %}
-
-{% block sin_resultados %}
+{% block sin_objetos %}
   {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
     <h2 class="font-bold text-xl">No se han añadido
 
@@ -144,19 +140,4 @@
         </p>
       {% endif %}
   {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
-{% endblock sin_resultados %}
-
-{% partialdef datos_td %}
-  {% if clave == 'valor' %}
-    {% with valor=dato|floatformat:"-1" %}
-      {{ valor }}
-    {% endwith %}
-  {% elif 'fecha' in columna.clave %}
-    {{ dato|date:"D. d M. Y, h:i A" }}
-  {% else %}
-    {{ dato }}
-  {% endif %}
-{% endpartialdef datos_td %}
-
-{% partialdef acciones %}
-{% endpartialdef acciones %}
+{% endblock sin_objetos %}
