@@ -489,8 +489,8 @@ class ListaSecciones(VistaListaObjetos):
     form_filtros = SeccionBusquedaForm  # type: ignore
     columnas_a_evitar = set()
     columnas_totales = (
-        {"titulo": "Año", "clave": "nombre_año", "anotada": True},
         {"titulo": "Nombre", "clave": "nombre"},
+        {"titulo": "Año", "clave": "nombre_año", "anotada": True},
         {"titulo": "Letra", "clave": "letra"},
         {"titulo": "Capacidad", "clave": "capacidad", "alinear": "derecha"},
         {
@@ -501,7 +501,7 @@ class ListaSecciones(VistaListaObjetos):
         },
         {"titulo": "Vocero", "clave": "vocero_nombre", "anotada": True},
     )
-    columnas_texto = tuple(
+    opciones_columnas_texto = tuple(
         o[0] for o in OpcionesFormSeccion.ColumnasTexto._value2member_map_
     )
 
@@ -562,7 +562,7 @@ class ListaSecciones(VistaListaObjetos):
         if isinstance(busqueda, str) and busqueda.strip() != "":
             columna_buscada = datos_form.get("columna_buscada")
 
-            opcion_de_texto = columna_buscada in self.columnas_texto
+            opcion_de_texto = columna_buscada in self.opciones_columnas_texto
 
             if opcion_de_texto:
                 tipo_busqueda = datos_form.get("tipo_busqueda_texto")
