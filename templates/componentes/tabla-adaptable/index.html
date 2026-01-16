@@ -46,7 +46,7 @@
   %}
 
     {% partialdef tabla_estilos %}
-      {% include "componentes/tabla-style.html" with rango_columnas=columnas_ocultables|length|convertir_a_rango %}
+      {% include "componentes/tabla-adaptable/style.html" with rango_columnas=columnas_ocultables|length|convertir_a_rango %}
       <link rel="stylesheet" href="{% static 'css/componentes/tabla.css' %}" />
     {% endpartialdef tabla_estilos %}
 
@@ -289,7 +289,7 @@
         </tbody>
       </table>
 
-      {% include "componentes/paginacion.html" %}
+      {% include "componentes/tabla-adaptable/paginacion.html" %}
 
       {% block acciones %}
         <div
@@ -367,10 +367,10 @@
                       role="menuitem"
                       class="{{ accion_btn_class }}"
                       :href="
-                        filasSeleccionadas.size === 1
-                          ? 'editar/'+filasSeleccionadas.values().next().value
-                          : false
-                      "
+        filasSeleccionadas.size === 1
+          ? 'editar/'+filasSeleccionadas.values().next().value
+          : false
+      "
                       :aria-disabled="filasSeleccionadas.size !== 1"
                     >
                       {% include "componentes/iconos/edicion.html#lapiz" with class="size-4" %}
