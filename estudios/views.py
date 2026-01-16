@@ -438,6 +438,21 @@ class ListaLapsos(VistaListaObjetos):
     def get_queryset(self, *args, **kwargs) -> "list[dict]":
         return super().get_queryset(Lapso.objects.all().order_by("-id", "numero"))
 
+    def aplicar_filtros(
+        self,
+        queryset: models.QuerySet,
+        datos_form: "dict[str, Any] | Mapping[str, Any]",
+    ):
+        busqueda = datos_form.get("q")
+
+        if isinstance(busqueda, str) and busqueda.strip() != "":
+            columna_buscada = datos_form.get("columna_buscada")
+            tipo_busqueda = datos_form.get("tipo_busqueda")
+            columna_y_valor = {f"{columna_buscada}__{tipo_busqueda}": busqueda}
+            queryset = queryset.filter(**columna_y_valor)
+
+        return queryset
+
     def establecer_columnas(self):
         super().establecer_columnas()
         self.columnas_mostradas[0]["alinear"] = "derecha"

@@ -292,3 +292,34 @@ class MateriaBusquedaForm(CookieFormMixin, forms.Form):
             attrs={":class": '{"opacity-0.5": sin_asignaciones}'}
         ),
     )
+
+
+class LapsoBuscarOpciones(Enum):
+    NOMBRE = (
+        "nombre",
+        "Nombre",
+    )
+    NUMERO = "numero", "Número"
+
+
+class LapsoBusquedaForm(BusquedaFormMixin):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["columna_buscada"].widget.attrs["@change"] = (
+            "columnaBuscada = $event.target.selectedOptions[0].textContent"
+        )
+
+        self.fields["q"].widget.attrs.update(
+            {
+                ":type": f"columnaBuscada === '{LapsoBuscarOpciones.NUMERO.value[1]}' ? 'number' : 'search'"
+            }
+        )
+
+    campos_prefijo_cookie = "lapsos"
+    opciones_columna_buscar = tuple((opcion.value for opcion in LapsoBuscarOpciones))
+
+    campos_contenedor_x_data = """{
+      columnaBuscada: $el.$('[name=columna_buscada]').selectedOptions[0].textContent,
+      tipoBusqueda: $el.$('[name=tipo_busqueda]').selectedOptions[0].textContent
+    }"""
