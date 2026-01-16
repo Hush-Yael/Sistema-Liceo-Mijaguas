@@ -1,0 +1,12 @@
+{% if permisos.editar and not objeto.no_modificable and view.nombre_url_editar %}
+  <a
+    {% if forloop.counter0 != 0 %}
+      tabindex="-1"
+    {% endif %}
+    href="{% url view.nombre_url_editar objeto.id %}"
+  >
+    {{ dato }}
+  </a>
+{% else %}
+  {{ dato }}
+{% endif %}

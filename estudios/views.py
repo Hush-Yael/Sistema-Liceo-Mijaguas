@@ -210,6 +210,7 @@ class ListaNotas(VistaListaObjetos):
 class ListaMaterias(VistaListaObjetos):
     template_name = "materias/index.html"
     plantilla_lista = "materias/lista.html"
+    nombre_url_editar = "editar_materia"
     model = Materia
     form_asignaciones = FormAsignaciones
     genero_sustantivo_objeto = "F"
@@ -431,6 +432,7 @@ class ActualizarMateria(VistaActualizarObjeto):
 class ListaLapsos(VistaListaObjetos):
     template_name = "lapsos/index.html"
     plantilla_lista = "lapsos/lista.html"
+    nombre_url_editar = "editar_lapso"
     model = Lapso
 
     def get_queryset(self, *args, **kwargs) -> "list[dict]":
@@ -460,6 +462,7 @@ class ActualizarLapso(VistaActualizarObjeto):
 class ListaAños(VistaListaObjetos):
     template_name = "años/index.html"
     plantilla_lista = "años/lista.html"
+    nombre_url_editar = "editar_año"
     model = Año
 
     def get_queryset(self, *args, **kwargs):
@@ -483,6 +486,7 @@ class ActualizarAño(VistaActualizarObjeto):
 class ListaSecciones(VistaListaObjetos):
     template_name = "secciones/index.html"
     plantilla_lista = "secciones/lista.html"
+    nombre_url_editar = "editar_seccion"
     model = Seccion
     paginate_by = 50
     genero_sustantivo_objeto = "F"
@@ -614,6 +618,7 @@ class ActualizarSeccion(VistaActualizarObjeto):
 class ListaMatriculas(VistaListaObjetos):
     template_name = "matriculas/index.html"
     plantilla_lista = "matriculas/lista.html"
+    nombre_url_editar = "editar_matricula"
     model = Matricula
     genero_sustantivo_objeto = "F"
     form_filtros = MatriculaBusquedaForm  # type: ignore
@@ -638,10 +643,12 @@ class ListaMatriculas(VistaListaObjetos):
                     "estudiante__nombres", Value(" "), "estudiante__apellidos"
                 ),
                 fecha=TruncMinute("fecha_añadida"),
-                # no se pueden seleccionar las matriculas de un lapso distinto al actual
-                no_seleccionable=Case(
+                # no se pueden modificar las matriculas de un lapso distinto al actual
+                no_modificable=Case(
                     When(Q(lapso=obtener_lapso_actual()), then=0), default=1
                 ),
+                # no se pueden seleccionar las matriculas de un lapso distinto al actual
+                no_seleccionable=F("no_modificable"),
             ).order_by(
                 "-lapso__id",
                 "-fecha",

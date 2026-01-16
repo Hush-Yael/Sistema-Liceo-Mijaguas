@@ -215,7 +215,7 @@
         >
           {% for objeto in lista_objetos %}
             {% block filas %}
-              <tr data-indice="{{ forloop.counter0 }}">
+              <tr>
                 {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
                 <td class="fila-check w-4">{% if not objeto.no_seleccionable %}
                     <div class="relative fc size-4">
@@ -235,16 +235,16 @@
                       {% include "componentes/checkbox-icono.html" with class="pointer-events-none" %}
                     </div>
                   {% endif %}</td>
-              {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+                {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
 
                 <td class="fila-n numeros">
                   {% if page_obj.paginator.num_pages > 1 %}
                     {% with total_anterior=page_obj.number|add:-1|multiplicar:view.paginate_by %}
                       {# se multiplica la cantidad por página de acuerdo a la cantidad recorrida y la cantidad de objetos por página y se le añade cada valor del ciclo actual #}
-                      {{ total_anterior|add:forloop.counter }}
+                      {% include "componentes/tabla-adaptable/enlace-editar.html" with dato=total_anterior|add:forloop.counter %}
                     {% endwith %}
                   {% else %}
-                    {{ forloop.counter }}
+                    {% include "componentes/tabla-adaptable/enlace-editar.html" with dato=forloop.counter %}
                   {% endif %}
                 </td>
 
@@ -362,22 +362,6 @@
             >
               {% with accion_btn_class="flex aic gap-x-2 p-2 px-3 cursor-pointer transition-colors select-none text-sm whitespace-nowrap not-[[aria-selected=true],[aria-disabled=true]]:pover:bg-#fff2 aria-disabled:opacity-50 aria-disabled:cursor-not-allowed" %}
                 {% block acciones_opciones %}
-                  {% if permisos.editar %}
-                    <a
-                      role="menuitem"
-                      class="{{ accion_btn_class }}"
-                      :href="
-        filasSeleccionadas.size === 1
-          ? 'editar/'+filasSeleccionadas.values().next().value
-          : false
-      "
-                      :aria-disabled="filasSeleccionadas.size !== 1"
-                    >
-                      {% include "componentes/iconos/edicion.html#lapiz" with class="size-4" %}
-                      Editar
-                    </a>
-                  {% endif %}
-
                   {% if permisos.eliminar %}
                     <button
                       id="eliminar-btn"
