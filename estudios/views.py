@@ -436,7 +436,7 @@ class ListaLapsos(VistaListaObjetos):
     model = Lapso
 
     def get_queryset(self, *args, **kwargs) -> "list[dict]":
-        return super().get_queryset(Lapso.objects.all().order_by("numero"))
+        return super().get_queryset(Lapso.objects.all().order_by("-id", "numero"))
 
     def establecer_columnas(self):
         super().establecer_columnas()
