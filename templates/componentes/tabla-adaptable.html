@@ -139,30 +139,38 @@
 
     <tbody
       @keyup="if (!$event.shiftKey) shiftKey = false"
+      x-data="{
+        cambiarTabIndex: (e) => {
+          e.target.tabIndex = -1;
+          setTimeout(() => $focus.focused().tabIndex = 0);
+        }
+      }"
       @keydown="{{
         "
           if ($event.shiftKey) shiftKey = true;
-          if ($event.target.matches('input')) {
-            switch ($event.key) {
-              case 'ArrowDown': {
-                $event.preventDefault();
-                return $focus.wrap().next();
-              }
-              case 'ArrowUp': {
-                $event.preventDefault();
-                return $focus.wrap().previous();
-              }
-              case 'Home': {
-                $event.preventDefault();
-                return $focus.first();
-              }
-              case 'End': {
-                $event.preventDefault();
-                return $focus.last();
-              }
+          switch ($event.key) {
+            case 'ArrowDown': {
+              $event.preventDefault();
+              $focus.wrap().next();
+              return cambiarTabIndex($event)
+            }
+            case 'ArrowUp': {
+              $event.preventDefault();
+              $focus.wrap().previous();
+              return cambiarTabIndex($event)
+            }
+            case 'Home': {
+              $event.preventDefault();
+              $focus.first();
+              return cambiarTabIndex($event)
+            }
+            case 'End': {
+              $event.preventDefault();
+              $focus.last();
+              return cambiarTabIndex($event)
             }
           }
-        "|reemplazar_espacios:' '
+        "|reemplazar_espacios:''
       }}"
     >
       {% for objeto in lista_objetos %}
