@@ -238,6 +238,9 @@ class VistaListaObjetos(Vista, ListView):
                         f"{self.nombre_app_modelo}.delete_{self.nombre_modelo}"
                     ),
                 },
+                "no_hay_objetos": self.total == 0
+                if self.total is not None
+                else not self.model.objects.exists(),
             }
         )
         return ctx

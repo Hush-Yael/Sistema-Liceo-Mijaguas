@@ -39,7 +39,7 @@
       hx-indicator="#indicador-busqueda" hx-include=".incluido-filtros"
     {% endif %}
   >
-    {% if not form_filtros and lista_objetos|length == 0 %}
+    {% if no_hay_objetos %}
       <div
         id="tabla-objetos"
         role="alert"
