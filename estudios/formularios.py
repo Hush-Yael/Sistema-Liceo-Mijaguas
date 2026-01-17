@@ -11,7 +11,7 @@ from .models import (
     AñoMateria,
     obtener_lapso_actual,
 )
-from datetime import date
+from datetime import date, datetime
 
 
 class FormAño(forms.ModelForm):
@@ -49,6 +49,63 @@ class FormLapso(forms.ModelForm):
             "fecha_inicio": forms.DateInput(attrs={"type": "date"}),
             "fecha_fin": forms.DateInput(attrs={"type": "date"}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if not self.instance.pk:
+            hoy = date.today()
+
+            self.fields["fecha_inicio"].widget.attrs["min"] = hoy.strftime("%Y-%m-%d")
+            self.fields["fecha_fin"].widget.attrs["min"] = hoy.replace(
+                day=hoy.day + 1
+            ).strftime("%Y-%m-%d")
+
+        # No se pueden editar las fechas de un lapso ya creado si no es el actual
+        else:
+            lapso_actual = self.lapso_actual = obtener_lapso_actual()
+
+            if lapso_actual != self.instance:
+                self.fields["fecha_inicio"].disabled = True
+                self.fields["fecha_fin"].disabled = True
+
+    lapso_actual: "Lapso | None"
+
+    def clean_fecha_inicio(self):
+        fecha_inicio: "date | None" = self.cleaned_data.get("fecha_inicio")
+
+        if fecha_inicio:
+            # los valores no se pueden cambiar si el lapso no es el actual
+            if self.instance.pk and self.instance != self.lapso_actual:
+                return self.instance.fecha_inicio
+
+            elif fecha_inicio < datetime.now().date():
+                raise forms.ValidationError(
+                    "La fecha de inicio no puede ser anterior a la actual"
+                )
+
+        return fecha_inicio
+
+    def clean_fecha_fin(self):
+        fecha_fin: "date | None" = self.cleaned_data.get("fecha_fin")
+
+        if fecha_fin:
+            # los valores no se pueden cambiar si el lapso no es el actual
+            if self.instance.pk and self.instance != self.lapso_actual:
+                return self.instance.fecha_fin
+            else:
+                hoy = date.today()
+
+                if fecha_fin <= hoy:
+                    raise forms.ValidationError(
+                        "La fecha de fin debe ser posterior a la actual"
+                    )
+                elif fecha_fin < self.cleaned_data.get("fecha_inicio"):  # type: ignore
+                    raise forms.ValidationError(
+                        "La fecha de fin debe ser posterior a la de inicio"
+                    )
+
+        return fecha_fin
 
 
 asignaciones_campo = forms.ModelMultipleChoiceField(

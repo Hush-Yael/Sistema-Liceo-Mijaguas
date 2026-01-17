@@ -26,6 +26,7 @@ from estudios.formularios import (
 from estudios.formularios_busqueda import (
     OPCION_BUSCAR_NOMBRES_Y_APELLIDOS,
     AsignacionesBuscarTipoOpciones,
+    LapsoBusquedaForm,
     MateriaBusquedaForm,
     MatriculaBusquedaForm,
     NotasBusquedaForm,
