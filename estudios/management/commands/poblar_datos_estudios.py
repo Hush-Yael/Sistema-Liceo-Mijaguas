@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from usuarios.models import User
+from usuarios.models import Usuario
 from estudios.models import (
     Bachiller,
     Matricula,
@@ -120,7 +120,7 @@ class Command(BaseCommand):
         grupos_creados = 0
 
         tablas_admin = [
-            User,
+            Usuario,
             Nota,
             Año,
             Materia,
@@ -153,7 +153,7 @@ class Command(BaseCommand):
 
         if created or grupo_profesor.permissions.count() == 0:
             # no pueden ver usuarios
-            tablas_admin.remove(User)
+            tablas_admin.remove(Usuario)
             # se añaden todos los permisos de notas manualmente abajo
             tablas_admin.remove(Nota)
 
@@ -185,7 +185,7 @@ class Command(BaseCommand):
         self.stdout.write("Creando admin...")
 
         try:
-            admin, creado = User.objects.get_or_create(
+            admin, creado = Usuario.objects.get_or_create(
                 username="admin",
                 email="",
                 is_staff=True,

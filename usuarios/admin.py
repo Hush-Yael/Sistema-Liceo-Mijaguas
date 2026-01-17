@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
-from usuarios.models import User
+from usuarios.models import Usuario
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.admin import GroupAdmin as BaseGroupAdmin
 
@@ -32,7 +32,7 @@ BaseUserAdmin.fieldsets = (
 )
 
 
-@admin.register(User)
+@admin.register(Usuario)
 class UserAdmin(BaseUserAdmin, ModelAdmin):
     list_editable = ["is_staff", "is_active"]
     readonly_fields = ["date_joined", "last_login", "is_superuser"]

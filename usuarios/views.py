@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
-from .models import User
+from .models import Usuario
 from django.db import connection
 
 from django.http import HttpRequest, HttpResponse
@@ -37,9 +37,9 @@ def perfil(request: HttpRequest):
 
             # eliminar las urls de la base de datos, ya que por alguna razón no se borran al eliminar los archivos (¿A quién se le ocurre? >:( )
             with connection.cursor() as cursor:
-                tabla_nombre = User._meta.db_table  # type: ignore
-                foto_col_nombre = User._meta.get_field("foto_perfil").column  # type: ignore
-                miniatura_col_nombre = User._meta.get_field("miniatura_foto").column  # type: ignore
+                tabla_nombre = Usuario._meta.db_table  # type: ignore
+                foto_col_nombre = Usuario._meta.get_field("foto_perfil").column  # type: ignore
+                miniatura_col_nombre = Usuario._meta.get_field("miniatura_foto").column  # type: ignore
 
                 cursor.execute(
                     f"UPDATE {tabla_nombre} SET {foto_col_nombre} = NULL, {miniatura_col_nombre} = NULL WHERE id = %s",  # type: ignore

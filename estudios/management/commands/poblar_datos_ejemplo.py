@@ -15,7 +15,7 @@ from estudios.models import (
 from datetime import date
 from faker import Faker
 import random
-from usuarios.models import User
+from usuarios.models import Usuario
 from django.contrib.auth.models import Group
 from django.db import connection
 
@@ -296,7 +296,7 @@ class Command(BaseCommand):
 
         if len(usuarios_profesores) > 0:
             self.stdout.write("Eliminando usuarios de profesores...")
-            User.objects.filter(id__in=usuarios_profesores).delete()
+            Usuario.objects.filter(id__in=usuarios_profesores).delete()
             self.stdout.write("✓ Usuarios de profesores eliminados")
 
     def crear_profesores(self, cantidad):
@@ -317,13 +317,13 @@ class Command(BaseCommand):
             contador_email = 1
             email_original = email
 
-            while User.objects.filter(email=email).exists():
+            while Usuario.objects.filter(email=email).exists():
                 email = f"{email_original.split('@')[0]}{contador_email}@colegio.edu"
                 contador_email += 1
 
             grupo_prof = Group.objects.get(name="Profesor")
 
-            prof_usuario = User.objects.create(
+            prof_usuario = Usuario.objects.create(
                 username=email.split("@")[0],
                 email=email,
                 is_staff=True,

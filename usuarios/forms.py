@@ -1,5 +1,5 @@
 from django import forms
-from .models import User
+from .models import Usuario
 
 
 tamaño_minimo = 350
@@ -26,7 +26,7 @@ def validarTamaño(foto: forms.ImageField):
 
 class FormularioPerfil(forms.ModelForm):
     class Meta:
-        model = User
+        model = Usuario
         fields = ["username", "email", "foto_perfil"]
 
     email = forms.EmailField(required=False, label="Correo")

@@ -2,6 +2,7 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
 from django.forms import ValidationError
 from django.utils import timezone
+from app import settings
 
 
 class Año(models.Model):
@@ -107,7 +108,7 @@ class Profesor(models.Model):
     )
     esta_activo = models.BooleanField(default=True, verbose_name="está activo")
     usuario = models.OneToOneField(
-        "usuarios.User",
+        settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
         on_delete=models.SET_NULL,

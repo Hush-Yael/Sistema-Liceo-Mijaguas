@@ -3,8 +3,8 @@ from django.core.management.base import BaseCommand
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        from usuarios.models import User
+        from usuarios.models import Usuario
 
-        superuser = User.objects.filter(is_superuser=True).first()
+        superuser = Usuario.objects.filter(is_superuser=True).first()
         if superuser is None:
-            User.objects.create_superuser("admin", "", "admin")
+            Usuario.objects.create_superuser("admin", "", "admin")

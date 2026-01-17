@@ -10,7 +10,7 @@ AbstractUser._meta.get_field("is_staff").verbose_name = "Puede ingresar"  # type
 AbstractUser._meta.get_field("date_joined").verbose_name = "Fecha de ingreso"  # type: ignore
 
 
-class User(AbstractUser):
+class Usuario(AbstractUser):
     foto_perfil = models.ImageField(null=True, blank=True, upload_to="fotos_perfil/")
     miniatura_foto = models.ImageField(
         null=True, blank=True, upload_to="fotos_perfil/thumbs/"
@@ -26,7 +26,7 @@ class User(AbstractUser):
         if foto:
             self.foto_perfil = self.reducir_tamaño_imagen(foto)
 
-        super(User, self).save(*args, **kwargs)
+        super(Usuario, self).save(*args, **kwargs)
 
     def reducir_tamaño_imagen(self, foto):
         bytes_io = BytesIO()
