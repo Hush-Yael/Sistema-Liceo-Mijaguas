@@ -144,7 +144,11 @@
           class="{{ 'tabla-contenido col gap-y-2 flex-1 h-full overflow-y-auto [@media_all_and_(display-mode:fullscreen)]:(p-4 bg-fondo-300)'|expandir_variantes }}"
         >
           {% block filtros %}
-            <div role="group" class="flex gap-x-1">
+            <div
+              role="group"
+              class="flex gap-x-1"
+              x-data="{{ form_filtros.campos_contenedor_x_data }}"
+            >
               {% partialdef barra_busqueda inline %}
                 <label
                   class="flex flex-1 rounded-campo ui-elevado outline-#0000 outline-2 -outline-offset-1 focus-within:outline-current max-[500px]:text-sm"
@@ -194,6 +198,30 @@
                   class="contenido-menu col gap-y-5 p-3 px-4 rounded-tr-0! top-108% right-0"
                 >
                   {% block menu_config %}
+                    <div
+                      class="col gap-y-4"
+                      hx-post
+                      {# se evita que se filtre si se cambió el tipo de búsqueda pero el campo con el texto de búsqueda está vacío, ya que no tendría sentido, pues los resultados serían los mismos #}
+                      hx-trigger="change[$id('q').value.trim() !== ''] changed delay:600ms"
+                    >
+                      <div class="col gap-y-1">
+                        {{ form_filtros.tipo_busqueda.label_tag }}
+                        {% render_field form_filtros.tipo_busqueda class="ui-elevado-2 incluido-filtros" %}
+                      </div>
+
+                      <div class="col gap-y-1">
+                        {{ form_filtros.columna_buscada.label_tag }}
+                        {% render_field form_filtros.columna_buscada class="ui-elevado-2 incluido-filtros" %}
+                      </div>
+                    </div>
+
+                    <div
+                      class="flex gap-x-3 flex aic [&_label]:min-w-max"
+                      hx-vals='{"solo_tabla": true}'
+                    >
+                      {{ form_filtros.cantidad_por_pagina.label_tag }}
+                      {% render_field form_filtros.cantidad_por_pagina class="ui-elevado-2 py-0! incluido-filtros" %}
+                    </div>
                   {% endblock menu_config %}
                 </div>
               </details>

@@ -68,34 +68,5 @@
     {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
   </form>
 
-  <div x-data="{{ form_filtros.campos_contenedor_x_data }}">
-    {{ block.super }}
-  </div>
+  {{ block.super }}
 {% endblock filtros %}
-
-{% block menu_config %}
-  <div
-    class="col gap-y-4"
-    hx-post
-    {# se evita que se ejecute la request de "/notas" al cambiar los filtros específicos de búsqueda cuando el campo de búsqueda está vacío, ya que no tendría sentido, pues los resultados serían los mismos #}
-    hx-trigger="change[$id('q').value.trim() !== ''] changed delay:600ms"
-  >
-    <div class="col gap-y-1">
-      {{ form_filtros.tipo_busqueda.label_tag }}
-      {% render_field form_filtros.tipo_busqueda class="ui-elevado-2 incluido-filtros" %}
-    </div>
-
-    <div class="col gap-y-1">
-      {{ form_filtros.columna_buscada.label_tag }}
-      {% render_field form_filtros.columna_buscada class="ui-elevado-2 incluido-filtros" %}
-    </div>
-  </div>
-
-  <div
-    class="flex gap-x-3 flex aic [&_label]:min-w-max"
-    hx-vals='{"solo_tabla": true}'
-  >
-    {{ form_filtros.cantidad_por_pagina.label_tag }}
-    {% render_field form_filtros.cantidad_por_pagina class="ui-elevado-2 py-0! incluido-filtros" %}
-  </div>
-{% endblock menu_config %}

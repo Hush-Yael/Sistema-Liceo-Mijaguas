@@ -434,6 +434,7 @@ class ListaLapsos(VistaListaObjetos):
     plantilla_lista = "lapsos/lista.html"
     nombre_url_editar = "editar_lapso"
     model = Lapso
+    form_filtros = LapsoBusquedaForm  # type: ignore
 
     def get_queryset(self, *args, **kwargs) -> "list[dict]":
         return super().get_queryset(Lapso.objects.all().order_by("-id", "numero"))

@@ -87,12 +87,7 @@
       {% endwith %}
     </form>
 
-    <div
-      x-data="{{ form_filtros.campos_contenedor_x_data }}"
-      x-init="establecerPlaceholderBusqueda()"
-    >
-      {{ block.super }}
-    </div>
+    {{ block.super }}
   </div>
 {% endblock filtros %}
 

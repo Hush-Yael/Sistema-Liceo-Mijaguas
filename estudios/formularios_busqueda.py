@@ -113,7 +113,8 @@ class SeccionBusquedaForm(CookieFormMixin, PaginacionFormMixin, forms.Form):
 
         self.fields["q"].widget.attrs.update(
             {
-                ":type": "!opcionesBusquedaTexto.includes(columnaBuscada) ? 'number' : 'search'"
+                ":type": "!opcionesBusquedaTexto.includes(columnaBuscada) ? 'number' : 'search'",
+                "x-init": "establecerPlaceholderBusqueda()",
             }
         )
 
@@ -122,6 +123,7 @@ class SeccionBusquedaForm(CookieFormMixin, PaginacionFormMixin, forms.Form):
             "",
             f"""{{
                     opcionesBusquedaTexto: [{opciones_texto}],
+                    placeholderBusqueda: '',
 
                     columnaBuscada: $el.$('[name=columna_buscada]').selectedOptions[0].textContent,
 
@@ -305,10 +307,6 @@ class LapsoBuscarOpciones(Enum):
 class LapsoBusquedaForm(BusquedaFormMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        self.fields["columna_buscada"].widget.attrs["@change"] = (
-            "columnaBuscada = $event.target.selectedOptions[0].textContent"
-        )
 
         self.fields["q"].widget.attrs.update(
             {
