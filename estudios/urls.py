@@ -3,7 +3,7 @@ from app.vistas import crear_crud_urls
 from . import views
 
 
-urlpatterns = [
+urlpatterns = (
     path("", views.inicio, name="inicio"),
     path("notas/", views.ListaNotas.as_view(), name="notas"),
     path("notas/crear/", views.ListaNotas.as_view(), name="crear_nota"),
@@ -20,37 +20,31 @@ urlpatterns = [
         views.resumen_matriculas_por_año,
         name="resumen_matriculas",
     ),
-]
-
-
-urlpatterns += crear_crud_urls(
-    "materia",
-    "materias",
-    views.ListaMaterias,
-    views.CrearMateria,
-    views.ActualizarMateria,
-)
-
-urlpatterns += crear_crud_urls(
-    "año", "años", views.ListaAños, views.CrearAño, views.ActualizarAño
-)
-
-urlpatterns += crear_crud_urls(
-    "lapso", "lapsos", views.ListaLapsos, views.CrearLapso, views.ActualizarLapso
-)
-
-urlpatterns += crear_crud_urls(
-    "seccion",
-    "secciones",
-    views.ListaSecciones,
-    views.CrearSeccion,
-    views.ActualizarSeccion,
-)
-
-urlpatterns += crear_crud_urls(
-    "matricula",
-    "matriculas",
-    views.ListaMatriculas,
-    views.CrearMatricula,
-    views.ActualizarMatricula,
+    *crear_crud_urls(
+        "materia",
+        "materias",
+        views.ListaMaterias,
+        views.CrearMateria,
+        views.ActualizarMateria,
+    ),
+    *crear_crud_urls(
+        "año", "años", views.ListaAños, views.CrearAño, views.ActualizarAño
+    ),
+    *crear_crud_urls(
+        "lapso", "lapsos", views.ListaLapsos, views.CrearLapso, views.ActualizarLapso
+    ),
+    *crear_crud_urls(
+        "seccion",
+        "secciones",
+        views.ListaSecciones,
+        views.CrearSeccion,
+        views.ActualizarSeccion,
+    ),
+    *crear_crud_urls(
+        "matricula",
+        "matriculas",
+        views.ListaMatriculas,
+        views.CrearMatricula,
+        views.ActualizarMatricula,
+    ),
 )
