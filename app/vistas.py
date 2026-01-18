@@ -394,7 +394,8 @@ def crear_crud_urls(
     vista_crear: Type[VistaCrearObjeto],
     vista_actualizar: Type[VistaActualizarObjeto],
 ):
-    return [
+    """Crear urls para el CRUD de un modelo"""
+    return (
         path(
             nombre_objeto_plural + "/",
             vista_lista.as_view(),
@@ -410,4 +411,4 @@ def crear_crud_urls(
             vista_actualizar.as_view(),
             name=f"editar_{nombre_objeto}",
         ),
-    ]
+    )
