@@ -189,20 +189,25 @@
       {% endif %}
 
       <ul class="py-1.5 select-none empty:hidden">
-        {% if busqueda_activa %}
-          <li
-            class="hidden px-4 py-2 text-sm text-texto-sutil"
-            x-ref="sinResultadosMsj"
-          >
-            No se encontraron resultados
-          </li>
-        {% endif %}
+        {% with c="fc flex-col gap-y-2 h-full p-3 text-center text-texto-sutil text-sm italic font-500" ic="fc size-8 p-0.5 aspect-square bg-[--transparente-1] rounded" %}
+          {% if busqueda_activa %}
+            <li class="{{ c }}" x-ref="sinResultadosMsj" style="display: none;">
+              <span class="{{ ic|add:' p-1.5' }}">
+                {% include "componentes/iconos/opciones.html#sin_resultados" %}
+              </span>
+              No se encontraron resultados
+            </li>
+          {% endif %}
 
-        <template x-if="opciones.length === 0">
-          <li class="max-w-80 px-4 py-2 text-sm text-texto-sutil">
-            {{ sin_opciones_msj|default:'No hay opciones para escoger' }}
-          </li>
-        </template>
+          <template x-if="opciones.length === 0">
+            <li class="{{ c }}">
+              <span class="{{ ic }}">
+                {% include "componentes/iconos/opciones.html#sin_opciones" %}
+              </span>
+              {{ sin_opciones_msj|default:'No hay opciones para escoger' }}
+            </li>
+          </template>
+        {% endwith %}
 
         <template
           {% if busqueda_activa %}

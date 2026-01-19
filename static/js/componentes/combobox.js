@@ -207,14 +207,14 @@ function filtrarOpciones() {
     );
 
     if (filtradas.length === 0)
-      this.$refs.sinResultadosMsj.classList.remove("hidden");
-    else this.$refs.sinResultadosMsj.classList.add("hidden");
+      this.$refs.sinResultadosMsj.removeAttribute("style");
+    else this.$refs.sinResultadosMsj.style.display = "none";
 
     if (this.mostrarCantidad) this.cantidadFiltradas = filtradas.length;
     return filtradas;
   }
 
-  this.$refs.sinResultadosMsj.classList.add("hidden");
+  this.$refs.sinResultadosMsj.style.display = "none";
 
   if (this.mostrarCantidad) this.cantidadFiltradas = this.opciones.length;
   return this.opciones;
