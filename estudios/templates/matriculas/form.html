@@ -9,8 +9,8 @@
   {% include "componentes/combobox.html#scripts" %}
   {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
     <script>
-      const opcionesEstudiantes = {{ form.estudiante|obtener_lista_opciones_json|safe }};
-      const opcionesSecciones = {{form.seccion|obtener_lista_opciones_json|safe}}
+      const opcionesEstudiantes = {{ form.estudiante|obtener_lista_opciones|json|safe }};
+      const opcionesSecciones = {{form.seccion|obtener_lista_opciones|json|safe}}
     </script>
   {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
 {% endblock cabeza %}

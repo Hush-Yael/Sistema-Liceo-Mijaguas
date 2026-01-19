@@ -9,7 +9,7 @@
   {% include "componentes/combobox.html#scripts" %}
   {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
     <script>
-      const opcionesVocero = {{ form.vocero.field.choices|obtener_lista_opciones_json|safe }}
+      const opcionesVocero = {{ form.vocero.field.choices|obtener_lista_opciones|json|safe }}
     </script>
   {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
 {% endblock cabeza %}

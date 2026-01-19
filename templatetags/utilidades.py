@@ -81,9 +81,9 @@ def obtener_lista_opciones(campo):
         return "[]"
 
 
-@register.filter
-def obtener_lista_opciones_json(campo):
-    return json.dumps(obtener_lista_opciones(campo))
+@register.filter(name="json")
+def Json(valor):
+    return json.dumps(valor)
 
 
 @register.filter
