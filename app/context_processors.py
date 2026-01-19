@@ -96,7 +96,7 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
             ],
         },
         {
-            "label": "Administración",
+            "label": "Gestión académica",
             "icono_nombre": "admin",
             "enlaces": [
                 si_permitido(
