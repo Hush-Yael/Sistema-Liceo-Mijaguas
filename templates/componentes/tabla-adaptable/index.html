@@ -45,7 +45,9 @@
   %}
 
     {% partialdef tabla_estilos %}
-      {% include "componentes/tabla-adaptable/style.html" with rango_columnas=columnas_ocultables|length|convertir_a_rango %}
+      {% if view.columnas_mostradas|length > 1 %}
+        {% include "componentes/tabla-adaptable/style.html" with rango_columnas=columnas_ocultables|length|convertir_a_rango %}
+      {% endif %}
       <link rel="stylesheet" href="{% static 'css/componentes/tabla.css' %}" />
     {% endpartialdef tabla_estilos %}
 
@@ -74,23 +76,29 @@
     <div
       id="{{ id }}"
       class="{{ contenedor_class|default:''|add:' contenedor-tabla' }}"
+      {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
       x-data="{
-    indiceColActual: {{ indice_col_actual|default:0 }},
-    tituloColActual: '{{ titulo_col_actual|default_if_none:view.columnas_ocultables.0 }}',
-    anteriorCol() {
-      if (this.indiceColActual > 0) this.indiceColActual--;
-    },
-    siguienteCol() {
-      if (this.indiceColActual < this.columnasOcultables.length - 1)
-        this.indiceColActual++;
-    },
-    columnasOcultables: {{ columnas_ocultables }},
-    filasSeleccionadas: new Set(),
-    ids: new Set(),
-    shiftKey: false,
-    ultimaSeleccionadaIndice: null
-  }"
-      x-effect="$el.$(`th[data-i='${indiceColActual}']>div`).appendChild($el.$('#columna-cambiador'));"
+        {% if view.columnas_mostradas|length > 1 %}
+          indiceColActual: {{ indice_col_actual|default:0 }},
+          tituloColActual: '{{ titulo_col_actual|default_if_none:view.columnas_ocultables.0 }}',
+          anteriorCol() {
+            if (this.indiceColActual > 0) this.indiceColActual--;
+          },
+          siguienteCol() {
+            if (this.indiceColActual < this.columnasOcultables.length - 1)
+              this.indiceColActual++;
+          },
+          columnasOcultables: {{ columnas_ocultables }},
+        {% endif %}
+        filasSeleccionadas: new Set(),
+        ids: new Set(),
+        shiftKey: false,
+        ultimaSeleccionadaIndice: null
+      }"
+      {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+      {% if view.columnas_mostradas|length > 1 %}
+        x-effect="$el.$(`th[data-i='${indiceColActual}']>div`).appendChild($el.$('#columna-cambiador'));"
+      {% endif %}
       x-init="{{
         "
           $el.$$('[name=filas_id]').forEach((el) => ids.add(el.value));
@@ -100,14 +108,16 @@
     >
       <table
         {% if page_obj.paginator.num_pages > 1 %}
-          class="{{ class|default:""|add:" tabla rounded-b-0! border-b-0! [&_tr:last-child>_td]:rounded-0! [&_tr:last-child>_td]:border-b-0" }}"
+          class="{{ tabla_class|default:""|add:" tabla rounded-b-0! border-b-0! [&_tr:last-child>_td]:rounded-0! [&_tr:last-child>_td]:border-b-0" }}"
         {% else %}
-          class="{{ class|default:""|add:" tabla" }}"
+          class="{{ tabla_class|default:""|add:" tabla" }}"
         {% endif %}
         {% if id %}
           id="{{ id }}"
         {% endif %}
-        :data-i="indiceColActual"
+        {% if view.columnas_mostradas|length > 1 %}
+          :data-i="indiceColActual"
+        {% endif %}
         @keydown.delete="if ($event.target.matches('input') && filasSeleccionadas.size) (modalAbierto = 'eliminar')"
         @change="{{
           "
@@ -167,7 +177,7 @@
                 <div class="flex aic justify-between gap-x-4">
                   {{ columna.titulo }}
 
-                  {% if forloop.first %}
+                  {% if forloop.first and view.columnas_mostradas|length > 1 %}
                     {% partial columna_cambiador %}
                   {% endif %}
                 </div>
@@ -179,11 +189,11 @@
         <tbody
           @keyup="if (!$event.shiftKey) shiftKey = false"
           x-data="{
-        cambiarTabIndex: (e) => {
-          e.target.tabIndex = -1;
-          setTimeout(() => $focus.focused().tabIndex = 0);
-        }
-      }"
+            cambiarTabIndex: (e) => {
+              e.target.tabIndex = -1;
+              setTimeout(() => $focus.focused().tabIndex = 0);
+            }
+          }"
           @keydown="{{
             "
               if ($event.shiftKey) shiftKey = true;
