@@ -42,7 +42,6 @@
     columnas=view.columnas_mostradas
     columnas_ocultables=view.columnas_ocultables
     id=id|default:"tabla-objetos"
-    titulo_col_actual=titulo_col_actual|default_if_none:view.columnas_ocultables.0
   %}
 
     {% partialdef tabla_estilos %}
@@ -77,7 +76,7 @@
       class="{{ contenedor_class|default:''|add:' contenedor-tabla' }}"
       x-data="{
     indiceColActual: {{ indice_col_actual|default:0 }},
-    tituloColActual: '{{ titulo_col_actual }}',
+    tituloColActual: '{{ titulo_col_actual|default_if_none:view.columnas_ocultables.0 }}',
     anteriorCol() {
       if (this.indiceColActual > 0) this.indiceColActual--;
     },
