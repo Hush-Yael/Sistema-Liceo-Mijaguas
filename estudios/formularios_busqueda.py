@@ -9,6 +9,9 @@ from app.forms import (
     opciones_tipo_busqueda,
 )
 from .models import Lapso, Materia, MatriculaEstados, Seccion, Año
+import sys
+
+MIGRANDO = "makemigrations" in sys.argv or "migrate" in sys.argv
 
 
 class LapsoYSeccionBusquedaFormMixin(BusquedaFormMixin):
@@ -20,13 +23,15 @@ class LapsoYSeccionBusquedaFormMixin(BusquedaFormMixin):
 
     secciones = forms.ModelMultipleChoiceField(
         label="Sección:",
-        queryset=Seccion.objects.all().order_by("año", "letra"),
+        queryset=Seccion.objects.all().order_by("año", "letra")
+        if not MIGRANDO
+        else None,
         required=False,
     )
 
     lapsos = forms.ModelMultipleChoiceField(
         label="Lapso:",
-        queryset=Lapso.objects.all().order_by("-id"),
+        queryset=Lapso.objects.all().order_by("-id") if not MIGRANDO else None,
         required=False,
     )
 
@@ -45,7 +50,7 @@ class NotasBusquedaForm(LapsoYSeccionBusquedaFormMixin):
 
     materias = forms.ModelMultipleChoiceField(
         label="Asignatura",
-        queryset=Materia.objects.all().order_by("nombre"),
+        queryset=Materia.objects.all().order_by("nombre") if not MIGRANDO else None,
         required=False,
     )
 
@@ -160,7 +165,7 @@ class SeccionBusquedaForm(CookieFormMixin, PaginacionFormMixin, forms.Form):
     anio = forms.ModelMultipleChoiceField(
         label="Año",
         initial=None,
-        queryset=Año.objects.all(),
+        queryset=Año.objects.all() if not MIGRANDO else None,
         required=False,
     )
 
@@ -168,10 +173,14 @@ class SeccionBusquedaForm(CookieFormMixin, PaginacionFormMixin, forms.Form):
         label="Letra",
         initial=None,
         choices=(
-            (letra, letra)
-            for letra in Seccion.objects.values_list("letra", flat=True)
-            .order_by("letra")
-            .distinct()
+            (
+                (letra, letra)
+                for letra in Seccion.objects.values_list("letra", flat=True)
+                .order_by("letra")
+                .distinct()
+            )
+            if not MIGRANDO
+            else ()
         ),
         required=False,
     )
@@ -287,7 +296,7 @@ class MateriaBusquedaForm(CookieFormMixin, forms.Form):
 
     anios_asignados = forms.ModelMultipleChoiceField(
         label="Búsqueda por años:",
-        queryset=Año.objects.all(),
+        queryset=Año.objects.all() if not MIGRANDO else None,
         initial=(),
         required=False,
         widget=forms.CheckboxSelectMultiple(
