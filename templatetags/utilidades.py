@@ -67,22 +67,16 @@ def a_negativo(valor):
 
 @register.filter
 def obtener_lista_opciones(campo):
-    """
-    Convierte las opciones de un ModelChoiceField o ModelMultipleChoiceField
-    a una lista de objetos JSON con id y label.
-
-    Uso en templates:
-    {{ campo|choices_to_json }}
-    """
+    """Convierte las opciones de un ModelChoiceField o ModelMultipleChoiceField
+    a una lista de objetos JSON con id y label."""
     try:
-        opciones = []
-
         if hasattr(campo.field, "choices"):
-            for value, label in campo.field.choices:
-                if value:  # Ignorar opciones vacías
-                    opciones.append({"id": str(value), "label": label})
-
-        return opciones
+            return [
+                {"id": str(value), "label": label}
+                for value, label in campo.field.choices
+                if value  # Ignorar opciones vacías
+            ]
+        return "[]"
     except Exception:
         return "[]"
 
