@@ -130,11 +130,11 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
             "icono_nombre": "usuarios",
             "enlaces": [
                 si_permitido(
-                    "usuarios.add_user",
+                    "usuarios.add_usuario",
                     {"label": "Añadir usuario", "icono_nombre": "añadir"},
                 ),
                 si_permitido(
-                    "usuarios.view_user",
+                    "usuarios.view_usuario",
                     {"label": "Todos los usuarios", "icono_nombre": "usuarios"},
                 ),
                 si_permitido(
