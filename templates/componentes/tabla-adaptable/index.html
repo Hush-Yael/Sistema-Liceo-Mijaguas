@@ -286,7 +286,7 @@
                         {% endif %}
                       >
                         {% block td %}
-                          {{ dato }}
+                          {{ dato|default_if_none:'' }}
                         {% endblock td %}
                       </td>
                     {% endwith %}
