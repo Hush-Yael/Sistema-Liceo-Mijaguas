@@ -1,7 +1,7 @@
 {% extends "componentes/tabla-adaptable/index.html" %}
 
 {% block td %}
-  {% if clave == 'vocero' %}
+  {% if 'vocero' in clave %}
     {% if dato is not None %}
       <a {# href="{% url 'estudiantes' objeto.vocero.id %}" #}> {{ dato }} </a>
     {% else %}

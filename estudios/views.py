@@ -530,8 +530,14 @@ class ListaSecciones(VistaListaObjetos):
         return super().get_queryset(
             Seccion.objects.annotate(
                 nombre_año=F("año__nombre"),
-                vocero_nombre=Concat(
-                    F("vocero__nombres"), Value(" "), F("vocero__apellidos")
+                vocero_nombre=Case(
+                    When(
+                        vocero__isnull=False,
+                        then=Concat(
+                            F("vocero__nombres"), Value(" "), F("vocero__apellidos")
+                        ),
+                    ),
+                    default=None,
                 ),
                 cantidad_matriculas=Count(
                     "matricula", filter=Q(matricula__estado="activo")
