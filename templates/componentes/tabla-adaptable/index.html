@@ -279,10 +279,12 @@
                           data-i="{{ -2|add:forloop.counter }}"
                         {% endif %}
 
-                        {% if not forloop.parentloop.first and dato == dato_anterior %}
-                          data-repetido
-                        {% elif not forloop.parentloop.last and dato == dato_siguiente %}
-                          data-se-repite
+                        {% if dato is not None and dato != '' %}
+                          {% if not forloop.parentloop.first and dato == dato_anterior %}
+                            data-repetido
+                          {% elif not forloop.parentloop.last and dato == dato_siguiente %}
+                            data-se-repite
+                          {% endif %}
                         {% endif %}
                       >
                         {% block td %}
