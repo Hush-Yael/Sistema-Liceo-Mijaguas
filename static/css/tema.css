@@ -108,6 +108,7 @@ html {
   --borde-caja: #0002;
 
   --texto-base: #000;
+  --texto-semi-sutil: hsl(0, 0%, 20%);
   --texto-sutil: hsl(0, 0%, 35%);
 
   --transparente-1: #0001;
@@ -172,6 +173,7 @@ html {
   --color-texto-advertencia: #000;
   --color-texto-peligro: hsl(0, 0%, 90%);
 
+  --texto-semi-sutil: hsl(0, 0%, 80%);
   --texto-sutil: hsl(0, 0%, 65%);
 
   --borde-caja: hsl(0, 0%, 100%, 0.12);

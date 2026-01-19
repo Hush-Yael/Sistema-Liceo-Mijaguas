@@ -32,6 +32,7 @@ const tema: ThemeExtender<ConfigThemePreset> = (theme) => ({
     advertencia: new ColorDeTema("advertencia"),
     peligro: new ColorDeTema("peligro"),
     "texto-sutil": "var(--texto-sutil)",
+    "texto-semi-sutil": "var(--texto-semi-sutil)",
   },
   radius: {
     ...theme.radius,
