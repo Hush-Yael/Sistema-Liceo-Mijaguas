@@ -392,7 +392,7 @@ class NotaAdmin(MixinNotaPermisos, ModelAdmin):
             and request.path.endswith("/matricula/")
             and (
                 request.user.is_superuser
-                or request.user.groups.filter(name="Admin").exists()
+                or request.user.grupos.filter(name="Admin").exists()
             )
         ):
             return True

@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from usuarios.models import Usuario
+from usuarios.models import Grupo, Usuario
 from estudios.models import (
     Bachiller,
     Matricula,
@@ -13,7 +13,7 @@ from estudios.models import (
     AñoMateria,
     ProfesorMateria,
 )
-from django.contrib.auth.models import Group, Permission
+from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.db.utils import IntegrityError
 
@@ -121,6 +121,7 @@ class Command(BaseCommand):
 
         tablas_admin = [
             Usuario,
+            Grupo,
             Nota,
             Año,
             Materia,
@@ -134,7 +135,10 @@ class Command(BaseCommand):
             Bachiller,
         ]
 
-        grupo_admin, creado = Group.objects.get_or_create(name="Admin")
+        grupo_admin, creado = Grupo.objects.get_or_create(
+            name="Admin",
+            descripcion="Provee todos los permisos de administración del sistema",
+        )
 
         if creado or grupo_admin.permissions.count() == 0:
             for tabla in tablas_admin:
@@ -149,7 +153,10 @@ class Command(BaseCommand):
 
             self.stdout.write(f"✓ Grupo creado: {grupo_admin.name}")
 
-        grupo_profesor, created = Group.objects.get_or_create(name="Profesor")
+        grupo_profesor, created = Grupo.objects.get_or_create(
+            name="Profesor",
+            descripcion="Provee todos los permisos relacionados a la carga de notas de acuerdo a los estudiantes asignados al usuario. También permite ver otros aspectos del sistema, pero no modificarlos",
+        )
 
         if created or grupo_profesor.permissions.count() == 0:
             # no pueden ver usuarios
@@ -192,7 +199,7 @@ class Command(BaseCommand):
             )
             if creado:
                 admin.set_password("admin")
-                admin.groups.add(grupo_admin)
+                admin.grupos.add(grupo_admin)
                 admin.save()
                 self.stdout.write(self.style.SUCCESS("✓ Admin creado"))
         except IntegrityError:

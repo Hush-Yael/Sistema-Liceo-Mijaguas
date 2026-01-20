@@ -1,4 +1,5 @@
 from django.urls import path
+from app.vistas import crear_crud_urls
 from . import views
 
 
@@ -22,5 +23,8 @@ urlpatterns = [
         "cambiar_contraseña",
         views.cambiar_contraseña,
         name="cambiar_contraseña",
+    ),
+    *crear_crud_urls(
+        "grupo", "grupos", views.ListaGrupos, views.CrearGrupo, views.EditarGrupo
     ),
 ]

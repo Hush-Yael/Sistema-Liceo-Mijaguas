@@ -4,13 +4,24 @@ from io import BytesIO
 from django.core.files import File
 from django.db import models
 from django.core.files.uploadedfile import InMemoryUploadedFile
+from django_group_model.models import AbstractGroup
 
 AbstractUser._meta.get_field("email").verbose_name = "Correo"  # type: ignore
 AbstractUser._meta.get_field("is_staff").verbose_name = "Puede ingresar"  # type: ignore
 AbstractUser._meta.get_field("date_joined").verbose_name = "Fecha de ingreso"  # type: ignore
 
 
+class Grupo(AbstractGroup):
+    descripcion = models.CharField(
+        max_length=255, null=True, blank=True, verbose_name="descripción"
+    )
+
+
 class Usuario(AbstractUser):
+    groups = None
+    grupos = models.ManyToManyField(
+        Grupo, related_name="user_set", related_query_name="user", blank=True
+    )
     foto_perfil = models.ImageField(null=True, blank=True, upload_to="fotos_perfil/")
     miniatura_foto = models.ImageField(
         null=True, blank=True, upload_to="fotos_perfil/thumbs/"

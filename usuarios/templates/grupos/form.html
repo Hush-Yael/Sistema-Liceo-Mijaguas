@@ -1,0 +1,46 @@
+{% extends "objeto-form.html" %}
+{% load static %}
+{% load partials %}
+{% load utilidades %}
+{% load grupos_variantes %}
+
+{% block cabeza %}
+  {{ block.super }}
+  <script defer src="{% static 'js/alpine-focus.min.js' %}"></script>
+  {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+  <script>
+    const opcionesPermisos = {{ permisos_agrupados|safe }}
+  </script>
+  {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+{% endblock cabeza %}
+
+{% block contenido %}
+  {% with class="max-w-1000px" %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock contenido %}
+
+{% block campos %}
+  <div
+    id="campos"
+    class="ui-elevado col gap-y-6 p-4 rounded-lg min-[600px]:p-5"
+  >
+    {% partialdef campos inline %}
+      {% include "componentes/campo.html" with campo=form.name input_class="deshabilitar-al-subir ui-elevado-2" %}
+      {% include "componentes/campo.html" with campo=form.descripcion input_class="deshabilitar-al-subir ui-elevado-2 min-h-20" %}
+      {%
+        include "componentes/lista-opciones/index.html" with
+        campo=form.permissions
+        opciones_por_script="opcionesPermisos"
+        seleccionadas=form.permissions|obtener_ids_seleccionadas|json|safe
+        ancho_cambio=650
+        busqueda_activa=1
+        opciones_agrupadas=1
+        lista_contenedor_class="ui-elevado-2"
+        label_cantidad_seleccionadas="asignados"
+        msg_sin_opciones_disponibles="No se encontraron permisos para escoger"
+        msg_sin_opciones_seleccionadas="No se asignaron permisos al grupo"
+      %}
+    {% endpartialdef campos %}
+  </div>
+{% endblock campos %}

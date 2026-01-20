@@ -28,7 +28,7 @@
         superusuario
       {% else %}
         <span class="text-texto-sutil">Usted fue asignado como:</span>
-        {% for grupo in request.user.groups.all %}
+        {% for grupo in request.user.grupos.all %}
           {{ grupo }}{% if not forloop.last %},{% endif %}
         {% endfor %}
       {% endif %}

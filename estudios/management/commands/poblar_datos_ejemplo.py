@@ -15,8 +15,7 @@ from estudios.models import (
 from datetime import date
 from faker import Faker
 import random
-from usuarios.models import Usuario
-from django.contrib.auth.models import Group
+from usuarios.models import Grupo, Usuario
 from django.db import connection
 
 
@@ -321,7 +320,7 @@ class Command(BaseCommand):
                 email = f"{email_original.split('@')[0]}{contador_email}@colegio.edu"
                 contador_email += 1
 
-            grupo_prof = Group.objects.get(name="Profesor")
+            grupo_prof = Grupo.objects.get(name="Profesor")
 
             prof_usuario = Usuario.objects.create(
                 username=email.split("@")[0],

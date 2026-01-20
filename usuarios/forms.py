@@ -1,5 +1,5 @@
 from django import forms
-from .models import Usuario
+from .models import Grupo, Usuario
 
 
 tamaño_minimo = 350
@@ -33,3 +33,18 @@ class FormularioPerfil(forms.ModelForm):
     foto_perfil = forms.ImageField(
         required=False, widget=forms.FileInput(), validators=[validarTamaño]
     )
+
+
+class FormGrupo(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["permissions"].label = "Permisos asignados"
+
+    class Meta:
+        model = Grupo
+        fields = "__all__"
+
+        widgets = {
+            "descripcion": forms.Textarea(),
+        }

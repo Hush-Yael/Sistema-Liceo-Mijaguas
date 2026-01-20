@@ -78,13 +78,13 @@
       {% if request.user.is_superuser %}
         superusuario
       {% else %}
-        {% with roles=request.user.groups.all %}
+        {% with roles=request.user.grupos.all %}
           {% if roles %}
             {% for rol in roles %}
               {{ rol }}{% if not forloop.last %},{% endif %}
             {% endfor %}
           {% else %}
-            sin roles
+            sin grupos
           {% endif %}
         {% endwith %}
       {% endif %}

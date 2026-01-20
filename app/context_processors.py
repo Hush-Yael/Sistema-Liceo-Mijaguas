@@ -138,8 +138,12 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
                     {"label": "Todos los usuarios", "icono_nombre": "usuarios"},
                 ),
                 si_permitido(
-                    "auth.view_permission",
-                    {"label": "Permisos", "icono_nombre": "permisos"},
+                    "usuarios.view_grupo",
+                    {
+                        "label": "Grupos de permisos",
+                        "icono_nombre": "permisos",
+                        "href": reverse_lazy("grupos"),
+                    },
                 ),
             ],
         },

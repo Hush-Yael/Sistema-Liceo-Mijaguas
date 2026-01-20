@@ -81,6 +81,19 @@ def obtener_lista_opciones(campo):
         return "[]"
 
 
+@register.filter
+def obtener_ids_seleccionadas(campo):
+    """Convierte las opciones seleccionadas de un ModelChoiceField o ModelMultipleChoiceField
+    a una lista con sus id como strings, para usar en JavaScript, ya que los id deben ser strings."""
+    try:
+        if hasattr(campo.field, "choices"):
+            seleccionadas = campo.value()
+            return [str(id) for id in seleccionadas]
+        return []
+    except Exception:
+        return []
+
+
 @register.filter(name="json")
 def Json(valor):
     return json.dumps(valor)

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
-from usuarios.models import Usuario
+from usuarios.models import Grupo, Usuario
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.admin import GroupAdmin as BaseGroupAdmin
 
@@ -36,12 +36,14 @@ BaseUserAdmin.fieldsets = (
 class UserAdmin(BaseUserAdmin, ModelAdmin):
     list_editable = ["is_staff", "is_active"]
     readonly_fields = ["date_joined", "last_login", "is_superuser"]
+    list_filter = ("is_staff", "is_superuser", "is_active")  # Remove 'groups'
+    filter_horizontal = ()  # Remove 'groups', 'user_permissions'
 
     form = UserChangeForm
     add_form = UserCreationForm
     change_password_form = AdminPasswordChangeForm
 
 
-@admin.register(Group)
+@admin.register(Grupo)
 class GroupAdmin(BaseGroupAdmin, ModelAdmin):
     pass

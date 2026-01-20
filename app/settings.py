@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_group_model",
     "widget_tweaks",
     "sekizai",
     "template_partials",
@@ -138,6 +139,7 @@ LOGIN_URL = "login"
 LOGOUT_URL = "logout"
 
 AUTH_USER_MODEL = "usuarios.Usuario"
+AUTH_GROUP_MODEL = "usuarios.Grupo"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
