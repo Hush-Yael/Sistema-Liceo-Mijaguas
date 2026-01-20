@@ -213,6 +213,30 @@ select.ui-elevado-2[aria-invalid=true],
   border-color: var(--color-peligro-500);
 }
 
+input:autofill,
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+input.ui-elevado:autofill,
+input.ui-elevado:-webkit-autofill,
+input.ui-elevado:-webkit-autofill:hover,
+input.ui-elevado:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 30px var(--color-fondo-500) inset !important;
+  box-shadow: 0 0 0 30px var(--color-fondo-500) inset !important;
+}
+
+input.ui-elevado-2:autofill,
+input.ui-elevado-2:-webkit-autofill,
+input.ui-elevado-2:-webkit-autofill:hover,
+input.ui-elevado-2:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 30px var(--color-fondo-700) inset !important;
+  box-shadow: 0 0 0 30px var(--color-fondo-700) inset !important;
+}
+
 .ui-input-error {
   transition: opacity .2s ease, display .2s ease allow-discrete;
 }
