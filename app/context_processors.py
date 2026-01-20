@@ -89,7 +89,7 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
                 si_permitido(
                     "estudios.view_año",
                     {
-                        "label": "Años académicos",
+                        "label": "Años",
                         "icono_nombre": "años",
                         "href": reverse_lazy("años"),
                     },
@@ -105,7 +105,7 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
                 si_permitido(
                     "estudios.view_lapso",
                     {
-                        "label": "Lapsos académicos",
+                        "label": "Lapsos",
                         "icono_nombre": "lapsos",
                         "href": reverse_lazy("lapsos"),
                     },
