@@ -1,0 +1,83 @@
+{% load static %}
+{% load sekizai_tags %}
+
+{% addtoblock "cabeza" %}
+  <style>
+    .lista-dual {
+      scrollbar-color: #0005 var(--color-fondo-900);
+    }
+
+    .oscuro .lista-dual {
+      scrollbar-color: #fff5 var(--color-fondo-900);
+    }
+
+    @media screen and (max-width: {{ ancho_cambio|default:700 }}px) {
+      .contenedor-listas {
+        flex-direction: column;
+      }
+
+      .contenedor-botones svg {
+        transform: rotate(90deg);
+      }
+
+      .lista-opciones {
+        height: 150px;
+      }
+    }
+
+    @media screen and (min-width: {{ ancho_cambio|default:700 }}px) {
+      .contenedor-listas {
+        flex-direction: row;
+      }
+
+      .contenedor-botones {
+        flex-direction: column;
+      }
+
+      .lista-opciones {
+        height: 250px;
+      }
+    }
+  </style>
+  <script src="{% static 'js/componentes/lista-opciones.js' %}"></script>
+{% endaddtoblock %}
+
+<div
+  class="{{ class|default:''|add:' lista-dual flex flex-col gap-2' }}"
+  {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+      x-data='selectorListaDual({
+        opciones: {% if opciones_por_script %}{{ opciones_por_script }}{% else %}{{ opciones|safe }}{% endif %},
+        seleccionadas: new Set({% if seleccionadas_por_script %}{{ seleccionadas_por_script }}{% else %}{{ seleccionadas|default:''|safe }}{% endif %}),
+        {% if busqueda_activa %}
+        timeoutBusqueda: null,
+        {% endif %}
+        opcionesAgrupadas: {% if opciones_agrupadas %}true{% else %}false{% endif %},
+      })'
+      {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+>
+  <h2 id="{{ campo.name }}-label" class="{{ label_class }}">
+    {{ campo.label }}
+  </h2>
+
+  <div
+    role="group"
+    aria-labelledby="{{ campo.name }}-label"
+    class="contenedor-listas flex gap-y-4 gap-x-6"
+    {# Instrucciones accesibles #}
+    aria-roledescription="Este es un selector de opciones bidireccional. Usa las teclas Ctrl o Shift para seleccionar múltiples opciones. Los botones con flechas te permiten mover las opciones seleccionadas entre las listas."
+  >
+    {% include "componentes/lista-opciones/lista.html" with cual_lista="disponibles" cuales_opciones="opcionesDisponibles" cuales_selecciones_visuales="seleccionesVisualesEnIzquierda" %}
+    {% include "componentes/lista-opciones/botones.html" %}
+    {% include "componentes/lista-opciones/lista.html" with cual_lista="seleccionadas" cuales_opciones="opcionesSeleccionadas" cuales_selecciones_visuales="seleccionesVisualesEnDerecha" %}
+  </div>
+
+  {# contiene el valor enviado #}
+  <select name="{{ campo.name }}" multiple class="hidden">
+    <template
+      x-for="(opcion) in {% if opciones_agrupadas %}_flatOpcionesSeleccionadas{% else %}opcionesSeleccionadas{% endif %}"
+      :key="'{{ campo.name }}-'+opcion.id"
+    >
+      <option :value="opcion.id" selected></option>
+    </template>
+  </select>
+</div>
