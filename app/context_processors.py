@@ -51,11 +51,27 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
                     {"label": "Lista de estudiantes", "icono_nombre": "usuarios"},
                 ),
                 si_permitido(
+                    "estudios.view_seccion",
+                    {
+                        "label": "Secciones",
+                        "icono_nombre": "secciones",
+                        "icono_style": "transform: scale(1.1)",
+                        "href": reverse_lazy("secciones"),
+                    },
+                ),
+                si_permitido(
                     "estudios.view_matricula",
                     {
                         "label": "Matrículas",
                         "icono_nombre": "tabla",
                         "href": reverse_lazy("matriculas"),
+                    },
+                ),
+                si_permitido(
+                    "estudios.view_bachiller",
+                    {
+                        "label": "Bachilleres",
+                        "icono_nombre": "bachilleres",
                     },
                 ),
             ],
@@ -92,14 +108,6 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
                         "label": "Años",
                         "icono_nombre": "años",
                         "href": reverse_lazy("años"),
-                    },
-                ),
-                si_permitido(
-                    "estudios.view_seccion",
-                    {
-                        "label": "Secciones",
-                        "icono_nombre": "secciones",
-                        "href": reverse_lazy("secciones"),
                     },
                 ),
                 si_permitido(
