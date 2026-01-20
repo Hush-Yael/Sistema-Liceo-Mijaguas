@@ -83,28 +83,6 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
             ],
         },
         {
-            "label": "Materias",
-            "icono_nombre": "materias",
-            "enlaces": [
-                si_permitido(
-                    "estudios.add_materia",
-                    {
-                        "label": "Añadir materia",
-                        "icono_nombre": "añadir",
-                        "href": reverse_lazy("crear_materia"),
-                    },
-                ),
-                si_permitido(
-                    "estudios.view_materia",
-                    {
-                        "label": "Lista de materias",
-                        "icono_nombre": "tabla",
-                        "href": reverse_lazy("materias"),
-                    },
-                ),
-            ],
-        },
-        {
             "label": "Gestión académica",
             "icono_nombre": "admin",
             "enlaces": [
@@ -130,6 +108,14 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
                         "label": "Lapsos académicos",
                         "icono_nombre": "lapsos",
                         "href": reverse_lazy("lapsos"),
+                    },
+                ),
+                si_permitido(
+                    "estudios.view_materia",
+                    {
+                        "label": "Materias",
+                        "icono_nombre": "materias",
+                        "href": reverse_lazy("materias"),
                     },
                 ),
             ],
