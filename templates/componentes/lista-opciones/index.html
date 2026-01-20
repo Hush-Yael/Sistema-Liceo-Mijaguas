@@ -55,7 +55,10 @@
       })'
       {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
 >
-  <h2 id="{{ campo.name }}-label" class="{{ label_class }}">
+  <h2
+    id="{{ campo.name }}-label"
+    class="{{ label_class|default:''|add:' text-texto-semi-sutil' }}"
+  >
     {{ campo.label }}
   </h2>
 

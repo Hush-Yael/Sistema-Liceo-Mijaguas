@@ -180,7 +180,7 @@
               {% endpartialdef barra_busqueda %}
 
               <details
-                class="menu z-4 [&_details[open]]:z-4 [&_label]:text-texto-sutil"
+                class="menu z-4 [&_details[open]]:z-4 [&_label]:text-texto-semi-sutil"
                 x-data="{ abierto: false }"
                 :open="abierto"
                 @click.outside="abierto = false"
@@ -294,7 +294,7 @@
               <div class="{{ div_class }}">
                 <hgroup class="col gap-y-3">
                   <h1 class="text-lg font-bold tac">Confirmar eliminación</h1>
-                  <p class="text-texto-sutil">
+                  <p class="text-texto-semi-sutil">
                     ¿Realmente deseas eliminar
                     {{ view.articulo_sustantivo_plural }}
                     {{ view.nombre_objeto_plural }}
