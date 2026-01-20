@@ -1,10 +1,19 @@
+from typing import TypedDict
+from typing_extensions import NotRequired
 from django.http import HttpRequest
 from django.conf import settings
 from django.urls import reverse_lazy
 
 
+class Enlace(TypedDict):
+    label: str
+    icono_nombre: str
+    href: str
+    icono_style: NotRequired[str]
+
+
 def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
-    def si_permitido(permiso: str, enlace: "dict[str, str]") -> "dict[str, str] | None":
+    def si_permitido(permiso: str, enlace: Enlace) -> "Enlace | None":
         return enlace if request.user.is_superuser or permiso in permisos else None  # type: ignore
 
     return [
