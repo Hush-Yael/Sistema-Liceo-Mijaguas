@@ -15,14 +15,14 @@
 {% endblock cabeza %}
 
 {% block contenido %}
-  {% with class="max-w-600px min-[900px]:max-w-800px" %}
+  {% with class="max-w-600px sidebar:max-w-700px" %}
     {{ block.super }}
   {% endwith %}
 {% endblock contenido %}
 {% block campos %}
   <div
     id="campos"
-    class="{{ 'ui-elevado col gap-y-6 gap-x-10 rounded-lg p-4 min-[550px]:(grid grid-cols-2 p-6) min-[900px]:(grid grid-cols-3) min-[900px]:*:min-w-200px'|expandir_variantes }}"
+    class="{{ 'ui-elevado col gap-y-6 gap-x-10 rounded-lg p-4 min-[550px]:(grid grid-cols-2 p-6)'|expandir_variantes }}"
   >
     {% partialdef campos inline %}
       {% with input_class="deshabilitar-al-subir ui-elevado-2" %}
