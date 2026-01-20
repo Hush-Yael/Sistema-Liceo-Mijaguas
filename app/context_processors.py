@@ -27,7 +27,7 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
                 ),
                 si_permitido(
                     "estudios.view_profesor",
-                    {"label": "Todos los profesores", "icono_nombre": "usuarios"},
+                    {"label": "Lista de profesores", "icono_nombre": "usuarios"},
                 ),
                 si_permitido(
                     "estudios.view_profesormateria",
@@ -48,7 +48,7 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
                 ),
                 si_permitido(
                     "estudios.view_estudiante",
-                    {"label": "Todos los estudiantes", "icono_nombre": "usuarios"},
+                    {"label": "Lista de estudiantes", "icono_nombre": "usuarios"},
                 ),
                 si_permitido(
                     "estudios.view_matricula",
@@ -144,7 +144,7 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
                 ),
                 si_permitido(
                     "usuarios.view_usuario",
-                    {"label": "Todos los usuarios", "icono_nombre": "usuarios"},
+                    {"label": "Lista de usuarios", "icono_nombre": "usuarios"},
                 ),
                 si_permitido(
                     "usuarios.view_grupo",
