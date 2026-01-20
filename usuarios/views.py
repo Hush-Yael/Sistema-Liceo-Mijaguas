@@ -117,10 +117,6 @@ class ListaGrupos(VistaListaObjetos):
         return super().get_queryset(Grupo.objects.all().order_by("name"))
 
 
-def cambiar_lista_permisos(contexto: dict):
-    return contexto
-
-
 class VistaGrupoForm:
     request: HttpRequest
 
