@@ -95,6 +95,15 @@
   </svg>
 {% endpartialdef estudiantes %}
 
+{% partialdef matriculas %}
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path
+      d="M20 2H8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zm-6 2.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM19 15H9v-.25C9 12.901 11.254 11 14 11s5 1.901 5 3.75V15z"
+    ></path>
+    <path d="M4 8H2v12c0 1.103.897 2 2 2h12v-2H4V8z"></path>
+  </svg>
+{% endpartialdef matriculas %}
+
 {% partialdef bachilleres %}
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
     <path
@@ -172,51 +181,22 @@
 {% endpartialdef admin %}
 
 {% partialdef años %}
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
-    <path
-      fill="currentColor"
-      d="M6 13h10v2H6zm0-6h10v2H6zm0-6h10v2H6zM3 0v4H2V1H1V0zM2 8.219V9h2v1H1V7.719l2-.938V6H1V5h3v2.281zM4 11v5H1v-1h2v-1H1v-1h2v-1H1v-1z"
-    ></path>
-  </svg>
+  <b>A</b>
 {% endpartialdef años %}
 
 {% partialdef lapsos %}
-  <svg
-    class="{{ class }}"
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 16 16"
-  >
-    <path d="M4 9H13V10H4z"></path>
-    <path d="M4 12H11V13H4z"></path>
-    <path d="M4 6H14V7H4z"></path>
-    <path d="M1 3H12V4H1z"></path>
-    <path d="M4 4H5V13H4z"></path>
-  </svg>
+  <b>L</b>
 {% endpartialdef lapsos %}
 
 {% partialdef secciones %}
   <svg
+    style="{{ style }}"
     xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke-width="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
+    viewBox="0 0 640 512"
   >
     <path
-      d="M15.536 11.293a1 1 0 0 0 0 1.414l2.376 2.377a1 1 0 0 0 1.414 0l2.377-2.377a1 1 0 0 0 0-1.414l-2.377-2.377a1 1 0 0 0-1.414 0z"
-    />
-    <path
-      d="M2.297 11.293a1 1 0 0 0 0 1.414l2.377 2.377a1 1 0 0 0 1.414 0l2.377-2.377a1 1 0 0 0 0-1.414L6.088 8.916a1 1 0 0 0-1.414 0z"
-    />
-    <path
-      d="M8.916 17.912a1 1 0 0 0 0 1.415l2.377 2.376a1 1 0 0 0 1.414 0l2.377-2.376a1 1 0 0 0 0-1.415l-2.377-2.376a1 1 0 0 0-1.414 0z"
-    />
-    <path
-      d="M8.916 4.674a1 1 0 0 0 0 1.414l2.377 2.376a1 1 0 0 0 1.414 0l2.377-2.376a1 1 0 0 0 0-1.414l-2.377-2.377a1 1 0 0 0-1.414 0z"
-    />
+      d="M211.2 96a64 64 0 1 0-128 0 64 64 0 1 0 128 0zM32 256c0 17.7 14.3 32 32 32h85.6c10.1-39.4 38.6-71.5 75.8-86.6-9.7-6-21.2-9.4-33.4-9.4H96c-35.3 0-64 28.7-64 64zm461.6 32H576c17.7 0 32-14.3 32-32 0-35.3-28.7-64-64-64h-96c-11.7 0-22.7 3.1-32.1 8.6 38.1 14.8 67.4 47.3 77.7 87.4zm-102.4-61.6c-6.9-1.6-14.2-2.4-21.6-2.4h-96c-8.5 0-16.7 1.1-24.5 3.1-30.8 8.1-55.6 31.1-66.1 60.9-3.5 10-5.5 20.8-5.5 32 0 17.7 14.3 32 32 32h224c17.7 0 32-14.3 32-32 0-11.2-1.9-22-5.5-32-10.8-30.7-36.8-54.2-68.9-61.6zM563.2 96a64 64 0 1 0-128 0 64 64 0 1 0 128 0zm-241.6 96a80 80 0 1 0 0-160 80 80 0 1 0 0 160zM32 416c-17.7 0-32 14.3-32 32s14.3 32 32 32h576c17.7 0 32-14.3 32-32s-14.3-32-32-32H32z"
+    ></path>
   </svg>
 {% endpartialdef secciones %}
 

@@ -48,7 +48,7 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
                 ),
                 si_permitido(
                     "estudios.view_estudiante",
-                    {"label": "Lista de estudiantes", "icono_nombre": "usuarios"},
+                    {"label": "Lista de estudiantes", "icono_nombre": "tabla"},
                 ),
                 si_permitido(
                     "estudios.view_seccion",
@@ -63,7 +63,7 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
                     "estudios.view_matricula",
                     {
                         "label": "Matrículas",
-                        "icono_nombre": "tabla",
+                        "icono_nombre": "matriculas",
                         "href": reverse_lazy("matriculas"),
                     },
                 ),
