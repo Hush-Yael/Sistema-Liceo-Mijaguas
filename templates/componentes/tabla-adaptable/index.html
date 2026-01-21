@@ -60,6 +60,8 @@
 
         {# script para cambiar la fila sticky a medida que se hace scroll #}
         <script src="{% static 'js/componentes/tabla-con-fila-sticky.js' %}"></script>
+        {# lógica de la tabla #}
+        <script src="{% static 'js/componentes/lista-objetos.js' %}"></script>
 
         <script>
           document.addEventListener("alpine:initialized", () => {
@@ -77,34 +79,17 @@
       id="{{ id }}"
       class="{{ contenedor_class|default:''|add:' contenedor-tabla' }}"
       {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
-      x-data="{
+      x-data="listaObjetos({
+        tabla: true,
+        hayColumnasOcultables: {% if view.columnas_mostradas|length > 1 %} true {% else %} false {% endif %},
+        contenedorManejoTeclas: window.$('table'),
         {% if view.columnas_mostradas|length > 1 %}
           indiceColActual: {{ indice_col_actual|default:0 }},
           tituloColActual: '{{ titulo_col_actual|default_if_none:view.columnas_ocultables.0 }}',
-          anteriorCol() {
-            if (this.indiceColActual > 0) this.indiceColActual--;
-          },
-          siguienteCol() {
-            if (this.indiceColActual < this.columnasOcultables.length - 1)
-              this.indiceColActual++;
-          },
           columnasOcultables: {{ columnas_ocultables }},
         {% endif %}
-        filasSeleccionadas: new Set(),
-        ids: new Set(),
-        shiftKey: false,
-        ultimaSeleccionadaIndice: null
-      }"
+      })"
       {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
-      {% if view.columnas_mostradas|length > 1 %}
-        x-effect="$el.$(`th[data-i='${indiceColActual}']>div`).appendChild($el.$('#columna-cambiador'));"
-      {% endif %}
-      x-init="{{
-        "
-          $el.$$('[name=filas_id]').forEach((el) => ids.add(el.value));
-          if (!$el.$('[name=filas_id]')) $el.setAttribute('data-sin-filas-seleccionar', '');
-        "|reemplazar_espacios:''
-      }}"
     >
       <table
         {% if page_obj.paginator.num_pages > 1 %}
@@ -118,34 +103,6 @@
         {% if view.columnas_mostradas|length > 1 %}
           :data-i="indiceColActual"
         {% endif %}
-        @keydown.delete="if ($event.target.matches('input') && filasSeleccionadas.size) (modalAbierto = 'eliminar')"
-        @change="{{
-          "
-            const el = $event.target;
-            if (el.id === 'seleccionar-todos') {
-              ultimaSeleccionadaIndice = null;
-              filasSeleccionadas.size === ids.size ? filasSeleccionadas.clear() : filasSeleccionadas = new Set(ids)
-            }
-            else if (el.name === 'filas_id') {
-              if (shiftKey && ultimaSeleccionadaIndice !== null) {
-                const start = Math.min(ultimaSeleccionadaIndice, el.dataset.i);
-                const end = Math.max(ultimaSeleccionadaIndice, el.dataset.i);
-
-                let i = 0;
-                ids.forEach((id) => {
-                  if (i >= start && i <= end) filasSeleccionadas.add(id);
-                  i++;
-                })
-              }
-              else {
-                ultimaSeleccionadaIndice = el.dataset.i;
-                el.checked
-                  ? filasSeleccionadas.add(el.value)
-                  : filasSeleccionadas.delete(el.value)
-              }
-            }
-          "|reemplazar_espacios:' '
-        }}"
       >
         <thead>
           <tr>
@@ -186,42 +143,7 @@
           </tr>
         </thead>
 
-        <tbody
-          @keyup="if (!$event.shiftKey) shiftKey = false"
-          x-data="{
-            cambiarTabIndex: (e) => {
-              e.target.tabIndex = -1;
-              setTimeout(() => $focus.focused().tabIndex = 0);
-            }
-          }"
-          @keydown="{{
-            "
-              if ($event.shiftKey) shiftKey = true;
-              switch ($event.key) {
-                case 'ArrowDown': {
-                  $event.preventDefault();
-                  $focus.wrap().next();
-                  return cambiarTabIndex($event)
-                }
-                case 'ArrowUp': {
-                  $event.preventDefault();
-                  $focus.wrap().previous();
-                  return cambiarTabIndex($event)
-                }
-                case 'Home': {
-                  $event.preventDefault();
-                  $focus.first();
-                  return cambiarTabIndex($event)
-                }
-                case 'End': {
-                  $event.preventDefault();
-                  $focus.last();
-                  return cambiarTabIndex($event)
-                }
-              }
-            "|reemplazar_espacios:''
-          }}"
-        >
+        <tbody>
           {% for objeto in lista_objetos %}
             {% block filas %}
               <tr>
