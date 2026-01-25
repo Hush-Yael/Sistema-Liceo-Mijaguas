@@ -342,7 +342,7 @@ class Command(BaseCommand):
                 usuario=prof_usuario,
             )
 
-            prof_usuario.groups.add(grupo_prof)
+            prof_usuario.grupos.add(grupo_prof)
 
             profesores_creados += 1
             self.stdout.write(f"✓ Creado profesor: {nombre} {apellido} ({i})")
