@@ -58,7 +58,7 @@
         '|reemplazar_espacios
       }}"
     >
-      {% include "componentes/iconos/nav.html#"|add:enlace.icono_nombre %}
+      {% include "componentes/iconos/nav.html#"|add:enlace.icono_nombre with style=enlace.icono_style %}
       <span>{{ enlace.label }}</span>
     </button>
 
@@ -135,7 +135,7 @@
             <span
               class="fc size-7 aspect-square p-1 rounded-full bg-#fff2 sidebar:-order-1"
             >
-              {% include "componentes/iconos/nav.html#"|add:e.icono_nombre %}
+              {% include "componentes/iconos/nav.html#"|add:e.icono_nombre with style=e.icono_style %}
             </span>
           </a>
         {% endif %}
