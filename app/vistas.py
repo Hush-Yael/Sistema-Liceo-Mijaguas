@@ -60,7 +60,7 @@ class Vista(PermissionRequiredMixin):
 class Columna(TypedDict):
     clave: str
     titulo: str
-    alinear: NotRequired[str]
+    alinear: NotRequired[Literal["derecha", "centro"]]
 
 
 class ColumnaFija(Columna):

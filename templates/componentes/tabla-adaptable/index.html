@@ -129,6 +129,8 @@
                 {% endif %}
                 {% if columna.alinear == "derecha" %}
                   class="text-right!"
+                {% elif columna.alinear == "centro" %}
+                  class="text-center!"
                 {% endif %}
               >
                 <div class="flex aic justify-between gap-x-4">
@@ -195,6 +197,8 @@
                       <td
                         {% if columna.alinear == "derecha" %}
                           class="text-right!"
+                        {% elif columna.alinear == "centro" %}
+                          class="text-center!"
                         {% endif %}
 
                         {% if forloop.counter >= 2 %}
