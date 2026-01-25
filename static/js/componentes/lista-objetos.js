@@ -25,12 +25,10 @@ document.addEventListener("alpine:init", () => {
     const datos = {
       ...seleccion,
       init() {
-        if (tablaConColumnasOcultas) {
-          // obtener los ids de las filas
-          this.$el
-            .$$("[name=filas_id]")
-            .forEach((el) => this.ids.add(el.value));
+        // obtener los ids de las filas
+        this.$el.$$("[name=filas_id]").forEach((el) => this.ids.add(el.value));
 
+        if (tablaConColumnasOcultas) {
           // si no hay filas, agregar un atributo para agregar ciertos estilos ya que no se pueden seleccionar
           if (!this.$el.$("[name=filas_id]"))
             this.$el.setAttribute("data-sin-filas-seleccionar", "");
