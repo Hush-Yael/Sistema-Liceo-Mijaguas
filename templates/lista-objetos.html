@@ -34,7 +34,7 @@
     hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
     hx-target="#{{ view.id_lista_objetos }}"
     hx-swap="outerHTML"
-    x-data="{ modalAbierto: null }"
+    x-data="{ modalAbierto: null{% if extra_ctx %}, {{ extra_ctx }}{% endif %} }"
     {% if form_filtros %}
       hx-indicator="#indicador-busqueda" hx-include=".incluido-filtros"
     {% endif %}
