@@ -24,6 +24,14 @@ body {
   }
 }
 
+:root {
+  scrollbar-color: #0005 var(--color-fondo-600);
+}
+
+.oscuro {
+  scrollbar-color: #fff5 var(--color-fondo-900);
+}
+
 button,
 summary {
   cursor: pointer;
