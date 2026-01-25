@@ -260,7 +260,7 @@ class VistaListaObjetos(Vista, ListView):
 
     # aplicación de filtros por POST
     def post(self, request: HttpRequest, *args, **kwargs):  # noqa: F811
-        if self.form_filtros:
+        if hasattr(self, "form_filtros"):
             respuesta = super().get(request, *args, **kwargs)
 
             respuesta.context_data["tabla_reemplazada_por_htmx"] = 1  # type: ignore
