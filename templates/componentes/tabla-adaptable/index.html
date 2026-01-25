@@ -6,7 +6,7 @@
 {# no hay objetos con los filtros seleccionados #}
 {% if lista_objetos|length == 0 %}
   <div
-    id="tabla-objetos"
+    id="{{ view.id_lista_objetos }}"
     role="alert"
     class="ui-caja col aic gap-y-6 max-w-[400px] max-h-max ma flex-1 p-5 px-6 tac text-balance"
   >
@@ -41,7 +41,7 @@
     with
     columnas=view.columnas_mostradas
     columnas_ocultables=view.columnas_ocultables
-    id=id|default:"tabla-objetos"
+    id=view.id_lista_objetos
   %}
 
     {% partialdef tabla_estilos %}

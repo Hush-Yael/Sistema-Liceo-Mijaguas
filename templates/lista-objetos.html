@@ -32,7 +32,7 @@
   <main
     class="{{ main_class }}"
     hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-    hx-target="#tabla-objetos"
+    hx-target="#{{ view.id_lista_objetos }}"
     hx-swap="outerHTML"
     x-data="{ modalAbierto: null }"
     {% if form_filtros %}
@@ -41,7 +41,7 @@
   >
     {% if no_hay_objetos %}
       <div
-        id="tabla-objetos"
+        id="{{ view.id_lista_objetos }}"
         role="alert"
         class="ui-caja col aic gap-y-6 max-w-[400px] max-h-max ma flex-1 p-5 px-6 tac text-balance"
       >

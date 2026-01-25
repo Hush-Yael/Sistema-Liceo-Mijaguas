@@ -79,6 +79,7 @@ class VistaListaObjetos(Vista, ListView):
     total: "int | None" = None
     plantilla_lista: str
     nombre_url_editar: str
+    id_lista_objetos: str = "lista-objetos"
 
     def __init__(self):
         setattr(self, "nombre_modelo_plural", self.model._meta.verbose_name_plural)
