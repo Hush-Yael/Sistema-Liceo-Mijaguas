@@ -353,7 +353,7 @@
                     hx-delete
                     hx-indicator="#indicador-eliminar"
                     hx-disabled-elt=".deshabilitar-al-subir"
-                    hx-vals="js:{ ids: Array.from(Alpine.$data($('table')).filasSeleccionadas) }"
+                    hx-vals="js:{ ids: Array.from(Alpine.$data($id('{{ view.id_lista_objetos }}')).filasSeleccionadas) }"
                     @htmx:after-request.window="$event.target === $el && (modalAbierto = null)"
                   >
                     <div class="ui-loader ui-loader/blanco"></div>

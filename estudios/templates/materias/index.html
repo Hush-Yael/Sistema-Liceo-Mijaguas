@@ -111,7 +111,7 @@
               hx-indicator="#indicador-asignar"
               hx-disabled-elt=".deshabilitar-al-subir"
               hx-vals="js:{
-                  ids: Array.from(Alpine.$data($('table')).filasSeleccionadas),
+                  ids: Array.from(Alpine.$data($id('{{ view.id_lista_objetos }}')).filasSeleccionadas),
                   {{ asignaciones.name }}:
                     new FormData(this.closest('dialog').$('form')).getAll('{{ asignaciones.name }}')
                 }"
