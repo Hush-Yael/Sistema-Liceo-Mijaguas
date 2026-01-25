@@ -249,8 +249,8 @@ class VistaListaObjetos(Vista, ListView):
     def get(self, request: HttpRequest, *args, **kwargs):  # noqa: F811
         respuesta = super().get(request, *args, **kwargs)
 
-        # cambió la tabla pero no por filtros
-        if hasattr(self, "form_filtros") and request.GET.get("solo_tabla"):
+        # cambio de página
+        if self.paginate_by is not None and request.GET.get("solo_tabla"):
             respuesta.context_data["tabla_reemplazada_por_htmx"] = 1  # type: ignore
             respuesta.template_name = self.plantilla_lista  # type: ignore
         elif self.paginate_by:

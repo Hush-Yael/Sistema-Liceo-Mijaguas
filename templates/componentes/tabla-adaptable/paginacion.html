@@ -28,7 +28,11 @@
         {% if page_obj.has_previous %}
           <li>
             <button
-              hx-post
+              {% if view.form_filtros %}
+                hx-post
+              {% else %}
+                hx-get
+              {% endif %}
               hx-vals='{"page": 1, "solo_tabla": true }'
               class="p-0!"
               aria-label="Primera página"
@@ -53,7 +57,11 @@
           {% if page_obj.previous_page_number != 1 %}
             <li>
               <button
-                hx-post
+                {% if view.form_filtros %}
+                  hx-post
+                {% else %}
+                  hx-get
+                {% endif %}
                 hx-vals='{"page": {{ page_obj.previous_page_number }}, "solo_tabla": true }'
                 class="p-0!"
                 aria-label="Página anterior"
@@ -67,7 +75,11 @@
         {% if page_obj.number|add:'-3' > 1 %}
           <li>
             <button
-              hx-post
+              {% if view.form_filtros %}
+                hx-post
+              {% else %}
+                hx-get
+              {% endif %}
               hx-vals='{"page": {{ page_obj.number|add:"-4" }}, "solo_tabla": true }'
               aria-label="Ir a la página {{ page_obj.number|add:'-4' }}"
             >
@@ -100,7 +112,11 @@
             <li>
               <button
                 class="ui-elevado"
-                hx-post
+                {% if view.form_filtros %}
+                  hx-post
+                {% else %}
+                  hx-get
+                {% endif %}
                 hx-vals='{"page": {{ num }}, "solo_tabla": true }'
                 aria-label="Ir a la página {{ num }}"
               >
@@ -113,7 +129,11 @@
         {% if page_obj.paginator.num_pages > page_obj.number|add:'3' %}
           <li>
             <button
-              hx-post
+              {% if view.form_filtros %}
+                hx-post
+              {% else %}
+                hx-get
+              {% endif %}
               hx-vals='{"page": {{ page_obj.number|add:"4" }}, "solo_tabla": true }'
               aria-label="Ir a la página {{ page_obj.number|add:'4' }}"
             >
@@ -126,7 +146,11 @@
           {% if page_obj.next_page_number != page_obj.paginator.num_pages %}
             <li>
               <button
-                hx-post
+                {% if view.form_filtros %}
+                  hx-post
+                {% else %}
+                  hx-get
+                {% endif %}
                 hx-vals='{"page": {{ page_obj.next_page_number }}, "solo_tabla": true }'
                 class="p-0!"
                 aria-label="Página siguiente"
@@ -137,7 +161,11 @@
           {% endif %}
           <li>
             <button
-              hx-post
+              {% if view.form_filtros %}
+                hx-post
+              {% else %}
+                hx-get
+              {% endif %}
               hx-vals='{"page": {{ page_obj.paginator.num_pages }}, "solo_tabla": true }'
               class="p-0!"
               aria-label="Última página"
