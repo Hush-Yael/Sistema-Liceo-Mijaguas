@@ -59,8 +59,10 @@ const input = {
 
     before:(
       content-['']
-      absolute -z-1 top-2/4 left-2/4 block size-180% -translate-y-2/4 -translate-x-2/4 rounded-full bg-[--transparente-1] opacity-0 transition-opacity focus-visible:opacity-50 pover:opacity-50
+      absolute -z-1 top-2/4 left-2/4 block size-180% -translate-y-2/4 -translate-x-2/4 rounded-full bg-[--transparente-1] opacity-0 transition-opacity pointer-events-none focus-visible:opacity-50 pover:opacity-50
     )
+
+    group-hover/label:before:opacity-50
   `,
 
   ["ui-opcion/checkbox"]: "rounded",
