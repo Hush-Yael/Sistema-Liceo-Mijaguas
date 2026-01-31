@@ -228,18 +228,30 @@
 
               {% partialdef btn_pantalla_completa inline %}
                 <button
+                  type="button"
                   class="ui-btn ui-elevado min-h-full min-w-8"
                   aria-label="Ver tabla en pantalla completa"
                   x-data="{ pantallaCompleta: false }"
                   @click="{{
                     "
-                      !document.fullscreenElement
-                        ? window.$('.tabla-contenido').requestFullscreen()
-                          .then(() => (pantallaCompleta = true))
+                      if (!document.fullscreenElement) {
+                        window.$('.tabla-contenido').requestFullscreen()
+                          .then(() => {
+                            pantallaCompleta = true;
+                            document.onfullscreenchange = () => (
+                              !document.fullscreenElement && (pantallaCompleta = false)
+                            )
+                          })
                           .catch(() => pantallaCompleta = false)
-                        : document.exitFullscreen()
-                            .then(() => (pantallaCompleta = false))
-                            .catch(() => pantallaCompleta = true)
+                      }
+                      else {
+                        document.exitFullscreen()
+                          .then(() => {
+                            pantallaCompleta = false;
+                            document.onfullscreenchange = null
+                          })
+                          .catch(() => pantallaCompleta = true)
+                      }
                     "|reemplazar_espacios:''
                   }}"
                 >
