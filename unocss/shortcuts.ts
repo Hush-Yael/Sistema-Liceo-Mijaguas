@@ -55,8 +55,7 @@ const input = {
   ["ui-opcion"]: `
     relative size-full appearance-none border border-[--transparente-2] bg-fondo-700 transition-[background-color,border-color]
     
-    [&:checked,.peer:checked~&,.group[aria-selected=true]_&]:(bg-primario dark:bg-primario-700 border-primario dark:border-primario-700)
-    
+    [&:checked,.peer:checked~&,.group[aria-selected=true]_&]:(bg-primario dark:bg-primario-700 border-primario dark:border-primario-700 dark:bg-primario-700! dark:border-primario-700!)
 
     before:(
       content-['']
