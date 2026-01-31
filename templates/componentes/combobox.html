@@ -93,7 +93,7 @@
           {% if campo.errors %}
             class="{{ btn_class|default:''|add:c|add:' animate-head-shake animate-delay-200' }}"
           {% else %}
-            class="{{ btn_class|default:''|add:' '|add:c }}"
+            class="{{ btn_class|default:''|add:c }}"
           {% endif %}
         {% endwith %}
         aria-haspopup="listbox"
@@ -236,7 +236,7 @@
                   {% if multiple == 0 %}
                     <input
                       type="radio"
-                      class="{{ c|add:' ui-opcion/radio'|expandir_variantes }}"
+                      class="{{ c|add:' ui-opcion/radio' }}"
                       name="{{ name }}"
                       :value="item.id"
                       :checked="seleccionada === item.id"
