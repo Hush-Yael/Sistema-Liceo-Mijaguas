@@ -11,12 +11,12 @@
 {% endblock %}
 
 {% block cabeza %}
+  <link
+    rel="stylesheet"
+    href="{% static 'css/componentes/htmx-indicator.css' %}"
+  />
   {% if permisos.eliminar or permisos.editar %}
     <link rel="stylesheet" href="{% static 'css/componentes/dialog.css' %}" />
-    <link
-      rel="stylesheet"
-      href="{% static 'css/componentes/htmx-indicator.css' %}"
-    />
 
     <script defer src="{% static 'js/htmx.min.js' %}"></script>
     <script defer src="{% static 'js/htmx-error-solicitudes.js' %}"></script>
