@@ -62,7 +62,7 @@
     {% else %}
       {% block cabecera %}
         <header
-          {% with c="col gap-y-2 gap-x-5 min-[600px]:(flex-row aic jb)"|expandir_variantes %}
+          {% with c="min-[600px]:(flex gap-x-5 aic jb)"|expandir_variantes %}
             {% if view.total is not None or view.is_paginated %}
               class="{{ c|add:' min-[600px]:(pb-2 border-b border-[--transparente-2])'|expandir_variantes }}"
             {% else %}
@@ -73,14 +73,14 @@
           <div
             {% with c="flex aic gap-x-4" %}
               {% if view.total is not None or view.is_paginated %}
-                class="{{ c|add:' max-[600px]:jb min-[600px]:flex-row-reverse' }}"
+                class="{{ c|add:' pb-2 max-[600px]:jb min-[600px]:flex-row-reverse' }}"
               {% else %}
                 class="{{ c|add:' flex-1 jb' }}"
               {% endif %}
             {% endwith %}
           >
             <h1
-              {% with c="text-lg font-bold min-[500px]:text-xl" %}
+              {% with c="text-lg font-bold min-[500px]:text-xl truncate" %}
                 {% if view.total is None and not view.is_paginated %}
                   class="{{ c|add:' flex-1' }}"
                 {% else %}
@@ -108,7 +108,7 @@
 
           {% if view.total is not None or view.is_paginated %}
             <div
-              class="{{ 'flex gap-2 max-[600px]:(border-t border-t-[--transparente-2] pt-3)'|expandir_variantes }}"
+              class="{{ 'flex gap-x-1.5 pt-1 max-[600px]:(border-t border-t-[--transparente-2])'|expandir_variantes }}"
             >
               {% with label="Totales:"  icono='total' %}
                 {% if view.total is not None %}
@@ -385,7 +385,7 @@
 {% partialdef cantidad %}
   <div
     role="status"
-    class="{{ "ui-caja flex aic gap-x-2 p-1.5 px-3 flex-1 max-[500px]:text-sm min-[500px]:(gap-x-3 py-2)"|expandir_variantes }}"
+    class="{{ "ui-elevado flex aic gap-x-2 flex-1 p-1.5 pl-2 pr-3 max-[500px]:(text-sm) min-[500px]:(gap-x-3 py-2) max-[600px]:rounded-b-lg min-[600px]:rounded-lg"|expandir_variantes }}"
   >
     <span
       class="inline-flex aic jcc rounded size-5 p-1 bg-secundario text-secundario-texto dark:bg-secundario-600 min-[500px]:size-6"
