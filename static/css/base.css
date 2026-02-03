@@ -93,9 +93,16 @@ label:has(input:disabled) {
 @media screen and (min-width: 800px) {
   :root {
     --altura-header: 0px;
+    --ancho-barra-lateral: 60px;
   }
 
   body {
     flex-direction: row;
+  }
+}
+
+@media screen and (min-width: 1000px) {
+  :root {
+    --ancho-barra-lateral: 250px;
   }
 }
