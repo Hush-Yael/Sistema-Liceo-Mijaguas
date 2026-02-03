@@ -5,13 +5,14 @@
 
 {% partialdef scripts %}
   <script defer src="{% static 'js/alpine-focus.min.js' %}"></script>
+  <script defer src="{% static 'js/componentes/dropdown.js' %}"></script>
   <script defer src="{% static 'js/componentes/combobox.js' %}"></script>
 {% endpartialdef scripts %}
 
 <div
   class="{{ class|default:''|add:' col gap-1' }}"
   {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
-  x-data="combobox({ 
+  x-data="combobox({
     opciones: {% if opciones_por_script %}{{ opciones_por_script }}{% else %}{{ opciones|safe }}{% endif %},
     {% if multiple == 0 %}
     multiple: false,
@@ -26,7 +27,6 @@
   {% if not busqueda_activa %}
     @keydown="destacarPrimeraCoincidencia($event.key)"
   {% endif %}
-  @keydown.esc.window="abierto = false, abiertoPorTeclado = false"
 >
   <label
     for="{{ name }}-texto"
@@ -57,7 +57,10 @@
     />
   </label>
 
-  <div class="{{ btn_contenedor_class|default:''|add:' relative flex' }}">
+  <div
+    class="{{ btn_contenedor_class|default:''|add:' relative flex' }}"
+    x-data="dropdown({ ariaHaspopup: 'listbox' })"
+  >
     {% if not sin_valor_nulo %}
       <template
         {% if multiple == 0 %}
@@ -87,8 +90,9 @@
       class="col gap-y-1 w-full peer-not-disabled:[&>button]:rounded-l-0 overflow-hidden"
     >
       <button
-        type="button"
+        x-bind="trigger"
         role="combobox"
+        aria-controls="{{ name }}-lista"
         {% with c=" peer ui-elevado inline-flex justify-between gap-2 w-full outline-2 outline-#0000 outline-offset-2  focus-visible:outline-primario dark:focus-visible:outline-primario-600 rounded-campo whitespace-nowrap text-sm" %}
           {% if campo.errors %}
             class="{{ btn_class|default:''|add:c|add:' animate-head-shake animate-delay-200' }}"
@@ -96,17 +100,9 @@
             class="{{ btn_class|default:''|add:c }}"
           {% endif %}
         {% endwith %}
-        aria-haspopup="listbox"
-        aria-controls="{{ name }}-lista"
         {% if campo.errors %}
           aria-errormessage="{{ error_id }}" aria-invalid="true"
         {% endif %}
-        x-ref="btn"
-        @click="abierto = !abierto"
-        @keydown.down.prevent="abiertoPorTeclado = true"
-        @keydown.enter.prevent="abiertoPorTeclado = true"
-        @keydown.space.prevent="abiertoPorTeclado = true"
-        :aria-expanded="abierto || abiertoPorTeclado"
         {% if disabled %}
           :disabled="{{ disabled }}"
         {% endif %}
@@ -140,7 +136,8 @@
     </div>
 
     <div
-      role="listbox"
+      x-bind="menu"
+      x-cloak
       id="{{ name }}-lista"
       {% if multiple  == 0 %}
         aria-multiselectable="false"
@@ -152,23 +149,6 @@
       {% if campos_reemplazados_por_htmx %}
         style="display: none;"
       {% endif %}
-      x-cloak
-      x-trap="abiertoPorTeclado"
-      x-show="abierto || abiertoPorTeclado"
-      @click.outside="abierto = false, abiertoPorTeclado = false"
-      @keydown="manejarTeclas($event, $focus)"
-      @change="{{
-        "
-          if ($event.target.type !== 'text')
-            seleccionarOpcion($event.target);
-
-          if ($refs.btn.hasAttribute('aria-invalid')) {
-            $refs.btn.setAttribute('aria-invalid', 'false');
-            $refs.btn.removeAttribute('aria-errormessage');
-          }
-        "|reemplazar_espacios:''
-      }}"
-      x-transition
     >
       {% if busqueda_activa %}
         <label class="sticky top-0 z-1 bg-fondo-600">
@@ -188,7 +168,29 @@
         </label>
       {% endif %}
 
-      <ul class="py-1.5 select-none empty:hidden">
+      <ul
+        class="{{ lista_clase|default:''|add:' py-1.5 select-none empty:hidden' }}"
+        @change="{{
+          "
+            seleccionarOpcion($event.target);
+
+            if ($refs.trigger.hasAttribute('aria-invalid')) {
+              $refs.trigger.setAttribute('aria-invalid', 'false');
+              $refs.trigger.removeAttribute('aria-errormessage');
+            }
+          "|reemplazar_espacios:''
+        }}"
+        @keydown.enter.prevent="{{
+          '
+            const input = $event.target;
+            if (input instanceof HTMLInputElement) {
+              input.checked = !input.checked;
+              seleccionarOpcion(input);
+            }
+          '
+          |reemplazar_espacios:''
+        }}"
+      >
         {% with c="fc flex-col gap-y-2 h-full p-3 text-center text-texto-sutil text-sm italic font-500" ic="fc size-8 p-0.5 aspect-square bg-[--transparente-1] rounded" %}
           {% if busqueda_activa %}
             <li class="{{ c }}" x-ref="sinResultadosMsj" style="display: none;">
