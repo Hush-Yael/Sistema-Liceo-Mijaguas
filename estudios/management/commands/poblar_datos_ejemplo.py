@@ -2,6 +2,7 @@ from typing import OrderedDict
 from django.core.management.base import BaseCommand
 from estudios.models import (
     Bachiller,
+    MatriculaEstados,
     Seccion,
     Año,
     Materia,
@@ -489,8 +490,8 @@ class Command(BaseCommand):
                         "estado": self.faker.random_element(
                             OrderedDict(
                                 [
-                                    ("activo", 0.9),
-                                    ("inactivo", 0.1),
+                                    (MatriculaEstados.ACTIVO, 0.9),
+                                    (MatriculaEstados.INACTIVO, 0.1),
                                 ]
                             ),
                         ),
@@ -536,8 +537,8 @@ class Command(BaseCommand):
                             "estado": self.faker.random_element(
                                 OrderedDict(
                                     [
-                                        ("activo", 0.9),
-                                        ("inactivo", 0.1),
+                                        (MatriculaEstados.ACTIVO, 0.9),
+                                        (MatriculaEstados.INACTIVO, 0.1),
                                     ]
                                 ),
                             ),
