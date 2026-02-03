@@ -51,7 +51,7 @@
             _ref_menu: this.$refs.menuFiltros,
             label: '{{ campo_busqueda.label }}',
             tipo: 'busqueda',
-            tipo_busqueda: this.nombre_tipo_busqueda,
+            tipo_busqueda: this.nombre_tipo_busqueda || 'contiene',
             valor: q
           }
 
@@ -98,8 +98,10 @@
           class="flex-1 border-0 outline-0"
           @keydown.enter.prevent="
             valor_busqueda = $el.value;
-            aplicarFiltro();
-            $refs.form.requestSubmit();
+            if (valor_busqueda && tipo_busqueda) {
+              aplicarFiltro();
+              $refs.form.requestSubmit();
+            }
           "
           @input.debounce.300="valor_busqueda = $el.value"
         />
