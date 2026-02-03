@@ -110,6 +110,12 @@
       <div
         class="col gap-y-3"
         role="radiogroup"
+        @keydown.enter="
+          const input = $event.target;
+          tipo_busqueda = input.value;
+          nombre_tipo_busqueda = input.getAttribute('data-tipo-busqueda');
+          aplicarFiltro();
+        "
         @change="{{
           "
             const input = $event.target;
@@ -123,6 +129,7 @@
           <label class="{{ radio_label_class }}">
             <input
               type="radio"
+              :checked="tipo_busqueda === '{{ opcion.id }}'"
               {% if opcion.id == campo_tipo_q.value %}
                 checked
               {% endif %}
