@@ -144,7 +144,7 @@
       {% else %}
         aria-multiselectable="true"
       {% endif %}
-      class="{{ lista_clase|default:''|add:' absolute z-10 left-0 top-8.5 col max-h-45dvh w-full min-w-max max-w-350px ui-elevado overflow-y-auto empty:hidden' }}"
+      class="{{ lista_contenedor_clase|default:'top-8.5 left-0'|add:' absolute z-10 col max-h-45dvh w-full min-w-max max-w-350px ui-elevado overflow-y-auto empty:hidden ' }}"
       {# al ser reemplazado por htmx, se muestra como si estuviera abierto, por lo que se oculta hasta que se interactúe con el trigger #}
       {% if campos_reemplazados_por_htmx %}
         style="display: none;"
@@ -227,10 +227,7 @@
               :aria-selected="opcionesSeleccionadas.has(item.id)"
             {% endif %}
           >
-            <label
-              class="flex items-center gap-2.5 p-1.5 px-3"
-              :for="'{{ name }}-opt-'+index"
-            >
+            <label class="group/label flex items-center gap-2.5 p-1.5 px-3">
               <div
                 class="size-4.5 size-min-4.5 relative [&>input::before,&>input::after]:content-['']"
               >
