@@ -34,6 +34,12 @@ document.addEventListener("alpine:init", () => {
     /** @this Contexto */
     limpiarSeleccion() {
       this.ultimaSeleccionadaIndice = null;
+      this.filasSeleccionadas.clear();
+    },
+
+    /** @this Contexto */
+    limpiarSeleccionTodo() {
+      this.ultimaSeleccionadaIndice = null;
       this.ids.forEach((id) => this.filasSeleccionadas.delete(id));
     },
 
@@ -49,7 +55,7 @@ document.addEventListener("alpine:init", () => {
     /** @this Contexto */
     alternarSeleccionTodo() {
       this.ids.every((id) => this.filasSeleccionadas.has(id))
-        ? this.limpiarSeleccion()
+        ? this.limpiarSeleccionTodo()
         : this.seleccionarTodo();
     },
 

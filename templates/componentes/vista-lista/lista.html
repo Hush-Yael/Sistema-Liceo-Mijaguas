@@ -78,6 +78,14 @@
           </span>
 
           <div class="flex aic gap-x-2">
+            <button
+              aria-label="Limpiar selecciones"
+              @click="limpiarSeleccion()"
+              class="ui-btn p-1 bg-#fff2 pover:bg-#fff3"
+            >
+              {% include "componentes/iconos/edicion.html#limpiar_seleccion" with class="size-5" %}
+            </button>
+
             <div
               class="relative w-fit"
               x-data="dropdown({ noAjustable: true })"
