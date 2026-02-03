@@ -1,7 +1,11 @@
 {% load grupos_variantes %}
 
 <div class="relative h-full" x-data="dropdown({})">
-  <button x-bind="trigger" class="ui-btn ui-elevado h-full rounded px-2">
+  <button
+    x-bind="trigger"
+    class="ui-btn ui-elevado h-full rounded px-2"
+    aria-label="Orden de los datos"
+  >
     <svg
       class="size-4.5 min-[600px]:size-5 text-texto-sutil"
       xmlns="http://www.w3.org/2000/svg"
@@ -11,7 +15,6 @@
         d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48ZM392 280H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48ZM296 392h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48Z"
       ></path>
     </svg>
-    Orden
   </button>
 
   <div
