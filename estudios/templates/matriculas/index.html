@@ -7,8 +7,7 @@
 
 {% block cabeza %}
   {{ block.super }}
-  {% include "componentes/tabla-adaptable/index.html#cabeza" %}
-  <script defer src="{% static 'js/alpine-focus.min.js' %}"></script>
+  {% include "componentes/tabla-adaptable/cabeza.html" %}
   <script defer src="{% static 'js/componentes/combobox.js' %}"></script>
 {% endblock cabeza %}
 

@@ -4,32 +4,23 @@
 {% load sekizai_tags %}
 
 {# estilos generales #}
-{% partialdef tabla_estilos %}
+{% partialdef tabla_estilos inline %}
   {% if view.columnas_mostradas|length > 1 %}
     {% include "componentes/tabla-adaptable/style.html" with rango_columnas=columnas_ocultables|length|convertir_a_rango %}
   {% endif %}
-  <link rel="stylesheet" href="{% static 'css/componentes/tabla.css' %}" />
 {% endpartialdef tabla_estilos %}
+<link rel="stylesheet" href="{% static 'css/componentes/tabla.css' %}" />
 
-{% if not lista_reemplazada_por_htmx %}
-  {% addtoblock "cabeza" %}
-    {% partial tabla_estilos %}
+{# lógica de la tabla #}
+<script defer src="{% static 'js/componentes/tabla-adaptable.js' %}"></script>
+{# script para cambiar la fila sticky a medida que se hace scroll #}
+<script
+  defer
+  src="{% static 'js/componentes/tabla-con-fila-sticky.js' %}"
+></script>
 
-    <script defer src="{% static 'js/alpine-focus.min.js' %}"></script>
-
-    {# script para cambiar la fila sticky a medida que se hace scroll #}
-    <script src="{% static 'js/componentes/tabla-con-fila-sticky.js' %}"></script>
-    {# lógica de la tabla #}
-    <script src="{% static 'js/componentes/lista-objetos.js' %}"></script>
-
-    <script>
-      document.addEventListener("alpine:initialized", () => {
-        new TablaConFilaSticky("{{ id }}");
-      });
-    </script>
-  {% endaddtoblock %}
-{% else %}
-  <head>
-    {% partial tabla_estilos %}
-  </head>
-{% endif %}
+<script>
+  document.addEventListener("alpine:initialized", () => {
+    new TablaConFilaSticky("{{ view.id_lista_objetos }}");
+  });
+</script>

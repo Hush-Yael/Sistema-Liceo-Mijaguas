@@ -30,7 +30,9 @@
 
     <script defer src="{% static 'js/htmx.min.js' %}"></script>
     <script defer src="{% static 'js/htmx-error-solicitudes.js' %}"></script>
+    <script defer src="{% static 'js/alpine-focus.min.js' %}"></script>
     <script defer src="{% static 'js/alpine-dialog.min.js' %}"></script>
+    <script defer src="{% static 'js/componentes/lista-objetos.js' %}"></script>
   {% endif %}
 
   <script src="{% static 'js/componentes/dropdown.js' %}"></script>
@@ -42,10 +44,13 @@
     hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
     hx-target="#{{ view.id_lista_objetos }}"
     hx-swap="outerHTML"
-    x-data="{ modalAbierto: null{% if extra_ctx %}, {{ extra_ctx }}{% endif %} }"
     {% if form_filtros %}
       hx-indicator="#indicador-busqueda"
     {% endif %}
+    x-data="listaObjetos({ 
+      contenedorManejoTeclas: $el.$('[data-lista]'),
+      {% block x_data %}{% endblock x_data %}
+    })"
   >
     {% if no_hay_objetos %}
       <div
@@ -158,7 +163,7 @@
               {% include "componentes/vista-lista/filtros/_lista.html" %}
 
               <form
-                class="flex aic gap-x-2 h-8 max-[600px]:text-sm"
+                class="flex aic gap-x-1 h-8 min-[400px]:gap-x-2 max-[600px]:text-sm"
                 hx-post
                 x-ref="form"
                 {% if is_paginated %}
@@ -208,6 +213,17 @@
                 {% endif %}
                 {% include "componentes/vista-lista/btn-pantalla-completa.html" %}
 
+                {% if not view.tabla %}
+                  <button
+                    type="button"
+                    class="ui-btn ui-elevado h-full rounded px-1"
+                    @click="alternarSeleccionTodo()"
+                  >
+                    {% include "componentes/iconos/edicion.html#seleccionar_todo" with class="size-5.5" %}
+                    <span class="sr-only">Seleccionar todo</span>
+                  </button>
+                {% endif %}
+
                 {% if form_filtros.cantidad_por_pagina %}
                   <label
                     class="ui-elevado fc gap-x-2 h-full rounded-campo px-2"
@@ -250,6 +266,7 @@
                   <p class="text-texto-semi-sutil">
                     ¿Realmente deseas eliminar
                     {{ view.articulo_sustantivo_plural }}
+                    <span x-text="`(${filasSeleccionadas.size})`"></span>
                     {{ view.nombre_objeto_plural }}
                     seleccionad{{ view.vocal_del_genero }}s?
                   </p>
@@ -306,8 +323,12 @@
                     hx-delete
                     hx-indicator="#indicador-eliminar"
                     hx-disabled-elt=".deshabilitar-al-subir"
+                    {# obtener los ids de las filas seleccionadas desde el componente de la lista #}
                     hx-vals="js:{ ids: Array.from(Alpine.$data($id('{{ view.id_lista_objetos }}')).filasSeleccionadas) }"
-                    @htmx:after-request.window="$event.target === $el && (modalAbierto = null)"
+                    @htmx:after-request.window="if ($event.target === $el) {
+                      modalAbierto = null;
+                      limpiarSeleccion();
+                    }"
                   >
                     <div class="ui-loader ui-loader/blanco"></div>
                     Sí, eliminar

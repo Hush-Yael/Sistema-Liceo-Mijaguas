@@ -1,4 +1,5 @@
 {% load utilidades %}
+{% load partials %}
 {% load grupos_variantes %}
 
 {# no hay objetos con los filtros seleccionados #}
@@ -38,15 +39,10 @@
       {% if contenedor_class %}
         class="{{ contenedor_class }}"
       {% endif %}
-      x-data="listaObjetos({ {% block x_data %}{% endblock x_data %} })"
+      x-init="cargarIds()"
     >
       <div
         class="{{ contenedor_lista_class|default:''|add:' col gap-y-4 h-full flex-1 overflow-y-auto' }}"
-        {% if lista_reemplazada_por_htmx %}
-          x-data="_listaObjetos"
-        {% else %}
-          x-data="listaObjetos({tabla: false, hayColumnasOcultables: false })"
-        {% endif %}
       >
         <div
           class="{{ 'fixed top-0 left-0 z-5 w-full flex flex-wrap aic justify-between gap-y-2 gap-x-6 p-2 px-3 bg-secundario text-secundario-texto transition-[transform,opacity] duration-200 ease-in-out max-[500px]:text-sm max-sidebar:h-[--altura-header] sidebar:(left-[--ancho-barra-lateral] w-[calc(100%-var(--ancho-barra-lateral))])'|expandir_variantes }}"
@@ -57,17 +53,27 @@
           x-transition:leave-start="opacity-100 translate-y-0"
           x-transition:leave-end="opacity-0 -translate-y-full"
         >
+          {% partialdef total %}
+            {% if view.total is not None %}
+              {{ view.total }}
+            {% elif is_paginated %}
+              {{ page_obj.paginator.count }}
+            {% else %}
+              {{ lista_objetos|length }}
+            {% endif %}
+          {% endpartialdef total %}
+
           <span
-            x-show="filasSeleccionadas.size < ids.size"
+            x-show="filasSeleccionadas.size < {% partial total %}"
             class="tracking-wide space-x-0.5"
           >
             <span class="font-500" x-text="filasSeleccionadas.size"></span>
             <span class="opacity-80">de</span>
-            <span class="font-500" x-text="ids.size"></span>
+            <span class="font-500">{% partial total %}</span>
             <span class="opacity-80">seleccionadas</span>
           </span>
 
-          <span x-show="filasSeleccionadas.size === ids.size">
+          <span x-show="filasSeleccionadas.size === {% partial total %}">
             Todas las filas seleccionadas
           </span>
 

@@ -6,7 +6,7 @@
 
 {% block cabeza %}
   {{ block.super }}
-  {% include "componentes/tabla-adaptable/index.html#cabeza" %}
+  {% include "componentes/tabla-adaptable/cabeza.html" %}
   {% include "componentes/combobox.html#scripts" %}
 {% endblock cabeza %}
 
@@ -76,11 +76,15 @@
               hx-indicator="#indicador-asignar"
               hx-disabled-elt=".deshabilitar-al-subir"
               hx-vals="js:{
+                  {# obtener los ids de las filas seleccionadas desde el componente de la lista #}
                   ids: Array.from(Alpine.$data($id('{{ view.id_lista_objetos }}')).filasSeleccionadas),
                   {{ asignaciones.name }}:
                     new FormData(this.closest('dialog').$('form')).getAll('{{ asignaciones.name }}')
                 }"
-              @htmx:after-request.window="$event.target === $el && (modalAbierto = null)"
+              @htmx:after-request.window="if ($event.target === $el) {
+                modalAbierto = null;
+                limpiarSeleccion();
+              }"
             >
               <div class="ui-loader ui-loader/blanco"></div>
               Asignar

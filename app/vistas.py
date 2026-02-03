@@ -80,6 +80,7 @@ class VistaListaObjetos(Vista, ListView):
     plantilla_lista: str
     nombre_url_editar: str
     id_lista_objetos: str = "lista-objetos"
+    tabla: bool = True
 
     def __init__(self):
         setattr(self, "nombre_modelo_plural", self.model._meta.verbose_name_plural)

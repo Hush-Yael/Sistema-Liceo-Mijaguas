@@ -4,60 +4,35 @@
 {% load static %}
 {% load sekizai_tags %}
 
-{% comment %}<!-- prettier-ignore-start -->{% endcomment %}
-  {% block x_data %}
-    tabla: true,
-    hayColumnasOcultables: {% if view.columnas_mostradas|length > 1 %}true{% else %}false{% endif %},
-    contenedorManejoTeclas: window.$('table'),
-    {% if view.columnas_mostradas|length > 1 %}
-      indiceColActual: {{ indice_col_actual|default:0 }},
-      tituloColActual: '{{ titulo_col_actual|default_if_none:view.columnas_ocultables.0 }}',
-      columnasOcultables: {{ view.columnas_ocultables|default:"[]" }},
-    {% endif %}
-  {% endblock x_data %}
-{% comment %}<!-- prettier-ignore-end -->{% endcomment %}
-
 {% block contenedor %}
   {% with contenedor_class="contenedor-tabla" contenedor_lista_class="max-sidebar:overflow-unset" %}
     {{ block.super }}
   {% endwith %}
 {% endblock contenedor %}
 
-{% partialdef cabeza %}
-  {# estilos generales #}
-  {% partialdef tabla_estilos inline %}
-    {% if view.columnas_mostradas|length > 1 %}
-      {% include "componentes/tabla-adaptable/style.html" with rango_columnas=columnas_ocultables|length|convertir_a_rango %}
-    {% endif %}
-  {% endpartialdef tabla_estilos %}
-  <link rel="stylesheet" href="{% static 'css/componentes/tabla.css' %}" />
-
-  <script defer src="{% static 'js/alpine-focus.min.js' %}"></script>
-
-  {# script para cambiar la fila sticky a medida que se hace scroll #}
-  <script src="{% static 'js/componentes/tabla-con-fila-sticky.js' %}"></script>
-  {# lógica de la tabla #}
-  <script src="{% static 'js/componentes/lista-objetos.js' %}"></script>
-
-  <script>
-    document.addEventListener("alpine:initialized", () => {
-      new TablaConFilaSticky("{{ view.id_lista_objetos }}");
-    });
-  </script>
-{% endpartialdef cabeza %}
-
 {% block lista %}
   {% if tabla_reemplazada_por_htmx %}
     <head>
-      {% partial tabla_estilos %}
+      {% include "componentes/tabla-adaptable/cabeza.html#tabla_estilos" %}
     </head>
   {% endif %}
 
   <table
+    data-lista
+    {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+      x-data="tablaAdaptable({
+        hayColumnasOcultables: {% if view.columnas_mostradas|length > 1 %}true{% else %}false{% endif %},
+        {% if view.columnas_mostradas|length > 1 %}
+          indiceColActual: {{ indice_col_actual|default:0 }},
+          tituloColActual: '{{ titulo_col_actual|default_if_none:view.columnas_ocultables.0 }}',
+          columnasOcultables: {{ view.columnas_ocultables|default:"[]" }},
+        {% endif %}
+      })"
+    {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
     {% if page_obj.paginator.num_pages > 1 %}
-      class="{{ tabla_class|default:""|add:" tabla rounded-b-0! border-b-0! [&_tr:last-child>_td]:rounded-0! [&_tr:last-child>_td]:border-b-0" }}"
+      class="{{ tabla_class|default:''|add:' tabla rounded-b-0! border-b-0! [&_tr:last-child>_td]:rounded-0! [&_tr:last-child>_td]:border-b-0' }}"
     {% else %}
-      class="{{ tabla_class|default:""|add:" tabla" }}"
+      class="{{ tabla_class|default:''|add:' tabla' }}"
     {% endif %}
     {% if view.columnas_mostradas|length > 1 %}
       :data-i="indiceColActual"
@@ -67,17 +42,15 @@
       <thead>
         <tr>
           <th class="fila-check w-4">
-            <div class="relative fc size-4">
-              <input
-                type="checkbox"
-                autocomplete="off"
-                class="peer ui-opcion ui-opcion/checkbox cursor-pointer"
-                id="seleccionar-todos"
-                aria-label="Seleccionar todas las filas"
-                :checked="filasSeleccionadas.size === ids.size"
-              />
-              {% include "componentes/checkbox-icono.html" with class="pointer-events-none" %}
-            </div>
+            <button
+              type="checkbox"
+              autocomplete="off"
+              id="seleccionar-todos"
+              aria-label="Seleccionar todas las filas"
+              @click="alternarSeleccionTodo()"
+            >
+              {% include "componentes/iconos/edicion.html#seleccionar_todo" with class="size-5" %}
+            </button>
           </th>
 
           <th class="fila-n numeros">#</th>

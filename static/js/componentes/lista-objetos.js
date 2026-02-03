@@ -1,96 +1,120 @@
 "use strict";
 
+/**
+ * @typedef {{
+ *  filasSeleccionadas: Set<number>
+ *  ids: number[]
+ *  shiftKey: false,
+ *  ultimaSeleccionadaIndice: null | string
+ *  modalAbierto: string | null
+ * }} Contexto
+ **/
+
 document.addEventListener("alpine:init", () => {
-  Alpine.data("listaObjetos", (config) => {
-    // Estados de selección
-    const seleccion = {
-      /** @type { Set<number> } */
-      filasSeleccionadas: new Set(),
-      /** @type { Set<number> } */
-      ids: new Set(),
-      shiftKey: false,
-      /** @type { null | string } */
-      ultimaSeleccionadaIndice: null,
-      /** @param { KeyboardEvent & { target: HTMLElement } } e */
-      cambiarTabIndex(e) {
-        e.target.tabIndex = -1;
-        setTimeout(() => (this.$focus.focused().tabIndex = 0));
-      },
-    };
+  Alpine.data("listaObjetos", (config) => ({
+    /** @type { Set<number> } */
+    filasSeleccionadas: new Set(),
+    /** @type { number[] } */
+    ids: [],
+    shiftKey: false,
+    /** @type { null | string } */
+    ultimaSeleccionadaIndice: null,
+    /** @type { string | null } */
+    modalAbierto: config.modalAbierto || null,
 
-    /** @type { boolean } */
-    const tablaConColumnasOcultas =
-      config.tabla && config.hayColumnasOcultables;
+    /**
+     * @param { KeyboardEvent & { target: HTMLElement } } e
+     * @this Contexto
+     **/
+    cambiarTabIndex(e) {
+      e.target.tabIndex = -1;
+      setTimeout(() => (this.$focus.focused().tabIndex = 0));
+    },
 
-    const datos = {
-      ...seleccion,
-      init() {
-        // obtener los ids de las filas
-        this.$el.$$("[name=filas_id]").forEach((el) => this.ids.add(el.value));
+    /** @this Contexto */
+    limpiarSeleccion() {
+      this.ultimaSeleccionadaIndice = null;
+      this.ids.forEach((id) => this.filasSeleccionadas.delete(id));
+    },
 
-        if (tablaConColumnasOcultas) {
-          // si no hay filas, agregar un atributo para agregar ciertos estilos ya que no se pueden seleccionar
-          if (!this.$el.$("[name=filas_id]"))
-            this.$el.setAttribute("data-sin-filas-seleccionar", "");
+    /** @this Contexto */
+    seleccionarTodo() {
+      this.ultimaSeleccionadaIndice = null;
+      this.filasSeleccionadas = new Set([
+        ...this.filasSeleccionadas,
+        ...this.ids,
+      ]);
+    },
 
-          // ubicar el cambiador de columnas en el primer <th>
-          Alpine.effect(() => {
-            this.$el
-              .$(`th[data-i='${this.indiceColActual}']>div`)
-              .appendChild(this.$el.$("#selector-columna"));
-          });
-        }
+    /** @this Contexto */
+    alternarSeleccionTodo() {
+      this.ids.every((id) => this.filasSeleccionadas.has(id))
+        ? this.limpiarSeleccion()
+        : this.seleccionarTodo();
+    },
 
-        Alpine.bind(this.$el, {
-          // desactivar la variable shiftKey al soltar la tecla Shift
-          "x-on:keyup"() {
-            if (!this.$event.shiftKey) this.shiftKey = false;
-          },
-          // Abrir el modal de eliminar al presionar la tecla Delete en un input para seleccionar filas
-          "x-on:keydown.delete"() {
-            if (
-              this.$event.target.matches("input") &&
-              this.filasSeleccionadas.size
-            )
-              this.modalAbierto = "eliminar";
-          },
-          // Selección de filas individual y múltiple
-          "x-on:change"() {
-            const el = this.$event.target;
+    /** @this Contexto */
+    cargarIds() {
+      // Establecer los ids disponibles de la lista al esta cargarse
+      this.ids = Array.from(this.$el.$$("[name=filas_id]"), (el) => el.value);
+    },
 
-            if (el.id === "seleccionar-todos") {
-              this.ultimaSeleccionadaIndice = null;
-              this.filasSeleccionadas.size === this.ids.size
-                ? this.filasSeleccionadas.clear()
-                : (this.filasSeleccionadas = new Set(this.ids));
-            } else if (el.name === "filas_id") {
-              if (this.shiftKey && this.ultimaSeleccionadaIndice !== null) {
-                const start = Math.min(
-                  this.ultimaSeleccionadaIndice,
-                  el.dataset.i,
-                );
-                const end = Math.max(
-                  this.ultimaSeleccionadaIndice,
-                  el.dataset.i,
-                );
+    /** @this Contexto */
+    init() {
+      Alpine.bind(this.$el, {
+        /** @this Contexto */
+        // desactivar la variable shiftKey al soltar la tecla Shift
+        "x-on:keyup"() {
+          if (!this.$event.shiftKey) this.shiftKey = false;
+        },
 
-                let i = 0;
-                this.ids.forEach((id) => {
+        /** @this Contexto */
+        // Abrir el modal de eliminar al presionar la tecla Delete en un input para seleccionar filas
+        "x-on:keydown.delete"() {
+          if (
+            this.$event.target.matches("[name=filas_id]") &&
+            this.filasSeleccionadas.size
+          )
+            this.modalAbierto = "eliminar";
+        },
+
+        /** @this Contexto */
+        // Selección de filas individual y múltiple
+        "x-on:change"() {
+          const el = this.$event.target;
+
+          if (el.name === "filas_id") {
+            // seleccion en rango
+            if (this.shiftKey && this.ultimaSeleccionadaIndice !== null) {
+              const start = Math.min(
+                this.ultimaSeleccionadaIndice,
+                el.dataset.i,
+              );
+              const end = Math.max(this.ultimaSeleccionadaIndice, el.dataset.i);
+
+              if (start === end)
+                return this.filasSeleccionadas.has(el.value)
+                  ? this.filasSeleccionadas.delete(el.value)
+                  : this.filasSeleccionadas.add(el.value);
+
+              if (Number.isInteger(start) && Number.isInteger(end))
+                this.ids.forEach((id, i) => {
                   if (i >= start && i <= end) this.filasSeleccionadas.add(id);
-                  i++;
                 });
-              } else {
-                this.ultimaSeleccionadaIndice = el.dataset.i;
-                el.checked
-                  ? this.filasSeleccionadas.add(el.value)
-                  : this.filasSeleccionadas.delete(el.value);
-              }
+            } else {
+              this.ultimaSeleccionadaIndice = el.dataset.i;
+              el.checked
+                ? this.filasSeleccionadas.add(el.value)
+                : this.filasSeleccionadas.delete(el.value);
             }
-          },
-        });
+          }
+        },
+      });
 
-        Alpine.bind(config.contenedorManejoTeclas || this.$el, {
-          // Navegar entre elementos enfocables de la tabla, para no tener que usar Tab
+      if (config.contenedorManejoTeclas)
+        Alpine.bind(config.contenedorManejoTeclas, {
+          /** @this Contexto */
+          // Navegar entre elementos enfocables de la lista, para no tener que usar Tab
           "x-on:keydown"() {
             /** @type { KeyboardEvent } */
             const e = this.$event;
@@ -121,29 +145,9 @@ document.addEventListener("alpine:init", () => {
             }
           },
         });
-      },
-    };
+      else console.warn("No se indicó el contenedor que maneja las teclas");
+    },
 
-    // si la tabla tiene columnas ocultas, agregar las funciones necesarias para controlar el cambio de columnas
-    if (tablaConColumnasOcultas) {
-      const tabla = {
-        /** @type { number } */
-        indiceColActual: config.indiceColActual || 0,
-        /** @type { string } */
-        tituloColActual: config.tituloColActual || "",
-        anteriorCol() {
-          if (this.indiceColActual > 0) this.indiceColActual--;
-        },
-        siguienteCol() {
-          if (this.indiceColActual < this.columnasOcultables.length - 1)
-            this.indiceColActual++;
-        },
-        columnasOcultables: config.columnasOcultables || [],
-      };
-
-      return { ...tabla, ...datos };
-    }
-
-    return datos;
-  });
+    ...config,
+  }));
 });
