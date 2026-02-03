@@ -17,7 +17,7 @@ from django.views.generic.detail import SingleObjectTemplateResponseMixin
 from django.views.generic.edit import CreateView, UpdateView
 from app import HTTPResponseHXRedirect
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from app.forms import BusquedaFormMixin
+from app.forms import BusquedaFormMixin, DireccionesOrden, OrdenFormMixin
 
 
 class Vista(PermissionRequiredMixin):
@@ -136,6 +136,9 @@ class VistaListaObjetos(Vista, ListView):
             if hasattr(self, "form_filtros"):
                 datos_form = self.establecer_form_filtros()
 
+                if isinstance(self.form_filtros, OrdenFormMixin):
+                    queryset = self.aplicar_orden(queryset, datos_form)  # type: ignore
+
                 # modificar paginación de acuerdo a los filtros
                 self.modificar_paginacion_por_filtro(datos_form)
 
@@ -150,6 +153,8 @@ class VistaListaObjetos(Vista, ListView):
             return []
 
     def establecer_form_filtros(self):
+        """Establece el form de filtros para esta vista y retorna los datos del form"""
+
         # al crear el form de filtros, se debe distinguir entre GET y los otros métodos, ya que por alguna razón GET no funciona correctamente (evita que se recuperen los datos de las cookies) si se le pasan los datos
         if self.request.method == "GET":
             self.form_filtros = self.form_filtros(request=self.request)  # type: ignore
@@ -208,7 +213,73 @@ class VistaListaObjetos(Vista, ListView):
         datos_form: "dict[str, Any] | Mapping[str, Any]",
     ):
         """Modifica el queryset de acuerdo a los filtros indicados en el form de filtros"""
+        if isinstance(self.form_filtros, BusquedaFormMixin):
+            for campo in self.form_filtros:
+                if not hasattr(campo.field, "nombre_columna_db"):
+                    continue
+
+                nombre_columna_db: "str | None" = getattr(
+                    campo.field, "nombre_columna_db"
+                )
+
+                if not nombre_columna_db:
+                    continue
+
+                q: "str | None" = datos_form.get(campo.name)
+
+                if not q:
+                    continue
+
+                tipo_q = datos_form.get(f"tipo_{campo.name}")
+
+                if not tipo_q:
+                    tipo_q = "icontains"
+
+                if not isinstance(q, str):
+                    continue
+
+                q = q.strip()
+                if q == "":
+                    continue
+
+                return queryset.filter(**{f"{nombre_columna_db}__{tipo_q}": q})
+
         return queryset
+
+    def aplicar_orden(self, queryset: models.QuerySet, datos_form: "dict[str, Any]"):
+        for nombre, _ in self.form_filtros.campos_orden:  # type: ignore
+            if direccion := datos_form.get(nombre):
+                columna = nombre.split("-")[0]
+
+                if direccion == DireccionesOrden.ASC.value[0]:
+                    columna = "-" + columna
+
+                queryset = queryset.order_by(columna)
+
+        return queryset
+
+    def alternar_col_por_filtro(self, valor_filtro: "Any | None", columna: str):
+        if valor_filtro:
+            # no se deben ocultar columnas con un queryset de más de un elemento, pues esto evitaría distinguir entre objetos
+            if (
+                isinstance(valor_filtro, models.QuerySet)
+                or isinstance(valor_filtro, list)
+            ) and len(valor_filtro) != 1:
+                return self.columnas_a_evitar.discard(columna)
+
+            self.columnas_a_evitar.add(columna)
+        else:
+            self.columnas_a_evitar.discard(columna)
+
+    def obtener_y_alternar(
+        self,
+        nombre_campo: str,
+        datos_form: "dict[str, Any] | Mapping[str, Any]",
+        nombre_columna: str,
+    ):
+        dato = datos_form.get(nombre_campo)
+        self.alternar_col_por_filtro(dato, nombre_columna)
+        return dato
 
     def get_context_data(self, *args, **kwargs):
         ctx = super().get_context_data()
@@ -228,6 +299,10 @@ class VistaListaObjetos(Vista, ListView):
                 "form_filtros": self.form_filtros
                 if hasattr(self, "form_filtros")
                 else None,
+                "form_con_orden": True
+                if hasattr(self, "form_filtros")
+                and isinstance(self.form_filtros, OrdenFormMixin)
+                else False,
                 "permisos": {
                     "editar": self.request.user.has_perm(  # type: ignore
                         f"{self.nombre_app_modelo}.change_{self.nombre_modelo}"
@@ -244,14 +319,15 @@ class VistaListaObjetos(Vista, ListView):
                 else not self.model.objects.exists(),
             }
         )
+
         return ctx
 
-    def get(self, request: HttpRequest, *args, **kwargs):  # noqa: F811
+    def get(self, request: HttpRequest, *args, **kwargs):
         respuesta = super().get(request, *args, **kwargs)
 
         # cambio de página
         if self.paginate_by is not None and request.GET.get("solo_tabla"):
-            respuesta.context_data["tabla_reemplazada_por_htmx"] = 1  # type: ignore
+            respuesta.context_data["lista_reemplazada_por_htmx"] = 1  # type: ignore
             respuesta.template_name = self.plantilla_lista  # type: ignore
         elif self.paginate_by:
             self.total = self.model.objects.count()
@@ -259,11 +335,11 @@ class VistaListaObjetos(Vista, ListView):
         return respuesta
 
     # aplicación de filtros por POST
-    def post(self, request: HttpRequest, *args, **kwargs):  # noqa: F811
+    def post(self, request: HttpRequest, *args, **kwargs):
         if hasattr(self, "form_filtros"):
             respuesta = super().get(request, *args, **kwargs)
 
-            respuesta.context_data["tabla_reemplazada_por_htmx"] = 1  # type: ignore
+            respuesta.context_data["lista_reemplazada_por_htmx"] = 1  # type: ignore
             respuesta.template_name = self.plantilla_lista  # type: ignore
 
             return respuesta
@@ -290,7 +366,7 @@ class VistaListaObjetos(Vista, ListView):
         self.object_list = self.get_queryset(queryset=self.queryset)  # type: ignore
 
         ctx = self.get_context_data(self, *args, **kwargs)
-        ctx["tabla_reemplazada_por_htmx"] = 1  # indicar que solo se cambia la tabla
+        ctx["lista_reemplazada_por_htmx"] = 1  # indicar que solo se cambia la tabla
         ctx["mensajes_recibidos"] = 1  # mostrar mensajes
 
         return render(

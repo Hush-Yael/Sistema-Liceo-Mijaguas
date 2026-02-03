@@ -1,6 +1,6 @@
 {% extends "componentes/tabla-adaptable/index.html" %}
 
-{% block acciones_opciones %}
+{% block acciones %}
   {{ block.super }}
 
   <button
@@ -34,7 +34,7 @@
     </svg>
     Establecer años asignados...
   </button>
-{% endblock acciones_opciones %}
+{% endblock acciones %}
 
 {% block td %}
   {% if columna.clave == 'asignaciones' %}

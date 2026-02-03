@@ -1,0 +1,127 @@
+{% load utilidades %}
+{% load grupos_variantes %}
+
+{# no hay objetos con los filtros seleccionados #}
+{% if lista_objetos|length == 0 %}
+  <div
+    id="{{ view.id_lista_objetos }}"
+    role="alert"
+    class="ui-caja col aic gap-y-6 max-w-[400px] max-h-max ma flex-1 p-5 px-6 tac text-balance"
+  >
+    <span
+      class="rounded-full aspect-square size-min-[5rem] p-3 bg-primario-50 dark:bg-primario-800 text-primario-600 dark:text-primario-100 [&>svg]:size-full"
+    >
+      {% include "componentes/iconos/tabla.html#sin_notas" %}
+    </span>
+
+    <hgroup class="col gap-y-2">
+      {% block sin_resultados %}
+        <h2 class="font-bold text-[1.2rem]">
+          No se encontraron {{ view.nombre_objeto_plural }}
+        </h2>
+        <p class="text-texto-sutil">Intenta cambiar los filtros</p>
+      {% endblock sin_resultados %}
+    </hgroup>
+  </div>
+{% else %}
+  {# al cambiar la lista, actualizar la cantidad de resultados #}
+
+  {% if view.form_filtros and lista_reemplazada_por_htmx and is_paginated %}
+    <span hx-swap-oob="innerHTML:#filtrados-cantidad">
+      {{ page_obj.paginator.count }}
+    </span>
+  {% endif %}
+
+  {% block contenedor %}
+    <div
+      id="{{ view.id_lista_objetos }}"
+      {% if contenedor_class %}
+        class="{{ contenedor_class }}"
+      {% endif %}
+      x-data="listaObjetos({ {% block x_data %}{% endblock x_data %} })"
+    >
+      <div
+        class="col gap-y-4 h-full flex-1 overflow-y-auto"
+        {% if lista_reemplazada_por_htmx %}
+          x-data="_listaObjetos"
+        {% else %}
+          x-data="listaObjetos({tabla: false, hayColumnasOcultables: false })"
+        {% endif %}
+      >
+        <div
+          class="{{ 'fixed top-0 left-0 z-5 w-full flex flex-wrap aic justify-between gap-y-2 gap-x-6 p-2 px-3 bg-secundario text-secundario-texto transition-[transform,opacity] duration-200 ease-in-out max-[500px]:text-sm max-sidebar:h-[--altura-header] sidebar:(left-[--ancho-barra-lateral] w-[calc(100%-var(--ancho-barra-lateral))])'|expandir_variantes }}"
+          x-cloak
+          x-show="filasSeleccionadas.size > 0"
+          x-transition:enter-start="opacity-0 -translate-y-full"
+          x-transition:enter-end="opacity-100 translate-y-0"
+          x-transition:leave-start="opacity-100 translate-y-0"
+          x-transition:leave-end="opacity-0 -translate-y-full"
+        >
+          <span
+            x-show="filasSeleccionadas.size < ids.size"
+            class="tracking-wide space-x-0.5"
+          >
+            <span class="font-500" x-text="filasSeleccionadas.size"></span>
+            <span class="opacity-80">de</span>
+            <span class="font-500" x-text="ids.size"></span>
+            <span class="opacity-80">seleccionadas</span>
+          </span>
+
+          <span x-show="filasSeleccionadas.size === ids.size">
+            Todas las filas seleccionadas
+          </span>
+
+          <div class="flex aic gap-x-2">
+            <div
+              class="relative w-fit"
+              x-data="dropdown({ noAjustable: true })"
+            >
+              <button
+                x-bind="trigger"
+                class="group ui-btn ui-btn/sm jb bg-#fff2 outline-offset-2 whitespace-nowrap text-sm font-medium pover:bg-#fff3 aria-expanded:bg-#fff3"
+              >
+                Acciones
+                {% include "componentes/iconos/caret.html#abajo" with class="group-aria-expanded:rotate-180" %}
+              </button>
+
+              <div
+                x-bind="menu"
+                x-cloak
+                hx-swap="outerHTML"
+                hx-target="#{{ id }}"
+                class="absolute top-[calc(100%+12px)] right-0 col py-1 w-fit rounded bg-secundario shadow-xl"
+              >
+                {% with accion_btn_class="flex aic gap-x-2 p-2 px-3 cursor-pointer transition-colors select-none text-sm whitespace-nowrap not-[[aria-selected=true],[aria-disabled=true]]:pover:bg-#fff2 aria-disabled:opacity-50 aria-disabled:cursor-not-allowed" %}
+                  {% block acciones %}
+                    {% if permisos.eliminar %}
+                      <button
+                        id="eliminar-btn"
+                        role="menuitem"
+                        class="{{ accion_btn_class }}"
+                        aria-haspopup="dialog"
+                        :aria-expanded="modalAbierto === 'eliminar'"
+                        @click="modalAbierto = 'eliminar'"
+                        :disabled="filasSeleccionadas.size === 0"
+                      >
+                        {% include "componentes/iconos/edicion.html#borrar" with class="size-4" %}
+                        Eliminar...
+                      </button>
+                    {% endif %}
+                  {% endblock acciones %}
+                {% endwith %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {% block lista %}{% endblock lista %}
+        {% include "componentes/tabla-adaptable/paginacion.html" with id=None %}
+      </div>
+    </div>
+  {% endblock contenedor %}
+
+  {# mostrar errores en la petición (put, delete, etc.) #}
+  {% if mensajes_recibidos %}
+    {% include "componentes/mensajes.html#como_respuesta" %}
+  {% endif %}
+{% endif %}

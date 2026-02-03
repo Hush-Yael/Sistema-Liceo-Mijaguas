@@ -7,6 +7,6 @@
   {% elif columna.clave == 'estado' %}
     {{ view.estados_opciones|valor_por_clave:dato }}
   {% else %}
-    {{ dato }}
+    {{ dato|default_if_none:'' }}
   {% endif %}
 {% endblock td %}

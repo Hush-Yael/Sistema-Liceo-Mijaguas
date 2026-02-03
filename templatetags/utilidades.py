@@ -1,5 +1,5 @@
 import json
-from django import template
+from django import forms, template
 import re
 
 register = template.Library()
@@ -28,7 +28,8 @@ def valor_por_clave(obj, clave):
         return None
     elif isinstance(obj, dict):
         return obj.get(clave)
-    return getattr(obj, clave)
+    elif hasattr(obj, clave):
+        return getattr(obj, clave)
 
 
 @register.filter(is_safe=True)
@@ -70,13 +71,18 @@ def obtener_lista_opciones(campo):
     """Convierte las opciones de un ModelChoiceField o ModelMultipleChoiceField
     a una lista de objetos JSON con id y label."""
     try:
-        if hasattr(campo.field, "choices"):
-            return [
-                {"id": str(value), "label": label}
-                for value, label in campo.field.choices
-                if value  # Ignorar opciones vacías
-            ]
-        return "[]"
+        if isinstance(campo, forms.ChoiceField):
+            opciones = campo.choices
+        elif hasattr(campo.field, "choices"):
+            opciones = campo.field.choices
+        else:
+            return "[]"
+
+        return [
+            {"id": str(value), "label": label}
+            for value, label in opciones
+            if value  # Ignorar opciones vacías
+        ]
     except Exception:
         return "[]"
 
@@ -92,6 +98,12 @@ def obtener_ids_seleccionadas(campo):
         return []
     except Exception:
         return []
+
+
+@register.filter
+def label_opcion_seleccionada(form, nombre_campo):
+    opciones = dict(form.fields[nombre_campo].choices)
+    return opciones.get(form.initial.get(nombre_campo))
 
 
 @register.filter(name="json")

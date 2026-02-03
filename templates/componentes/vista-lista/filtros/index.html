@@ -1,0 +1,22 @@
+<div
+  x-data="dropdown({ {% block x_data %}{% endblock x_data %} })"
+  {% if campo.value %}
+    x-init="aplicarFiltro()"
+  {% endif %}
+>
+  <button class="{{ trigger_class }}" x-bind="trigger">
+    {{ campo.label }}
+  </button>
+
+  {% block menu %}
+    <div
+      x-cloak
+      x-bind="menu"
+      x-show="abierto || abiertoPorTeclado"
+      class="{{ submenu_class }}"
+    >
+      {% block contenido %}
+      {% endblock contenido %}
+    </div>
+  {% endblock menu %}
+</div>

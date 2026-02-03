@@ -1,0 +1,152 @@
+{% load partials %}
+{% load utilidades %}
+
+{% if form_filtros.campos_busqueda %}
+  <div class="relative h-full" x-data="dropdown({})" x-ref="menuFiltros">
+    <button
+      x-bind="trigger"
+      class="ui-btn ui-btn/secundario h-full px-2 rounded"
+      aria-label="Opciones de búsqueda"
+    >
+      {% include "componentes/iconos/tabla.html#lupa" with class="size-5" %}
+    </button>
+
+    <div
+      class="absolute z-5 top-[calc(100%+4px)] left-0 ui-elevado col gap-y-1 p-1 min-w-max shadow-xl text-base"
+      x-cloak
+      x-bind="menu"
+      x-show="abierto || abiertoPorTeclado"
+    >
+      {% for campos in form_filtros.campos_busqueda %}
+        {%
+          with campo_busqueda=campos.0.campo
+          name_q=campos.0.name
+          campo_tipo_q=campos.1.campo
+          name_tipo_q=campos.1.name
+        %}
+          {% partial campos %}
+        {% endwith %}
+      {% endfor %}
+    </div>
+  </div>
+{% endif %}
+
+{% partialdef campos %}
+  <div
+    {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+    x-data="dropdown({
+      {% if campo_tipo_q.value %}
+        tipo_busqueda: '{{ campo_tipo_q.value }}',
+        nombre_tipo_busqueda: '{{ form_filtros|label_opcion_seleccionada:campo_tipo_q.name }}',
+      {% else %}
+        nombre_tipo_busqueda: '',
+        tipo_busqueda: '',
+      {% endif %}
+      valor_busqueda: '',
+      aplicarFiltro() {
+        const q = this.valor_busqueda.trim();
+        if (q) {
+          filtrosAplicados['{{ campo_busqueda.name }}'] = {
+            _x_data: this,
+            _ref_menu: this.$refs.menuFiltros,
+            label: '{{ campo_busqueda.label }}',
+            tipo: 'busqueda',
+            tipo_busqueda: this.nombre_tipo_busqueda,
+            valor: q
+          }
+
+          this.cerrarMenu();
+          $refs.trigger.focus();
+        }
+      },
+      reiniciar() {
+        this.$refs.busqueda.value = '';
+      }
+    })"
+  {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+  >
+    <button class="{{ trigger_class }}" x-bind="trigger">
+      {{ campo_busqueda.label }}
+    </button>
+
+    <div
+      x-cloak
+      x-bind="menu"
+      x-show="abierto || abiertoPorTeclado"
+      class="{{ submenu_class|add:' min-w-200px' }}"
+    >
+      <label
+        class="ui-elevado-2 flex aic gap-x-2 p-1 pl-1 pr-2 rounded-campo outline-1 outline-#0000 focus-within:outline-current cursor-text"
+      >
+        <span class="sr-only">Búsqueda:</span>
+        <span
+          class="fc aspect-square size-6 p-1.5 rounded-full bg-[--transparente-1]"
+          >{% include "componentes/iconos/tabla.html#lupa" %}</span
+        >
+
+        <input
+          type="text"
+          autocomplete="off"
+          {% if name_q %}
+            name="{{ name_q }}"
+          {% else %}
+            name="{{ campo_busqueda.name }}"
+          {% endif %}
+          x-cloak
+          data-filtro
+          x-ref="busqueda"
+          class="flex-1 border-0 outline-0"
+          @keydown.enter.prevent="
+            valor_busqueda = $el.value;
+            aplicarFiltro();
+            $refs.form.requestSubmit();
+          "
+          @input.debounce.300="valor_busqueda = $el.value"
+        />
+      </label>
+
+      <div
+        class="col gap-y-3"
+        role="radiogroup"
+        @change="{{
+          "
+            const input = $event.target;
+            $refs.busqueda.focus();
+            tipo_busqueda = input.value;
+            nombre_tipo_busqueda = input.getAttribute('data-tipo-busqueda');
+          "|reemplazar_espacios:''
+        }}"
+      >
+        {% for opcion in campo_tipo_q|obtener_lista_opciones %}
+          <label class="{{ radio_label_class }}">
+            <input
+              type="radio"
+              {% if opcion.id == campo_tipo_q.value %}
+                checked
+              {% endif %}
+              autocomplete="off"
+              {% if name_tipo_q %}
+                name="{{ name_tipo_q }}"
+              {% else %}
+                name="{{ campo_tipo_q.name }}"
+              {% endif %}
+              data-filtro
+              value="{{ opcion.id }}"
+              data-tipo-busqueda="{{ opcion.label }}"
+              class="{{ radio_class }}"
+            />
+            <span>{{ opcion.label }}</span>
+          </label>
+        {% endfor %}
+      </div>
+
+      <button
+        @click="aplicarFiltro()"
+        :disabled="!tipo_busqueda || !valor_busqueda"
+        class="{{ aplicar_btn_class }}"
+      >
+        Aplicar
+      </button>
+    </div>
+  </div>
+{% endpartialdef campos %}

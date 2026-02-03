@@ -1,0 +1,89 @@
+{% load partials %}
+{% load utilidades %}
+
+<ul class="flex flex-wrap gap-2 max-[600px]:text-sm w-full">
+  <template
+    x-for="([id, filtro]) in Object.entries(filtrosAplicados)"
+    :key="id"
+  >
+    <li class="max-w-full w-fit">
+      <div
+        class="flex aic gap-x-2 max-w-full p-1 pl-3 pr-2 h-8 rounded-caja bg-secundario border border-secundario-400 dark:border-secundario-600 text-secundario-texto"
+        role="group"
+        @click.stop="{{
+          "
+            if (!filtro._x_data.abierto) {
+              $refs.form.$$('[x-bind=menu]').forEach(menu => {
+                _data = Alpine.$data(menu);
+                if (menu.id !== 'menu-principal' && _data !== filtro._x_data) {
+                  _data.abierto = false;
+                  _data.abiertoPorTeclado = false;
+                }
+              });
+
+              Alpine.$data(filtro._ref_menu).abierto = true;
+
+              $nextTick(() => {
+                if (filtro.tipo === 'busqueda')
+                  filtro._x_data.$refs.busqueda.focus();
+
+                filtro._x_data.abierto = true;
+            })
+            }
+          "|reemplazar_espacios:''
+        }}"
+      >
+        <template x-if="filtro.tipo === 'busqueda'">
+          <p role="status" class="truncate">
+            <span x-text="filtro.label"></span>
+            <span x-text="filtro.tipo_busqueda" class="opacity-80"></span>
+            <span x-text='`"${filtro.valor}"`'></span>
+          </p>
+        </template>
+
+        <template x-if="filtro.tipo === 'yesno'">
+          <p role="status" class="truncate" x-text="filtro.label"></p>
+        </template>
+
+        {% partial indicador_filtro_opciones %}
+
+        {% with multiple=1 %}
+          {% partial indicador_filtro_opciones %}
+        {% endwith %}
+
+        <button
+          class="ui-btn size-5 p-1 ml-1 aspect-square rounded-full bg-[#fff2] pover:bg-[#fff3]"
+          @click.stop="{{
+            "
+              delete filtrosAplicados[id];
+              filtro._x_data.reiniciar();
+              const form = $refs.form;
+              $nextTick(() => form.requestSubmit());
+            "|reemplazar_espacios:''
+          }}"
+          aria-label="Descartar filtro"
+        >
+          {% include "componentes/iconos/edicion.html#x" %}
+        </button>
+      </div>
+    </li>
+  </template>
+</ul>
+
+{% partialdef indicador_filtro_opciones %}
+  <template
+    x-if="filtro.tipo === 'opcion-{{ multiple|yesno:'checkbox,radio' }}'"
+  >
+    <p role="status" class="truncate">
+      <span x-text="filtro.label"></span>
+      <span class="opacity-80">es</span>
+      {% if multiple %}
+        <template x-for="label in filtro.opciones">
+          <span class="not-last:after:content-[',_']" x-text="label"></span>
+        </template>
+      {% else %}
+        <span x-text="filtro.seleccion"></span>
+      {% endif %}
+    </p>
+  </template>
+{% endpartialdef indicador_filtro_opciones %}

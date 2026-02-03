@@ -168,127 +168,135 @@
         </label>
       {% endif %}
 
-      <ul
-        class="{{ lista_clase|default:''|add:' py-1.5 select-none empty:hidden' }}"
-        @change="{{
-          "
-            seleccionarOpcion($event.target);
+      {% partialdef lista inline %}
+        <ul
+          class="{{ lista_clase|default:''|add:' py-1.5 select-none empty:hidden' }}"
+          @change="{{
+            "
+              seleccionarOpcion($event.target);
 
-            if ($refs.trigger.hasAttribute('aria-invalid')) {
-              $refs.trigger.setAttribute('aria-invalid', 'false');
-              $refs.trigger.removeAttribute('aria-errormessage');
-            }
-          "|reemplazar_espacios:''
-        }}"
-        @keydown.enter.prevent="{{
-          '
-            const input = $event.target;
-            if (input instanceof HTMLInputElement) {
-              input.checked = !input.checked;
-              seleccionarOpcion(input);
-            }
-          '
-          |reemplazar_espacios:''
-        }}"
-      >
-        {% with c="fc flex-col gap-y-2 h-full p-3 text-center text-texto-sutil text-sm italic font-500" ic="fc size-8 p-0.5 aspect-square bg-[--transparente-1] rounded" %}
-          {% if busqueda_activa %}
-            <li class="{{ c }}" x-ref="sinResultadosMsj" style="display: none;">
-              <span class="{{ ic|add:' p-1.5' }}">
-                {% include "componentes/iconos/opciones.html#sin_resultados" %}
-              </span>
-              No se encontraron resultados
-            </li>
-          {% endif %}
+              if ($refs.trigger.hasAttribute('aria-invalid')) {
+                $refs.trigger.setAttribute('aria-invalid', 'false');
+                $refs.trigger.removeAttribute('aria-errormessage');
+              }
+            "|reemplazar_espacios:''
+          }}"
+          @keydown.enter.prevent="{{
+            '
+              const input = $event.target;
+              if (input instanceof HTMLInputElement) {
+                input.checked = !input.checked;
+                seleccionarOpcion(input);
+              }
+            '
+            |reemplazar_espacios:''
+          }}"
+        >
+          {% with c="fc flex-col gap-y-2 h-full p-3 text-center text-texto-sutil text-sm italic font-500" ic="fc size-8 p-0.5 aspect-square bg-[--transparente-1] rounded" %}
+            {% if busqueda_activa %}
+              <li
+                class="{{ c }}"
+                x-ref="sinResultadosMsj"
+                style="display: none;"
+              >
+                <span class="{{ ic|add:' p-1.5' }}">
+                  {% include "componentes/iconos/opciones.html#sin_resultados" %}
+                </span>
+                No se encontraron resultados
+              </li>
+            {% endif %}
 
-          <template x-if="opciones.length === 0">
-            <li class="{{ c }}">
-              <span class="{{ ic }}">
-                {% include "componentes/iconos/opciones.html#sin_opciones" %}
-              </span>
-              {{ sin_opciones_msj|default:'No hay opciones para escoger' }}
+            <template x-if="opciones.length === 0">
+              <li class="{{ c }}">
+                <span class="{{ ic }}">
+                  {% include "componentes/iconos/opciones.html#sin_opciones" %}
+                </span>
+                {{ sin_opciones_msj|default:'No hay opciones para escoger' }}
+              </li>
+            </template>
+          {% endwith %}
+
+          <template
+            {% if busqueda_activa %}
+              x-for="(item, index) in filtrarOpciones(opciones)"
+            {% else %}
+              x-for="(item, index) in opciones"
+            {% endif %}
+            :key="item.id"
+          >
+            <li
+              role="option"
+              {% if multiple == 0 %}
+                :aria-selected="seleccionada == item.id"
+              {% else %}
+                :aria-selected="opcionesSeleccionadas.has(item.id)"
+              {% endif %}
+            >
+              <label class="group/label flex items-center gap-2.5 p-1.5 px-3">
+                <div
+                  class="size-4.5 size-min-4.5 relative [&>input::before,&>input::after]:content-['']"
+                >
+                  {% with c="incluido-filtros combobox-opcion ui-opcion"|expandir_variantes %}
+                    {% if multiple == 0 %}
+                      <input
+                        type="radio"
+                        class="{{ c|add:' ui-opcion/radio' }}"
+                        name="{{ name }}"
+                        {% if filtro %}data-filtro{% endif %}
+                        :value="item.id"
+                        :checked="seleccionada === item.id"
+                        :id="'{{ name }}-opt-'+index"
+                      />
+                    {% else %}
+                      <input
+                        type="checkbox"
+                        :tabindex="index === 0 ? 0 : -1"
+                        class="{{ c|add:' peer ui-opcion/checkbox' }}"
+                        name="{{ name }}"
+                        {% if filtro %}data-filtro{% endif %}
+                        :value="item.id"
+                        :checked="opcionesSeleccionadas.has(item.id)"
+                        :id="'{{ name }}-opt-'+index"
+                      />
+                      {% include "componentes/checkbox-icono.html" with class="" %}
+                    {% endif %}
+                  {% endwith %}
+                </div>
+                <span x-text="item.label"></span>
+              </label>
             </li>
           </template>
-        {% endwith %}
+        </ul>
 
-        <template
-          {% if busqueda_activa %}
-            x-for="(item, index) in filtrarOpciones(opciones)"
-          {% else %}
-            x-for="(item, index) in opciones"
-          {% endif %}
-          :key="item.id"
-        >
-          <li
-            role="option"
-            {% if multiple == 0 %}
-              :aria-selected="seleccionada == item.id"
-            {% else %}
-              :aria-selected="opcionesSeleccionadas.has(item.id)"
-            {% endif %}
+        {% if mostrar_cantidad %}
+          <div
+            role="status"
+            class="sticky bottom-0 col gap-y-1.5 p-1 px-2 border-t border-[--borde-caja] bg-fondo-600 text-sm"
+            x-show="opciones.length > 0"
           >
-            <label class="group/label flex items-center gap-2.5 p-1.5 px-3">
-              <div
-                class="size-4.5 size-min-4.5 relative [&>input::before,&>input::after]:content-['']"
-              >
-                {% with c="incluido-filtros combobox-opcion ui-opcion"|expandir_variantes %}
-                  {% if multiple == 0 %}
-                    <input
-                      type="radio"
-                      class="{{ c|add:' ui-opcion/radio' }}"
-                      name="{{ name }}"
-                      :value="item.id"
-                      :checked="seleccionada === item.id"
-                      :id="'{{ name }}-opt-'+index"
-                    />
-                  {% else %}
-                    <input
-                      type="checkbox"
-                      :tabindex="index === 0 ? 0 : -1"
-                      class="{{ c|add:' peer ui-opcion/checkbox' }}"
-                      name="{{ name }}"
-                      :value="item.id"
-                      :checked="opcionesSeleccionadas.has(item.id)"
-                      :id="'{{ name }}-opt-'+index"
-                    />
-                    {% include "componentes/checkbox-icono.html" with class="" %}
-                  {% endif %}
-                {% endwith %}
-              </div>
-              <span x-text="item.label"></span>
-            </label>
-          </li>
-        </template>
-      </ul>
+            {% if busqueda_activa %}
+              <span class="flex aic jb gap-x-2">
+                <span class="text-texto-sutil">Se encontraron:</span>
+                <b x-text="cantidadFiltradas"></b>
+              </span>
+            {% else %}
+              <span class="flex aic jb gap-x-2">
+                <span class="text-texto-sutil">Disponibles:</span>
+                <b x-text="opciones.length"></b>
+              </span>
+            {% endif %}
 
-      {% if mostrar_cantidad %}
-        <div
-          role="status"
-          class="sticky bottom-0 col gap-y-1.5 p-1 px-2 border-t border-[--borde-caja] bg-fondo-600 text-sm"
-          x-show="opciones.length > 0"
-        >
-          {% if busqueda_activa %}
-            <span class="flex aic jb gap-x-2">
-              <span class="text-texto-sutil">Se encontraron:</span>
-              <b x-text="cantidadFiltradas"></b>
-            </span>
-          {% else %}
-            <span class="flex aic jb gap-x-2">
-              <span class="text-texto-sutil">Disponibles:</span>
-              <b x-text="opciones.length"></b>
-            </span>
-          {% endif %}
+            {% if multiple != 0 %}
+              <hr class="h-1px border-[--borde-caja]" />
 
-          {% if multiple != 0 %}
-            <hr class="h-1px border-[--borde-caja]" />
-
-            <span class="flex aic jb gap-x-2">
-              <span class="text-texto-sutil">Se seleccionaron:</span>
-              <b x-text="opcionesSeleccionadas.size"></b>
-            </span>
-          {% endif %}
-        </div>
-      {% endif %}
+              <span class="flex aic jb gap-x-2">
+                <span class="text-texto-sutil">Se seleccionaron:</span>
+                <b x-text="opcionesSeleccionadas.size"></b>
+              </span>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endpartialdef lista %}
     </div>
   </div>
 </div>

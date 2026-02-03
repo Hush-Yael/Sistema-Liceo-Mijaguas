@@ -2,8 +2,15 @@
 
 {% if page_obj.paginator.num_pages > 1 %}
   <div
+    {% if id %}
+      id="{{ id }}"
+      {% if reemplazar %}
+        hx-swap-oob="outerHTML:#{{ id }}"
+      {% endif %}
+    {% endif %}
     class="{{ class|default:''|add:' sticky bottom-0 flex flex-wrap aic justify-between gap-y-2 gap-x-6 w-full p-2 px-3 border border-[--borde-caja] bg-fondo-500 max-[500px]:text-sm' }}"
     hx-indicator="#indicador-pagina"
+    hx-include="[data-filtro]"
   >
     <div class="flex aic gap-x-2">
       <div

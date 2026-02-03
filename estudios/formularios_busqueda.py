@@ -1,20 +1,30 @@
 from enum import Enum
-import re
 from django import forms
 from app.forms import (
     BusquedaFormMixin,
-    CookieFormMixin,
-    PaginacionFormMixin,
-    busqueda_campo,
-    opciones_tipo_busqueda,
+    ConjuntoOpcionesForm,
+    OrdenFormMixin,
 )
-from .models import Lapso, Materia, MatriculaEstados, Seccion, Año
+from app.campos import (
+    OPCIONES_TIPO_BUSQUEDA_CANTIDADES,
+    CampoBooleanoONulo,
+    FiltrosConjuntoOpciones,
+)
+from .models import (
+    Estudiante,
+    Lapso,
+    Materia,
+    Matricula,
+    MatriculaEstados,
+    Seccion,
+    Año,
+)
 import sys
 
 MIGRANDO = "makemigrations" in sys.argv or "migrate" in sys.argv
 
 
-class LapsoYSeccionBusquedaFormMixin(BusquedaFormMixin):
+class LapsoYSeccionFormMixin(BusquedaFormMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -22,7 +32,7 @@ class LapsoYSeccionBusquedaFormMixin(BusquedaFormMixin):
         self.fields["lapsos"].label_from_instance = lambda obj: obj.nombre  # type: ignore
 
     secciones = forms.ModelMultipleChoiceField(
-        label="Sección:",
+        label="Sección",
         queryset=Seccion.objects.all().order_by("año", "letra")
         if not MIGRANDO
         else None,
@@ -30,45 +40,37 @@ class LapsoYSeccionBusquedaFormMixin(BusquedaFormMixin):
     )
 
     lapsos = forms.ModelMultipleChoiceField(
-        label="Lapso:",
+        label="Lapso",
         queryset=Lapso.objects.all().order_by("-id") if not MIGRANDO else None,
         required=False,
     )
 
 
-OPCION_BUSCAR_NOMBRES_Y_APELLIDOS = ("nombres_y_apellidos", "Nombres y apellidos")
+class NotasBusquedaForm(LapsoYSeccionFormMixin):
+    class Campos:
+        MATERIAS = "materias"
+        LAPSOS = "lapsos"
+        SECCIONES = "secciones"
 
-
-class NotasBusquedaForm(LapsoYSeccionBusquedaFormMixin):
     campos_prefijo_cookie = "notas"
-    opciones_columna_buscar = (
-        OPCION_BUSCAR_NOMBRES_Y_APELLIDOS,
-        ("matricula__estudiante__nombres", "Nombres"),
-        ("matricula__estudiante__apellidos", "Apellidos"),
-        ("matricula__estudiante__cedula", "Cédula"),
+    columnas_busqueda = (
+        {
+            "columna_db": f"{Matricula._meta.verbose_name}__{Estudiante._meta.verbose_name}__{Estudiante.nombres.field.name}",
+            "nombre_campo": "nombres",
+        },
+        {
+            "columna_db": f"{Matricula._meta.verbose_name}__{Estudiante._meta.verbose_name}__{Estudiante.apellidos.field.name}",
+            "nombre_campo": "apellidos",
+        },
+        {
+            "columna_db": f"{Matricula._meta.verbose_name}__{Estudiante._meta.verbose_name}__{Estudiante.cedula.field.name}",
+            "nombre_campo": "cedula",
+        },
     )
 
     materias = forms.ModelMultipleChoiceField(
-        label="Asignatura",
+        label="Materia",
         queryset=Materia.objects.all().order_by("nombre") if not MIGRANDO else None,
-        required=False,
-    )
-
-    valor_maximo = forms.FloatField(
-        label="Valor máximo",
-        min_value=1,
-        max_value=20,
-        initial=20,
-        step_size=0.1,
-        required=False,
-    )
-
-    valor_minimo = forms.FloatField(
-        label="Valor mínimo",
-        min_value=0,
-        max_value=20,
-        initial=0,
-        step_size=0.1,
         required=False,
     )
 
@@ -98,69 +100,36 @@ class OpcionesFormSeccion:
             "Cantidad de alumnos",
         )
 
-    class Vocero(Enum):
-        SIN_VOCERO = "no", "No"
-        CON_VOCERO = "si", "Sí"
-
     class Disponibilidad(Enum):
         LLENA = "llena", "Llena"
         DISPONIBLE = "no_llena", "No llena"
         VACIA = "vacia", "Vacia"
 
 
-class SeccionBusquedaForm(CookieFormMixin, PaginacionFormMixin, forms.Form):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+class SeccionBusquedaForm(BusquedaFormMixin, forms.Form):
+    class Campos:
+        LETRA = "letra"
+        ANIO = "anio"
+        VOCERO = "tiene_vocero"
+        DISPONIBILIDAD = "disponibilidad"
 
-        opciones_texto = tuple(
-            option.value[0] for option in OpcionesFormSeccion.ColumnasTexto
-        ).__str__()[1:-1]
-
-        self.fields["q"].widget.attrs.update(
-            {
-                ":type": "!opcionesBusquedaTexto.includes(columnaBuscada) ? 'number' : 'search'",
-                "x-init": "establecerPlaceholderBusqueda()",
-            }
-        )
-
-        self.campos_contenedor_x_data = re.sub(
-            r"\s{2,}|\ng",
-            "",
-            f"""{{
-                    opcionesBusquedaTexto: [{opciones_texto}],
-                    placeholderBusqueda: '',
-
-                    columnaBuscada: $el.$('[name=columna_buscada]').selectedOptions[0].textContent,
-
-                    establecerPlaceholderBusqueda() {{
-                      const inputColumna = $el.$('[name=columna_buscada]');
-                      const columnaBuscada = inputColumna.selectedOptions[0].textContent;
-
-                      const inputTipoBTexto = $el.$('[name=tipo_busqueda_texto]');
-                      const inputTipoBNum = $el.$('[name=tipo_busqueda_numerica]');
-
-                      const tipoBusqueda = this.opcionesBusquedaTexto.includes(inputColumna.value)
-                          ? inputTipoBTexto
-                          : inputTipoBNum;
-
-                      return this.placeholderBusqueda =
-                      `Buscar por: ${{columnaBuscada}}, ${{tipoBusqueda.options[tipoBusqueda.selectedIndex].textContent}}`
-                    }}
-                  }}
-                """,
-        )
-
-    campos_prefijo_cookie = "secciones"
-    campos_sin_cookies = ("q",)
-    opciones_tipo_busqueda_cantidades = (
-        ("lt", "menor a"),
-        ("lte", "menor o igual a"),
-        ("gt", "mayor a"),
-        ("gte", "mayor o igual a"),
-        ("exact", "igual a"),
+    columnas_busqueda = (
+        {
+            "columna_db": Seccion.nombre.field.name,
+            "nombre_campo": "nombre",
+        },
+        {
+            "columna_db": Seccion.capacidad.field.name,
+            "nombre_campo": "capacidad",
+        },
+        {
+            "columna_db": "cantidad_matriculas",
+            "nombre_campo": "cantidad_alumnos",
+            "label_campo": "Cantidad de alumnos",
+            "opciones_tipo_busqueda": OPCIONES_TIPO_BUSQUEDA_CANTIDADES,
+        },
     )
-
-    q = busqueda_campo(attrs={":placeholder": "placeholderBusqueda"})
+    campos_prefijo_cookie = "secciones"
 
     anio = forms.ModelMultipleChoiceField(
         label="Año",
@@ -185,14 +154,10 @@ class SeccionBusquedaForm(CookieFormMixin, PaginacionFormMixin, forms.Form):
         required=False,
     )
 
-    tiene_vocero = forms.ChoiceField(
+    tiene_vocero = CampoBooleanoONulo(
         label="¿Debe tener vocero?",
-        initial=None,
-        choices=(
-            OpcionesFormSeccion.Vocero.CON_VOCERO.value,
-            OpcionesFormSeccion.Vocero.SIN_VOCERO.value,
-        ),
-        required=False,
+        label_no_escogido="Sin vocero",
+        label_si_escogido="Con vocero",
     )
 
     disponibilidad = forms.ChoiceField(
@@ -202,107 +167,76 @@ class SeccionBusquedaForm(CookieFormMixin, PaginacionFormMixin, forms.Form):
         required=False,
     )
 
-    columna_buscada = forms.ChoiceField(
-        label="Columna de búsqueda",
-        initial=None,
-        choices=(
-            *(opcion.value for opcion in OpcionesFormSeccion.ColumnasTexto),
-            *(opcion.value for opcion in OpcionesFormSeccion.ColumnasNumericas),
+
+class MatriculaBusquedaForm(OrdenFormMixin, LapsoYSeccionFormMixin):
+    columnas_busqueda = (
+        {
+            "columna_db": f"{Estudiante._meta.verbose_name}__{Estudiante.nombres.field.name}",
+            "nombre_campo": "nombres",
+        },
+        {
+            "columna_db": f"{Estudiante._meta.verbose_name}__{Estudiante.apellidos.field.name}",
+            "nombre_campo": "apellidos",
+        },
+        {
+            "columna_db": f"{Estudiante._meta.verbose_name}__{Estudiante.cedula.field.name}",
+            "nombre_campo": "cedula",
+        },
+    )
+    opciones_orden = (
+        (
+            f"{Estudiante._meta.verbose_name}__{Estudiante.nombres.field.name}",
+            "Nombres",
         ),
-        required=False,
+        (
+            f"{Estudiante._meta.verbose_name}__{Estudiante.apellidos.field.name}",
+            "Apellidos",
+        ),
+        (
+            f"{Estudiante._meta.verbose_name}__{Estudiante.cedula.field.name}",
+            "Cedula",
+        ),
     )
-
-    tipo_busqueda_texto = forms.ChoiceField(
-        label="Tipo de búsqueda por texto",
-        initial=None,
-        choices=opciones_tipo_busqueda,
-        required=False,
-    )
-
-    tipo_busqueda_numerica = forms.ChoiceField(
-        label="Tipo de búsqueda numérica",
-        initial=None,
-        choices=opciones_tipo_busqueda_cantidades,
-        required=False,
-    )
-
-
-class MatriculaBusquedaForm(LapsoYSeccionBusquedaFormMixin):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     campos_prefijo_cookie = "matriculas"
-    opciones_columna_buscar = (
-        OPCION_BUSCAR_NOMBRES_Y_APELLIDOS,
-        ("estudiante__nombres", "Nombres"),
-        ("estudiante__apellidos", "Apellidos"),
-        ("estudiante__cedula", "Cédula"),
-    )
 
     estado = forms.ChoiceField(
-        label="Estado:",
+        label="Estado",
         initial=None,
         choices=MatriculaEstados.choices,
         required=False,
     )
 
 
-class AsignacionesBuscarTipoOpciones(Enum):
-    TODOS = "1", "Asignada en los seleccionados"
-    NO_TODOS = "2", "No asignada en ninguno de los seleccionados"
-    ALGUNOS = "3", "Asignada en alguno de los seleccionados"
-    NO_ALGUNOS = "4", "No asignada en ninguno de los seleccionados"
+class MateriaBusquedaForm(ConjuntoOpcionesForm, BusquedaFormMixin):
+    class Campos:
+        ANIOS_ASIGNADOS = "anios"
 
-
-class MateriaBusquedaForm(CookieFormMixin, forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["anios_asignados"].label_from_instance = (  # type: ignore
+        self.fields["anios"].label_from_instance = (  # type: ignore
             lambda obj: obj.nombre_corto
         )
 
-        self.campos_contenedor_x_data = "{ tipoBusqueda: $el.$('[name=tipo_busqueda]').selectedOptions[0].textContent }"
-
-    campos_sin_cookies = ("q",)
-
+    campos_opciones = (
+        (
+            Campos.ANIOS_ASIGNADOS,
+            forms.ModelMultipleChoiceField(
+                label="Años",
+                queryset=Año.objects.all() if not MIGRANDO else None,
+                required=False,
+            ),
+        ),
+    )
     campos_prefijo_cookie = "materias"
-
-    q = busqueda_campo(
-        attrs={
-            "placeholder": "Buscar por: Nombre",
-            ":placeholder": "'Buscar por: Nombre, ' + tipoBusqueda ",
-        }
+    columnas_busqueda = (
+        {
+            "columna_db": Materia.nombre.field.name,
+            "nombre_campo": "nombre",
+        },
     )
 
-    tipo_busqueda = forms.ChoiceField(
-        label="Tipo de búsqueda por nombre",
-        initial=None,
-        choices=opciones_tipo_busqueda,
-        required=False,
-        widget=forms.Select(
-            attrs={
-                "@change": "tipoBusqueda = $event.target.selectedOptions[0].textContent"
-            }
-        ),
-    )
-
-    tipo_busqueda_anios = forms.ChoiceField(
-        label="Condición de búsqueda:",
-        choices=(opcion.value for opcion in AsignacionesBuscarTipoOpciones),
-        required=False,
-        initial=AsignacionesBuscarTipoOpciones.TODOS.value,
-    )
-
-    anios_asignados = forms.ModelMultipleChoiceField(
-        label="Búsqueda por años:",
-        queryset=Año.objects.all() if not MIGRANDO else None,
-        initial=(),
-        required=False,
-        widget=forms.CheckboxSelectMultiple(
-            attrs={":class": '{"opacity-0.5": sin_asignaciones}'}
-        ),
-    )
+    FiltrosConjuntoOpciones = tuple(opcion.value for opcion in FiltrosConjuntoOpciones)
 
 
 class LapsoBuscarOpciones(Enum):
@@ -314,19 +248,14 @@ class LapsoBuscarOpciones(Enum):
 
 
 class LapsoBusquedaForm(BusquedaFormMixin):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields["q"].widget.attrs.update(
-            {
-                ":type": f"columnaBuscada === '{LapsoBuscarOpciones.NUMERO.value[1]}' ? 'number' : 'search'"
-            }
-        )
-
+    columnas_busqueda = (
+        {
+            "columna_db": "nombre",
+            "nombre_campo": "nombre",
+        },
+        {
+            "columna_db": "numero",
+            "nombre_campo": "numero",
+        },
+    )
     campos_prefijo_cookie = "lapsos"
-    opciones_columna_buscar = tuple((opcion.value for opcion in LapsoBuscarOpciones))
-
-    campos_contenedor_x_data = """{
-      columnaBuscada: $el.$('[name=columna_buscada]').selectedOptions[0].textContent,
-      tipoBusqueda: $el.$('[name=tipo_busqueda]').selectedOptions[0].textContent
-    }"""

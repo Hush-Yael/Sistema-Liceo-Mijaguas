@@ -1,371 +1,191 @@
+{% extends "componentes/vista-lista/lista.html" %}
 {% load utilidades %}
 {% load partials %}
 {% load static %}
 {% load sekizai_tags %}
 
-{# no hay objetos con los filtros seleccionados #}
-{% if lista_objetos|length == 0 %}
-  <div
-    id="{{ view.id_lista_objetos }}"
-    role="alert"
-    class="ui-caja col aic gap-y-6 max-w-[400px] max-h-max ma flex-1 p-5 px-6 tac text-balance"
-  >
-    <span
-      class="rounded-full aspect-square size-min-[5rem] p-3 bg-primario-50 dark:bg-primario-800 text-primario-600 dark:text-primario-100 [&>svg]:size-full"
-    >
-      {% include "componentes/iconos/tabla.html#sin_notas" %}
-    </span>
+{% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+  {% block x_data %}
+    tabla: true,
+    hayColumnasOcultables: {% if view.columnas_mostradas|length > 1 %}true{% else %}false{% endif %},
+    contenedorManejoTeclas: window.$('table'),
+    {% if view.columnas_mostradas|length > 1 %}
+      indiceColActual: {{ indice_col_actual|default:0 }},
+      tituloColActual: '{{ titulo_col_actual|default_if_none:view.columnas_ocultables.0 }}',
+      columnasOcultables: {{ view.columnas_ocultables|default:"[]" }},
+    {% endif %}
+  {% endblock x_data %}
+{% comment %}<!-- prettier-ignore-end -->{% endcomment %}
 
-    <hgroup class="col gap-y-2">
-      {% block sin_resultados %}
-        <h2 class="font-bold text-[1.2rem]">
-          No se encontraron {{ view.nombre_objeto_plural }}
-        </h2>
-        <p class="text-texto-sutil">
-          Intenta cambiar los filtros o buscar algo distinto
-        </p>
-      {% endblock sin_resultados %}
-    </hgroup>
-  </div>
-{% else %}
-  {# actualizar la cantidad de resultados #}
-  {% if view.form_filtros and tabla_reemplazada_por_htmx and view.is_paginated %}
-    {% block filtrados_cantidad %}
-      <span hx-swap-oob="innerHTML:#filtrados-cantidad">
-        {{ page_obj.paginator.count }}
-      </span>
-    {% endblock filtrados_cantidad %}
+{% block contenedor %}
+  {% with contenedor_class="contenedor-tabla" %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock contenedor %}
+
+{% partialdef cabeza %}
+  {# estilos generales #}
+  {% partialdef tabla_estilos inline %}
+    {% if view.columnas_mostradas|length > 1 %}
+      {% include "componentes/tabla-adaptable/style.html" with rango_columnas=columnas_ocultables|length|convertir_a_rango %}
+    {% endif %}
+  {% endpartialdef tabla_estilos %}
+  <link rel="stylesheet" href="{% static 'css/componentes/tabla.css' %}" />
+
+  <script defer src="{% static 'js/alpine-focus.min.js' %}"></script>
+
+  {# script para cambiar la fila sticky a medida que se hace scroll #}
+  <script src="{% static 'js/componentes/tabla-con-fila-sticky.js' %}"></script>
+  {# lógica de la tabla #}
+  <script src="{% static 'js/componentes/lista-objetos.js' %}"></script>
+
+  <script>
+    document.addEventListener("alpine:initialized", () => {
+      new TablaConFilaSticky("{{ view.id_lista_objetos }}");
+    });
+  </script>
+{% endpartialdef cabeza %}
+
+{% block lista %}
+  {% if tabla_reemplazada_por_htmx %}
+    <head>
+      {% partial tabla_estilos %}
+    </head>
   {% endif %}
 
-  {%
-    with
-    columnas=view.columnas_mostradas
-    columnas_ocultables=view.columnas_ocultables
-    id=view.id_lista_objetos
-  %}
-
-    {% partialdef tabla_estilos %}
-      {% if view.columnas_mostradas|length > 1 %}
-        {% include "componentes/tabla-adaptable/style.html" with rango_columnas=columnas_ocultables|length|convertir_a_rango %}
-      {% endif %}
-      <link rel="stylesheet" href="{% static 'css/componentes/tabla.css' %}" />
-    {% endpartialdef tabla_estilos %}
-
-    {% if not tabla_reemplazada_por_htmx %}
-      {% addtoblock "cabeza" %}
-        {# estilos generales #}
-        {% partial tabla_estilos %}
-
-        <script defer src="{% static 'js/alpine-focus.min.js' %}"></script>
-
-        {# script para cambiar la fila sticky a medida que se hace scroll #}
-        <script src="{% static 'js/componentes/tabla-con-fila-sticky.js' %}"></script>
-        {# lógica de la tabla #}
-        <script src="{% static 'js/componentes/lista-objetos.js' %}"></script>
-
-        <script>
-          document.addEventListener("alpine:initialized", () => {
-            new TablaConFilaSticky("{{ id }}");
-          });
-        </script>
-      {% endaddtoblock %}
+  <table
+    {% if page_obj.paginator.num_pages > 1 %}
+      class="{{ tabla_class|default:""|add:" tabla rounded-b-0! border-b-0! [&_tr:last-child>_td]:rounded-0! [&_tr:last-child>_td]:border-b-0" }}"
     {% else %}
-      <head>
-        {% partial tabla_estilos %}
-      </head>
+      class="{{ tabla_class|default:""|add:" tabla" }}"
     {% endif %}
+    {% if view.columnas_mostradas|length > 1 %}
+      :data-i="indiceColActual"
+    {% endif %}
+  >
+    {% with columnas=view.columnas_mostradas %}
+      <thead>
+        <tr>
+          <th class="fila-check w-4">
+            <div class="relative fc size-4">
+              <input
+                type="checkbox"
+                autocomplete="off"
+                class="peer ui-opcion ui-opcion/checkbox cursor-pointer"
+                id="seleccionar-todos"
+                aria-label="Seleccionar todas las filas"
+                :checked="filasSeleccionadas.size === ids.size"
+              />
+              {% include "componentes/checkbox-icono.html" with class="pointer-events-none" %}
+            </div>
+          </th>
 
-    <div
-      id="{{ id }}"
-      class="{{ contenedor_class|default:''|add:' contenedor-tabla' }}"
-      {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
-      x-data="listaObjetos({
-        tabla: true,
-        hayColumnasOcultables: {% if view.columnas_mostradas|length > 1 %} true {% else %} false {% endif %},
-        contenedorManejoTeclas: window.$('table'),
-        {% if view.columnas_mostradas|length > 1 %}
-          indiceColActual: {{ indice_col_actual|default:0 }},
-          tituloColActual: '{{ titulo_col_actual|default_if_none:view.columnas_ocultables.0 }}',
-          columnasOcultables: {{ columnas_ocultables }},
-        {% endif %}
-      })"
-      {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
-    >
-      <table
-        {% if page_obj.paginator.num_pages > 1 %}
-          class="{{ tabla_class|default:""|add:" tabla rounded-b-0! border-b-0! [&_tr:last-child>_td]:rounded-0! [&_tr:last-child>_td]:border-b-0" }}"
-        {% else %}
-          class="{{ tabla_class|default:""|add:" tabla" }}"
-        {% endif %}
-        {% if id %}
-          id="{{ id }}"
-        {% endif %}
-        {% if view.columnas_mostradas|length > 1 %}
-          :data-i="indiceColActual"
-        {% endif %}
-      >
-        <thead>
-          <tr>
-            <th class="fila-check w-4">
-              <div class="relative fc size-4">
-                <input
-                  type="checkbox"
-                  autocomplete="off"
-                  class="peer ui-opcion ui-opcion/checkbox cursor-pointer"
-                  id="seleccionar-todos"
-                  aria-label="Seleccionar todas las filas"
-                  :checked="filasSeleccionadas.size === ids.size"
-                />
-                {% include "componentes/checkbox-icono.html" with class="pointer-events-none" %}
+          <th class="fila-n numeros">#</th>
+
+          {% for columna in columnas %}
+            <th
+              {% if forloop.counter >= 2 %}
+                data-i="{{ -2|add:forloop.counter }}"
+              {% endif %}
+              {% if columna.alinear == "derecha" %}
+                class="text-right!"
+              {% elif columna.alinear == "centro" %}
+                class="text-center!"
+              {% endif %}
+            >
+              <div class="flex aic justify-between gap-x-4">
+                {{ columna.titulo }}
+
+                {% if forloop.first and view.columnas_mostradas|length > 1 %}
+                  {% include "componentes/tabla-adaptable/selector-columna.html" %}
+                {% endif %}
               </div>
             </th>
+          {% endfor %}
+        </tr>
+      </thead>
 
-            <th class="fila-n numeros">#</th>
-
-            {% for columna in columnas %}
-              <th
-                {% if forloop.counter >= 2 %}
-                  data-i="{{ -2|add:forloop.counter }}"
-                {% endif %}
-                {% if columna.alinear == "derecha" %}
-                  class="text-right!"
-                {% elif columna.alinear == "centro" %}
-                  class="text-center!"
-                {% endif %}
-              >
-                <div class="flex aic justify-between gap-x-4">
-                  {{ columna.titulo }}
-
-                  {% if forloop.first and view.columnas_mostradas|length > 1 %}
-                    {% partial columna_cambiador %}
-                  {% endif %}
-                </div>
-              </th>
-            {% endfor %}
-          </tr>
-        </thead>
-
-        <tbody>
-          {% for objeto in lista_objetos %}
-            {% block filas %}
-              <tr>
-                {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+      <tbody>
+        {% for objeto in lista_objetos %}
+          {% block filas %}
+            <tr data-indice="{{ forloop.counter0 }}">
+              {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
                 <td class="fila-check w-4">{% if not objeto.no_seleccionable %}
-                    <div class="relative fc size-4">
-                      <input
-                        name="filas_id"
-                        value="{{ objeto.id }}"
-                        data-i="{{ forloop.counter0 }}"
-                        :checked="filasSeleccionadas.has($el.value)"
-                        class="peer ui-opcion ui-opcion/checkbox cursor-pointer"
-                        type="checkbox"
-                        autocomplete="off"
-                        aria-label="Seleccionar fila"
-                        {% if not forloop.first %}
-                          tabindex="-1"
-                        {% endif %}
-                      />
-                      {% include "componentes/checkbox-icono.html" with class="pointer-events-none" %}
-                    </div>
+                    {% partialdef fila_check inline %}
+                      <div class="relative fc size-4">
+                        <input
+                          name="filas_id"
+                          value="{{ objeto.id }}"
+                          data-i="{{ forloop.counter0 }}"
+                          :checked="filasSeleccionadas.has($el.value)"
+                          class="peer ui-opcion ui-opcion/checkbox cursor-pointer"
+                          type="checkbox"
+                          autocomplete="off"
+                          aria-label="Seleccionar fila"
+                          {% if not forloop.first %}
+                            tabindex="-1"
+                          {% endif %}
+                        />
+                        {% include "componentes/checkbox-icono.html" with class="pointer-events-none" %}
+                      </div>
+                    {% endpartialdef fila_check %}
                   {% endif %}</td>
                 {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
 
-                <td class="fila-n numeros">
-                  {% if page_obj.paginator.num_pages > 1 %}
-                    {% with total_anterior=page_obj.number|add:-1|multiplicar:view.paginate_by %}
-                      {# se multiplica la cantidad por página de acuerdo a la cantidad recorrida y la cantidad de objetos por página y se le añade cada valor del ciclo actual #}
-                      {% include "componentes/tabla-adaptable/enlace-editar.html" with dato=total_anterior|add:forloop.counter %}
-                    {% endwith %}
-                  {% else %}
-                    {% include "componentes/tabla-adaptable/enlace-editar.html" with dato=forloop.counter %}
-                  {% endif %}
-                </td>
+              <td class="fila-n numeros">
+                {% if page_obj.paginator.num_pages > 1 %}
+                  {% with total_anterior=page_obj.number|add:-1|multiplicar:view.paginate_by %}
+                    {# se multiplica la cantidad por página de acuerdo a la cantidad recorrida y la cantidad de objetos por página y se le añade cada valor del ciclo actual #}
+                    {% include "componentes/tabla-adaptable/enlace-editar.html" with dato=total_anterior|add:forloop.counter %}
+                  {% endwith %}
+                {% else %}
+                  {% include "componentes/tabla-adaptable/enlace-editar.html" with dato=forloop.counter %}
+                {% endif %}
+              </td>
 
-                {% for columna in columnas %}
+              {% for columna in columnas %}
+                {%
+                  with
+                  clave=columna.clave
+                  anterior_i=forloop.parentloop.counter0|add:-1
+                  siguiente_i=forloop.parentloop.counter0|add:1
+                %}
                   {%
                     with
-                    clave=columna.clave
-                    anterior_i=forloop.parentloop.counter0|add:-1
-                    siguiente_i=forloop.parentloop.counter0|add:1
+                    dato=objeto|valor_por_clave:clave
+                    dato_anterior=lista_objetos|valor_por_indice:anterior_i|valor_por_clave:clave
+                    dato_siguiente=lista_objetos|valor_por_indice:siguiente_i|valor_por_clave:clave
                   %}
-                    {%
-                      with
-                      dato=objeto|valor_por_clave:clave
-                      dato_anterior=lista_objetos|valor_por_indice:anterior_i|valor_por_clave:clave
-                      dato_siguiente=lista_objetos|valor_por_indice:siguiente_i|valor_por_clave:clave
-                    %}
-                      <td
-                        {% if columna.alinear == "derecha" %}
-                          class="text-right!"
-                        {% elif columna.alinear == "centro" %}
-                          class="text-center!"
+                    <td
+                      {% if columna.alinear == "derecha" %}
+                        class="text-right!"
+                      {% elif columna.alinear == "centro" %}
+                        class="text-center!"
+                      {% endif %}
+
+                      {% if forloop.counter >= 2 %}
+                        data-i="{{ -2|add:forloop.counter }}"
+                      {% endif %}
+
+                      {% if dato is not None and dato != '' %}
+                        {% if not forloop.parentloop.first and dato == dato_anterior %}
+                          data-repetido
+                        {% elif not forloop.parentloop.last and dato == dato_siguiente %}
+                          data-se-repite
                         {% endif %}
-
-                        {% if forloop.counter >= 2 %}
-                          data-i="{{ -2|add:forloop.counter }}"
-                        {% endif %}
-
-                        {% if dato is not None and dato != '' %}
-                          {% if not forloop.parentloop.first and dato == dato_anterior %}
-                            data-repetido
-                          {% elif not forloop.parentloop.last and dato == dato_siguiente %}
-                            data-se-repite
-                          {% endif %}
-                        {% endif %}
-                      >
-                        {% block td %}
-                          {{ dato|default_if_none:'' }}
-                        {% endblock td %}
-                      </td>
-                    {% endwith %}
-                  {% endwith %}
-                {% endfor %}
-              </tr>
-            {% endblock filas %}
-          {% endfor %}
-        </tbody>
-      </table>
-
-      {% include "componentes/tabla-adaptable/paginacion.html" %}
-
-      {% block acciones %}
-        <div
-          class="sticky bottom-0 z-3 w-full flex flex-wrap aic justify-between gap-y-2 gap-x-6 p-2 px-3 bg-secundario-400 text-secundario-texto max-[500px]:text-sm transition-[transform,opacity] duration-200 ease-in-out"
-          x-cloak
-          x-show="filasSeleccionadas.size > 0"
-          x-transition:enter-start="opacity-0 -translate-y-1"
-          x-transition:enter-end="opacity-100 translate-y-0"
-          x-transition:leave-start="opacity-100 translate-y-0"
-          x-transition:leave-end="opacity-0 translate-y-1"
-        >
-          <span
-            x-show="filasSeleccionadas.size < ids.size"
-            class="tracking-wide space-x-0.5"
-          >
-            <span class="font-500" x-text="filasSeleccionadas.size"></span>
-            <span class="opacity-80">de</span>
-            <span class="font-500" x-text="ids.size"></span>
-            <span class="opacity-80">seleccionadas</span>
-          </span>
-
-          <span x-show="filasSeleccionadas.size === ids.size">
-            Todas las filas seleccionadas
-          </span>
-
-          <div
-            class="relative w-fit"
-            x-data="{ abierto: false, abiertoPorTeclado: false }"
-            @keydown.escape="if (!$event.target.closest('dialog')) abierto = abiertoPorTeclado = false"
-            @click.outside="if (!$event.target.closest('dialog')) abierto = abiertoPorTeclado = false"
-          >
-            <button
-              type="button"
-              aria-haspopup="true"
-              :aria-expanded="abierto || abiertoPorTeclado"
-              class="group ui-btn ui-btn/sm jb bg-#fff2 outline-offset-2 whitespace-nowrap text-sm font-medium pover:bg-#fff3 aria-expanded:bg-#fff3"
-              @click="abierto = !abierto"
-              @keydown="{{
-                "
-                  if (1) {
-                    switch ($event.key) {
-                      case ' ':
-                      case 'Enter':
-                      case 'ArrowUp':
-                        $event.preventDefault();
-                        abiertoPorTeclado = true;
-                    }
-                  }
-                "
-                |reemplazar_espacios:' '
-              }}"
-            >
-              Acciones
-              {% include "componentes/iconos/caret.html#arriba" with class="group-aria-expanded:-rotate-180" %}
-            </button>
-
-            <div
-              role="menu"
-              x-cloak
-              x-transition
-              x-show="abierto || abiertoPorTeclado"
-              x-trap="abiertoPorTeclado"
-              hx-swap="outerHTML"
-              hx-target="#{{ id }}"
-              x-trap="abiertoPorTeclado"
-              @keydown.down.prevent="$focus.wrap().next()"
-              @keydown.up.prevent="$focus.wrap().previous()"
-              @keydown.esc="abierto = false; abiertoPorTeclado = false;"
-              class="absolute bottom-[calc(100%+12px)] right-0 col py-1 w-fit rounded bg-secundario-400 shadow-xl"
-            >
-              {% with accion_btn_class="flex aic gap-x-2 p-2 px-3 cursor-pointer transition-colors select-none text-sm whitespace-nowrap not-[[aria-selected=true],[aria-disabled=true]]:pover:bg-#fff2 aria-disabled:opacity-50 aria-disabled:cursor-not-allowed" %}
-                {% block acciones_opciones %}
-                  {% if permisos.eliminar %}
-                    <button
-                      id="eliminar-btn"
-                      role="menuitem"
-                      class="{{ accion_btn_class }}"
-                      aria-haspopup="dialog"
-                      :aria-expanded="modalAbierto === 'eliminar'"
-                      @click="modalAbierto = 'eliminar'"
-                      :disabled="filasSeleccionadas.size === 0"
+                      {% endif %}
                     >
-                      {% include "componentes/iconos/edicion.html#borrar" with class="size-4" %}
-                      Eliminar...
-                    </button>
-                  {% endif %}
-                {% endblock acciones_opciones %}
-              {% endwith %}
-            </div>
-          </div>
-        </div>
-      {% endblock acciones %}
-    </div>
-
-    {% partialdef columna_cambiador %}
-      <div id="columna-cambiador">
-        <select
-          id="cambiar-columna"
-          aria-label="Cambiar columna"
-          class="peer appearance-none absolute top-0 left-0 size-full -outline-offset-2 pl-2 pr-8 bg-fondo-600 not-focus:w-[calc(100%-63px)] not-focus:cursor-pointer not-focus:opacity-0 focus-visible:outline-2 focus:outline-current"
-          x-model="indiceColActual"
-          @change="indiceColActual = $event.target.value"
-        >
-          <template
-            x-for="(titulo, indice) in columnasOcultables"
-            :key="indice"
-          >
-            <option :value="indice" x-text="titulo"></option>
-          </template>
-        </select>
-
-        {% include "componentes/iconos/caret.html#abajo" with class="absolute top-50% right-1 size-5 size-min-max -translate-y-50% peer-not-focus:opacity-0 pointer-events-none" %}
-
-        <div
-          class="flex aic gap-x-2.5 [&_svg]:size-3.5 peer-focus:opacity-0 peer-focus:pointer-events-none"
-        >
-          <button
-            class="ui-btn z-1 rounded-full size-5 text-texto-sutil bg-[--transparente-1] pover:bg-[--transparente-2]"
-            @click="anteriorCol()"
-            :disabled="indiceColActual === 0"
-            aria-label="Columna anterior"
-          >
-            {% include "componentes/iconos/flecha.html#izquierda" with class="" %}
-          </button>
-
-          <button
-            class="ui-btn z-1 rounded-full size-5 text-texto-sutil bg-[--transparente-1] pover:bg-[--transparente-2]"
-            @click="siguienteCol()"
-            :disabled="indiceColActual === columnasOcultables.length - 1"
-            aria-label="Siguiente columna"
-          >
-            {% include "componentes/iconos/flecha.html#derecha" with class="" %}
-          </button>
-        </div>
-      </div>
-    {% endpartialdef columna_cambiador %}
-  {% endwith %}
-{% endif %}
-
-{% if mensajes_recibidos %}
-  {% include "componentes/mensajes.html#como_respuesta" %}
-{% endif %}
+                      {% block td %}
+                        {{ dato|default_if_none:'' }}
+                      {% endblock td %}
+                    </td>
+                  {% endwith %}
+                {% endwith %}
+              {% endfor %}
+            </tr>
+          {% endblock filas %}
+        {% endfor %}
+      </tbody>
+    {% endwith %}
+  </table>
+{% endblock lista %}

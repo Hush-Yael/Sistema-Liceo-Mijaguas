@@ -148,7 +148,7 @@ class Estudiante(models.Model):
         db_table = "estudiantes"
 
     def __str__(self):
-        return f"{self.cedula} - {self.nombres} {self.apellidos}"
+        return f"{self.nombres} {self.apellidos}"
 
 
 class Lapso(models.Model):

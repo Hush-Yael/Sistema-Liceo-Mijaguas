@@ -1,0 +1,104 @@
+{% load grupos_variantes %}
+
+<div class="relative h-full" x-data="dropdown({})">
+  <button x-bind="trigger" class="ui-btn ui-elevado h-full rounded px-2">
+    <svg
+      class="size-4.5 min-[600px]:size-5 text-texto-sutil"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 512 512"
+    >
+      <path
+        d="M472 168H40a24 24 0 0 1 0-48h432a24 24 0 0 1 0 48ZM392 280H120a24 24 0 0 1 0-48h272a24 24 0 0 1 0 48ZM296 392h-80a24 24 0 0 1 0-48h80a24 24 0 0 1 0 48Z"
+      ></path>
+    </svg>
+    Orden
+  </button>
+
+  <div
+    class="absolute z-4 top-[calc(100%+4px)] left-0 ui-elevado col gap-y-1 p-1 shadow-xl rounded text-base"
+    x-bind="menu"
+    x-cloak
+  >
+    {% for nombre, campo in form_filtros.campos_orden %}
+      <div
+        role="group"
+        class="flex aic jb gap-x-5 p-1 px-2"
+        @change="$refs.form.requestSubmit()"
+      >
+        <p class="min-w-max">{{ campo.label }}</p>
+
+        <div
+          class="flex aic ui-elevado-2 border-0 rounded-campo"
+          role="radiogroup"
+        >
+          {% with lc="group" cc="fc p-1 border-y border-[--transparente-2] cursor-pointer peer-focus-visible:outline-1 peer-checked:(bg-primario text-primario-texto border-primario-600) group-first:(border-l rounded-l-campo) group-last:(border-r rounded-r-campo)"|expandir_variantes ic="size-4" %}
+            <label class="{{ lc }}">
+              <span class="sr-only">No ordenar</span>
+              <input
+                type="radio"
+                name="{{ nombre }}"
+                value
+                {% if not campo.value %}
+                  checked
+                {% endif %}
+                autocomplete="off"
+                class="sr-only peer"
+              />
+              <span class="{{ cc }}">
+                <svg
+                  class="{{ ic|add:' scale-125' }}"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 4c-4.411 0-8 3.589-8 8s3.589 8 8 8 8-3.589 8-8-3.589-8-8-8zm-5 8c0-.832.224-1.604.584-2.295l6.711 6.711A4.943 4.943 0 0 1 12 17c-2.757 0-5-2.243-5-5zm9.416 2.295L9.705 7.584A4.943 4.943 0 0 1 12 7c2.757 0 5 2.243 5 5 0 .832-.224 1.604-.584 2.295z"
+                  ></path>
+                </svg>
+              </span>
+            </label>
+
+            {% for value, label in campo.choices %}
+              <label class="{{ lc }}">
+                <span class="sr-only">{{ label }} </span>
+                <input
+                  type="radio"
+                  name="{{ nombre }}"
+                  value="{{ value }}"
+                  autocomplete="off"
+                  {% if campo.value == value %}
+                    checked
+                  {% endif %}
+                  class="sr-only peer"
+                  hx-vals='{"solo_tabla": true}'
+                />
+                <span class="{{ cc }}">
+                  {% if value == form_filtros.orden_ascendente %}
+                    <svg
+                      class="{{ ic }}"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 576 512"
+                    >
+                      <path
+                        d="M150.6 41.4c-12.5-12.5-32.8-12.5-45.3 0l-96 96c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L96 141.3V448c0 17.7 14.3 32 32 32s32-14.3 32-32V141.3l41.4 41.4c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-96-96zM320 480h32c17.7 0 32-14.3 32-32s-14.3-32-32-32h-32c-17.7 0-32 14.3-32 32s14.3 32 32 32zm0-128h96c17.7 0 32-14.3 32-32s-14.3-32-32-32h-96c-17.7 0-32 14.3-32 32s14.3 32 32 32zm0-128h160c17.7 0 32-14.3 32-32s-14.3-32-32-32H320c-17.7 0-32 14.3-32 32s14.3 32 32 32zm0-128h224c17.7 0 32-14.3 32-32s-14.3-32-32-32H320c-17.7 0-32 14.3-32 32s14.3 32 32 32z"
+                      ></path>
+                    </svg>
+                  {% else %}
+                    <svg
+                      class="{{ ic }}"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 576 512"
+                    >
+                      <path
+                        d="m246.6 374.6-96 96c-12.5 12.5-32.8 12.5-45.3 0l-96-96c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L96 370.7V64c0-17.7 14.3-32 32-32s32 14.3 32 32v306.7l41.4-41.4c12.5-12.5 32.8-12.5 45.3 0s12.5 32.8 0 45.3zM320 32h32c17.7 0 32 14.3 32 32s-14.3 32-32 32h-32c-17.7 0-32-14.3-32-32s14.3-32 32-32zm0 128h96c17.7 0 32 14.3 32 32s-14.3 32-32 32h-96c-17.7 0-32-14.3-32-32s14.3-32 32-32zm0 128h160c17.7 0 32 14.3 32 32s-14.3 32-32 32H320c-17.7 0-32-14.3-32-32s14.3-32 32-32zm0 128h224c17.7 0 32 14.3 32 32s-14.3 32-32 32H320c-17.7 0-32-14.3-32-32s14.3-32 32-32z"
+                      ></path>
+                    </svg>
+                  {% endif %}
+                </span>
+              </label>
+            {% endfor %}
+          {% endwith %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>

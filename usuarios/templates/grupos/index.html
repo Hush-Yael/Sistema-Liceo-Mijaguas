@@ -1,6 +1,11 @@
 {% extends "lista-objetos.html" %}
 {% load grupos_variantes %}
 
+{% block cabeza %}
+  {{ block.super }}
+  {% include "componentes/tabla-adaptable/index.html#cabeza" %}
+{% endblock cabeza %}
+
 {% block contenido %}
   {%
     with

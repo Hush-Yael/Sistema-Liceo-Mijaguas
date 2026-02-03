@@ -1,0 +1,74 @@
+{% extends "componentes/vista-lista/filtros/index.html" %}
+{% load utilidades %}
+{% load partials %}
+
+{% block x_data %}
+  {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+    activo: '{{ campo.value|default_if_none:"" }}',
+    {% if campo.value %}
+      label:
+      '{{ campo.field.labels_escogidos|valor_por_clave:campo.value }}',
+    {% else %}
+      label: '',
+    {% endif %}
+    aplicarFiltro() {
+      this.filtrosAplicados['{{ campo.name }}'] = {
+        _x_data: this,
+        _ref_menu: this.$refs.menuFiltros,
+        label: this.label,
+        tipo: 'yesno',
+      }
+    },
+    reiniciar() {
+      this.activo = '{{ campo.field.valor_opcion_nula }}';
+      this.label = '';
+    }
+  {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+{% endblock x_data %}
+
+{% block contenido %}
+  <div
+    class="col gap-y-3"
+    role="radiogroup"
+    @change="{{
+      "
+        const v = $event.target.value;
+        activo = v;
+        label = $event.target.getAttribute('data-label');
+      "|reemplazar_espacios:''
+    }}"
+  >
+    {% for valor, label in campo.field.choices %}
+      <label
+        {% if valor == campo.field.valor_opcion_nula %}
+          class="hidden"
+        {% else %}
+          class="{{ radio_label_class }}"
+        {% endif %}
+      >
+        <input
+          type="radio"
+          autocomplete="off"
+          value="{{ valor }}"
+          {% if campo.value == valor %}
+            checked
+          {% endif %}
+          :checked="activo === '{{ valor }}'"
+          name="{{ campo.name }}"
+          data-filtro
+          data-label="{{ campo.field.labels_escogidos|valor_por_clave:valor }}"
+          class="{{ radio_class }}"
+        />
+        <span>{{ label }}</span>
+      </label>
+    {% endfor %}
+  </div>
+
+  <button
+    @click="aplicarFiltro()"
+    :disabled="activo === '{{ campo.field.valor_opcion_nula }}'"
+    class="{{ aplicar_btn_class }}"
+  >
+    Aplicar
+  </button>
+{% endblock contenido %}

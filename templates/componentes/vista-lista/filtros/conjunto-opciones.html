@@ -1,0 +1,103 @@
+{% extends "componentes/vista-lista/filtros/index.html" %}
+{% load utilidades %}
+{% load partials %}
+
+{% block x_data %}
+  {% if abierto %}abierto: true{% endif %}
+{% endblock x_data %}
+
+{% block menu %}
+  <div {% partial x_data %}>
+    <div x-cloak x-bind="menu" class="{{ submenu_class|add:' gap-y-0! p0!' }}">
+      {% if busqueda_activa %}
+        <label class="sticky top-0 z-1 bg-fondo-600">
+          <span class="sr-only">Buscar</span>
+
+          {% include "componentes/iconos/tabla.html#lupa" with class="absolute left-3 top-1/2 size-4 -translate-y-1/2" %}
+
+          <input
+            type="text"
+            class="w-full border-b border-[--borde-caja] py-2 pl-10 pr-4 text-sm focus-visible:border-primario"
+            name="busqueda"
+            x-ref="busqueda"
+            @input="q = $el.value"
+            autocomplete="off"
+            placeholder="Buscar"
+          />
+        </label>
+      {% endif %}
+      {% include "componentes/combobox.html#lista" with lista_clase="max-h-250px overflow-y-auto" filtro=1 name=campo.name %}
+
+      <div role="group" class="col gap-y-2 mx-3 mb-2">
+        <button
+          @click="aplicarFiltro()"
+          class="{{ aplicar_btn_class|add:' w-full' }}"
+        >
+          Aplicar
+        </button>
+
+        {% if campo_tipo_q %}
+          <select class="ui-elevado-2" name="{{ campo_tipo_q.name }}">
+            {% for valor, label in campo_tipo_q.field.choices %}
+              <option
+                {% if valor == campo_tipo_q.value %}
+                  selected
+                {% endif %}
+                value="{{ valor }}"
+              >
+                {{ label }}
+              </option>
+            {% endfor %}
+          </select>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock menu %}
+
+{% partialdef x_data %}
+  {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+    x-data='combobox({
+      opciones: {% if opciones_por_script %}{{ opciones_por_script }}{% else %}{{ campo|obtener_lista_opciones|json|safe }}{% endif %},
+      {% if multiple == 0 %}
+        multiple: false,
+        seleccionada: "{{ campo.value|default_if_none:"" }}",
+      {% else %}
+        multiple: true,
+        opcionesSeleccionadas: new Set({{ campo.value|default:''|json|safe }}),
+      {% endif %}
+      mostrarCantidad: {% if mostrar_cantidad %}true{% else %}false{% endif %},
+      reiniciar() {
+        {% if multiple == 0 %}
+          this.seleccionada = "";
+        {% else %}
+          this.opcionesSeleccionadas = new Set();
+        {% endif %} 
+      },
+      aplicarFiltro() {
+        {# Eliminar el filtro si no se ha seleccionado nada #}
+        {% if multiple != 0 %}
+        if (this.opcionesSeleccionadas.size === 0) {
+          delete filtrosAplicados["{{ campo.name }}"];
+          return
+        }
+        {% endif %}
+
+        filtrosAplicados["{{ campo.name }}"] = {
+          _x_data: this,
+          _ref_menu: this.$refs.menuFiltros,
+          label: "{{ campo.label }}",
+          tipo: "opcion-{% if multiple == 0 %}radio{% else %}checkbox{% endif %}",
+          {% if multiple == 0 %}
+            seleccion: this.opciones.find((opcion) => this.seleccionada === opcion.id)?.label,
+          {% else %}
+            opciones: this.opciones.filter((opcion) => this.opcionesSeleccionadas.has(opcion.id)).map((opcion) => opcion.label),
+          {% endif %}
+        }
+      },
+    })'
+  {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+  {% if campo.value %}
+    x-init="aplicarFiltro()"
+  {% endif %}
+{% endpartialdef x_data %}

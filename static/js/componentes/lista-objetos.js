@@ -37,7 +37,7 @@ document.addEventListener("alpine:init", () => {
           Alpine.effect(() => {
             this.$el
               .$(`th[data-i='${this.indiceColActual}']>div`)
-              .appendChild(this.$el.$("#columna-cambiador"));
+              .appendChild(this.$el.$("#selector-columna"));
           });
         }
 

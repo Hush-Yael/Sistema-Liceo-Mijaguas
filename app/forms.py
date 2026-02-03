@@ -1,8 +1,14 @@
 # forms.py
 import json
-import re
+from typing import TypedDict
+from typing_extensions import NotRequired
 from django import forms
-from django.db import models
+from enum import Enum
+
+from app.campos import (
+    OPCIONES_TIPO_BUSQUEDA_TEXTUAL,
+    FiltrosConjuntoOpciones,
+)
 
 
 class CookieFormMixin:
@@ -126,34 +132,6 @@ class CookieFormMixin:
             return str(valor) if valor is not None else ""
 
 
-opciones_tipo_busqueda = (
-    ("contains", "Contiene"),
-    ("iexact", "Exacta"),
-    ("startswith", "Empieza con"),
-    ("endswith", "Termina con"),
-)
-
-
-def busqueda_campo(placeholder="Buscar", attrs: "dict[str, str] | None" = None):
-    _attrs = {
-        "placeholder": placeholder,
-        "id": "q",
-        "name": "q",
-        "type": "search",
-        "hx-post": "",
-        "hx-trigger": "input changed delay:600ms",
-    }
-
-    if attrs is not None:
-        _attrs.update(attrs)
-
-    return forms.CharField(
-        label="Buscar",
-        required=False,
-        widget=forms.TextInput(attrs=_attrs),
-    )
-
-
 class PaginacionFormMixin(forms.Form):
     cantidad_por_pagina = forms.IntegerField(
         label="Cantidad por página",
@@ -170,76 +148,109 @@ class PaginacionFormMixin(forms.Form):
     )
 
 
+class ColumnaBusqueda(TypedDict):
+    columna_db: str
+    nombre_campo: str
+    label_campo: NotRequired[str]
+    opciones_tipo_busqueda: NotRequired["tuple[tuple[str, str], ...]"]
+
+
 class BusquedaFormMixin(CookieFormMixin, PaginacionFormMixin):
-    opciones_columna_buscar: "tuple[tuple[str, str], ...]"
-    opciones_tipo_busqueda = opciones_tipo_busqueda
-    columnas_a_evitar: "set[str]"
-    campos_sin_cookies = ("q",)
+    """Crea un formulario para realizar búsquedas. Genera los campos de búsqueda automáticamente a partir de las columnas indicadas"""
+
+    def __init__(self, *args, **kwargs):
+        # Indicar los campos que no se guardan en cookies antes de llamar al constructor CookieFormMixin, ya que si no, no se ignoran
+        self.campos_sin_cookies = tuple(
+            f"q_{columna['nombre_campo']}" for columna in self.columnas_busqueda
+        )
+
+        super().__init__(*args, **kwargs)
+
+        _campos_busqueda = []
+
+        for columna in self.columnas_busqueda:
+            _nombre_campo = f"q_{columna['nombre_campo']}"
+            label = columna.get("label_campo", columna["nombre_campo"].capitalize())
+            _campo = forms.CharField(label=label, required=False)
+
+            # se usa al momento de indicar el nombre de la columna en la base de datos al filtrar
+            setattr(_campo, "nombre_columna_db", columna["columna_db"])
+
+            self.fields[_nombre_campo] = _campo
+            self.base_fields[_nombre_campo] = _campo
+
+            opciones: "tuple[tuple[str, str], ...]" = columna.get(
+                "opciones_tipo_busqueda", OPCIONES_TIPO_BUSQUEDA_TEXTUAL
+            )
+
+            _campo_tipo_q = forms.ChoiceField(
+                required=False,
+                choices=opciones,
+            )
+            _nombre_campo_tipo_q = f"tipo_{_nombre_campo}"
+
+            self.fields[_nombre_campo_tipo_q] = _campo_tipo_q
+            self.base_fields[_nombre_campo_tipo_q] = _campo_tipo_q
+
+            _campos_busqueda.append(
+                (
+                    {"name": _nombre_campo, "campo": _campo},
+                    {"name": _nombre_campo_tipo_q, "campo": _campo_tipo_q},
+                )
+            )
+
+        self.campos_busqueda = _campos_busqueda
+
+    columnas_busqueda: "tuple[ColumnaBusqueda, ...]"
+
+
+class DireccionesOrden(Enum):
+    DESC = "1", "Descendente"
+    ASC = "2", "Ascendente"
+
+
+class OrdenFormMixin:
+    opciones_orden: "tuple[tuple[str, str], ...]"
+    campos_orden: "list[forms.ChoiceField]"
+
+    orden_ascendente = DireccionesOrden.ASC.value[0]
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+        direcciones = tuple(opcion.value for opcion in DireccionesOrden)
+        campos_orden = []
+
+        for _nombre, label in self.opciones_orden:
+            nombre = f"{_nombre}-orden"
+            campo = forms.ChoiceField(
+                label=label,
+                required=False,
+                choices=direcciones,
+            )
+
+            self.base_fields[nombre] = campo  # type: ignore
+            self.fields[nombre] = campo  # type: ignore
+            campos_orden.append((nombre, campo))
+
+        self.campos_orden = campos_orden
+
+
+class ConjuntoOpcionesForm(forms.Form):
+    campos_opciones: "list[tuple[str, forms.MultipleChoiceField | forms.ModelMultipleChoiceField]] | tuple[tuple[str, forms.MultipleChoiceField | forms.ModelMultipleChoiceField], ...]"
+    sufijo_tipo_q = "_tipo_q"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        if (
-            not hasattr(self, "opciones_columna_buscar")
-            or not self.opciones_columna_buscar
-        ):
-            campos: "list[models.Field]" = self.model._meta.fields  # type: ignore
+        for nombre, campo in self.campos_opciones:
+            self.fields[nombre] = campo  # type: ignore
+            self.base_fields[nombre] = campo  # type: ignore
 
-            if hasattr(self, "columnas_a_evitar"):
-                self.opciones_columna_buscar = [
-                    (f.name, f.verbose_name)  # type: ignore
-                    for f in campos
-                    if f.name not in self.columnas_a_evitar
-                ]
-            else:
-                self.opciones_columna_buscar = [
-                    (f.name, f.verbose_name)  # type: ignore
-                    for f in campos
-                ]
-
-        if not self.fields["columna_buscada"].choices:  # type: ignore
-            self.fields["columna_buscada"].choices = self.opciones_columna_buscar  # type: ignore
-
-        if not self.fields["columna_buscada"].initial:
-            self.fields["columna_buscada"].initial = self.opciones_columna_buscar[0][0]
-
-        if not self.fields["tipo_busqueda"].choices:  # type: ignore
-            self.fields["tipo_busqueda"].choices = self.opciones_tipo_busqueda  # type: ignore
-
-        if not self.fields["tipo_busqueda"].initial:
-            self.fields["tipo_busqueda"].initial = self.opciones_tipo_busqueda[0][0]
-
-        self.establecer_placeholder_q_dinamico()
-
-    def establecer_placeholder_q_dinamico(self):
-        self.fields["q"].widget.attrs[":placeholder"] = (
-            "`Buscar por: ${columnaBuscada}, ${tipoBusqueda}`"
-        )
-
-        self.fields["tipo_busqueda"].widget.attrs["@change"] = (
-            "tipoBusqueda = $event.target.selectedOptions[0].textContent"
-        )
-        self.fields["columna_buscada"].widget.attrs["@change"] = (
-            "columnaBuscada = $event.target.selectedOptions[0].textContent"
-        )
-
-        self.campos_contenedor_x_data = re.sub(
-            r"\s{2,}|\ng",
-            "",
-            """{
-              columnaBuscada: $el.$('[name=columna_buscada]').selectedOptions[0].textContent,
-              tipoBusqueda: $el.$('[name=tipo_busqueda]').selectedOptions[0].textContent
-            }""",
-        )
-
-    tipo_busqueda = forms.ChoiceField(
-        label="Tipo de búsqueda",
-        required=False,
-    )
-
-    columna_buscada = forms.ChoiceField(
-        label="Buscar por",
-        required=False,
-    )
-
-    q = busqueda_campo()
+            _n = f"{nombre}{self.sufijo_tipo_q}"
+            campo_tipo_q = forms.ChoiceField(
+                required=False,
+                choices=(opcion.value for opcion in FiltrosConjuntoOpciones),
+            )
+            self.fields[_n] = campo_tipo_q  # type: ignore
+            self.base_fields[_n] = campo_tipo_q  # type: ignore
