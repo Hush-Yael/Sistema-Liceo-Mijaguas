@@ -1,37 +1,77 @@
 {% load partials %}
 {% load utilidades %}
 
-<ul class="flex flex-wrap gap-2 max-[600px]:text-sm w-full">
+<ul
+  class="flex flex-wrap gap-2 max-[600px]:text-sm w-full"
+  x-data="{
+    descartarFiltro() {
+      delete this.filtrosAplicados[this.id];
+      this.filtro._x_data.reiniciar();
+      const form = this.$refs.form;
+      $nextTick(() => form.requestSubmit());
+    },
+    abrirFiltro() {
+      const filtro = this.filtro;
+      if (!filtro._x_data.abierto) {
+        this.$refs.form.$$('[x-bind=menu]').forEach(menu => {
+          _data = Alpine.$data(menu);
+          if (menu.id !== 'menu-principal' && _data !== filtro._x_data) {
+            _data.abierto = false;
+            _data.abiertoPorTeclado = false;
+          }
+        });
+
+        Alpine.$data(filtro._ref_menu).abierto = true;
+
+        $nextTick(() => {
+          if (filtro.tipo === 'busqueda')
+            filtro._x_data.$refs.busqueda.focus();
+
+          filtro._x_data.abierto = true;
+        })
+      }
+    },
+    manejoTeclas() {
+      switch (this.$event.key) {
+        case 'ArrowUp':
+        case 'ArrowDown':
+        case 'ArrowRight':
+        case 'ArrowLeft': {
+          const target = this.$event.target;
+          const el = event.key === 'ArrowRight' || event.key === 'ArrowDown'
+            ? target.nextElementSibling : target.previousElementSibling;
+
+          if (el) {
+            target.tabIndex = -1;
+            el.tabIndex = 0;
+            el.focus();
+          }
+          
+          return;
+        }
+        case 'Delete':
+        case 'Backspace':
+          { return this.descartarFiltro(); }
+        case 'Enter':
+        case ' ':
+          { return this.abrirFiltro(); }
+      }
+    }
+  }"
+>
   <template
-    x-for="([id, filtro]) in Object.entries(filtrosAplicados)"
+    x-for="([id, filtro], index) in Object.entries(filtrosAplicados)"
     :key="id"
   >
-    <li class="max-w-full w-fit">
+    <li
+      class="max-w-full w-fit  rounded-full"
+      @click.stop="abrirFiltro()"
+      @keydown.stop="manejoTeclas()"
+      :tabindex="index !== 0 ? -1 : 0"
+    >
       <div
-        class="flex aic gap-x-2 max-w-full p-1 pl-3 pr-2 h-8 rounded-caja bg-secundario border border-secundario-400 dark:border-secundario-600 text-secundario-texto"
+        class="flex aic gap-x-2 max-w-full p-1 pl-3 pr-2 h-8 rounded-full bg-secundario border border-secundario-400 dark:border-secundario-600 text-secundario-texto cursor-pointer"
         role="group"
-        @click.stop="{{
-          "
-            if (!filtro._x_data.abierto) {
-              $refs.form.$$('[x-bind=menu]').forEach(menu => {
-                _data = Alpine.$data(menu);
-                if (menu.id !== 'menu-principal' && _data !== filtro._x_data) {
-                  _data.abierto = false;
-                  _data.abiertoPorTeclado = false;
-                }
-              });
-
-              Alpine.$data(filtro._ref_menu).abierto = true;
-
-              $nextTick(() => {
-                if (filtro.tipo === 'busqueda')
-                  filtro._x_data.$refs.busqueda.focus();
-
-                filtro._x_data.abierto = true;
-            })
-            }
-          "|reemplazar_espacios:''
-        }}"
       >
         <template x-if="filtro.tipo === 'busqueda'">
           <p role="status" class="truncate">
@@ -52,15 +92,9 @@
         {% endwith %}
 
         <button
+          tabindex="-1"
           class="ui-btn size-5 p-1 ml-1 aspect-square rounded-full bg-[#fff2] pover:bg-[#fff3]"
-          @click.stop="{{
-            "
-              delete filtrosAplicados[id];
-              filtro._x_data.reiniciar();
-              const form = $refs.form;
-              $nextTick(() => form.requestSubmit());
-            "|reemplazar_espacios:''
-          }}"
+          @click.stop="descartarFiltro()"
           aria-label="Descartar filtro"
         >
           {% include "componentes/iconos/edicion.html#x" %}
