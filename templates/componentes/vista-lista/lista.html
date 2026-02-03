@@ -41,7 +41,7 @@
       x-data="listaObjetos({ {% block x_data %}{% endblock x_data %} })"
     >
       <div
-        class="col gap-y-4 h-full flex-1 overflow-y-auto"
+        class="{{ contenedor_lista_class|default:''|add:' col gap-y-4 h-full flex-1 overflow-y-auto' }}"
         {% if lista_reemplazada_por_htmx %}
           x-data="_listaObjetos"
         {% else %}

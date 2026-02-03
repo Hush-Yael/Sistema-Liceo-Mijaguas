@@ -18,7 +18,7 @@
 {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
 
 {% block contenedor %}
-  {% with contenedor_class="contenedor-tabla" %}
+  {% with contenedor_class="contenedor-tabla" contenedor_lista_class="max-sidebar:overflow-unset" %}
     {{ block.super }}
   {% endwith %}
 {% endblock contenedor %}
