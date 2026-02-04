@@ -31,8 +31,34 @@ class FormularioPerfil(forms.ModelForm):
 
     email = forms.EmailField(required=False, label="Correo")
     foto_perfil = forms.ImageField(
-        required=False, widget=forms.FileInput(), validators=[validarTamaño]
+        required=False,
+        widget=forms.FileInput(),
+        validators=[validarTamaño],  # type: ignore
     )
+
+
+class FormUsuario(forms.ModelForm):
+    class Meta:
+        model = Usuario
+        fields = (
+            "username",
+            "email",
+            "password",
+            "is_active",
+            "grupos",
+            "user_permissions",
+            "foto_perfil",
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["grupos"].label = "Grupos asignados"
+        self.fields["user_permissions"].label = "Permisos asignados"
+
+        # al editar, no se requiere la contraseña
+        if self.instance.pk:
+            self.fields["password"].required = False
 
 
 class FormGrupo(forms.ModelForm):

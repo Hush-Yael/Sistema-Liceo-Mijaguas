@@ -1,6 +1,9 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
+from django.db.models.functions.datetime import TruncMinute
 from django.forms import ModelMultipleChoiceField
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
@@ -10,7 +13,9 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.admin.models import LogEntry
 from django.contrib.sessions.models import Session
 from django_group_model.models import Permission
+from app.util import obtener_filtro_bool_o_nulo
 from app.vistas import VistaActualizarObjeto, VistaCrearObjeto, VistaListaObjetos
+from usuarios.formularios_busqueda import UsuarioBusquedaForm
 from .models import Usuario, Grupo
 from django.db import connection
 from django.urls import reverse_lazy
@@ -18,7 +23,7 @@ from django.urls import reverse_lazy
 from django.http import HttpRequest, HttpResponse
 import json
 
-from usuarios.forms import FormGrupo, FormularioPerfil
+from usuarios.forms import FormGrupo, FormUsuario, FormularioPerfil
 
 
 def login(request: HttpRequest):
@@ -107,25 +112,86 @@ def cambiar_contraseña(request: HttpRequest):
     )(request)
 
 
-class ListaGrupos(VistaListaObjetos):
-    model = Grupo
-    template_name = "grupos/index.html"
-    plantilla_lista = "grupos/lista.html"
-    nombre_url_editar = "editar_grupo"
+class ListaUsuarios(VistaListaObjetos):
+    model = Usuario
+    template_name = "usuarios/index.html"
+    plantilla_lista = "usuarios/lista.html"
+    nombre_url_editar = "editar_usuario"
+    form_filtros = UsuarioBusquedaForm  # type: ignore
+    paginate_by = 4
+    columnas_totales = (
+        {"titulo": "Nombre", "clave": "username"},
+        {"titulo": "Correo", "clave": "email"},
+        {"titulo": "Estado", "clave": "is_active", "alinear": "centro"},
+        {"titulo": "Grupos", "clave": "grupos"},
+        {"titulo": "último inicio de sesión", "clave": "last_login"},
+        {"titulo": "Fecha de añadido", "clave": "fecha_añadido", "anotada": True},
+    )
+    tabla = False
 
     def get_queryset(self, *args, **kwargs) -> "list[dict]":
-        return super().get_queryset(Grupo.objects.all().order_by("name"))
+        q = (
+            Usuario.objects.prefetch_related("grupos")
+            .annotate(fecha_añadido=TruncMinute("date_joined"))
+            .only(
+                "id",
+                "foto_perfil",
+                "miniatura_foto",
+                *(
+                    col["clave"]
+                    for col in self.columnas_totales
+                    if not col.get("anotada", False)
+                ),
+            )
+            .filter(is_superuser=False)
+        )
+        return super().get_queryset(q)
+
+    def aplicar_filtros(self, queryset, datos_form):
+        queryset = super().aplicar_filtros(queryset, datos_form)
+
+        if grupos := datos_form.get(UsuarioBusquedaForm.Campos.GRUPOS):
+            queryset = queryset.filter(grupos__in=grupos)
+
+        if (
+            tiene_email := obtener_filtro_bool_o_nulo(
+                UsuarioBusquedaForm.Campos.TIENE_EMAIL, datos_form
+            )
+        ) is not None:
+            valor_filtro = Q(email="")
+
+            if tiene_email:
+                queryset = queryset.exclude(valor_filtro)
+            else:
+                queryset = queryset.filter(valor_filtro)
+
+        if (
+            activo := obtener_filtro_bool_o_nulo(
+                UsuarioBusquedaForm.Campos.ACTIVO, datos_form
+            )
+        ) is not None:
+            queryset = queryset.filter(is_active=True if activo else False)
+
+        return queryset
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super().get_context_data(*args, **kwargs)
+        ctx["media_url"] = settings.MEDIA_URL
+        return ctx
 
 
 class VistaGrupoForm:
     request: HttpRequest
+    nombre_campo_permisos = "permissions"
 
     def get_context_data(self, **kwargs):
         """Agrupar los permisos por sus modelos y así reducir la cantidad de texto que se muestra para cada uno"""
         ctx = super().get_context_data(**kwargs)  # type: ignore
 
         if self.request.method == "GET":
-            permisos: ModelMultipleChoiceField = ctx["form"].fields["permissions"]
+            permisos: ModelMultipleChoiceField = ctx["form"].fields[
+                self.nombre_campo_permisos
+            ]
 
             # Se deben evitar algunos modelos de Django, ya que son parte del funcionamiento interno del sistema
             nombres_modelos_no_necesarios = (
@@ -171,6 +237,32 @@ class VistaGrupoForm:
             return "agregar"
         else:
             return permiso.name
+
+
+class CrearUsuario(VistaGrupoForm, VistaCrearObjeto):
+    template_name = "usuarios/form.html"
+    form_class = FormUsuario
+    model = Usuario
+    success_url = reverse_lazy("usuarios")
+    nombre_campo_permisos = "user_permissions"
+
+
+class EditarUsuario(VistaGrupoForm, VistaActualizarObjeto):
+    template_name = "usuarios/form.html"
+    form_class = FormUsuario
+    model = Usuario
+    success_url = reverse_lazy("usuarios")
+    nombre_campo_permisos = "user_permissions"
+
+
+class ListaGrupos(VistaListaObjetos):
+    model = Grupo
+    template_name = "grupos/index.html"
+    plantilla_lista = "grupos/lista.html"
+    nombre_url_editar = "editar_grupo"
+
+    def get_queryset(self, *args, **kwargs) -> "list[dict]":
+        return super().get_queryset(Grupo.objects.all().order_by("name"))
 
 
 class CrearGrupo(VistaGrupoForm, VistaCrearObjeto):

@@ -25,6 +25,13 @@ urlpatterns = [
         name="cambiar_contraseña",
     ),
     *crear_crud_urls(
+        "usuario",
+        "usuarios",
+        views.ListaUsuarios,
+        views.CrearUsuario,
+        views.EditarUsuario,
+    ),
+    *crear_crud_urls(
         "grupo", "grupos", views.ListaGrupos, views.CrearGrupo, views.EditarGrupo
     ),
 ]

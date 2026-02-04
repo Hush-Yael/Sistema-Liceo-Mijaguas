@@ -1,0 +1,11 @@
+{% load widget_tweaks %}
+{% load grupos_variantes %}
+
+{% with c=input_class|default:''|add:" peer sr-only incluido-filtros" %}
+  {% render_field campo class=c %}
+{% endwith %}
+
+<div
+  class="{{ class|default:''|add:' relative h-5 w-9 rounded-full outline-offset-2 transition-[background-color] peer-checked:bg-primario peer-focus-visible:(outline-2 peer-checked:outline-primario) dark:peer-checked:(bg-primario-600) dark:peer-focus-visible:(peer-checked:outline-primario-texto) peer-disabled:(cursor-not-allowed opacity-70) after:(absolute size-3.5 bottom-0 top-0 left-2px content-[""] mya rounded-full bg-[--transparente-3] transition-[background-color,transform]) peer-checked:after:(bg-primario-texto translate-x-4)'|expandir_variantes }}"
+  aria-hidden="true"
+></div>

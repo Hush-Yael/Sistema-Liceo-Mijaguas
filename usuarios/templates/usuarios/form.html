@@ -1,0 +1,70 @@
+{% extends "objeto-form.html" %}
+{% load partials %}
+{% load static %}
+{% load utilidades %}
+{% load grupos_variantes %}
+
+{% block cabeza %}
+  {{ block.super }}
+  <script defer src="{% static 'js/alpine-focus.min.js' %}"></script>
+  {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+  <script>
+    const opcionesPermisos = {{ permisos_agrupados|safe }}
+  </script>
+  {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+{% endblock cabeza %}
+
+{% block contenido %}
+  {% with class="max-w-1000px" %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock contenido %}
+
+{% block campos %}
+  <div
+    id="campos"
+    class="{{ 'ui-elevado col gap-8 p-4 rounded-lg min-[600px]:(grid grid-cols-2 p-6)'|expandir_variantes }}"
+  >
+    {% partialdef campos inline %}
+      {% with input_class="deshabilitar-al-subir ui-elevado-2" %}
+        {% include "componentes/campo.html" with campo=form.username %}
+        {% include "componentes/campo.html" with campo=form.email %}
+        {% if not editando %}
+          {% include "componentes/campo.html" with campo=form.password %}
+        {% endif %}
+      {% endwith %}
+
+      <label class="col gap-y-1 h-max min-[600px]:self-end">
+        {{ form.is_active.label }}
+        <div
+          class="flex aic jb gap-x-2 rounded-campo p-1 px-2 ui-elevado-2"
+          x-data="{ valor: {% if form.is_active.value %}true{% else %}false{% endif %} }"
+          @change="valor = $event.target.checked"
+        >
+          <span x-text="valor ? 'Sí' : 'No'"></span>
+          {% include "componentes/switch.html" with class="bg-[--transparente-2]" input_class="deshabilitar-al-subir" campo=form.is_active %}
+        </div>
+      </label>
+
+      {% with class="col-span-2" busqueda_activa=1 lista_contenedor_class="ui-elevado-2"         ancho_cambio=650 %}
+        {%
+          include "componentes/lista-opciones/index.html" with
+          campo=form.grupos
+          opciones=form.grupos|obtener_lista_opciones|json|safe
+          seleccionadas=form.grupos|obtener_ids_seleccionadas|json|safe
+          msg_sin_opciones_disponibles="No se encontraron grupos para escoger"
+          msg_sin_opciones_seleccionadas="No se asignaron grupos al usuario"
+        %}
+        {%
+          include "componentes/lista-opciones/index.html" with
+          campo=form.user_permissions
+          opciones_por_script="opcionesPermisos"
+          seleccionadas=form.user_permissions|obtener_ids_seleccionadas|json|safe
+          opciones_agrupadas=1
+          msg_sin_opciones_disponibles="No se encontraron permisos para escoger"
+          msg_sin_opciones_seleccionadas="No se asignaron permisos al usuario"
+        %}
+      {% endwith %}
+    {% endpartialdef campos %}
+  </div>
+{% endblock campos %}

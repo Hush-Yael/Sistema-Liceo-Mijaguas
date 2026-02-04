@@ -134,11 +134,19 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
             "enlaces": [
                 si_permitido(
                     "usuarios.add_usuario",
-                    {"label": "Añadir usuario", "icono_nombre": "añadir"},
+                    {
+                        "label": "Añadir usuario",
+                        "icono_nombre": "añadir",
+                        "href": reverse_lazy("crear_usuario"),
+                    },
                 ),
                 si_permitido(
                     "usuarios.view_usuario",
-                    {"label": "Lista de usuarios", "icono_nombre": "usuarios"},
+                    {
+                        "label": "Lista de usuarios",
+                        "icono_nombre": "usuarios",
+                        "href": reverse_lazy("usuarios"),
+                    },
                 ),
                 si_permitido(
                     "usuarios.view_grupo",

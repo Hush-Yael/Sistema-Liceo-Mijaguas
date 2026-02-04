@@ -1,0 +1,63 @@
+{% extends "lista-objetos.html" %}
+{% load static %}
+{% load grupos_variantes %}
+{% load utilidades %}
+
+{% block cabeza %}
+  {{ block.super }}
+  {% include "componentes/combobox.html#scripts" %}
+  <script defer src="{% static 'js/alpine-focus.min.js' %}"></script>
+  <script src="{% static 'js/componentes/lista-objetos.js' %}"></script>
+{% endblock cabeza %}
+
+{% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+  {% block x_data %}
+      urlFotoSeleccionada: '',
+  {% endblock x_data %}
+{% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+
+{% block contenido %}
+  {%
+    with
+    main_class="col gap-y-3 flex-1 mxa w-full supports-[not(height:1dvh)]:(max-h-[calc(100vh-var(--altura-header))] h-[calc(100vh-var(--altura-header))]) h-[calc(100dvh-var(--altura-header))] max-h-[calc(100dvh-var(--altura-header))] p-3 px-4 min-[525px]:(p-5 gap-y-4) min-[600px]:px-8 sidebar:(px-10 h-100dvh)"|expandir_variantes
+    nombre_url_crear="crear_usuario"
+  %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock contenido %}
+
+{% block opciones_filtros %}
+  {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+    {%
+      include "componentes/vista-lista/filtros/yesno.html" with
+      campo=form_filtros.tiene_email
+    %}
+
+    {% include "componentes/vista-lista/filtros/conjunto-opciones.html" with
+      campo=form_filtros.grupos
+    %}
+
+    {%
+      include "componentes/vista-lista/filtros/yesno.html" with
+      campo=form_filtros.activo
+    %}
+
+  {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+{% endblock opciones_filtros %}
+
+{% block modales %}
+  {{ block.super }}
+
+  <dialog
+    class="size-325px min-[400px]:size-400px min-[500px]:size-500px **:size-full transition-[width,height] ease-out"
+    x-show="modalAbierto === 'foto'"
+    x-htmldialog="modalAbierto = null"
+    @click="$event.target === $event.currentTarget && (modalAbierto = null)"
+  >
+    <img
+      class="aspect-square object-cover"
+      :src="urlFotoSeleccionada ? '{{ media_url }}' + urlFotoSeleccionada : false"
+      alt="foto"
+    />
+  </dialog>
+{% endblock modales %}
