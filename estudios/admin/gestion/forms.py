@@ -1,15 +1,10 @@
 from django import forms
-from datetime import datetime
-from .models import (
+from estudios.modelos.parametros import Año, AñoMateria, Seccion, Materia, Lapso
+from estudios.modelos.gestion import (
     Bachiller,
     Matricula,
-    Seccion,
-    Materia,
-    Lapso,
     ProfesorMateria,
     Nota,
-    Año,
-    AñoMateria,
 )
 from django.db.models import Avg
 
@@ -45,57 +40,7 @@ class MatriculaAdminForm(forms.ModelForm):
         return seccion
 
     def clean_lapso(self):
-        lapso = self.cleaned_data.get("lapso")
-
-        if lapso is not None:
-            if lapso != Lapso.objects.last():
-                raise forms.ValidationError(
-                    "Solo se pueden matricular estudiantes al lapso actual"
-                )
-
-        return lapso
-
-
-class LapsoAdminForm(forms.ModelForm):
-    class Meta:
-        model = Lapso
-        fields = "__all__"
-
-    def clean_fecha_inicio(self):
-        fecha = self.cleaned_data.get("fecha_inicio")
-
-        if fecha is None:
-            return
-
-        if fecha < datetime.now().date():
-            raise forms.ValidationError(
-                "La fecha de inicio debe ser mayor o igual a la fecha actual"
-            )
-
-        return fecha
-
-    def clean_fecha_fin(self):
-        fecha = self.cleaned_data.get("fecha_fin")
-
-        if fecha is None:
-            return
-
-        if fecha < datetime.now().date():
-            raise forms.ValidationError(
-                "La fecha de fin debe ser mayor o igual al año actual"
-            )
-
-        fecha_inicio = self.cleaned_data.get("fecha_inicio")
-
-        if fecha_inicio is None:
-            return fecha
-
-        if fecha <= fecha_inicio:
-            raise forms.ValidationError(
-                "La fecha de fin debe ser mayor o igual a la fecha de inicio"
-            )
-
-        return fecha
+        return Lapso.objects.last()
 
 
 class NotaAdminForm(forms.ModelForm):

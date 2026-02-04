@@ -2,7 +2,6 @@ from django import forms
 from app.campos import CampoBooleanoONulo
 from app.forms import (
     BusquedaFormMixin,
-    ColumnaBusqueda,
     OrdenFormMixin,
 )
 from .models import Grupo, Usuario

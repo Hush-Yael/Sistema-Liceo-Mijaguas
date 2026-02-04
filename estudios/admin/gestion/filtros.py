@@ -1,5 +1,6 @@
 from django.contrib import admin
-from estudios.models import Lapso, Materia, ProfesorMateria, Seccion, Año
+from estudios.modelos.gestion import ProfesorMateria
+from estudios.modelos.parametros import Lapso, Materia, Seccion, Año
 
 
 class SeccionLetraFiltro(admin.SimpleListFilter):
@@ -40,7 +41,7 @@ class NotaSeccionFiltro(admin.SimpleListFilter):
     parameter_name = "letra"
 
     def lookups(self, request, model_admin):
-        if hasattr(request.user, "profesor") and not request.user.is_superuser:
+        if hasattr(request.user, "profesor") and not request.user.is_superuser:  # type: ignore
             secciones_letras = (
                 ProfesorMateria.objects.filter(profesor=request.user.profesor)
                 .values_list("seccion__letra", flat=True)
@@ -68,7 +69,7 @@ class NotaLapsoFiltro(admin.SimpleListFilter):
 
     def lookups(self, request, model_admin):
         # si es profesor, no se puede filtrar para ver las notas de otros lapso, ya que solo se muestran las del actual
-        if hasattr(request.user, "profesor") and not request.user.is_superuser:
+        if hasattr(request.user, "profesor") and not request.user.is_superuser:  # type: ignore
             return []
         # todos los lapsos
         else:
@@ -79,7 +80,7 @@ class NotaLapsoFiltro(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         if (
-            hasattr(request.user, "profesor") and not request.user.is_superuser
+            hasattr(request.user, "profesor") and not request.user.is_superuser  # type: ignore
         ) or self.value() is None:
             return queryset
         return queryset.filter(matricula__lapso__id=self.value())
@@ -90,7 +91,7 @@ class NotaAñoNombreCortoFiltro(admin.SimpleListFilter):
     parameter_name = "anio"
 
     def lookups(self, request, model_admin):
-        if hasattr(request.user, "profesor") and not request.user.is_superuser:
+        if hasattr(request.user, "profesor") and not request.user.is_superuser:  # type: ignore
             años_profesor = (
                 ProfesorMateria.objects.filter(profesor=request.user.profesor)
                 .values_list("seccion__año__id", flat=True)
@@ -129,7 +130,7 @@ class NotaMateriaFiltro(admin.SimpleListFilter):
     parameter_name = "materia"
 
     def lookups(self, request, model_admin):
-        if hasattr(request.user, "profesor") and not request.user.is_superuser:
+        if hasattr(request.user, "profesor") and not request.user.is_superuser:  # type: ignore
             materias = (
                 ProfesorMateria.objects.filter(profesor=request.user.profesor)
                 .values("materia__id", "materia__nombre")

@@ -1,27 +1,10 @@
 from enum import Enum
 from django import forms
-from app.forms import (
-    BusquedaFormMixin,
-    ConjuntoOpcionesForm,
-    OrdenFormMixin,
-)
-from app.campos import (
-    OPCIONES_TIPO_BUSQUEDA_CANTIDADES,
-    CampoBooleanoONulo,
-    FiltrosConjuntoOpciones,
-)
-from .models import (
-    Estudiante,
-    Lapso,
-    Materia,
-    Matricula,
-    MatriculaEstados,
-    Seccion,
-    Año,
-)
-import sys
-
-MIGRANDO = "makemigrations" in sys.argv or "migrate" in sys.argv
+from app.campos import OPCIONES_TIPO_BUSQUEDA_CANTIDADES, CampoBooleanoONulo
+from app.forms import BusquedaFormMixin, ConjuntoOpcionesForm
+from estudios.modelos.parametros import Lapso, Materia, Seccion, Año
+from app.campos import FiltrosConjuntoOpciones
+from app.settings import MIGRANDO
 
 
 class LapsoYSeccionFormMixin(BusquedaFormMixin):
@@ -42,35 +25,6 @@ class LapsoYSeccionFormMixin(BusquedaFormMixin):
     lapsos = forms.ModelMultipleChoiceField(
         label="Lapso",
         queryset=Lapso.objects.all().order_by("-id") if not MIGRANDO else None,
-        required=False,
-    )
-
-
-class NotasBusquedaForm(LapsoYSeccionFormMixin):
-    class Campos:
-        MATERIAS = "materias"
-        LAPSOS = "lapsos"
-        SECCIONES = "secciones"
-
-    campos_prefijo_cookie = "notas"
-    columnas_busqueda = (
-        {
-            "columna_db": f"{Matricula._meta.verbose_name}__{Estudiante._meta.verbose_name}__{Estudiante.nombres.field.name}",
-            "nombre_campo": "nombres",
-        },
-        {
-            "columna_db": f"{Matricula._meta.verbose_name}__{Estudiante._meta.verbose_name}__{Estudiante.apellidos.field.name}",
-            "nombre_campo": "apellidos",
-        },
-        {
-            "columna_db": f"{Matricula._meta.verbose_name}__{Estudiante._meta.verbose_name}__{Estudiante.cedula.field.name}",
-            "nombre_campo": "cedula",
-        },
-    )
-
-    materias = forms.ModelMultipleChoiceField(
-        label="Materia",
-        queryset=Materia.objects.all().order_by("nombre") if not MIGRANDO else None,
         required=False,
     )
 
@@ -114,20 +68,24 @@ class SeccionBusquedaForm(BusquedaFormMixin, forms.Form):
         DISPONIBILIDAD = "disponibilidad"
 
     columnas_busqueda = (
-        {
-            "columna_db": Seccion.nombre.field.name,
-            "nombre_campo": "nombre",
-        },
-        {
-            "columna_db": Seccion.capacidad.field.name,
-            "nombre_campo": "capacidad",
-        },
-        {
-            "columna_db": "cantidad_matriculas",
-            "nombre_campo": "cantidad_alumnos",
-            "label_campo": "Cantidad de alumnos",
-            "opciones_tipo_busqueda": OPCIONES_TIPO_BUSQUEDA_CANTIDADES,
-        },
+        (
+            {
+                "columna_db": Seccion.nombre.field.name,
+                "nombre_campo": "nombre",
+            },
+            {
+                "columna_db": Seccion.capacidad.field.name,
+                "nombre_campo": "capacidad",
+            },
+            {
+                "columna_db": "cantidad_matriculas",
+                "nombre_campo": "cantidad_alumnos",
+                "label_campo": "Cantidad de alumnos",
+                "opciones_tipo_busqueda": OPCIONES_TIPO_BUSQUEDA_CANTIDADES,
+            },
+        )
+        if not MIGRANDO
+        else ()
     )
     campos_prefijo_cookie = "secciones"
 
@@ -168,43 +126,26 @@ class SeccionBusquedaForm(BusquedaFormMixin, forms.Form):
     )
 
 
-class MatriculaBusquedaForm(OrdenFormMixin, LapsoYSeccionFormMixin):
+class LapsoBuscarOpciones(Enum):
+    NOMBRE = (
+        "nombre",
+        "Nombre",
+    )
+    NUMERO = "numero", "Número"
+
+
+class LapsoBusquedaForm(BusquedaFormMixin):
     columnas_busqueda = (
         {
-            "columna_db": f"{Estudiante._meta.verbose_name}__{Estudiante.nombres.field.name}",
-            "nombre_campo": "nombres",
+            "columna_db": "nombre",
+            "nombre_campo": "nombre",
         },
         {
-            "columna_db": f"{Estudiante._meta.verbose_name}__{Estudiante.apellidos.field.name}",
-            "nombre_campo": "apellidos",
-        },
-        {
-            "columna_db": f"{Estudiante._meta.verbose_name}__{Estudiante.cedula.field.name}",
-            "nombre_campo": "cedula",
+            "columna_db": "numero",
+            "nombre_campo": "numero",
         },
     )
-    opciones_orden = (
-        (
-            f"{Estudiante._meta.verbose_name}__{Estudiante.nombres.field.name}",
-            "Nombres",
-        ),
-        (
-            f"{Estudiante._meta.verbose_name}__{Estudiante.apellidos.field.name}",
-            "Apellidos",
-        ),
-        (
-            f"{Estudiante._meta.verbose_name}__{Estudiante.cedula.field.name}",
-            "Cedula",
-        ),
-    )
-    campos_prefijo_cookie = "matriculas"
-
-    estado = forms.ChoiceField(
-        label="Estado",
-        initial=None,
-        choices=MatriculaEstados.choices,
-        required=False,
-    )
+    campos_prefijo_cookie = "lapsos"
 
 
 class MateriaBusquedaForm(ConjuntoOpcionesForm, BusquedaFormMixin):
@@ -230,32 +171,14 @@ class MateriaBusquedaForm(ConjuntoOpcionesForm, BusquedaFormMixin):
     )
     campos_prefijo_cookie = "materias"
     columnas_busqueda = (
-        {
-            "columna_db": Materia.nombre.field.name,
-            "nombre_campo": "nombre",
-        },
+        (
+            {
+                "columna_db": Materia.nombre.field.name,
+                "nombre_campo": "nombre",
+            },
+        )
+        if not MIGRANDO
+        else ()
     )
 
     FiltrosConjuntoOpciones = tuple(opcion.value for opcion in FiltrosConjuntoOpciones)
-
-
-class LapsoBuscarOpciones(Enum):
-    NOMBRE = (
-        "nombre",
-        "Nombre",
-    )
-    NUMERO = "numero", "Número"
-
-
-class LapsoBusquedaForm(BusquedaFormMixin):
-    columnas_busqueda = (
-        {
-            "columna_db": "nombre",
-            "nombre_campo": "nombre",
-        },
-        {
-            "columna_db": "numero",
-            "nombre_campo": "numero",
-        },
-    )
-    campos_prefijo_cookie = "lapsos"

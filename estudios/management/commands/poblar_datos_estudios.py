@@ -1,18 +1,17 @@
 from django.core.management.base import BaseCommand
 from usuarios.models import Grupo, Usuario
-from estudios.models import (
+from estudios.modelos.gestion import (
     Bachiller,
     Matricula,
     Nota,
     Seccion,
-    Año,
     Materia,
     Estudiante,
     Profesor,
     Lapso,
-    AñoMateria,
     ProfesorMateria,
 )
+from estudios.modelos.parametros import Año, AñoMateria
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.db.utils import IntegrityError

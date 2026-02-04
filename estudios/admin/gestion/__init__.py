@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.http import HttpRequest
 from unfold.admin import ModelAdmin
-from estudios.admin_filtros import (
+from .filtros import (
     NotaLapsoFiltro,
     NotaSeccionFiltro,
     NotaMateriaFiltro,
@@ -9,88 +9,22 @@ from estudios.admin_filtros import (
     AñoNombreCortoFiltro,
     NotaAñoNombreCortoFiltro,
 )
-from estudios.admin_forms import (
+from .forms import (
     BachillerAdminForm,
     MatriculaAdminForm,
-    LapsoAdminForm,
     NotaAdminForm,
     ProfesorMateriaAdminForm,
 )
-from .models import (
+from estudios.modelos.gestion import (
     Bachiller,
-    Seccion,
-    Año,
-    Materia,
     Profesor,
     Estudiante,
-    Lapso,
-    AñoMateria,
     ProfesorMateria,
     Matricula,
     Nota,
 )
+from estudios.modelos.parametros import Materia, Lapso
 from django.core.exceptions import PermissionDenied
-
-
-@admin.register(Año)
-class AñoAdmin(ModelAdmin):
-    list_display = ["nombre", "nombre_corto", "fecha_creacion"]
-    search_fields = ["nombre"]
-    readonly_fields = ["fecha_creacion"]
-
-
-@admin.register(Seccion)
-class SeccionAdmin(ModelAdmin):
-    list_display = [
-        "nombre",
-        "letra",
-        "vocero",
-        "capacidad",
-    ]
-    list_filter = ["año", "letra"]
-    search_fields = ["nombre", "letra"]
-    autocomplete_fields = ["vocero"]
-    readonly_fields = ["fecha_creacion"]
-
-    def get_list_display(self, request: HttpRequest):
-        columnas = [*super().get_list_display(request)]
-
-        if "año__id__exact" in request.GET:
-            columnas.remove("año")
-
-        if "letra" in request.GET:
-            columnas.remove("letra")
-
-        return columnas
-
-
-@admin.register(Materia)
-class MateriaAdmin(ModelAdmin):
-    list_display = ["nombre", "fecha_creacion"]
-    search_fields = ["nombre"]
-    readonly_fields = ["fecha_creacion"]
-
-    # Alterar los resultados del autocompletado
-    def get_search_results(self, request, queryset, search_term):
-        queryset, use_distinct = super().get_search_results(
-            request, queryset, search_term
-        )
-        modelo = request.GET.get("model_name")
-
-        # Si se pide desde notas y es profesor, solo retornar sus materias asignadas
-        if (
-            modelo == "nota"
-            and hasattr(request.user, "profesor")
-            and not request.user.is_superuser
-        ):
-            profesor = request.user.profesor  # pyright: ignore[reportAttributeAccessIssue]
-            materias_profesor = ProfesorMateria.objects.filter(
-                profesor=profesor
-            ).values_list("materia_id", flat=True)
-
-            queryset = queryset.filter(id__in=materias_profesor)
-
-        return queryset, use_distinct
 
 
 @admin.register(Profesor)
@@ -110,6 +44,7 @@ class ProfesorAdmin(ModelAdmin):
 @admin.register(Estudiante)
 class EstudianteAdmin(ModelAdmin):
     list_display = [
+        "cedula",
         "nombres",
         "apellidos",
         "fecha_nacimiento",
@@ -140,22 +75,6 @@ class EstudianteAdmin(ModelAdmin):
             )
 
         return queryset, use_distinct
-
-
-@admin.register(Lapso)
-class LapsoAdmin(ModelAdmin):
-    form = LapsoAdminForm
-    list_display = ["numero", "nombre", "fecha_inicio", "fecha_fin"]
-    list_filter = ["numero"]
-    search_fields = ["nombre"]
-
-
-@admin.register(AñoMateria)
-class AñoMateriaAdmin(ModelAdmin):
-    list_display = ["año", "materia"]
-    list_filter = ["año", "materia"]
-    search_fields = ["materia__nombre"]
-    autocomplete_fields = ["materia"]
 
 
 class LetraSeccionModelo:
@@ -240,7 +159,7 @@ class MatriculaAdmin(ModelAdmin):
         if (
             modelo == "nota"
             and hasattr(request.user, "profesor")
-            and not request.user.is_superuser
+            and not request.user.is_superuser  # type: ignore
         ):
             profesor = request.user.profesor  # pyright: ignore[reportAttributeAccessIssue]
             secciones_profesor = ProfesorMateria.objects.filter(
@@ -358,7 +277,7 @@ class NotaAdmin(MixinNotaPermisos, ModelAdmin):
         if "anio" in filtros and "letra" in filtros:
             columnas.remove("seccion")
 
-        if hasattr(request.user, "profesor") and not request.user.is_superuser:
+        if hasattr(request.user, "profesor") and not request.user.is_superuser:  # type: ignore
             return columnas
 
         if "lapso" not in filtros:
@@ -373,10 +292,10 @@ class NotaAdmin(MixinNotaPermisos, ModelAdmin):
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def has_add_permission(self, request):
-        return request.user.is_superuser or hasattr(request.user, "profesor")
+        return request.user.is_superuser or hasattr(request.user, "profesor")  # type: ignore
 
     def has_change_permission(self, request, obj=None):
-        if not (request.user.is_superuser or hasattr(request.user, "profesor")):
+        if not (request.user.is_superuser or hasattr(request.user, "profesor")):  # type: ignore
             return False
 
         # se verifica el permiso para cada nota individual
@@ -391,8 +310,8 @@ class NotaAdmin(MixinNotaPermisos, ModelAdmin):
             request.method == "POST"
             and request.path.endswith("/matricula/")
             and (
-                request.user.is_superuser
-                or request.user.grupos.filter(name="Admin").exists()
+                request.user.is_superuser  # type: ignore
+                or request.user.grupos.filter(name="Admin").exists()  # type: ignore
             )
         ):
             return True
@@ -400,7 +319,7 @@ class NotaAdmin(MixinNotaPermisos, ModelAdmin):
         return self.has_change_permission(request, obj)
 
     def save_model(self, request, obj, form, change):
-        if hasattr(request.user, "profesor") and not request.user.is_superuser:
+        if hasattr(request.user, "profesor") and not request.user.is_superuser:  # type: ignore
             # no se pueden alterar notas de otro profesor o de un lapso anterior
             if not self.profesor_tiene_acceso(request.user, obj):  # pyright: ignore[reportArgumentType]
                 raise PermissionDenied(

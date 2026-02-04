@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+import sys
 from dotenv import dotenv_values
 from django.contrib.messages import constants as messages
 from .config_unfold import CONFIG as CONFIG_UNFOLD
@@ -153,3 +154,5 @@ MESSAGE_TAGS = {
     messages.WARNING: "ui-msg/advertencia",
     messages.ERROR: "ui-msg/peligro",
 }
+
+MIGRANDO = "makemigrations" in sys.argv or "migrate" in sys.argv
