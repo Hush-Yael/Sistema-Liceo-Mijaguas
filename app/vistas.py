@@ -426,7 +426,7 @@ class VistaForm(SingleObjectTemplateResponseMixin, Vista):
         super().__init__()
 
         self.permission_required = (
-            f"{self.nombre_app_modelo}.add_{self.model._meta.verbose_name}"
+            f"{self.nombre_app_modelo}.add_{self.model._meta.model_name}"
         )
 
     def get_success_url(self) -> str:
