@@ -50,6 +50,20 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write("Creando datos estáticos...")
 
+        self.crear_años_y_secciones_por_defecto()
+
+        self.crear_materias_por_defecto()
+
+        self.crear_grupos_por_defecto()
+
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"¡Datos estáticos creados exitosamente! "
+                f"({self.años_creados} años, {self.materias_creadas} materias creadas, {self.materias_asignadas} materias asignadas, {self.secciones_creadas} secciones, {self.grupos_creados} grupos)"
+            )
+        )
+
+    def crear_años_y_secciones_por_defecto(self):
         años_creados = 0
 
         for nombre, nombre_corto in AÑOS:
@@ -59,8 +73,6 @@ class Command(BaseCommand):
             if created:
                 años_creados += 1
                 self.stdout.write(f"✓ Año creado: {nombre}")
-
-        materias_creadas = 0
 
         self.stdout.write("Creando secciones por defecto...")
 
@@ -82,6 +94,13 @@ class Command(BaseCommand):
 
         self.stdout.write(f"✓ Total secciones creadas: {secciones_creadas}")
 
+        self.años_creados = años_creados
+        self.secciones_creadas = secciones_creadas
+
+    def crear_materias_por_defecto(self):
+        materias_creadas = 0
+        materias_asignadas = 0
+
         for materia in MATERIAS:
             _, created = ModelosParametros.Materia.objects.get_or_create(nombre=materia)
 
@@ -90,8 +109,6 @@ class Command(BaseCommand):
                 self.stdout.write(f"✓ Materia creada: {materia}")
 
         self.stdout.write("Asignando materias a años...")
-
-        materias_asignadas = 0
 
         for materia in MATERIAS:
             for num in range(len(AÑOS)):
@@ -116,8 +133,11 @@ class Command(BaseCommand):
 
         self.stdout.write(f"✓ Total materias asignadas: {materias_asignadas}")
 
-        self.stdout.write("Creando grupos...")
+        self.materias_creadas = materias_creadas
+        self.materias_asignadas = materias_asignadas
 
+    def crear_grupos_por_defecto(self):
+        self.stdout.write("Creando grupos...")
         grupos_creados = 0
 
         modelos_calificaciones = obtener_modelos_modulo(ModelosCalificaciones)
