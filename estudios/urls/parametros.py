@@ -4,21 +4,17 @@ import estudios.vistas.parametros as vistas
 
 urlpatterns = (
     *crear_crud_urls(
-        "materia",
-        "materias",
+        Materia,
         vistas.ListaMaterias,
         vistas.CrearMateria,
         vistas.ActualizarMateria,
     ),
+    *crear_crud_urls(Año, vistas.ListaAños, vistas.CrearAño, vistas.ActualizarAño),
     *crear_crud_urls(
-        "año", "años", vistas.ListaAños, vistas.CrearAño, vistas.ActualizarAño
+        Lapso, vistas.ListaLapsos, vistas.CrearLapso, vistas.ActualizarLapso
     ),
     *crear_crud_urls(
-        "lapso", "lapsos", vistas.ListaLapsos, vistas.CrearLapso, vistas.ActualizarLapso
-    ),
-    *crear_crud_urls(
-        "seccion",
-        "secciones",
+        Seccion,
         vistas.ListaSecciones,
         vistas.CrearSeccion,
         vistas.ActualizarSeccion,

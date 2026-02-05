@@ -3,6 +3,7 @@ from typing_extensions import NotRequired
 from django.http import HttpRequest
 from django.conf import settings
 from django.urls import reverse_lazy
+from app.util import nombre_url_crear_auto, nombre_url_lista_auto
 
 
 class Enlace(TypedDict):
@@ -56,7 +57,7 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
                         "label": "Secciones",
                         "icono_nombre": "secciones",
                         "icono_style": "transform: scale(1.1)",
-                        "href": reverse_lazy("secciones"),
+                        "href": reverse_lazy(nombre_url_lista_auto(Seccion)),
                     },
                 ),
                 si_permitido(
@@ -64,7 +65,7 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
                     {
                         "label": "Matrículas",
                         "icono_nombre": "matriculas",
-                        "href": reverse_lazy("matriculas"),
+                        "href": reverse_lazy(nombre_url_lista_auto(Matricula)),
                     },
                 ),
                 si_permitido(
@@ -89,7 +90,7 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
                     {
                         "label": "Lista de notas",
                         "icono_nombre": "tabla",
-                        "href": reverse_lazy("notas"),
+                        "href": reverse_lazy(nombre_url_lista_auto(Nota)),
                     },
                 ),
                 si_permitido(
@@ -107,7 +108,7 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
                     {
                         "label": "Años",
                         "icono_nombre": "años",
-                        "href": reverse_lazy("años"),
+                        "href": reverse_lazy(nombre_url_lista_auto(Año)),
                     },
                 ),
                 si_permitido(
@@ -115,7 +116,7 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
                     {
                         "label": "Lapsos",
                         "icono_nombre": "lapsos",
-                        "href": reverse_lazy("lapsos"),
+                        "href": reverse_lazy(nombre_url_lista_auto(Lapso)),
                     },
                 ),
                 si_permitido(
@@ -123,7 +124,7 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
                     {
                         "label": "Materias",
                         "icono_nombre": "materias",
-                        "href": reverse_lazy("materias"),
+                        "href": reverse_lazy(nombre_url_lista_auto(Materia)),
                     },
                 ),
             ],
@@ -137,7 +138,7 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
                     {
                         "label": "Añadir usuario",
                         "icono_nombre": "añadir",
-                        "href": reverse_lazy("crear_usuario"),
+                        "href": reverse_lazy(nombre_url_crear_auto(Usuario)),
                     },
                 ),
                 si_permitido(
@@ -145,7 +146,7 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
                     {
                         "label": "Lista de usuarios",
                         "icono_nombre": "usuarios",
-                        "href": reverse_lazy("usuarios"),
+                        "href": reverse_lazy(nombre_url_lista_auto(Usuario)),
                     },
                 ),
                 si_permitido(
@@ -153,7 +154,7 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
                     {
                         "label": "Grupos de permisos",
                         "icono_nombre": "permisos",
-                        "href": reverse_lazy("grupos"),
+                        "href": reverse_lazy(nombre_url_lista_auto(Grupo)),
                     },
                 ),
             ],

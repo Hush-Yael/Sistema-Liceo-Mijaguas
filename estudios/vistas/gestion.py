@@ -6,7 +6,6 @@ from django.http import (
 )
 from django.shortcuts import redirect, render
 from django.db.models import Case, Q, F, Value, When
-from django.urls import reverse_lazy
 from app.vistas import (
     VistaActualizarObjeto,
     VistaCrearObjeto,
@@ -212,7 +211,6 @@ class CrearMatricula(VistaCrearObjeto):
     model = Matricula
     form_class = FormMatricula
     genero_sustantivo_objeto = "F"
-    success_url = reverse_lazy("matriculas")
 
 
 class ActualizarMatricula(VistaActualizarObjeto):
@@ -220,7 +218,6 @@ class ActualizarMatricula(VistaActualizarObjeto):
     model = Matricula
     form_class = FormMatricula
     genero_sustantivo_objeto = "F"
-    success_url = reverse_lazy("matriculas")
 
     def no_se_puede_actualizar(self, request: HttpRequest):
         if self.object.lapso != obtener_lapso_actual():  # type: ignore

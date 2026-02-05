@@ -18,6 +18,11 @@ from django.views.generic.edit import CreateView, UpdateView
 from app import HTTPResponseHXRedirect
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from app.forms import BusquedaFormMixin, DireccionesOrden, OrdenFormMixin
+from app.util import (
+    nombre_url_crear_auto,
+    nombre_url_editar_auto,
+    nombre_url_lista_auto,
+)
 
 
 class Vista(PermissionRequiredMixin):
@@ -78,15 +83,22 @@ class VistaListaObjetos(Vista, ListView):
     form_filtros: BusquedaFormMixin
     total: "int | None" = None
     plantilla_lista: str
-    nombre_url_editar: str
     id_lista_objetos: str = "lista-objetos"
     tabla: bool = True
+    url_crear: str
+    url_editar: str
 
     def __init__(self):
         setattr(self, "nombre_modelo_plural", self.model._meta.verbose_name_plural)
 
         if not hasattr(self, "columnas_mostradas") or not self.columnas_mostradas:
             self.establecer_columnas()
+
+        if not hasattr(self, "url_crear"):
+            self.url_crear = nombre_url_crear_auto(self.model)
+
+        if not hasattr(self, "url_editar"):
+            self.url_editar = nombre_url_editar_auto(self.model)
 
         super().__init__()
 
@@ -417,6 +429,12 @@ class VistaForm(SingleObjectTemplateResponseMixin, Vista):
             f"{self.nombre_app_modelo}.add_{self.model._meta.verbose_name}"
         )
 
+    def get_success_url(self) -> str:
+        if not hasattr(self, "success_url"):
+            return nombre_url_lista_auto(self.model)
+
+        return super().get_success_url()  # type: ignore
+
     def form_invalid(self, form: forms.ModelForm) -> HttpResponse:
         if not (errores_generales := form.non_field_errors()):
             messages.error(self.request, "Corrige los errores en el formulario")
@@ -466,27 +484,28 @@ class VistaActualizarObjeto(VistaForm, UpdateView):
 
 
 def crear_crud_urls(
-    nombre_objeto: str,
-    nombre_objeto_plural: str,
+    modelo: Type[models.Model],
     vista_lista: Type[VistaListaObjetos],
     vista_crear: Type[VistaCrearObjeto],
     vista_actualizar: Type[VistaActualizarObjeto],
 ):
+    nombre_objeto_plural: str = modelo._meta.verbose_name_plural  # type: ignore
+
     """Crear urls para el CRUD de un modelo"""
     return (
         path(
             nombre_objeto_plural + "/",
             vista_lista.as_view(),
-            name=nombre_objeto_plural,
+            name=nombre_url_lista_auto(modelo),
         ),
         path(
             f"{nombre_objeto_plural}/crear/",
             vista_crear.as_view(),
-            name=f"crear_{nombre_objeto}",
+            name=nombre_url_crear_auto(modelo),
         ),
         path(
             f"{nombre_objeto_plural}/editar/<int:pk>/",
             vista_actualizar.as_view(),
-            name=f"editar_{nombre_objeto}",
+            name=nombre_url_editar_auto(modelo),
         ),
     )

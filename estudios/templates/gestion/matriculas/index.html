@@ -15,61 +15,10 @@
   {%
     with
     main_class='col gap-y-3 flex-1 size-full supports-[not(height:1dvh)]:(max-h-[calc(100vh-var(--altura-header))] h-[calc(100vh-var(--altura-header))]) max-h-[calc(100dvh-var(--altura-header))] max-w-1000px h-[calc(100dvh-var(--altura-header))] mxa p-4 overflow-y-auto min-[700px]:p-6 min-[1000px]:p-8!'|expandir_variantes
-    nombre_url_crear="crear_matricula"
   %}
     {{ block.super }}
   {% endwith %}
 {% endblock contenido %}
-
-{% comment %}
-  <form
-    class="flex flex-wrap gap-2"
-    hx-trigger="click[verificarClickEnReiniciar()], change delay:800ms"
-    hx-post
-  >
-    {%
-      with
-      class="min-[500px]:min-w-150px incluido-filtros"
-      prefijo_class="text-texto-sutil"
-      label_class="sr-only"
-      valor_class="font-bold"
-      placeholder="cualquiera"
-      btn_class="max-[500px]:text-xs"
-    %}
-      {%
-        include "componentes/combobox.html" with
-        name=form_filtros.secciones.name
-        label=form_filtros.secciones.label
-        prefijo=form_filtros.secciones.label
-        opciones=form_filtros.secciones|obtener_lista_opciones
-        opciones_seleccionadas=form_filtros.secciones.value
-        busqueda_activa=1
-        mostrar_cantidad=1
-      %}
-      {%
-        include "componentes/combobox.html" with
-        name=form_filtros.lapsos.name
-        label=form_filtros.lapsos.label
-        prefijo=form_filtros.lapsos.label
-        opciones=form_filtros.lapsos|obtener_lista_opciones
-        opciones_seleccionadas=form_filtros.lapsos.value
-        busqueda_activa=1
-        mostrar_cantidad=1
-      %}
-      {%
-        include "componentes/combobox.html" with
-        name=form_filtros.estado.name
-        label=form_filtros.estado.label
-        prefijo=form_filtros.estado.label
-        opciones=form_filtros.estado|obtener_lista_opciones
-        multiple=0
-        seleccionada=form_filtros.estado.value
-      %}
-    {% endwith %}
-  </form>
-
-  {{ block.super }}
-{% endcomment %}
 
 {% block opciones_filtros %}
   {%

@@ -8,7 +8,6 @@ from django.http import (
 from django.http.request import QueryDict
 from django.shortcuts import render
 from django.db.models import Case, Count, Q, F, Value, When
-from django.urls import reverse_lazy
 from app.campos import FiltrosConjuntoOpciones
 from app.forms import ConjuntoOpcionesForm
 from app.util import obtener_filtro_bool_o_nulo
@@ -61,14 +60,12 @@ class CrearLapso(VistaCrearObjeto):
     template_name = "parametros/lapsos/form.html"
     model = Lapso
     form_class = FormLapso
-    success_url = reverse_lazy("lapsos")
 
 
 class ActualizarLapso(VistaActualizarObjeto):
     template_name = "parametros/lapsos/form.html"
     model = Lapso
     form_class = FormLapso
-    success_url = reverse_lazy("lapsos")
 
 
 class ListaMaterias(VistaListaObjetos):
@@ -221,7 +218,6 @@ class CrearMateria(VistaCrearObjeto):
     model = Materia
     form_class = FormMateria
     genero_sustantivo_objeto = "F"
-    success_url = reverse_lazy("materias")
 
     def form_valid(self, form):
         años_seleccionados: list[Año] = list(form.cleaned_data["asignaciones"])
@@ -240,7 +236,6 @@ class ActualizarMateria(VistaActualizarObjeto):
     model = Materia
     form_class = FormMateria
     genero_sustantivo_objeto = "F"
-    success_url = reverse_lazy("materias")
 
     def form_valid(self, form):
         años_seleccionados: list[Año] = list(form.cleaned_data["asignaciones"])
@@ -300,14 +295,12 @@ class CrearAño(VistaCrearObjeto):
     template_name = "parametros/años/form.html"
     model = Año
     form_class = FormAño
-    success_url = reverse_lazy("años")
 
 
 class ActualizarAño(VistaActualizarObjeto):
     template_name = "parametros/años/form.html"
     model = Año
     form_class = FormAño
-    success_url = reverse_lazy("años")
 
 
 class ListaSecciones(VistaListaObjetos):
@@ -405,7 +398,6 @@ class CrearSeccion(VistaCrearObjeto):
     model = Seccion
     form_class = FormSeccion
     genero_sustantivo_objeto = "F"
-    success_url = reverse_lazy("secciones")
 
 
 class ActualizarSeccion(VistaActualizarObjeto):
@@ -413,4 +405,3 @@ class ActualizarSeccion(VistaActualizarObjeto):
     model = Seccion
     form_class = FormSeccion
     genero_sustantivo_objeto = "F"
-    success_url = reverse_lazy("secciones")

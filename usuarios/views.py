@@ -243,7 +243,6 @@ class CrearUsuario(VistaGrupoForm, VistaCrearObjeto):
     template_name = "usuarios/form.html"
     form_class = FormUsuario
     model = Usuario
-    success_url = reverse_lazy("usuarios")
     nombre_campo_permisos = "user_permissions"
 
 
@@ -251,7 +250,6 @@ class EditarUsuario(VistaGrupoForm, VistaActualizarObjeto):
     template_name = "usuarios/form.html"
     form_class = FormUsuario
     model = Usuario
-    success_url = reverse_lazy("usuarios")
     nombre_campo_permisos = "user_permissions"
 
 
@@ -269,11 +267,9 @@ class CrearGrupo(VistaGrupoForm, VistaCrearObjeto):
     model = Grupo
     template_name = "grupos/form.html"
     form_class = FormGrupo
-    success_url = reverse_lazy("grupos")
 
 
 class EditarGrupo(VistaGrupoForm, VistaActualizarObjeto):
     model = Grupo
     template_name = "grupos/form.html"
     form_class = FormGrupo
-    success_url = reverse_lazy("grupos")
