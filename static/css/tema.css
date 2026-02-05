@@ -203,6 +203,12 @@ select.ui-elevado-2 {
   border-radius: var(--radio-campo);
 }
 
+input.ui-elevado-2,
+textarea.ui-elevado-2,
+select.ui-elevado-2 {
+  border-color: var(--transparente-2);
+}
+
 input.ui-elevado[aria-invalid=true],
 textarea.ui-elevado[aria-invalid=true],
 select.ui-elevado[aria-invalid=true],
