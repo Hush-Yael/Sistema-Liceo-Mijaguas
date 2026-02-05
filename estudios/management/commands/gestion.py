@@ -4,6 +4,7 @@ from estudios.management.commands import BaseComandos
 from estudios.modelos.parametros import Lapso, Año, Materia, Seccion
 from usuarios.models import Grupo, Usuario
 from estudios.modelos.gestion.personas import (
+    Persona,
     Profesor,
     Estudiante,
     ProfesorMateria,
@@ -91,14 +92,14 @@ class ArgumentosGestionMixin(BaseComandos):
                 continue
 
             # Generar datos con Faker (edades entre 13-18 años para secundaria)
-            nombre = self.faker.first_name()
-            apellido = self.faker.last_name()
+            sexo, nombre, apellido = self.crear_datos_persona()
 
             # Fecha de nacimiento para estudiantes de secundaria (13-18 años)
             fecha_nacimiento = self.faker.date_of_birth(minimum_age=13, maximum_age=18)
 
             Estudiante.objects.create(
                 cedula=i + 1,
+                sexo=sexo,
                 nombres=nombre,
                 apellidos=apellido,
                 fecha_nacimiento=fecha_nacimiento,
@@ -131,6 +132,17 @@ class ArgumentosGestionMixin(BaseComandos):
                 )
             )
 
+    def crear_datos_persona(self):
+        sexo = self.faker.random_element(Persona.OpcionesSexo.values)
+        nombre = (
+            f"{self.faker.first_name_female()} {self.faker.first_name_female()}"
+            if sexo == Persona.OpcionesSexo.FEMENINO
+            else f"{self.faker.first_name_male()} {self.faker.first_name_male()}"
+        )
+        apellido = f"{self.faker.last_name()} {self.faker.last_name()}"
+
+        return sexo, nombre, apellido
+
     def crear_profesores(self, cantidad):
         self.stdout.write(f"Creando {cantidad} profesores...")
 
@@ -141,17 +153,16 @@ class ArgumentosGestionMixin(BaseComandos):
                 continue
 
             # Generar datos con Faker
-            nombre = self.faker.first_name()
-            apellido = self.faker.last_name()
+            sexo, nombre, apellido = self.crear_datos_persona()
+
             email = f"{nombre.lower()}.{apellido.lower()}@colegio.edu"
 
             # Asegurar que el email sea único
-            contador_email = 1
-            email_original = email
+            usuarios_con_email = Usuario.objects.filter(email=email).count()
 
-            while Usuario.objects.filter(email=email).exists():
-                email = f"{email_original.split('@')[0]}{contador_email}@colegio.edu"
-                contador_email += 1
+            # Si hay usuarios con el mismo email agregar un número al final según la cantidad + 1
+            if usuarios_con_email > 0:
+                email = f"{email.split('@')[0]}{usuarios_con_email}@colegio.edu"
 
             grupo_prof = Grupo.objects.get(name="Profesor")
 
@@ -166,6 +177,7 @@ class ArgumentosGestionMixin(BaseComandos):
 
             Profesor.objects.create(
                 cedula=i + 1,
+                sexo=sexo,
                 nombres=nombre,
                 apellidos=apellido,
                 telefono=self.faker.random_element(

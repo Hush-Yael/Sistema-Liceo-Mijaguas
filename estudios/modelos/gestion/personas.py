@@ -6,21 +6,39 @@ from app import settings
 from estudios.modelos.parametros import Seccion, Materia, Lapso
 
 
-class Profesor(models.Model):
+class Persona(models.Model):
+    class OpcionesSexo(models.TextChoices):
+        MASCULINO = "M", "Masculino"
+        FEMENINO = "F", "Femenino"
+
     cedula = models.IntegerField(
         validators=[MinValueValidator(1)],
         unique=True,
-        primary_key=True,
         verbose_name="cédula",
     )
-    nombres = models.CharField(max_length=100)
-    apellidos = models.CharField(max_length=100)
-    telefono = models.CharField(
-        max_length=15, blank=True, null=True, verbose_name="teléfono"
-    )
+    nombres = models.CharField(max_length=128)
+    apellidos = models.CharField(max_length=128)
+    sexo = models.CharField(max_length=1, choices=OpcionesSexo.choices)
     fecha_ingreso = models.DateTimeField(
         default=timezone.now, verbose_name="fecha de ingreso"
     )
+
+    @property
+    def nombre_completo(self):
+        return f"{self.nombres} {self.apellidos}"
+
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return self.nombre_completo
+
+
+class Profesor(Persona):
+    telefono = models.CharField(
+        max_length=15, blank=True, null=True, verbose_name="teléfono"
+    )
+
     esta_activo = models.BooleanField(default=True, verbose_name="está activo")
     usuario = models.OneToOneField(
         settings.AUTH_USER_MODEL,
@@ -29,41 +47,21 @@ class Profesor(models.Model):
         on_delete=models.SET_NULL,
     )
 
-    class Meta:
+    class Meta:  # type: ignore
         db_table = "profesores"
         verbose_name_plural = "profesores"
 
-    def __str__(self):
-        return f"{self.nombres} {self.apellidos}"
 
-
-class Estudiante(models.Model):
-    cedula = models.IntegerField(
-        validators=[MinValueValidator(1)],
-        unique=True,
-        verbose_name="cédula",
-    )
-    nombres = models.CharField(max_length=100)
-    apellidos = models.CharField(max_length=100)
+class Estudiante(Persona):
     fecha_nacimiento = models.DateField(verbose_name="fecha de nacimiento")
-    fecha_ingreso = models.DateField(
-        default=timezone.now, verbose_name="fecha de ingreso"
-    )
 
     @property
     def edad(self):
         return abs(timezone.now().year - self.fecha_nacimiento.year)
 
-    @property
-    def nombre_completo(self):
-        return f"{self.nombres} {self.apellidos}"
-
-    class Meta:
+    class Meta:  # type: ignore
         ordering = ["apellidos", "nombres"]
         db_table = "estudiantes"
-
-    def __str__(self):
-        return f"{self.nombres} {self.apellidos}"
 
 
 class ProfesorMateria(models.Model):

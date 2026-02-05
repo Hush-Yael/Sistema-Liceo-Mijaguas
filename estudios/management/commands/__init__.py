@@ -41,6 +41,7 @@ def obtener_modelos_modulo(modulo: ModuleType) -> "tuple[models.Model, ...]":
         obj
         for _, obj in inspect.getmembers(modulo)
         if isinstance(obj, models.base.ModelBase)  # type: ignore - si se usa models.Model no funciona
+        and not getattr(obj._meta, "abstract")  # type: ignore - no recuperar modelos abstractos
         and obj.__module__ == modulo.__name__
     )
 
