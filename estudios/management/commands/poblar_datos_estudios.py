@@ -144,6 +144,7 @@ class Command(BaseCommand):
         lista_modelos = tuple(
             obtener_modelos_modulo(modulo)
             for modulo in (
+                ModelosUsuarios,
                 ModelosParametros,
                 ModelosPersonas,
             )
@@ -170,7 +171,6 @@ class Command(BaseCommand):
         if creado or grupo_admin.permissions.count() == 0:
             for modelo in modelos:
                 content_type = ContentType.objects.get_for_model(modelo)
-
                 permisos = Permission.objects.filter(content_type=content_type)
 
                 for permiso in permisos:
@@ -187,12 +187,12 @@ class Command(BaseCommand):
 
             self.stdout.write(f"✓ Grupo creado: {grupo_admin.name}")
 
-        grupo_profesor, created = ModelosUsuarios.Grupo.objects.get_or_create(
+        grupo_profesor, creado = ModelosUsuarios.Grupo.objects.get_or_create(
             name=ModelosUsuarios.GruposBase.PROFESOR.value,
             descripcion="Provee todos los permisos relacionados a la carga de notas de acuerdo a los estudiantes asignados al usuario. También permite ver otros aspectos del sistema, pero no modificarlos",
         )
 
-        if created or grupo_profesor.permissions.count() == 0:
+        if creado or grupo_profesor.permissions.count() == 0:
             for modelo in modelos:
                 # se asignan todos los permisos de calificaciones
                 if modelo in modelos_calificaciones:
