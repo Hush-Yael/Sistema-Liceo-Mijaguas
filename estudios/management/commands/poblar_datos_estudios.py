@@ -1,21 +1,15 @@
+from types import ModuleType
 from django.core.management.base import BaseCommand
-from usuarios.models import Grupo, Usuario
-from estudios.modelos.gestion.personas import (
-    Bachiller,
-    Matricula,
-    Seccion,
-    Materia,
-    Estudiante,
-    Profesor,
-    Lapso,
-    ProfesorMateria,
-)
-from estudios.modelos.gestion.calificaciones import Nota
-from estudios.modelos.parametros import Año, AñoMateria
+from django.db import models
+import usuarios.models as ModelosUsuarios
+import estudios.modelos.gestion.personas as ModelosPersonas
+import estudios.modelos.gestion.calificaciones as ModelosCalificaciones
+import estudios.modelos.parametros as ModelosParametros
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.db.utils import IntegrityError
-
+import inspect
+import itertools
 
 AÑOS = [
     ("Primer Año", "1ero"),
@@ -41,6 +35,21 @@ MATERIAS = [
 
 MATERIAS_PUNTUALES = {"Premilitar": (5,), "Física": (3, 4, 5), "Química": (3, 4, 5)}
 
+def obtener_modelos_modulo(modulo: ModuleType) -> "tuple[models.Model, ...]":
+    return tuple(
+        obj
+        for _, obj in inspect.getmembers(modulo)
+        if isinstance(obj, models.base.ModelBase)  # type: ignore - si se usa models.Model no funciona
+        and obj.__module__ == modulo.__name__
+    )
+
+
+modulos_modelos = (
+    ModelosParametros,
+    ModelosCalificaciones,
+    ModelosPersonas,
+)
+
 
 class Command(BaseCommand):
     help = "Llena la base de datos con datos estáticos (Años, materias, grupos, y un usuario admin)"
@@ -51,7 +60,7 @@ class Command(BaseCommand):
         años_creados = 0
 
         for nombre, nombre_corto in AÑOS:
-            _, created = Año.objects.get_or_create(
+            _, created = ModelosParametros.Año.objects.get_or_create(
                 nombre=nombre, nombre_corto=nombre_corto
             )
             if created:
@@ -62,14 +71,14 @@ class Command(BaseCommand):
 
         self.stdout.write("Creando secciones por defecto...")
 
-        años = Año.objects.all()
+        años = ModelosParametros.Año.objects.all()
         letras_secciones = ["A", "B", "C", "D", "E", "F", "G", "H", "U"]
 
         secciones_creadas = 0
         for año in años:
             for letra in letras_secciones:
                 nombre = f"{año.nombre_corto} {letra}"
-                _, created = Seccion.objects.get_or_create(
+                _, created = ModelosParametros.Seccion.objects.get_or_create(
                     año=año,
                     letra=letra,
                     defaults={"nombre": nombre, "capacidad": 30},
@@ -81,7 +90,7 @@ class Command(BaseCommand):
         self.stdout.write(f"✓ Total secciones creadas: {secciones_creadas}")
 
         for materia in MATERIAS:
-            _, created = Materia.objects.get_or_create(nombre=materia)
+            _, created = ModelosParametros.Materia.objects.get_or_create(nombre=materia)
 
             if created:
                 materias_creadas += 1
@@ -101,9 +110,9 @@ class Command(BaseCommand):
                     continue
 
                 try:
-                    _, asignada = AñoMateria.objects.get_or_create(
-                        año=Año.objects.get(id=num),
-                        materia=Materia.objects.get(nombre=materia),
+                    _, asignada = ModelosParametros.AñoMateria.objects.get_or_create(
+                        año=ModelosParametros.Año.objects.get(id=num),
+                        materia=ModelosParametros.Materia.objects.get(nombre=materia),
                     )
                 except:  # noqa: E722
                     continue
@@ -117,31 +126,26 @@ class Command(BaseCommand):
         self.stdout.write("Creando grupos...")
 
         grupos_creados = 0
+        modelos = tuple(
+            itertools.chain.from_iterable(
+                modelo
+                for modelo in (
+                    modelos
+                    for modelos in (
+                        obtener_modelos_modulo(modulo) for modulo in modulos_modelos
+                    )
+                )
+            )
+        )
 
-        tablas_admin = [
-            Usuario,
-            Grupo,
-            Nota,
-            Año,
-            Materia,
-            Estudiante,
-            Matricula,
-            Profesor,
-            Lapso,
-            AñoMateria,
-            ProfesorMateria,
-            Seccion,
-            Bachiller,
-        ]
-
-        grupo_admin, creado = Grupo.objects.get_or_create(
-            name="Admin",
+        grupo_admin, creado = ModelosUsuarios.Grupo.objects.get_or_create(
+            name="Profesor",
             descripcion="Provee todos los permisos de administración del sistema",
         )
 
         if creado or grupo_admin.permissions.count() == 0:
-            for tabla in tablas_admin:
-                content_type = ContentType.objects.get_for_model(tabla)
+            for modelo in modelos:
+                content_type = ContentType.objects.get_for_model(modelo)
 
                 permisos = Permission.objects.filter(content_type=content_type)
 
@@ -152,18 +156,15 @@ class Command(BaseCommand):
 
             self.stdout.write(f"✓ Grupo creado: {grupo_admin.name}")
 
-        grupo_profesor, created = Grupo.objects.get_or_create(
-            name="Profesor",
+        grupo_profesor, created = ModelosUsuarios.Grupo.objects.get_or_create(
+            name=GruposBase.PROFESOR.value,
             descripcion="Provee todos los permisos relacionados a la carga de notas de acuerdo a los estudiantes asignados al usuario. También permite ver otros aspectos del sistema, pero no modificarlos",
         )
 
         if created or grupo_profesor.permissions.count() == 0:
-            # no pueden ver usuarios
-            tablas_admin.remove(Usuario)
-            # se añaden todos los permisos de notas manualmente abajo
-            tablas_admin.remove(Nota)
-
-            nota_content_type = ContentType.objects.get_for_model(Nota)
+            nota_content_type = ContentType.objects.get_for_model(
+                ModelosCalificaciones.Nota
+            )
 
             permisos_notas = Permission.objects.filter(
                 content_type=nota_content_type,
@@ -174,15 +175,20 @@ class Command(BaseCommand):
                 grupo_profesor.permissions.add(permiso)
 
             # solo lectura para todas las demás tablas
-            for tabla in tablas_admin:
-                content_type = ContentType.objects.get_for_model(tabla)
+            for modelo in modelos:
+                # no pueden ver usuarios y se añadieron todos los permisos de notas manualmente arriba
+                if (
+                    modelo != ModelosUsuarios.Usuario
+                    and modelo != ModelosCalificaciones.Nota
+                ):
+                    content_type = ContentType.objects.get_for_model(modelo)
 
-                permiso = Permission.objects.filter(
-                    content_type=content_type, codename__startswith="view_"
-                ).first()
+                    permiso = Permission.objects.filter(
+                        content_type=content_type, codename__startswith="view_"
+                    ).first()
 
-                if permiso:
-                    grupo_profesor.permissions.add(permiso)
+                    if permiso:
+                        grupo_profesor.permissions.add(permiso)
 
             grupos_creados += 1
 
@@ -191,7 +197,7 @@ class Command(BaseCommand):
         self.stdout.write("Creando admin...")
 
         try:
-            admin, creado = Usuario.objects.get_or_create(
+            admin, creado = ModelosUsuarios.Usuario.objects.get_or_create(
                 username="admin",
                 email="",
                 is_staff=True,
