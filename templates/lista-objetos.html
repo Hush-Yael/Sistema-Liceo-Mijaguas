@@ -101,7 +101,9 @@
                   {% endif %}
                 {% endwith %}
               >
-                Lista de {{ view.nombre_objeto_plural }}
+                {% block titulo_lista %}
+                  Lista de {{ view.nombre_objeto_plural }}
+                {% endblock titulo_lista %}
               </h1>
 
               <hr
