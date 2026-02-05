@@ -1,30 +1,29 @@
 from django import forms
-from django.db.models import Exists, OuterRef
-
+from django.db.models import Exists
 from app.settings import MIGRANDO
-from estudios.modelos.gestion import (
+from estudios.forms import LapsoActualForm, obtener_matriculas_de_lapso
+from estudios.modelos.gestion.personas import (
     Estudiante,
     Matricula,
+    Profesor,
+    ProfesorMateria,
 )
 from estudios.modelos.parametros import (
     Lapso,
+    Materia,
     Seccion,
     obtener_lapso_actual,
 )
+from usuarios.models import GruposBase
 
 
-def obtener_matriculas_de_lapso(lapso: Lapso):
-    """filtra los estudiantes y devuelve aquellos matriculados en un lapso específico"""
-    return Matricula.objects.filter(estudiante=OuterRef("pk"), lapso=lapso)
-
-
-class FormMatricula(forms.ModelForm):
+class FormMatricula(LapsoActualForm, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.fields["seccion"].label_from_instance = lambda obj: obj.nombre  # type: ignore
 
-        lapso_actual = self.lapso_actual = obtener_lapso_actual()
+        lapso_actual = self.lapso_actual
 
         # cambiar las opciones del campo "estudiante" por los estudiantes NO matriculados en el lapso actual
         if lapso_actual is not None:
@@ -48,7 +47,12 @@ class FormMatricula(forms.ModelForm):
 
     class Meta:
         model = Matricula
-        fields = ("estudiante", "seccion", "estado", "lapso")
+        fields = (
+            Matricula.estudiante.field.name,
+            Matricula.seccion.field.name,
+            Matricula.estado.field.name,
+            Matricula.lapso.field.name,
+        )
 
     lapso_actual: "Lapso | None" = None
 
@@ -62,11 +66,6 @@ class FormMatricula(forms.ModelForm):
         queryset=Seccion.objects.all().order_by("año", "letra")
         if not MIGRANDO
         else None,
-    )
-
-    lapso = forms.ChoiceField(
-        label="Lapso",
-        required=False,
     )
 
     def clean_estudiante(self):
@@ -95,10 +94,58 @@ class FormMatricula(forms.ModelForm):
 
         return seccion
 
-    def clean_lapso(self):
-        lapso = self.lapso_actual
 
-        if lapso is None:
-            raise forms.ValidationError("No se encontró un lapso actual")
+class FormProfesor(forms.ModelForm):
+    class Meta:
+        model = Profesor
+        exclude = (Profesor.fecha_ingreso.field.name,)
 
-        return lapso
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields[Profesor.usuario.field.name].queryset = (  # type: ignore
+            self.fields[Profesor.usuario.field.name]
+            .queryset.filter(  # type: ignore
+                profesor__isnull=True,
+                is_superuser=False,
+            )
+            .exclude(grupos__name__iexact=GruposBase.ADMIN.value)
+        )
+
+
+class FormProfesorMateria(forms.ModelForm):
+    class Meta:
+        model = ProfesorMateria
+        # excluir el campo "materia", ya que este form permite añadir varias materias a la vez
+        exclude = (ProfesorMateria.materia.field.name,)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["profesor"].queryset.filter(  # type: ignore
+            usuario__is_active=True
+        ).order_by("apellidos", "nombres")
+
+        self.fields["secciones"].label_from_instance = lambda obj: obj.nombre  # type: ignore
+
+    secciones = forms.ModelMultipleChoiceField(
+        label="Secciones",
+        queryset=Seccion.objects.order_by("año", "letra") if not MIGRANDO else None,
+    )
+
+    def save(self, commit: bool = True):
+        secciones: "list[Seccion]" = self.cleaned_data.get("secciones", [])
+        materia: "Materia | None" = self.cleaned_data.get(
+            self.Meta.model.materia.field.name
+        )
+        profesor: "Profesor | None" = self.cleaned_data.get(
+            self.Meta.model.profesor.field.name
+        )
+
+        if secciones:
+            ProfesorMateria.objects.bulk_create(
+                tuple(
+                    ProfesorMateria(profesor=profesor, materia=materia, seccion=seccion)
+                    for seccion in secciones
+                )
+            )

@@ -5,7 +5,7 @@ from app.forms import (
 from app.settings import MIGRANDO
 from estudios.forms.parametros.busqueda import LapsoYSeccionFormMixin
 from estudios.modelos.parametros import Materia
-from estudios.modelos.gestion import (
+from estudios.modelos.gestion.personas import (
     Estudiante,
     Matricula,
     MatriculaEstados,

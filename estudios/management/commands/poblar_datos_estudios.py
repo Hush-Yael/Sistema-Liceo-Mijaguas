@@ -1,9 +1,8 @@
 from django.core.management.base import BaseCommand
 from usuarios.models import Grupo, Usuario
-from estudios.modelos.gestion import (
+from estudios.modelos.gestion.personas import (
     Bachiller,
     Matricula,
-    Nota,
     Seccion,
     Materia,
     Estudiante,
@@ -11,6 +10,7 @@ from estudios.modelos.gestion import (
     Lapso,
     ProfesorMateria,
 )
+from estudios.modelos.gestion.calificaciones import Nota
 from estudios.modelos.parametros import Año, AñoMateria
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
@@ -105,7 +105,7 @@ class Command(BaseCommand):
                         año=Año.objects.get(id=num),
                         materia=Materia.objects.get(nombre=materia),
                     )
-                except:
+                except:  # noqa: E722
                     continue
 
                 if asignada:

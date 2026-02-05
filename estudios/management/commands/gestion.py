@@ -1,51 +1,63 @@
-from typing import OrderedDict
+from typing import Any, OrderedDict
 import random
+from estudios.management.commands import BaseComandos
 from estudios.modelos.parametros import Lapso, Año, Materia, Seccion
 from usuarios.models import Grupo, Usuario
-from estudios.management.commands.poblar_datos_ejemplo import BaseComandos
-from estudios.modelos.gestion import (
+from estudios.modelos.gestion.personas import (
     Profesor,
     Estudiante,
     ProfesorMateria,
     Matricula,
     MatriculaEstados,
-    Nota,
 )
-from datetime import date
+from estudios.modelos.gestion.calificaciones import Nota
 
 
 class ArgumentosGestionMixin(BaseComandos):
     def add_arguments(self, parser):
         parser.add_argument(
-            "--año",
-            type=int,
-            help="Número del año objetivo, al cual asignar datos específicos",
-        )
-
-        parser.add_argument(
-            "--lapsos",
+            "--profesores",
             action="store_true",
-            help="Crear solo lapsos",
+            help="Crear solo profesores",
         )
 
         parser.add_argument(
-            "--lapsos-año",
-            type=int,
-            # año actual
-            default=date.today().year,
-            help="El año (fecha) para crear los lapsos",
+            "--estudiantes",
+            action="store_true",
+            help="Crear solo estudiantes",
         )
 
         parser.add_argument(
-            "--lapso",
-            type=int,
-            help="Indicar el id del lapso para las acciones que lo requieran",
+            "--matriculas",
+            action="store_true",
+            help="Crear solo matrículas",
         )
 
         parser.add_argument(
-            "--seccion",
+            "--notas",
+            action="store_true",
+            help="Crear solo notas",
+        )
+
+        parser.add_argument(
+            "--cantidad-notas",
             type=int,
-            help="Indicar el id de la sección para las acciones que lo requieran",
+            default=1,
+            help="Cantidad de notas a crear (por defecto: 1)",
+        )
+
+        parser.add_argument(
+            "--cantidad-estudiantes",
+            type=int,
+            default=20,
+            help="Cantidad de estudiantes a crear (por defecto: 20)",
+        )
+
+        parser.add_argument(
+            "--cantidad-profesores",
+            type=int,
+            default=8,
+            help="Cantidad de profesores a crear (por defecto: 8)",
         )
 
         parser.add_argument(
@@ -54,8 +66,7 @@ class ArgumentosGestionMixin(BaseComandos):
             help="Crear solo asignaciones de materias y profesores",
         )
 
-    def handle(self, *args, **options):
-        # Ejecutar acciones
+    def handle_parametros(self, options: "dict[str, Any]") -> None:
         if self.si_accion("profesores"):
             self.crear_profesores(options["cantidad_profesores"])
 

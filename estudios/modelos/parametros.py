@@ -57,13 +57,13 @@ class Seccion(models.Model):
     )
     nombre = models.CharField(max_length=100)
     capacidad = models.IntegerField(default=30)
-    """ vocero = models.ForeignKey(
+    vocero = models.ForeignKey(
         "estudios.Estudiante",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name="secciones_vocero",
-    ) """
+    )
     fecha_creacion = models.DateTimeField(
         default=timezone.now, verbose_name="fecha de creación"
     )

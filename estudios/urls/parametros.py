@@ -1,6 +1,11 @@
 from app.vistas import crear_crud_urls
 import estudios.vistas.parametros as vistas
-
+from estudios.modelos.parametros import (
+    Materia,
+    Año,
+    Lapso,
+    Seccion,
+)
 
 urlpatterns = (
     *crear_crud_urls(

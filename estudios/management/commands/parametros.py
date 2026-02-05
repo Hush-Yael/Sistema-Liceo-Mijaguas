@@ -1,4 +1,5 @@
-from estudios.management.commands.poblar_datos_ejemplo import BaseComandos
+from typing import Any
+from estudios.management.commands import BaseComandos
 from estudios.modelos.parametros import Lapso
 from datetime import date
 
@@ -6,48 +7,29 @@ from datetime import date
 class ArgumentosParametrosMixin(BaseComandos):
     def add_arguments(self, parser):
         parser.add_argument(
-            "--profesores",
-            action="store_true",
-            help="Crear solo profesores",
-        )
-
-        parser.add_argument(
-            "--estudiantes",
-            action="store_true",
-            help="Crear solo estudiantes",
-        )
-
-        parser.add_argument(
-            "--matriculas",
-            action="store_true",
-            help="Crear solo matrículas",
-        )
-
-        parser.add_argument(
-            "--notas",
-            action="store_true",
-            help="Crear solo notas",
-        )
-
-        parser.add_argument(
-            "--cantidad-notas",
+            "--año",
             type=int,
-            default=1,
-            help="Cantidad de notas a crear (por defecto: 1)",
+            help="Número del año objetivo, al cual asignar datos específicos",
         )
 
         parser.add_argument(
-            "--cantidad-estudiantes",
-            type=int,
-            default=20,
-            help="Cantidad de estudiantes a crear (por defecto: 20)",
+            "--lapsos",
+            action="store_true",
+            help="Crear solo lapsos",
         )
 
         parser.add_argument(
-            "--cantidad-profesores",
+            "--lapsos-año",
             type=int,
-            default=8,
-            help="Cantidad de profesores a crear (por defecto: 8)",
+            # año actual
+            default=date.today().year,
+            help="El año (fecha) para crear los lapsos",
+        )
+
+        parser.add_argument(
+            "--lapso",
+            type=int,
+            help="Indicar el id del lapso para las acciones que lo requieran",
         )
 
     def crear_lapsos(self, año):
@@ -83,6 +65,6 @@ class ArgumentosParametrosMixin(BaseComandos):
 
         self.stdout.write(f"✓ Total lapsos creados: {lapsos_creados}")
 
-    def handle(self, *args, **options):
+    def handle_gestion(self, options: "dict[str, Any]"):
         if self.si_accion("lapsos"):
             self.crear_lapsos(options["lapsos_año"])

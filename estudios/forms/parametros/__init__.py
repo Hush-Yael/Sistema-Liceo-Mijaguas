@@ -1,8 +1,8 @@
 from django import forms
 from django.db.models import Exists
 
-from estudios.forms.gestion import obtener_matriculas_de_lapso
-from estudios.modelos.gestion import Estudiante, Matricula, MatriculaEstados
+from estudios.forms import obtener_matriculas_de_lapso
+from estudios.modelos.gestion.personas import Estudiante, Matricula, MatriculaEstados
 from estudios.modelos.parametros import (
     Materia,
     Lapso,
@@ -177,7 +177,13 @@ class FormSeccion(forms.ModelForm):
 
     class Meta:
         model = Seccion
-        fields = ("año", "nombre", "letra", "capacidad", "vocero")
+        fields = (
+            Seccion.año.field.name,
+            Seccion.nombre.field.name,
+            Seccion.letra.field.name,  # type: ignore
+            Seccion.capacidad.field.name,
+            Seccion.vocero.field.name,
+        )
 
     vocero = forms.ModelChoiceField(
         queryset=Estudiante.objects.none() if not MIGRANDO else None,

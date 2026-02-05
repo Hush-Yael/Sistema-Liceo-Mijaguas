@@ -1,45 +1,18 @@
-from typing import TypedDict
-from django.core.management.base import BaseCommand
+from estudios.management.commands import BaseComandos
 from estudios.management.commands.gestion import ArgumentosGestionMixin
 from estudios.management.commands.parametros import ArgumentosParametrosMixin
-from estudios.modelos.gestion import (
+from estudios.modelos.gestion.personas import (
     Bachiller,
     Profesor,
     Estudiante,
     ProfesorMateria,
     Matricula,
-    Nota,
 )
+from estudios.modelos.gestion.calificaciones import Nota
 from estudios.modelos.parametros import (
     Lapso,
 )
-from faker import Faker
 from django.db import connection
-
-
-class Acciones(TypedDict):
-    profesores: bool
-    estudiantes: bool
-    lapsos: bool
-    asignar_materias: bool
-    matriculas: bool
-    notas: bool
-
-
-class BaseComandos(BaseCommand):
-    limpiar_todo: bool
-    limpiar_modelo: str
-    hacer_todo: bool
-    año_id: int
-    acciones: Acciones
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.faker = Faker("es_ES")  # Español de España
-        self.faker.seed_instance(1234)  # Para resultados consistentes
-
-    def si_accion(self, accion: str) -> bool:
-        return self.hacer_todo or self.acciones[accion]
 
 
 class Command(ArgumentosParametrosMixin, ArgumentosGestionMixin, BaseComandos):
@@ -67,10 +40,10 @@ class Command(ArgumentosParametrosMixin, ArgumentosGestionMixin, BaseComandos):
         )
 
     def handle(self, *args, **options):
-        self.año_id = options["año"]
-        self.limpiar_todo = options["limpiar_todo"]
-        self.limpiar_modelo = options["limpiar"]
-        self.hacer_todo = options["todo"]
+        self.año_id = options.get("año", False)
+        self.limpiar_todo = options.get("limpiar_todo", False)
+        self.limpiar_modelo = options.get("limpiar", False)
+        self.hacer_todo = options.get("todo", False)
 
         if self.limpiar_todo:
             self.limpiar_datos()
@@ -79,12 +52,12 @@ class Command(ArgumentosParametrosMixin, ArgumentosGestionMixin, BaseComandos):
 
         # Determinar qué acciones ejecutar
         self.acciones = {
-            "profesores": options["profesores"],
-            "estudiantes": options["estudiantes"],
-            "lapsos": options["lapsos"],
-            "asignar_materias": options["asignar_materias"],
-            "matriculas": options["matriculas"],
-            "notas": options["notas"],
+            "profesores": options.get("profesores", False),
+            "estudiantes": options.get("estudiantes", False),
+            "lapsos": options.get("lapsos", False),
+            "asignar_materias": options.get("asignar_materias", False),
+            "matriculas": options.get("matriculas", False),
+            "notas": options.get("notas", False),
         }
 
         # no se indicaron acciones
@@ -98,7 +71,8 @@ class Command(ArgumentosParametrosMixin, ArgumentosGestionMixin, BaseComandos):
                 self.style.ERROR("No se especificaron acciones a ejecutar.")
             )
 
-        super().handle(*args, **options)
+        self.handle_parametros(options)
+        self.handle_gestion(options)
 
     def limpiar_datos(self):
         self.stdout.write("Eliminando todos los datos dinámicos existentes...")
