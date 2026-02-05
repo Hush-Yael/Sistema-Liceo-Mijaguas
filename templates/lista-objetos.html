@@ -106,14 +106,14 @@
                 {% endblock titulo_lista %}
               </h1>
 
-              <hr
-                class="max-[600px]:hidden h-6 w-1px border-0 bg-[--transparente-2]"
-              />
+              {% if permisos.crear and view.url_crear %}
+                <hr
+                  class="max-[600px]:hidden h-6 w-1px border-0 bg-[--transparente-2]"
+                />
 
-              {% if permisos.crear and nombre_url_crear %}
                 <a
                   class="ui-btn ui-btn/primario rounded-full p-1.25 size-7 text-sm"
-                  href="{% url nombre_url_crear %}"
+                  href="{% url view.url_crear %}"
                   aria-label="Añadir {{ view.nombre_objeto }}"
                 >
                   {% include "componentes/iconos/edicion.html#suma" with class="" %}
