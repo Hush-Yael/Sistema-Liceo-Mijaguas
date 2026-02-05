@@ -39,7 +39,7 @@
       }
     }
   </style>
-  <script src="{% static 'js/componentes/lista-opciones.js' %}"></script>
+  <script src="{% static 'js/componentes/lista-dual.js' %}"></script>
 {% endaddtoblock %}
 
 <div
@@ -69,9 +69,9 @@
     {# Instrucciones accesibles #}
     aria-roledescription="Este es un selector de opciones bidireccional. Usa las teclas Ctrl o Shift para seleccionar múltiples opciones. Los botones con flechas te permiten mover las opciones seleccionadas entre las listas."
   >
-    {% include "componentes/lista-opciones/lista.html" with cual_lista="disponibles" cuales_opciones="opcionesDisponibles" cuales_selecciones_visuales="seleccionesVisualesEnIzquierda" %}
-    {% include "componentes/lista-opciones/botones.html" %}
-    {% include "componentes/lista-opciones/lista.html" with cual_lista="seleccionadas" cuales_opciones="opcionesSeleccionadas" cuales_selecciones_visuales="seleccionesVisualesEnDerecha" %}
+    {% include "componentes/lista-dual/lista.html" with cual_lista="disponibles" cuales_opciones="opcionesDisponibles" cuales_selecciones_visuales="seleccionesVisualesEnIzquierda" %}
+    {% include "componentes/lista-dual/botones.html" %}
+    {% include "componentes/lista-dual/lista.html" with cual_lista="seleccionadas" cuales_opciones="opcionesSeleccionadas" cuales_selecciones_visuales="seleccionesVisualesEnDerecha" %}
   </div>
 
   {# contiene el valor enviado #}

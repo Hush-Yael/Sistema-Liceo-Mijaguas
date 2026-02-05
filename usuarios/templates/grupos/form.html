@@ -29,7 +29,7 @@
       {% include "componentes/campo.html" with campo=form.name input_class="deshabilitar-al-subir ui-elevado-2" %}
       {% include "componentes/campo.html" with campo=form.descripcion input_class="deshabilitar-al-subir ui-elevado-2 min-h-20" %}
       {%
-        include "componentes/lista-opciones/index.html" with
+        include "componentes/lista-dual/index.html" with
         campo=form.permissions
         opciones_por_script="opcionesPermisos"
         seleccionadas=form.permissions|obtener_ids_seleccionadas|json|safe
