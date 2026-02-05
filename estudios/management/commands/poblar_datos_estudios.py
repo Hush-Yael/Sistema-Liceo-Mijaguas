@@ -139,7 +139,7 @@ class Command(BaseCommand):
         )
 
         grupo_admin, creado = ModelosUsuarios.Grupo.objects.get_or_create(
-            name="Profesor",
+            name=ModelosUsuarios.GruposBase.ADMIN.value,
             descripcion="Provee todos los permisos de administración del sistema",
         )
 
@@ -157,7 +157,7 @@ class Command(BaseCommand):
             self.stdout.write(f"✓ Grupo creado: {grupo_admin.name}")
 
         grupo_profesor, created = ModelosUsuarios.Grupo.objects.get_or_create(
-            name=GruposBase.PROFESOR.value,
+            name=ModelosUsuarios.GruposBase.PROFESOR.value,
             descripcion="Provee todos los permisos relacionados a la carga de notas de acuerdo a los estudiantes asignados al usuario. También permite ver otros aspectos del sistema, pero no modificarlos",
         )
 

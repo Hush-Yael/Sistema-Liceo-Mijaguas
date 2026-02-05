@@ -1,3 +1,4 @@
+from enum import Enum
 from django.contrib.auth.models import AbstractUser
 from PIL import Image
 from io import BytesIO
@@ -15,6 +16,11 @@ class Grupo(AbstractGroup):
     descripcion = models.CharField(
         max_length=255, null=True, blank=True, verbose_name="descripción"
     )
+
+
+class GruposBase(Enum):
+    ADMIN = "Admin"
+    PROFESOR = "Profesor"
 
 
 class Usuario(AbstractUser):
