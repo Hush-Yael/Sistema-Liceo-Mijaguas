@@ -15,7 +15,7 @@
     rel="stylesheet"
     href="{% static 'css/componentes/htmx-indicator.css' %}"
   />
-  {% if permisos.eliminar or permisos.editar %}
+  {% if not no_hay_objetos %}
     <link rel="stylesheet" href="{% static 'css/componentes/dialog.css' %}" />
     <style>
       @keyframes moverIzquierdaDerecha {
@@ -41,16 +41,15 @@
 {% block contenido %}
   <main
     class="{{ main_class }}"
-    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-    hx-target="#{{ view.id_lista_objetos }}"
-    hx-swap="outerHTML"
-    {% if form_filtros %}
-      hx-indicator="#indicador-busqueda"
+    {% if not no_hay_objetos %}
+      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+      hx-target="#{{ view.id_lista_objetos }}" hx-swap="outerHTML"
+      {% if form_filtros %}
+        hx-indicator="#indicador-busqueda"
+      {% endif %}
+      x-data="listaObjetos({ contenedorManejoTeclas: $el.$('[data-lista]'),
+      {% block x_data %}{% endblock x_data %} })"
     {% endif %}
-    x-data="listaObjetos({ 
-      contenedorManejoTeclas: $el.$('[data-lista]'),
-      {% block x_data %}{% endblock x_data %}
-    })"
   >
     {% if no_hay_objetos %}
       <div
@@ -244,101 +243,103 @@
         {% include view.plantilla_lista %}
       </div>
 
-      {%
-        with
-        dialog_class="ui-caja max-w-400px"
-        div_class="col gap-y-6 p-4 px-5"
-        btns_class="flex gap-x-2 *:flex-1"
-        cancelar_class="deshabilitar-al-subir ui-btn ui-btn/borde ui-btn/md"
-        subir_class="deshabilitar-al-subir ui-btn ui-btn/md peer-[:not(.htmx-request)]:[&>.ui-loader]:hidden"
-      %}
-        {% block modales %}
-          {% if permisos.eliminar %}
-            <dialog
-              class="{{ dialog_class }}"
-              x-show="modalAbierto === 'eliminar'"
-              x-htmldialog="modalAbierto = null"
-              @click="$event.target === $event.currentTarget && (modalAbierto = null)"
-            >
-              <div class="{{ div_class }}">
-                <hgroup class="col gap-y-3">
-                  <h1 class="text-lg font-bold tac">Confirmar eliminación</h1>
-                  <p class="text-texto-semi-sutil">
-                    ¿Realmente deseas eliminar
-                    {{ view.articulo_sustantivo_plural }}
-                    <span x-text="`(${filasSeleccionadas.size})`"></span>
-                    {{ view.nombre_objeto_plural }}
-                    seleccionad{{ view.vocal_del_genero }}s?
-                  </p>
-                </hgroup>
+      {% if not no_hay_objetos %}
+        {%
+          with
+          dialog_class="ui-caja max-w-400px"
+          div_class="col gap-y-6 p-4 px-5"
+          btns_class="flex gap-x-2 *:flex-1"
+          cancelar_class="deshabilitar-al-subir ui-btn ui-btn/borde ui-btn/md"
+          subir_class="deshabilitar-al-subir ui-btn ui-btn/md peer-[:not(.htmx-request)]:[&>.ui-loader]:hidden"
+        %}
+          {% block modales %}
+            {% if permisos.eliminar %}
+              <dialog
+                class="{{ dialog_class }}"
+                x-show="modalAbierto === 'eliminar'"
+                x-htmldialog="modalAbierto = null"
+                @click="$event.target === $event.currentTarget && (modalAbierto = null)"
+              >
+                <div class="{{ div_class }}">
+                  <hgroup class="col gap-y-3">
+                    <h1 class="text-lg font-bold tac">Confirmar eliminación</h1>
+                    <p class="text-texto-semi-sutil">
+                      ¿Realmente deseas eliminar
+                      {{ view.articulo_sustantivo_plural }}
+                      <span x-text="`(${filasSeleccionadas.size})`"></span>
+                      {{ view.nombre_objeto_plural }}
+                      seleccionad{{ view.vocal_del_genero }}s?
+                    </p>
+                  </hgroup>
 
-                {% if modelos_relacionados|length > 0 %}
-                  <div class="col gap-y-2">
-                    {% with texto="También se verán afectados los modelos:" %}
-                      {% partialdef consecuencia_p inline %}
-                        <p
-                          class="flex gap-2 text-advertencia-600 dark:text-advertencia-400"
-                        >
-                          <span
-                            class="fc rounded-full p-1.25 aspect-square text-advertencia bg-advertencia-200 dark:bg-advertencia-900 size-7"
+                  {% if modelos_relacionados|length > 0 %}
+                    <div class="col gap-y-2">
+                      {% with texto="También se verán afectados los modelos:" %}
+                        {% partialdef consecuencia_p inline %}
+                          <p
+                            class="flex gap-2 text-advertencia-600 dark:text-advertencia-400"
                           >
-                            {% include "componentes/iconos/mensajes.html#alerta" with class="" %}
-                          </span>
-                          {{ texto }}
-                        </p>
-                      {% endpartialdef consecuencia_p %}
+                            <span
+                              class="fc rounded-full p-1.25 aspect-square text-advertencia bg-advertencia-200 dark:bg-advertencia-900 size-7"
+                            >
+                              {% include "componentes/iconos/mensajes.html#alerta" with class="" %}
+                            </span>
+                            {{ texto }}
+                          </p>
+                        {% endpartialdef consecuencia_p %}
+                      {% endwith %}
+                      <ul class="list-disc list-inside">
+                        {% for m in modelos_relacionados %}
+                          <li class="font-500 pl-3 first-letter:capitalize">
+                            {{ m }}{% if not forloop.last %},{% endif %}
+                          </li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+                  {% else %}
+                    {% with texto="Todos sus elementos relacionados también serán eliminados" %}
+                      {% partial consecuencia_p %}
                     {% endwith %}
-                    <ul class="list-disc list-inside">
-                      {% for m in modelos_relacionados %}
-                        <li class="font-500 pl-3 first-letter:capitalize">
-                          {{ m }}{% if not forloop.last %},{% endif %}
-                        </li>
-                      {% endfor %}
-                    </ul>
-                  </div>
-                {% else %}
-                  {% with texto="Todos sus elementos relacionados también serán eliminados" %}
-                    {% partial consecuencia_p %}
-                  {% endwith %}
-                {% endif %}
+                  {% endif %}
 
-                <div class="{{ btns_class }}" role="group">
-                  <button
-                    class="{{ cancelar_class }}"
-                    @click="modalAbierto = null"
-                  >
-                    No eliminar
-                  </button>
+                  <div class="{{ btns_class }}" role="group">
+                    <button
+                      class="{{ cancelar_class }}"
+                      @click="modalAbierto = null"
+                    >
+                      No eliminar
+                    </button>
 
-                  <div
-                    role="alert"
-                    id="indicador-eliminar"
-                    class="htmx-indicator peer sr-only"
-                  >
-                    Eliminando...
-                  </div>
+                    <div
+                      role="alert"
+                      id="indicador-eliminar"
+                      class="htmx-indicator peer sr-only"
+                    >
+                      Eliminando...
+                    </div>
 
-                  <button
-                    class="{{ subir_class|add:' ui-btn/peligro' }}"
-                    hx-delete
-                    hx-indicator="#indicador-eliminar"
-                    hx-disabled-elt=".deshabilitar-al-subir"
-                    {# obtener los ids de las filas seleccionadas desde el componente de la lista #}
-                    hx-vals="js:{ ids: Array.from(Alpine.$data($id('{{ view.id_lista_objetos }}')).filasSeleccionadas) }"
-                    @htmx:after-request.window="if ($event.target === $el) {
+                    <button
+                      class="{{ subir_class|add:' ui-btn/peligro' }}"
+                      hx-delete
+                      hx-indicator="#indicador-eliminar"
+                      hx-disabled-elt=".deshabilitar-al-subir"
+                      {# obtener los ids de las filas seleccionadas desde el componente de la lista #}
+                      hx-vals="js:{ ids: Array.from(Alpine.$data($id('{{ view.id_lista_objetos }}')).filasSeleccionadas) }"
+                      @htmx:after-request.window="if ($event.target === $el) {
                       modalAbierto = null;
                       limpiarSeleccion();
                     }"
-                  >
-                    <div class="ui-loader ui-loader/blanco"></div>
-                    Sí, eliminar
-                  </button>
+                    >
+                      <div class="ui-loader ui-loader/blanco"></div>
+                      Sí, eliminar
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </dialog>
-          {% endif %}
-        {% endblock modales %}
-      {% endwith %}
+              </dialog>
+            {% endif %}
+          {% endblock modales %}
+        {% endwith %}
+      {% endif %}
     {% endif %}
   </main>
 {% endblock contenido %}

@@ -19,8 +19,10 @@
   src="{% static 'js/componentes/tabla-con-fila-sticky.js' %}"
 ></script>
 
-<script>
-  document.addEventListener("alpine:initialized", () => {
-    new TablaConFilaSticky("{{ view.id_lista_objetos }}");
-  });
-</script>
+{% if not no_hay_objetos %}
+  <script>
+    document.addEventListener("alpine:initialized", () => {
+      new TablaConFilaSticky("{{ view.id_lista_objetos }}");
+    });
+  </script>
+{% endif %}
