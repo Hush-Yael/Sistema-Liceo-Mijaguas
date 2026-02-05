@@ -108,7 +108,7 @@ class ArgumentosGestionMixin(BaseComandos):
         estudiantes_creados = 0
         for i in range(cantidad):
             # Verificar si ya existe
-            if Estudiante.objects.filter(cedula=i).exists():
+            if Estudiante.objects.filter(cedula=i + 1).exists():
                 continue
 
             # Generar datos con Faker (edades entre 13-18 años para secundaria)
@@ -119,7 +119,7 @@ class ArgumentosGestionMixin(BaseComandos):
             fecha_nacimiento = self.faker.date_of_birth(minimum_age=13, maximum_age=18)
 
             Estudiante.objects.create(
-                cedula=i,
+                cedula=i + 1,
                 nombres=nombre,
                 apellidos=apellido,
                 fecha_nacimiento=fecha_nacimiento,
@@ -158,7 +158,7 @@ class ArgumentosGestionMixin(BaseComandos):
         profesores_creados = 0
         for i in range(cantidad):
             # Verificar si ya existe
-            if Profesor.objects.filter(cedula=i).exists():
+            if Profesor.objects.filter(cedula=i + 1).exists():
                 continue
 
             # Generar datos con Faker
@@ -186,7 +186,7 @@ class ArgumentosGestionMixin(BaseComandos):
             prof_usuario.save()
 
             Profesor.objects.create(
-                cedula=i,
+                cedula=i + 1,
                 nombres=nombre,
                 apellidos=apellido,
                 telefono=self.faker.random_element(
