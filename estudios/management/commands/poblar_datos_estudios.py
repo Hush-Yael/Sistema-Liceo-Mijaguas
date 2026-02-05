@@ -44,13 +44,6 @@ def obtener_modelos_modulo(modulo: ModuleType) -> "tuple[models.Model, ...]":
     )
 
 
-modulos_modelos = (
-    ModelosParametros,
-    ModelosCalificaciones,
-    ModelosPersonas,
-)
-
-
 class Command(BaseCommand):
     help = "Llena la base de datos con datos estáticos (Años, materias, grupos, y un usuario admin)"
 
@@ -126,13 +119,24 @@ class Command(BaseCommand):
         self.stdout.write("Creando grupos...")
 
         grupos_creados = 0
+
+        modelos_calificaciones = obtener_modelos_modulo(ModelosCalificaciones)
+        lista_modelos = tuple(
+            obtener_modelos_modulo(modulo)
+            for modulo in (
+                ModelosParametros,
+                ModelosPersonas,
+            )
+        )
+
         modelos = tuple(
             itertools.chain.from_iterable(
                 modelo
                 for modelo in (
                     modelos
                     for modelos in (
-                        obtener_modelos_modulo(modulo) for modulo in modulos_modelos
+                        *lista_modelos,
+                        modelos_calificaciones,
                     )
                 )
             )
@@ -150,6 +154,13 @@ class Command(BaseCommand):
                 permisos = Permission.objects.filter(content_type=content_type)
 
                 for permiso in permisos:
+                    # evitar asignar permisos que no sean de lectura para los modelos de calificaciones
+                    if (
+                        modelo in modelos_calificaciones
+                        and not permiso.codename.startswith("view_")
+                    ):
+                        continue
+
                     grupo_admin.permissions.add(permiso)
 
             grupos_creados += 1
@@ -162,25 +173,20 @@ class Command(BaseCommand):
         )
 
         if created or grupo_profesor.permissions.count() == 0:
-            nota_content_type = ContentType.objects.get_for_model(
-                ModelosCalificaciones.Nota
-            )
-
-            permisos_notas = Permission.objects.filter(
-                content_type=nota_content_type,
-            ).all()
-
-            # todos los permisos de notas
-            for permiso in permisos_notas:
-                grupo_profesor.permissions.add(permiso)
-
-            # solo lectura para todas las demás tablas
             for modelo in modelos:
-                # no pueden ver usuarios y se añadieron todos los permisos de notas manualmente arriba
-                if (
-                    modelo != ModelosUsuarios.Usuario
-                    and modelo != ModelosCalificaciones.Nota
-                ):
+                # se asignan todos los permisos de calificaciones
+                if modelo in modelos_calificaciones:
+                    content_type = ContentType.objects.get_for_model(modelo)
+
+                    permisos = Permission.objects.filter(
+                        content_type=content_type,
+                    ).all()
+
+                    for permiso in permisos:
+                        grupo_profesor.permissions.add(permiso)
+
+                # Solo permisos de lectura para todos los demás modelos
+                else:
                     content_type = ContentType.objects.get_for_model(modelo)
 
                     permiso = Permission.objects.filter(
