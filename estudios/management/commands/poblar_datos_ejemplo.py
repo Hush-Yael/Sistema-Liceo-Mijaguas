@@ -142,8 +142,13 @@ class Command(ArgumentosParametrosMixin, ArgumentosGestionMixin, BaseComandos):
             else:
                 modelo = modelos[n_modelo]
         else:
+            nombre_modelo = nombre_modelo.lower()
             modelo = next(
-                (modelo for modelo in modelos if modelo.__name__ == nombre_modelo),
+                (
+                    modelo
+                    for modelo in modelos
+                    if modelo.__name__.lower() == nombre_modelo
+                ),
                 None,
             )
 
