@@ -17,13 +17,13 @@ class ArgumentosGestionMixin(BaseComandos):
     def añadir_argumentos_gestion(self, parser):
         parser.add_argument(
             "--profesores",
-            action="store_true",
+            type=int,
             help="Crear solo profesores",
         )
 
         parser.add_argument(
             "--estudiantes",
-            action="store_true",
+            type=int,
             help="Crear solo estudiantes",
         )
 
@@ -35,29 +35,8 @@ class ArgumentosGestionMixin(BaseComandos):
 
         parser.add_argument(
             "--notas",
-            action="store_true",
+            type=int,
             help="Crear solo notas",
-        )
-
-        parser.add_argument(
-            "--cantidad-notas",
-            type=int,
-            default=1,
-            help="Cantidad de notas a crear (por defecto: 1)",
-        )
-
-        parser.add_argument(
-            "--cantidad-estudiantes",
-            type=int,
-            default=20,
-            help="Cantidad de estudiantes a crear (por defecto: 20)",
-        )
-
-        parser.add_argument(
-            "--cantidad-profesores",
-            type=int,
-            default=8,
-            help="Cantidad de profesores a crear (por defecto: 8)",
         )
 
         parser.add_argument(
@@ -68,10 +47,10 @@ class ArgumentosGestionMixin(BaseComandos):
 
     def handle_parametros(self, options: "dict[str, Any]") -> None:
         if self.si_accion("profesores"):
-            self.crear_profesores(options["cantidad_profesores"])
+            self.crear_profesores(options["profesores"])
 
         if self.si_accion("estudiantes"):
-            self.crear_estudiantes(options["cantidad_estudiantes"])
+            self.crear_estudiantes(options["estudiantes"])
 
         if self.si_accion("asignar_materias"):
             profesores = Profesor.objects.all()
@@ -99,7 +78,7 @@ class ArgumentosGestionMixin(BaseComandos):
                     self.style.ERROR("No se han añadido estudiantes")
                 )
 
-            cantidad = options["cantidad_notas"]
+            cantidad = options["notas"]
             self.crear_notas(estudiantes, cantidad, options["lapso"])
 
     def crear_estudiantes(self, cantidad):
