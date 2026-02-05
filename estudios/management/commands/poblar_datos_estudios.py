@@ -1,15 +1,14 @@
-from types import ModuleType
 from django.core.management.base import BaseCommand
-from django.db import models
-import usuarios.models as ModelosUsuarios
-import estudios.modelos.gestion.personas as ModelosPersonas
-import estudios.modelos.gestion.calificaciones as ModelosCalificaciones
-import estudios.modelos.parametros as ModelosParametros
+from estudios.management.commands import (
+    obtener_modelos_modulo,
+    obtener_todos_los_modelos,
+    ModelosParametros,
+    ModelosCalificaciones,
+    ModelosUsuarios,
+)
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.db.utils import IntegrityError
-import inspect
-import itertools
 
 AÑOS = [
     ("Primer Año", "1ero"),
@@ -141,27 +140,8 @@ class Command(BaseCommand):
         grupos_creados = 0
 
         modelos_calificaciones = obtener_modelos_modulo(ModelosCalificaciones)
-        lista_modelos = tuple(
-            obtener_modelos_modulo(modulo)
-            for modulo in (
-                ModelosUsuarios,
-                ModelosParametros,
-                ModelosPersonas,
-            )
-        )
 
-        modelos = tuple(
-            itertools.chain.from_iterable(
-                modelo
-                for modelo in (
-                    modelos
-                    for modelos in (
-                        *lista_modelos,
-                        modelos_calificaciones,
-                    )
-                )
-            )
-        )
+        modelos = obtener_todos_los_modelos()
 
         grupo_admin, creado = ModelosUsuarios.Grupo.objects.get_or_create(
             name=ModelosUsuarios.GruposBase.ADMIN.value,

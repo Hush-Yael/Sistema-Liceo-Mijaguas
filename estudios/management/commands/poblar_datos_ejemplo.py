@@ -1,4 +1,6 @@
-from estudios.management.commands import BaseComandos
+import argparse
+from app import settings
+from estudios.management.commands import BaseComandos, obtener_todos_los_modelos
 from estudios.management.commands.gestion import ArgumentosGestionMixin
 from estudios.management.commands.parametros import ArgumentosParametrosMixin
 from estudios.modelos.gestion.personas import (
@@ -15,11 +17,16 @@ from estudios.modelos.parametros import (
 from django.db import connection
 
 
+class GuardarPresencia(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        setattr(namespace, self.dest, values)
+        setattr(namespace, self.dest + "_presente", True)
+
+
 class Command(ArgumentosParametrosMixin, ArgumentosGestionMixin, BaseComandos):
     help = "LLena la base de datos con datos de ejemplo usando Faker"
 
     def add_arguments(self, parser):
-        super().add_arguments(parser)
         super().añadir_argumentos_parametros(parser)
         super().añadir_argumentos_gestion(parser)
 
@@ -32,6 +39,8 @@ class Command(ArgumentosParametrosMixin, ArgumentosGestionMixin, BaseComandos):
         parser.add_argument(
             "--limpiar",
             type=str,
+            nargs="?",
+            action=GuardarPresencia,
             help="Eliminar todos los datos del modelo indicado",
         )
 
@@ -42,31 +51,34 @@ class Command(ArgumentosParametrosMixin, ArgumentosGestionMixin, BaseComandos):
         )
 
     def handle(self, *args, **options):
-        self.año_id = options.get("año", False)
-        self.limpiar_todo = options.get("limpiar_todo", False)
-        self.limpiar_modelo = options.get("limpiar", "")
-        self.hacer_todo = options.get("todo", False)
+        self.año_id = options["año"]
+        self.limpiar_todo = options["limpiar_todo"]
+        self.modelo_a_limpiar = options["limpiar"]
+        hay_modelo_a_limpiar = options.get("limpiar_presente", False)
+        self.hacer_todo = options["todo"]
 
         if self.limpiar_todo:
             self.limpiar_datos()
-        elif self.limpiar_modelo is not None:
-            self.limpiar_por_tipo(self.limpiar_modelo)
+        elif hay_modelo_a_limpiar:
+            self.limpiar_por_tipo(
+                self.modelo_a_limpiar if self.modelo_a_limpiar != "-" else ""
+            )
 
         # Determinar qué acciones ejecutar
         self.acciones = {
-            "profesores": options.get("profesores", False),
-            "estudiantes": options.get("estudiantes", False),
-            "lapsos": options.get("lapsos", False),
-            "asignar_materias": options.get("asignar_materias", False),
-            "matriculas": options.get("matriculas", False),
-            "notas": options.get("notas", False),
+            "profesores": options["profesores"],
+            "estudiantes": options["estudiantes"],
+            "lapsos": options["lapsos"],
+            "asignar_materias": options["asignar_materias"],
+            "matriculas": options["matriculas"],
+            "notas": options["notas"],
         }
 
         # no se indicaron acciones
         if (
             not self.limpiar_todo
-            and self.limpiar_modelo is None
-            and self.hacer_todo is None
+            and not hay_modelo_a_limpiar
+            and not self.hacer_todo
             and not any(self.acciones.values())
         ):
             return self.stdout.write(
@@ -103,33 +115,52 @@ class Command(ArgumentosParametrosMixin, ArgumentosGestionMixin, BaseComandos):
             )
 
     def limpiar_por_tipo(self, nombre_modelo: str):
-        modelos = {
-            "profesores": Profesor,
-            "estudiantes": Estudiante,
-            "lapsos": Lapso,
-            "profesores-materias": ProfesorMateria,
-            "matriculas": Matricula,
-            "notas": Nota,
-            "bachilleres": Bachiller,
-        }
+        modelos = obtener_todos_los_modelos()
 
-        if nombre_modelo in modelos:
-            modelo = modelos[nombre_modelo]
+        # Mostrar los nombres de los modelos en consola para escoger
+        if not nombre_modelo:
+            self.stdout.write(
+                "No se proporcionó el nombre específico de un modelo. Escoge uno:"
+            )
 
-            if nombre_modelo == "profesores":
-                self.eliminar_usuarios_profesores()
+            for i in range(len(modelos)):
+                self.stdout.write(f"{i}: {modelos[i].__name__}")
 
-            cantidad, _ = modelo.objects.all().delete()
+            n_modelo = input("Presiona ENTER para cancelar:")
 
-            if cantidad > 0:
-                self.stdout.write(
-                    f"✓ Eliminados {cantidad} registros de {modelo.__name__}"
+            if not n_modelo.isdigit():
+                return self.stdout.write(
+                    self.style.ERROR("No se escogió una opción válida.")
                 )
 
+            n_modelo = int(n_modelo)
+
+            if n_modelo < 0 or n_modelo >= len(modelos):
+                return self.stdout.write(
+                    self.style.ERROR("No se escogió una opcion valida.")
+                )
+            else:
+                modelo = modelos[n_modelo]
+        else:
+            modelo = next(
+                (modelo for modelo in modelos if modelo.__name__ == nombre_modelo),
+                None,
+            )
+
+            if modelo is None:
+                return self.stdout.write(
+                    self.style.ERROR("No se encontró un modelo con el nombre indicado.")
+                )
+
+        if modelo.__name__ == Profesor.__name__:
+            self.eliminar_usuarios_profesores()
+
+        cantidad, _ = modelo.objects.all().delete()
+
+        if cantidad > 0:
+            self.stdout.write(f"✓ Eliminados {cantidad} registros de {modelo.__name__}")
+
+        if settings.DEBUG:
             connection.cursor().execute(
                 f"UPDATE SQLITE_SEQUENCE SET seq=0 WHERE name='{modelo._meta.db_table}';",
-            )
-        else:
-            self.stdout.write(
-                self.style.ERROR("No se encontró un modelo para el tipo indicado.")
             )
