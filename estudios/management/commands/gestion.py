@@ -14,7 +14,7 @@ from estudios.modelos.gestion.calificaciones import Nota
 
 
 class ArgumentosGestionMixin(BaseComandos):
-    def add_arguments(self, parser):
+    def añadir_argumentos_gestion(self, parser):
         parser.add_argument(
             "--profesores",
             action="store_true",

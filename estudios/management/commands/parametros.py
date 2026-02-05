@@ -5,7 +5,7 @@ from datetime import date
 
 
 class ArgumentosParametrosMixin(BaseComandos):
-    def add_arguments(self, parser):
+    def añadir_argumentos_parametros(self, parser):
         parser.add_argument(
             "--año",
             type=int,

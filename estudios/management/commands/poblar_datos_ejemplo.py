@@ -20,6 +20,8 @@ class Command(ArgumentosParametrosMixin, ArgumentosGestionMixin, BaseComandos):
 
     def add_arguments(self, parser):
         super().add_arguments(parser)
+        super().añadir_argumentos_parametros(parser)
+        super().añadir_argumentos_gestion(parser)
 
         parser.add_argument(
             "--limpiar-todo",
@@ -42,7 +44,7 @@ class Command(ArgumentosParametrosMixin, ArgumentosGestionMixin, BaseComandos):
     def handle(self, *args, **options):
         self.año_id = options.get("año", False)
         self.limpiar_todo = options.get("limpiar_todo", False)
-        self.limpiar_modelo = options.get("limpiar", False)
+        self.limpiar_modelo = options.get("limpiar", "")
         self.hacer_todo = options.get("todo", False)
 
         if self.limpiar_todo:
