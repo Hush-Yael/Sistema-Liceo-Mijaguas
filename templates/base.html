@@ -62,7 +62,9 @@
   </head>
 
   <body hx-ext="head-support">
-    {% include 'componentes/barra-lateral/index.html' %}
+    {% if request.user.is_authenticated %}
+      {% include 'componentes/barra-lateral/index.html' %}
+    {% endif %}
 
     {% block contenido %}
     {% endblock %}

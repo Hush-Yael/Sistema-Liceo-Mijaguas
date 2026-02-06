@@ -3,6 +3,7 @@ from django.db import models
 from django.http import HttpRequest
 from django.shortcuts import render
 from app.vistas import VistaListaObjetos
+from django.contrib.auth.decorators import login_required
 
 
 def aplicar_filtros_secciones_y_lapsos(
@@ -23,5 +24,6 @@ def aplicar_filtros_secciones_y_lapsos(
     return queryset
 
 
+@login_required
 def inicio(request: HttpRequest):
     return render(request, "gestion/inicio.html")
