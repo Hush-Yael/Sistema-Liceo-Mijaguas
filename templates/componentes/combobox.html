@@ -87,13 +87,13 @@
     {% endif %}
 
     <div
-      class="col gap-y-1 w-full peer-not-disabled:[&>button]:rounded-l-0 overflow-hidden"
+      class="col gap-y-1 w-full outline-0 peer-not-disabled:[&>button]:rounded-l-0 overflow-hidden"
     >
       <button
         x-bind="trigger"
         role="combobox"
         aria-controls="{{ name }}-lista"
-        {% with c=" peer ui-elevado inline-flex justify-between gap-2 w-full outline-2 outline-#0000 outline-offset-2  focus-visible:outline-primario dark:focus-visible:outline-primario-600 rounded-campo whitespace-nowrap text-sm" %}
+        {% with c=" peer ui-elevado inline-flex justify-between gap-2 w-full rounded-campo whitespace-nowrap text-sm" %}
           {% if campo.errors %}
             class="{{ btn_class|default:''|add:c|add:' animate-head-shake animate-delay-200' }}"
           {% else %}
