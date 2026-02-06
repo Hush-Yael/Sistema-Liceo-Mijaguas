@@ -4,7 +4,7 @@ from app.forms import (
     BusquedaFormMixin,
     OrdenFormMixin,
 )
-from .models import Grupo, Usuario
+from usuarios.models import Grupo, Usuario
 
 
 class UsuarioBusquedaForm(OrdenFormMixin, BusquedaFormMixin):

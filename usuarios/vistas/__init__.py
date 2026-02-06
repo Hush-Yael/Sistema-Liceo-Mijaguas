@@ -1,44 +1,28 @@
 from django.conf import settings
-from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.db.models.functions.datetime import TruncMinute
 from django.forms import ModelMultipleChoiceField
-from django.shortcuts import redirect, render
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
-from django.contrib.auth import update_session_auth_hash
-from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.admin.models import LogEntry
 from django.contrib.sessions.models import Session
 from django_group_model.models import Permission
 from app.util import obtener_filtro_bool_o_nulo
 from app.vistas import VistaActualizarObjeto, VistaCrearObjeto, VistaListaObjetos
-from usuarios.formularios_busqueda import UsuarioBusquedaForm
-from .models import Usuario, Grupo
+from usuarios.forms.busqueda import UsuarioBusquedaForm
+from usuarios.models import Usuario, Grupo
+from usuarios.forms import (
+    FormGrupo,
+    FormUsuario,
+)
+from django.http import HttpRequest
+from usuarios.forms import FormularioPerfil
+from django.contrib import messages
 from django.db import connection
-from django.urls import reverse_lazy
-
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpResponse
+from django.shortcuts import render
 import json
-
-from usuarios.forms import FormGrupo, FormUsuario, FormularioPerfil
-
-
-def login(request: HttpRequest):
-    if not request.user.is_authenticated:  # type: ignore
-        return LoginView.as_view(
-            template_name="login.html",
-        )(request)
-    else:
-        return redirect("/")
-
-
-def cerrar_sesion(request: HttpRequest):
-    return LogoutView.as_view(
-        next_page="/",
-    )(request)
 
 
 @login_required
@@ -93,23 +77,6 @@ def perfil(request: HttpRequest):
                 "datos_iniciales": datos_iniciales,
             },
         )
-
-
-@login_required
-def cambiar_contraseña(request: HttpRequest):
-    if request.method == "POST":
-        form = PasswordChangeForm(request.user, request.POST)  # type: ignore
-        if form.is_valid():
-            user = form.save()
-            # actualizar la sesión
-            update_session_auth_hash(request, user)
-            return redirect("perfil")
-    else:
-        form = PasswordChangeForm(request.user)  # type: ignore
-
-    return PasswordChangeView.as_view(
-        template_name="cambiar-contraseña.html",
-    )(request)
 
 
 class ListaUsuarios(VistaListaObjetos):

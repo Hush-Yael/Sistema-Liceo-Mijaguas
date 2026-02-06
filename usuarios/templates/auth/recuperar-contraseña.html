@@ -1,0 +1,58 @@
+{% extends "auth/form.html" %}
+
+{% block titulo %}
+  Recuperar contraseña
+{% endblock titulo %}
+
+{% block contenido %}
+  {% with titulo="Recuperar contraseña" %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock contenido %}
+
+{% block icono %}
+  <svg
+    stroke-width="2"
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    viewBox="0 0 24 24"
+  >
+    <path
+      d="M15 21H7a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2h10c.265 0 .518.052.75.145"
+    ></path>
+    <path
+      d="M11 16a1 1 0 1 0 2 0 1 1 0 0 0-2 0M8 11V7a4 4 0 1 1 8 0v4M19 22v.01M19 19a2.003 2.003 0 0 0 .914-3.782 1.98 1.98 0 0 0-2.414.483"
+    ></path>
+  </svg>
+{% endblock icono %}
+
+{% block form %}
+  {{ block.super }}
+
+  {% if form.non_field_errors %}
+    {% for error in form.non_field_errors %}
+      <div role="alert" class="rounded p-2 px-4 bg-peligro text-peligro-texto">
+        {% include "componentes/iconos/mensajes.html#alerta" with class="size-5 mr-2" %}
+        {{ error }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endblock form %}
+
+{% block acciones %}
+  <div class="col gap-y-3">
+    <button class="ui-btn/primario ui-btn/md w-full mt-[1.75rem]">
+      Solicitar correo de recuperación
+    </button>
+
+    <a
+      class="ui-btn mxa underline underline-offset-2 text-secundario-700 dark:text-secundario-800 pover:decoration-2"
+      href="{% url 'login' %}"
+    >
+      {% include "componentes/iconos/flecha.html#izquierda" with class="size-4" %}
+      Volver al inicio de sesión
+    </a>
+  </div>
+{% endblock acciones %}

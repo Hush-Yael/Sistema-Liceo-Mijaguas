@@ -1,0 +1,31 @@
+{% extends "vista-mensaje.html" %}
+
+{% block mensaje %}
+  {%
+    with
+    estilos_icono="p-4 bg-exito text-exito-texto"
+    titulo_mensaje="Correo enviado"
+  %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock mensaje %}
+
+{% block icono %}
+  <svg
+    stroke-width="2"
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    viewBox="0 0 24 24"
+  >
+    <path d="M11 19H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6"></path>
+    <path d="m3 7 9 6 9-6M15 19l2 2 4-4"></path>
+  </svg>
+{% endblock icono %}
+
+{% block descripcion %}
+  <p class="mt-2 text-lg tac text-texto-sutil">
+    un enlace de recuperación ha sido enviado a tu correo
+  </p>
+{% endblock descripcion %}

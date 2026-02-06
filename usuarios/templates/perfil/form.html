@@ -17,7 +17,7 @@
     {% endpartialdef input %}
 
     {% for campo in form %}
-      {% if campo.id_for_label != 'id_foto_perfil' %}
+      {% if campo != form.foto_perfil %}
         {% include "componentes/campo.html" with parcial_input_invalido_url="perfil/form.html#input_invalido" parcial_input_url="perfil/form.html#input" %}
       {% endif %}
     {% endfor %}

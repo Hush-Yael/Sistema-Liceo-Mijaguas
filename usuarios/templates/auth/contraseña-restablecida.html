@@ -1,0 +1,45 @@
+{% extends "vista-mensaje.html" %}
+
+{% block titulo %}
+  Contraseña restablecida con éxito
+{% endblock titulo %}
+
+{% block mensaje %}
+  {%
+    with
+    estilos_icono="p-3 bg-exito text-exito-texto"
+    titulo_mensaje="Contraseña restablecida"
+  %}
+    <div class="col ma gap-y-5">
+      {{ block.super }}
+      <a class="ui-btn ui-btn/primario ui-btn/md ma" href="{% url 'login' %}">
+        Ir al inicio de sesión
+        {% include "componentes/iconos/flecha.html#derecha" %}
+      </a>
+    </div>
+  {% endwith %}
+{% endblock mensaje %}
+
+{% block icono %}
+  <svg
+    stroke-width="2"
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    viewBox="0 0 24 24"
+  >
+    <path
+      d="M11.5 21H7a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v.5"
+    ></path>
+    <path
+      d="M11 16a1 1 0 1 0 2 0 1 1 0 0 0-2 0M8 11V7a4 4 0 1 1 8 0v4M15 19l2 2 4-4"
+    ></path>
+  </svg>
+{% endblock icono %}
+
+{% block descripcion %}
+  <p class="mt-2 text-lg tac text-texto-sutil">
+    ahora puedes intentar ingresar de nuevo
+  </p>
+{% endblock descripcion %}

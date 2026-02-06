@@ -10,9 +10,9 @@ from django.http import (
     HttpResponseForbidden,
     QueryDict,
 )
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.urls import path
-from django.views.generic import ListView
+from django.views.generic import ListView, View
 from django.views.generic.detail import SingleObjectTemplateResponseMixin
 from django.views.generic.edit import CreateView, UpdateView
 from app import HTTPResponseHXRedirect
@@ -60,6 +60,14 @@ class Vista(PermissionRequiredMixin):
         )
 
         super().__init__()
+
+
+class VistaParaNoLogueados(View):
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect("inicio")
+
+        return super().dispatch(request, *args, **kwargs)
 
 
 class Columna(TypedDict):

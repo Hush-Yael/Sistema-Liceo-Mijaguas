@@ -1,5 +1,5 @@
 from django import forms
-from .models import Grupo, Usuario
+from usuarios.models import Grupo, Usuario
 
 
 tamaño_minimo = 350

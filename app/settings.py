@@ -156,3 +156,12 @@ MESSAGE_TAGS = {
 }
 
 MIGRANDO = "makemigrations" in sys.argv or "migrate" in sys.argv
+
+
+EMAIL_BACKEND = (
+    "django.core.mail.backends.filebased.EmailBackend"
+    if DEV
+    else "django.core.mail.backends.smtp.EmailBackend"
+)
+
+EMAIL_FILE_PATH = BASE_DIR / "correos"

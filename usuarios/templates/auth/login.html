@@ -1,0 +1,58 @@
+{% extends "auth/form.html" %}
+{% load static %}
+
+{% block titulo %}
+  Iniciar Sesión
+{% endblock titulo %}
+
+{% block contenido %}
+  {% url 'login' as action %}
+  {% with titulo="Iniciar Sesión" id="login" %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock %}
+
+{% block form %}
+  {{ block.super }}
+
+  <input
+    form="{{ id }}"
+    type="hidden"
+    name="next"
+    value="{% if request.GET.next %}{{ request.GET.next }}{% else %}/{% endif %}"
+  />
+
+  {% if form.errors %}
+    <div role="alert" class="rounded p-2 px-4 bg-peligro text-peligro-texto">
+      {% include "componentes/iconos/mensajes.html#alerta" with class="size-5 mr-2" %}
+      Los datos ingresados no son correctos
+    </div>
+  {% endif %}
+{% endblock form %}
+
+{% block icono %}
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="m10.998 16 5-4-5-4v3h-9v2h9z"></path>
+    <path
+      d="M12.999 2.999a8.938 8.938 0 0 0-6.364 2.637L8.049 7.05c1.322-1.322 3.08-2.051 4.95-2.051s3.628.729 4.95 2.051S20 10.13 20 12s-.729 3.628-2.051 4.95-3.08 2.051-4.95 2.051-3.628-.729-4.95-2.051l-1.414 1.414c1.699 1.7 3.959 2.637 6.364 2.637s4.665-.937 6.364-2.637C21.063 16.665 22 14.405 22 12s-.937-4.665-2.637-6.364a8.938 8.938 0 0 0-6.364-2.637z"
+    ></path>
+  </svg>
+{% endblock icono %}
+
+{% block acciones %}
+  <div class="col gap-y-3">
+    <button class="ui-btn/primario ui-btn/md w-full mt-[1.75rem]">
+      Ingresar
+    </button>
+
+    <div class="tac">
+      ¿Olvidaste tu contraseña?
+      <a
+        class="underline underline-offset-2 text-secundario-700 dark:text-secundario-800 pover:decoration-2"
+        href="{% url 'recuperar_contraseña' %}"
+      >
+        Recupérala
+      </a>
+    </div>
+  </div>
+{% endblock acciones %}
