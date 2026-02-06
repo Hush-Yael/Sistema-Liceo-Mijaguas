@@ -23,6 +23,8 @@ const elems = {
     "border-[--transparente-3] border-r-[--color-primario-200] dark:border-r-[--color-primario-700]",
 
   ["ui-loader/blanco"]: "border-#fff3 border-r-#fff",
+
+  ["ui-contenedor-icono"]: "inline-flex aic jcc rounded-full aspect-square",
 } satisfies Config["shortcuts"];
 
 const btn = {
@@ -50,7 +52,7 @@ const btn = {
 
 const input = {
   ["ui-input-error"]:
-    "text-[.9rem] text-peligro-500 dark:text-peligro-300 starting:(block opacity-100) peer-not-[[aria-invalid=true]]:(hidden opacity-0)",
+    "text-[.9rem] text-peligro-500 dark:text-peligro-300 hidden opacity-0 [.peer[aria-invalid=true]~&,.peer[data-invalido=true]~&]:(block! opacity-100!)",
 
   ["ui-opcion"]: `
     relative size-full appearance-none border border-[--transparente-2] bg-fondo-700 transition-[background-color,border-color]
