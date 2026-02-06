@@ -3,23 +3,46 @@
 
 <div
   class="{{ class|default:''|add:' col gap-y-1 [&_label]:text-texto-semi-sutil' }}"
+  {% if 'contraseña' in campo.name or 'password' in campo.name %}
+    x-data="{ visible: false }"
+  {% endif %}
 >
   {{ campo.label_tag }}
 
-  {% with error_id=campo.id_for_label|add:'-error' ic=input_class|default:''|add:' peer' %}
-    {% if campo.errors %}
-      {% if parcial_input_invalido_url %}
-        {% include parcial_input_invalido_url %}
-      {% else %}
-        {% with eic=ic|add:' animate-head-shake animate-delay-200' %}
-          {% render_field campo class=eic aria-errormessage=error_id aria-invalid="true" %}
+  {% with wrapper_class="contra-wrapper flex aic jb gap-x-2 outline-2 -outline-offset-1 outline-#0000 focus-within:outline-current focus-within:has-[button:focus-visible]:outline-0" error_id=campo.id_for_label|add:'-error' ic=input_class|default:''|add:' peer' %}
+    {% if 'contraseña' in campo.name or 'password' in campo.name %}
+      <div
+        {% if campo.errors %}
+          data-invalido="true"
+          class="{{ wrapper_class|add:' '|add:ic|add:' animate-head-shake animate-delay-200' }}"
+        {% else %}
+          class="{{ wrapper_class|add:' '|add:ic }}"
+        {% endif %}
+      >
+        {% with input_class="flex-1 outline-none" x_bind_type="visible ? 'text' : 'password'" %}
+          {% if campo.errors %}
+            {% render_field campo class=input_class aria-errormessage=error_id aria-invalid="true" x-bind::type=x_bind_type %}
+          {% else %}
+            {% render_field campo class=input_class x-bind::type=x_bind_type %}
+          {% endif %}
         {% endwith %}
-      {% endif %}
+        {% partial btn_mostrar %}
+      </div>
     {% else %}
-      {% if parcial_input_url %}
-        {% include parcial_input_url %}
+      {% if campo.errors %}
+        {% if parcial_input_invalido_url %}
+          {% include parcial_input_invalido_url %}
+        {% else %}
+          {% with eic=ic|add:' animate-head-shake animate-delay-200' %}
+            {% render_field campo class=eic aria-errormessage=error_id aria-invalid="true" %}
+          {% endwith %}
+        {% endif %}
       {% else %}
-        {% render_field campo class=ic %}
+        {% if parcial_input_url %}
+          {% include parcial_input_url %}
+        {% else %}
+          {% render_field campo class=ic %}
+        {% endif %}
       {% endif %}
     {% endif %}
 
@@ -44,3 +67,34 @@
     {% endif %}
   {% endwith %}
 </div>
+
+{% partialdef btn_mostrar %}
+  <button
+    type="button"
+    class="ui-btn aspect-square size-6 p-0.5 focus-visible:bg-[--transparente-2] pover:bg-[--transparente-2]"
+    @click="visible = !visible"
+  >
+    <svg
+      class="scale-110"
+      x-show="visible === false"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 16 16"
+    >
+      <path
+        d="M2.984 8.625v.003a.5.5 0 0 1-.612.355c-.431-.114-.355-.611-.355-.611l.018-.062s.026-.084.047-.145a6.7 6.7 0 0 1 1.117-1.982C4.096 5.089 5.605 4 8 4s3.904 1.089 4.802 2.183a6.7 6.7 0 0 1 1.117 1.982 4.077 4.077 0 0 1 .06.187l.003.013v.004l.001.002a.5.5 0 0 1-.966.258l-.001-.004-.008-.025a4.872 4.872 0 0 0-.2-.52 5.696 5.696 0 0 0-.78-1.263C11.286 5.912 10.044 5 8 5c-2.044 0-3.285.912-4.028 1.817a5.7 5.7 0 0 0-.945 1.674 3.018 3.018 0 0 0-.035.109l-.008.025ZM8 7a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5ZM6.5 9.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Z"
+      ></path>
+    </svg>
+
+    <svg
+      class="scale-110"
+      x-cloak
+      x-show="visible === true"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 16 16"
+    >
+      <path
+        d="m10.12 10.827 4.026 4.027a.5.5 0 0 0 .708-.708l-13-13a.5.5 0 1 0-.708.708l3.23 3.23A5.987 5.987 0 0 0 3.2 6.182a6.7 6.7 0 0 0-1.117 1.982c-.021.061-.047.145-.047.145l-.018.062s-.076.497.355.611a.5.5 0 0 0 .611-.355l.001-.003.008-.025.035-.109a5.7 5.7 0 0 1 .945-1.674 4.94 4.94 0 0 1 1.124-1.014l1.578 1.578a2.5 2.5 0 1 0 3.446 3.446Zm-.74-.74A1.5 1.5 0 1 1 7.413 8.12l1.969 1.968ZM6.32 4.2l.854.854C7.434 5.019 7.709 5 8 5c2.044 0 3.286.912 4.028 1.817a5.695 5.695 0 0 1 .945 1.674c.017.048.028.085.035.109l.008.025v.003l.001.001a.5.5 0 0 0 .966-.257v-.003l-.001-.004-.004-.013a2.3 2.3 0 0 0-.06-.187 6.7 6.7 0 0 0-1.117-1.982C11.905 5.088 10.396 4 8.002 4c-.618 0-1.177.072-1.681.199Z"
+      ></path>
+    </svg>
+  </button>
+{% endpartialdef btn_mostrar %}

@@ -198,6 +198,16 @@ input.ui-elevado-2,
 textarea.ui-elevado-2,
 select.ui-elevado-2 {
   display: block;
+}
+
+input.ui-elevado,
+textarea.ui-elevado,
+select.ui-elevado,
+input.ui-elevado-2,
+textarea.ui-elevado-2,
+select.ui-elevado-2,
+.contra-wrapper.ui-elevado,
+.contra-wrapper.ui-elevado-2 {
   width: 100%;
   padding: .25rem .5rem;
   border-radius: var(--radio-campo);
@@ -205,7 +215,8 @@ select.ui-elevado-2 {
 
 input.ui-elevado-2,
 textarea.ui-elevado-2,
-select.ui-elevado-2 {
+select.ui-elevado-2,
+.contra-wrapper.ui-elevado-2 {
   border-color: var(--transparente-2);
 }
 
@@ -215,6 +226,8 @@ select.ui-elevado[aria-invalid=true],
 input.ui-elevado-2[aria-invalid=true],
 textarea.ui-elevado-2[aria-invalid=true],
 select.ui-elevado-2[aria-invalid=true],
+.contra-wrapper.ui-elevado[data-invalido=true],
+.contra-wrapper.ui-elevado-2[data-invalido=true],
 [role="combobox"][aria-invalid=true] {
   border-color: var(--color-peligro-500);
 }
