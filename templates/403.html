@@ -4,10 +4,17 @@
   Acceso denegado
 {% endblock titulo %}
 
-{% block estilos_icono %}
-  p-3 pr-4 bg-gradient-to-br from-peligro to-peligro-600 text-peligro-texto
-  outline-4 outline-peligro-300 dark:outline-peligro-700 outline-offset-4
-{% endblock estilos_icono %}
+{% block mensaje %}
+  {%
+    with
+    codigo_error="403"
+    nombre_error="Acceso denegado"
+    descripcion_error="No tienes los permisos requeridos para ver esta página"
+    estilos_icono="p-3 pr-4 bg-peligro text-peligro-texto"
+  %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock mensaje %}
 
 {% block icono %}
   <svg
@@ -23,15 +30,3 @@
     ></path>
   </svg>
 {% endblock icono %}
-
-{% block codigo %}
-  403
-{% endblock codigo %}
-
-{% block nombre_error %}
-  Acceso denegado
-{% endblock nombre_error %}
-
-{% block descripcion %}
-  No tienes los permisos requeridos para ver esta página
-{% endblock descripcion %}

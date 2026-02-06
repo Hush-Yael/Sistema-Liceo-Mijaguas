@@ -3,10 +3,18 @@
 {% block titulo %}
   Página no encontrada
 {% endblock %}
-{% block estilos_icono %}
-  p-3 pr-4 bg-[--transparente-3] outline-[--transparente-2]
-  dark:bg-[--transparente-2] dark:outline-[--transparente-1]
-{% endblock estilos_icono %}
+
+{% block mensaje %}
+  {%
+    with
+    codigo_error="404"
+    nombre_error="Página no encontrada"
+    descripcion_error="La página que estás buscando no existe"
+    estilos_icono=estilos_icono|add:" p-4"
+  %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock mensaje %}
 
 {% block icono %}
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
@@ -15,15 +23,3 @@
     ></path>
   </svg>
 {% endblock icono %}
-
-{% block codigo %}
-  404
-{% endblock codigo %}
-
-{% block nombre_error %}
-  Página no encontrada
-{% endblock nombre_error %}
-
-{% block descripcion %}
-  La página que estás buscando no existe
-{% endblock descripcion %}

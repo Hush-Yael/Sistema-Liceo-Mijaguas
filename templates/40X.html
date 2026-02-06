@@ -1,33 +1,18 @@
-{% extends "base.html" %}
+{% extends "vista-mensaje.html" %}
 
-{% block contenido %}
-  <div role="alert" class="col aic gap-y-7 ma tac text-balance ma">
-    {% block imagen %}
-      <span
-        class="fc size-27 min-[500px]:size-30 rounded-full aspect-square outline-4 outline-offset-4 {% block estilos_icono %}
-        {% endblock estilos_icono %}"
-      >
-        {% block icono %}
-        {% endblock icono %}
-      </span>
-    {% endblock imagen %}
+{% block mensaje %}
+  {%
+    with
+    titulo_mensaje=codigo_error
+    estilos_titulo="text-6xl"
+  %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock mensaje %}
 
-    <hgroup>
-      <h1 class="text-6xl font-bold">
-        {% block codigo %}
-          40X
-        {% endblock codigo %}
-      </h1>
-      <p class="text-2xl mt-1">
-        {% block nombre_error %}
-          Error
-        {% endblock nombre_error %}
-      </p>
-      <p class="text-texto-sutil text-lg mt-4">
-        {% block descripcion %}
-          No puedes ver esta página
-        {% endblock descripcion %}
-      </p>
-    </hgroup>
-  </div>
-{% endblock contenido %}
+{% block descripcion %}
+  <p class="text-2xl mt-1">{{ nombre_error|default:"Error" }}</p>
+  <p class="text-texto-sutil text-lg mt-4">
+    {{ descripcion_error|default:"No puedes ver esta página" }}
+  </p>
+{% endblock descripcion %}

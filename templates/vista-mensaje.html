@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+  <main class="flex-1 col fc">
+    {% with estilos_icono="bg-[--transparente-3] outline-[--transparente-2] dark:bg-[--transparente-2] dark:outline-[--transparente-1]" %}
+      {% block mensaje %}
+        <div role="alert" class="col aic gap-y-7 p-4 ma tac text-balance">
+          <span
+            class="ui-contenedor-icono size-27 min-[500px]:size-30 animate-bounce-in animate-duration-500 animate-iteration-1 animate-delay-100 {{ estilos_icono }}"
+          >
+            {% block icono %}
+            {% endblock icono %}
+          </span>
+
+          <hgroup>
+            <h1 class="font-bold {{ estilos_titulo|default:'text-2xl' }}">
+              {{ titulo_mensaje|default:"Mensaje" }}
+            </h1>
+            {% block descripcion %}
+              <p>descripcion</p>
+            {% endblock descripcion %}
+          </hgroup>
+        </div>
+      {% endblock mensaje %}
+    {% endwith %}
+  </main>
+{% endblock contenido %}
