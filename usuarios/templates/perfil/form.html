@@ -8,17 +8,9 @@
   <div role="group" class="col gap-y-5 ui-caja p-3 px-4">
     {% csrf_token %}
 
-    {% partialdef input_invalido %}
-      {% render_field campo class="ui-elevado-2 peer" ::readonly="!editando" aria-errormessage=error_id aria-invalid="true" %}
-    {% endpartialdef input_invalido %}
-
-    {% partialdef input %}
-      {% render_field campo class="ui-elevado-2 peer" ::readonly="!editando" %}
-    {% endpartialdef input %}
-
     {% for campo in form %}
       {% if campo != form.foto_perfil %}
-        {% include "componentes/campo.html" with parcial_input_invalido_url="perfil/form.html#input_invalido" parcial_input_url="perfil/form.html#input" %}
+        {% include "componentes/campo.html" with input_class="ui-elevado-2 peer" %}
       {% endif %}
     {% endfor %}
 

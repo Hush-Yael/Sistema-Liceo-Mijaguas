@@ -27,7 +27,16 @@ def validarTamaño(foto: forms.ImageField):
 class FormularioPerfil(forms.ModelForm):
     class Meta:
         model = Usuario
-        fields = ["username", "email", "foto_perfil"]
+        fields = ("username", "email", "foto_perfil")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        attrs = {":readonly": "!editando"}
+        self.fields[Usuario.username.field.name].widget.attrs = attrs
+        self.fields[Usuario.username.field.name].help_text = ""
+
+        self.fields[Usuario.email.field.name].widget.attrs = attrs
 
     email = forms.EmailField(required=False, label="Correo")
     foto_perfil = forms.ImageField(
