@@ -32,9 +32,10 @@ const btn = {
     "fc gap-x-2 rounded-campo cursor-pointer active:scale-99 transition-[background-color,color,transform,border-color,outline-color] duration-200 ease-in-out select-none",
 
   ["ui-btn/primario"]:
-    "bg-primario dark:bg-primario-600 text-primario-texto font-bold pover:bg-primario-600 dark:pover:bg-primario-700",
+    "bg-primario dark:bg-primario-600 text-primario-texto font-bold pover:bg-primario-400 dark:pover:bg-primario-700",
 
-  ["ui-btn/secundario"]: "bg-secundario text-secundario-texto font-bold",
+  ["ui-btn/secundario"]:
+    "bg-secundario text-secundario-texto font-bold pover:bg-secundario-400 dark:pover:bg-secundario-600",
 
   ["ui-btn/borde"]:
     "outline-2 outline-[hsl(0,0%,60%)] -outline-offset-2 focus-visible:(ring-2 ring-primario) font-bold text-[hsl(0,0%,30%)] dark:(text-[hsl(0,0%,90%)] outline-[hsl(0,0%,80%)]) pover:outline-[hsl(0,0%,35%)] pover:text-[hsl(0,0%,25%)] dark:pover:text-[hsl(0,0%,75%)] dark:pover:outline-[hsl(0,0%,50%)]",
