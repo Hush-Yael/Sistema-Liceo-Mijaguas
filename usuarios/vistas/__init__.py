@@ -60,7 +60,7 @@ class VistaPestañaPerfil(LoginRequiredMixin):
         )
 
 
-class DatosPerfil(LoginRequiredMixin, UpdateView):
+class DatosPerfil(VistaPestañaPerfil, LoginRequiredMixin, UpdateView):
     form_class = FormularioDatosUsuario
     model = Usuario
     template_name = "perfil/index.html#datos"
