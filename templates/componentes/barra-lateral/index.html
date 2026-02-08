@@ -14,7 +14,7 @@
       sidebar:(flex-1 h-100dvh w-[--ancho-barra-lateral] max-w-[--ancho-barra-lateral])
       sidebar:*:border-r-2 sidebar:*:border-r-#fff4 dark:sidebar:*:border-r-#fff2
     '
-    |reemplazar_espacios:' '|expandir_variantes
+    |reemplazar_espacios:" "|expandir_variantes
   }}"
   x-data='{
     anchoMedia: window.matchMedia("(min-width: 800px)"),
@@ -38,7 +38,7 @@
         max-sidebar_full:aic
         sidebar_full:(gap-y-3 p-3 px-2)
       '
-      |reemplazar_espacios:' '|expandir_variantes
+      |reemplazar_espacios:" "|expandir_variantes
     }}"
   >
     <h1 class="sidebar_full:pl-2">
@@ -89,7 +89,7 @@
         )
         sidebar:(flex-col gap-y-4 h-full max-h-full overflow-unset)
       '
-      |reemplazar_espacios:' '|expandir_variantes
+      |reemplazar_espacios:" "|expandir_variantes
     }}"
     :aria-hidden="!abiertoPorBtn && !minimoAnchoCumplido"
     :inert="!abiertoPorBtn && !minimoAnchoCumplido"
