@@ -1,5 +1,6 @@
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import PasswordChangeView
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
@@ -7,9 +8,11 @@ from django.db.models.functions.datetime import TruncMinute
 from django.forms import ModelMultipleChoiceField
 from django.contrib.admin.models import LogEntry
 from django.contrib.sessions.models import Session
+from django.views.generic import UpdateView
 from django_group_model.models import Permission
 from app.util import obtener_filtro_bool_o_nulo
 from app.vistas import VistaActualizarObjeto, VistaCrearObjeto, VistaListaObjetos
+from usuarios.forms.auth import CambiarContraseñaForm
 from usuarios.forms.busqueda import UsuarioBusquedaForm
 from usuarios.models import Usuario, Grupo
 from usuarios.forms import (
@@ -17,17 +20,58 @@ from usuarios.forms import (
     FormUsuario,
 )
 from django.http import HttpRequest
-from usuarios.forms import FormularioPerfil
+from usuarios.forms import FormularioDatosUsuario
 from django.contrib import messages
 from django.db import connection
 from django.http import HttpResponse
 from django.shortcuts import render
-import json
+from time import sleep
 
 
-@login_required
-def perfil(request: HttpRequest):
-    if request.method == "DELETE":
+def config_perfil(request: HttpRequest):
+    if request.method == "GET":
+        return render(
+            request,
+            "perfil/index.html",
+            {
+                "forms": {
+                    "datos": FormularioDatosUsuario(instance=request.user),
+                    "contraseña": CambiarContraseñaForm(user=request.user),
+                },
+            },
+        )
+    else:
+        sleep(1)
+        return HttpResponse(status=405)
+
+
+class VistaPestañaPerfil(LoginRequiredMixin):
+    request: HttpRequest
+    mensaje_exito: str
+
+    def form_valid(self, form):
+        super().form_valid(form)  # type: ignore
+        messages.success(self.request, self.mensaje_exito)
+
+        return render(
+            self.request,
+            self.template_name,  # type: ignore
+            {"form": form, "datos_cambiados": True},
+        )
+
+
+class DatosPerfil(LoginRequiredMixin, UpdateView):
+    form_class = FormularioDatosUsuario
+    model = Usuario
+    template_name = "perfil/index.html#datos"
+    success_url = "perfil"
+    mensaje_exito = "Datos actualizados correctamente"
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def delete(self, *args, **kwargs):
+        request = self.request
         try:
             request.user.foto_perfil.delete(save=False)  # type: ignore
             request.user.miniatura_foto.delete(save=False)  # type: ignore
@@ -47,36 +91,17 @@ def perfil(request: HttpRequest):
                     print("No se pudo dejar en blanco los campos de las fotos")
 
             messages.success(request, "Foto eliminada")
-            return render(request, "perfil/index.html#foto_eliminada")
+            return render(request, "componentes/mensajes.html#como_respuesta")
         except Exception as e:
             print("Error al eliminar la foto", e)
             return HttpResponse("Error al eliminar la foto: ", status=204)  # type: ignore
-    else:
-        form = FormularioPerfil(instance=request.user)  # type: ignore
-        # se guardan los datos iniciales, para evitar que usar los que se intentaron cambiar al fallar la validación
-        datos_iniciales = json.dumps(
-            {
-                **form.initial,
-                "foto_perfil": request.user.foto_perfil.url  # type: ignore
-                if request.user.foto_perfil  # type: ignore
-                else "",
-            }
-        )
 
-        if request.method == "POST":
-            form = FormularioPerfil(request.POST, request.FILES, instance=request.user)  # type: ignore
 
-            if form.is_valid():
-                form.save()
-
-        return render(
-            request,
-            "perfil/index.html",
-            {
-                "form": form,
-                "datos_iniciales": datos_iniciales,
-            },
-        )
+class CambiarContraseña(VistaPestañaPerfil, PasswordChangeView):
+    form_class = CambiarContraseñaForm
+    success_url = "perfil"
+    template_name = "perfil/index.html#contraseña"
+    mensaje_exito = "Contraseña cambiada correctamente"
 
 
 class ListaUsuarios(VistaListaObjetos):

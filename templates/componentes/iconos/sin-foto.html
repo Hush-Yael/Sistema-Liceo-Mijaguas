@@ -1,12 +1,11 @@
 <svg
+  class="{{ class }}"
   {% if id %}
     id="{{ id }}"
   {% endif %}
-
-  {% if swap %}
-    hx-swap-oob="{{ swap }}"
+  {% if x_show %}
+    x-show="{{ x_show }}"
   {% endif %}
-  class="{{ class }}"
   viewBox="0 0 512 512"
   xmlns="http://www.w3.org/2000/svg"
 >

@@ -1,0 +1,32 @@
+{% with id_i="indicador-"|add:pestaña %}
+  <form
+    class="col gap-y-6 max-w-500px w-full mxa"
+    method="post"
+    hx-post="{% url 'cambiar_contraseña' %}"
+    hx-indicator="#{{ id_i }}"
+    x-cloak
+    x-show="pestaña === '{{ pestaña }}'"
+  >
+    <input type="hidden" name="accion" value="cambiar-contraseña" />
+
+    {% for campo in form %}
+      {% include "componentes/campo.html" with input_class="ui-elevado" %}
+    {% endfor %}
+
+    <button
+      class="ui-btn ui-btn/primario ui-btn/md w-full min-[500px]:w-[250px] min-[500px]:mla"
+      type="submit"
+    >
+      <span
+        id="{{ id_i }}"
+        class="htmx-indicator ui-loader ui-loader/blanco"
+      ></span>
+
+      Cambiar
+    </button>
+  </form>
+{% endwith %}
+
+{% if respuesta %}
+  {% include "componentes/mensajes.html#como_respuesta" %}
+{% endif %}

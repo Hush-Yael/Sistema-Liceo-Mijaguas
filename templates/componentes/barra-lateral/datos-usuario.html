@@ -18,15 +18,19 @@
           |reemplazar_espacios:' '|expandir_variantes
         }}"
       >
-        {% if request.user.foto_perfil %}
+        {% with c="size-3rem sidebar:max-sidebar_full:size-2.5rem" %}
           <img
-            src="{{ request.user.miniatura_foto.url }}"
-            class="foto-perfil aspect-square size-3rem aspect-square italic -indent-5 tac rounded-full object-cover outline-1 outline-#fff2 sidebar:max-sidebar_full:size-2.5rem"
+            id="foto-barra-lateral"
+            {% if request.user.foto_perfil %}
+              src="{{ request.user.miniatura_foto.url }}"
+            {% else %}
+              src=""
+            {% endif %}
+            class="peer {{ c }} aspect-square  aspect-square italic -indent-5 tac rounded-full object-cover outline-1 outline-#fff2 [&[src='']]:hidden"
             alt="foto del perfil"
           />
-        {% else %}
-          {% include "componentes/iconos/sin-foto.html" with class="foto-perfil size-3rem min-w-max sidebar:max-sidebar_full:size-2.5rem" %}
-        {% endif %}
+          {% include "componentes/iconos/sin-foto.html" with class=c|add:" min-w-max peer-not-[[src='']]:hidden" %}
+        {% endwith %}
 
         <figcaption
           class="{{ 'sidebar:max-sidebar_full:(absolute left-full ui-caja rounded-l-0 min-w-max max-w-300px text-initial p-2 px-3 top-0 opacity-0 pointer-events-none group-hover/f:opacity-100 transition-opacity ease-out) '|expandir_variantes }}"
