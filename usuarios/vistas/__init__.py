@@ -25,9 +25,10 @@ from django.contrib import messages
 from django.db import connection
 from django.http import HttpResponse
 from django.shortcuts import render
-from time import sleep
+from django.contrib.auth.decorators import login_required
 
 
+@login_required
 def config_perfil(request: HttpRequest):
     if request.method == "GET":
         return render(
@@ -41,7 +42,6 @@ def config_perfil(request: HttpRequest):
             },
         )
     else:
-        sleep(1)
         return HttpResponse(status=405)
 
 
