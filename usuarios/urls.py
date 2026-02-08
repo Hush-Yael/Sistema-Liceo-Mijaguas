@@ -18,13 +18,18 @@ urlpatterns = [
     ),
     path(
         "perfil",
-        vistas.perfil,
+        vistas.config_perfil,
         name="perfil",
     ),
     path(
         "cambiar-contraseña",
-        vistas_auth.cambiar_contraseña,
+        vistas.CambiarContraseña.as_view(),
         name="cambiar_contraseña",
+    ),
+    path(
+        "cambiar-datos",
+        vistas.DatosPerfil.as_view(),
+        name="cambiar_datos",
     ),
     path(
         "recuperar-contraseña",

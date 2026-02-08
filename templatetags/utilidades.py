@@ -111,6 +111,11 @@ def Json(valor):
     return json.dumps(valor)
 
 
+@register.filter(name="json_decode")
+def JsonDecode(valor):
+    return json.loads(valor)
+
+
 @register.filter
 def reemplazar_espacios(value: str, arg=None):
     return re.sub(r"\s{2,}|\ng", arg or "", value)

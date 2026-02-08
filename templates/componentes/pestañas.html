@@ -1,0 +1,25 @@
+{% load utilidades %}
+{% load grupos_variantes %}
+
+{% with lista=lista|json_decode %}
+  <nav
+    class="border-b border-[--transparente-3]"
+    x-data="{ actualizar() { pestaña = decodeURIComponent(location.hash.slice(1)) } }"
+    @hashchange.window="actualizar()"
+    x-init="location.hash ? actualizar() : (pestaña = '{{ lista.0.id }}')"
+  >
+    <ul class="flex flex-wrap text-sm -mb-px font-500 text-center">
+      {% for pestaña in lista %}
+        <li>
+          <a
+            href="#{{ pestaña.id }}"
+            :aria-current="pestaña === '{{ pestaña.id }}' ? 'true' : 'false'"
+            class="{{ 'inline-flex items-center justify-center p-2 px-4 border-b border-#0000 text-texto-semi-sutil transition-colors cursor-pointer select-none pover:(border-primario-600 text-primario-600 dark:text-primario-900 bg-primario-50/50 dark:bg-primario-800/15) aria-[current=true]:(border-primario-600 text-primario-600 dark:text-primario-900 bg-primario-50/50 dark:bg-primario-800/15)'|expandir_variantes }}"
+          >
+            {{ pestaña.label }}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </nav>
+{% endwith %}

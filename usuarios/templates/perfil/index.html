@@ -15,9 +15,6 @@
 
   <script defer src="{% static 'js/htmx.min.js' %}"></script>
   <script defer src="{% static 'js/htmx-error-solicitudes.js' %}"></script>
-  {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
-  <script type="application/json">{{ datos_iniciales|safe }}</script>
-  {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
 
   {% if form.errors %}
     <script defer src="{% static 'js/limpiar-errores.js' %}"></script>
@@ -26,164 +23,52 @@
 
 {% block contenido %}
   <main
-    class="{{ "col gap-y-8 aic flex-1 w-full max-w-900px m-[0_auto] p-5 py-7 min-[525px]:p-5 min-[600px]:p-8 sidebar:jcc"|expandir_variantes }}"
-    x-data="{
-      editando: {% if form.errors %}true{% else %}false{% endif %},
-      alternar_editando() {
-        this.editando = !this.editando;
-        
-        // reiniciar valores
-        if (!this.editando) {
-          try {
-            $refs.form.reset();
-            const datos = JSON.parse(window.$('script[type=\'application/json\']').textContent)
-
-            $refs.form.foto_perfil.value = ''
-            window.$id('foto-actual').src = datos.foto_perfil;
-            $refs.form.username.value = datos.username;
-            $refs.form.email.value = datos.email;
-          } catch (e) {
-            if (e instanceof SyntaxError) 
-              console.error('No se pudo obtener los datos iniciales')
-            else throw e
-          }
-        }
-      }
-    }"
+    class="{{ 'col gap-y-6 flex-1 w-full max-w-700px m-[0_auto] p-5 py-6 min-[500px]:p-8'|expandir_variantes }}"
+    x-data='{ pestaña: "datos" }'
+    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
   >
-    {% include "perfil/foto-contenedor.html" %}
-
-    <form
-      id="form"
-      x-ref="form"
-      method="post"
-      enctype="multipart/form-data"
-      class="col gap-y-3 mxa w-full max-w-400px"
-    >
-      <div
-        class="flex justify-end gap-x-2 *:ui-btn *:h-7 *:px-1 *:text-sm *:ui-elevado"
+    <h1 class="flex jb aic gap-x-4 font-bold text-2xl">
+      Configuración del perfil
+      <span
+        class="ui-contenedor-icono bg-[--transparente-1] dark:bg-[--transparente-2] text-texto-sutil size-8 p-2"
       >
-        <button
-          type="button"
-          onclick="confirm('¿Seguro que quieres cerrar la sesión?') && (location.href='{% url 'logout' %}')"
-          class="px-2 [&>svg]:size-3.5"
-          aria-label="Cerrar sesión"
-        >
-          <svg
-            class="size-4.25"
-            fill="none"
-            height="24"
-            viewBox="0 0 24 24"
-            width="24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M15 3H7C5.89543 3 5 3.89543 5 5V19C5 20.1046 5.89543 21 7 21H15"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-            />
-            <path
-              d="M19 12L15 8M19 12L15 16M19 12H9"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-            />
-          </svg>
-          Salir
-        </button>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+          <path
+            d="M144 128a80 80 0 1 1 160 0 80 80 0 1 1-160 0zm208 0a128 128 0 1 0-256 0 128 128 0 1 0 256 0zM48 480c0-70.7 57.3-128 128-128h96c70.7 0 128 57.3 128 128v8c0 13.3 10.7 24 24 24s24-10.7 24-24v-8c0-97.2-78.8-176-176-176h-96C78.8 304 0 382.8 0 480v8c0 13.3 10.7 24 24 24s24-10.7 24-24v-8z"
+          ></path>
+        </svg>
+      </span>
+    </h1>
 
-        <a class="px-2 [&>svg]:size-3.5" href="{% url 'cambiar_contraseña' %}">
-          <svg
-            class="size-4.25"
-            stroke-width="0"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-          >
-            <path
-              fill="currentColor"
-              d="M18 8h2a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1h2V7a6 6 0 1 1 12 0v1ZM5 10v10h14V10H5Zm6 4h2v2h-2v-2Zm-4 0h2v2H7v-2Zm8 0h2v2h-2v-2Zm1-6V7a4 4 0 0 0-8 0v1h8Z"
-            ></path>
-          </svg>
-          Cambiar contraseña
-        </a>
+    {%
+      include "componentes/pestañas.html" with
+      lista='[{"label": "Detalles","id": "datos"}, {"label": "Cambiar contraseña","id": "contraseña"}]'
+    %}
 
-        <button
-          type="button"
-          @click="alternar_editando()"
-          :aria-label="editando ? 'Cancelar edición' : 'Editar'"
-          :class="editando ? 'w-7 ui-btn/peligro!' : 'w-7'"
-        >
-          <svg
-            x-cloak
-            x-show="editando"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="1.5"
-              d="M6 18 18 6M6 6l12 12"
-            ></path>
-          </svg>
+    {% partialdef datos inline %}
+      {% with pestaña='datos' %}
+        {% if 'accion' in request.POST %}
+          {%
+            include "perfil/form-datos.html"
+            with respuesta=1
+          %}
+        {% else %}
+          {%
+            include "perfil/form-datos.html"
+            with form=forms.datos
+          %}
+        {% endif %}
+      {% endwith %}
+    {% endpartialdef datos %}
 
-          <svg
-            x-show="!editando"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 1024 1024"
-          >
-            <path
-              d="M880 836H144c-17.7 0-32 14.3-32 32v36c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-36c0-17.7-14.3-32-32-32zm-622.3-84c2 0 4-.2 6-.5L431.9 722c2-.4 3.9-1.3 5.3-2.8l423.9-423.9a9.96 9.96 0 0 0 0-14.1L694.9 114.9c-1.9-1.9-4.4-2.9-7.1-2.9s-5.2 1-7.1 2.9L256.8 538.8c-1.5 1.5-2.4 3.3-2.8 5.3l-29.5 168.2a33.5 33.5 0 0 0 9.4 29.8c6.6 6.4 14.9 9.9 23.8 9.9z"
-            ></path>
-          </svg>
-        </button>
-
-        <button
-          class="w-7 ui-btn/exito!"
-          type="submit"
-          x-cloak
-          x-show="editando"
-          aria-label="Guardar cambios"
-        >
-          <svg
-            fill="none"
-            stroke-width="2"
-            xmlns="http://www.w3.org/2000/svg"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            viewBox="0 0 24 24"
-          >
-            <path d="M20 6 9 17 4 12"></path>
-          </svg>
-        </button>
-      </div>
-
-      {% include "perfil/form.html" %}
-    </form>
-
-    <dialog
-      id="modal-img"
-      class="size-325px min-[400px]:size-400px min-[500px]:size-500px **:size-full transition-[width,height] ease-out"
-      x-ref="modal"
-      @click="$event.target === $event.currentTarget && $refs.modal.close()"
-    >
-      <div>
-        <img
-          class="aspect-square object-cover"
-          {% if request.user.foto_perfil %}
-            src="{{ request.user.foto_perfil.url }}"
-          {% endif %}
-          alt="foto"
-        />
-      </div>
-    </dialog>
+    {% partialdef contraseña inline %}
+      {% with pestaña='contraseña' %}
+        {% if 'accion' in request.POST %}
+          {% include "perfil/cambiar-contraseña.html" with respuesta=1 %}
+        {% else %}
+          {% include "perfil/cambiar-contraseña.html" with form=forms.contraseña %}
+        {% endif %}
+      {% endwith %}
+    {% endpartialdef contraseña %}
   </main>
 {% endblock contenido %}
-
-{% partialdef foto_eliminada %}
-  {# se reemplazan las fotos de la navegación y la sección del perfil #}
-  {% include "componentes/iconos/sin-foto.html" with swap="outerHTML:.foto-perfil" class=".foto-perfil" %}
-  {% include "componentes/mensajes.html#como_respuesta" %}
-{% endpartialdef foto_eliminada %}
