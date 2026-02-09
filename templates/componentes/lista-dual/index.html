@@ -1,4 +1,5 @@
 {% load static %}
+{% load utilidades %}
 {% load sekizai_tags %}
 
 {% addtoblock "cabeza" %}
@@ -43,7 +44,7 @@
 {% endaddtoblock %}
 
 <div
-  class="{{ class|default:''|add:' lista-dual flex flex-col gap-2' }}"
+  class="{{ class|default:''|add:' group/contenedor lista-dual flex flex-col gap-2' }}"
   {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
       x-data='selectorListaDual({
         opciones: {% if opciones_por_script %}{{ opciones_por_script }}{% else %}{{ opciones|safe }}{% endif %},
@@ -53,7 +54,21 @@
         {% endif %}
         opcionesAgrupadas: {% if opciones_agrupadas %}true{% else %}false{% endif %},
       })'
-      {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+  {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+  {% if campo.errors %}
+    data-invalido
+    x-init="{{
+      "
+        $watch('opcionesSeleccionadas', v => {
+          if ($refs.campo.hasAttribute('aria-invalid')) {
+            $el.removeAttribute('data-invalido');
+            $refs.campo.setAttribute('aria-invalid', 'false');
+            $refs.campo.removeAttribute('aria-errormessage');
+          }
+        })
+      "|reemplazar_espacios:''
+    }}"
+  {% endif %}
 >
   <h2
     id="{{ campo.name }}-label"
@@ -61,6 +76,24 @@
   >
     {{ campo.label }}
   </h2>
+
+  {# contiene el valor enviado #}
+  <select
+    name="{{ campo.name }}"
+    multiple
+    class="peer hidden"
+    {% if campo.errors %}
+      aria-invalid="true"
+      aria-errormessage="{{ campo.id_for_label|add:'-error' }}" x-ref="campo"
+    {% endif %}
+  >
+    <template
+      x-for="(opcion) in {% if opciones_agrupadas %}_flatOpcionesSeleccionadas{% else %}opcionesSeleccionadas{% endif %}"
+      :key="'{{ campo.name }}-'+opcion.id"
+    >
+      <option :value="opcion.id" selected></option>
+    </template>
+  </select>
 
   <div
     role="group"
@@ -74,13 +107,5 @@
     {% include "componentes/lista-dual/lista.html" with cual_lista="seleccionadas" cuales_opciones="opcionesSeleccionadas" cuales_selecciones_visuales="seleccionesVisualesEnDerecha" %}
   </div>
 
-  {# contiene el valor enviado #}
-  <select name="{{ campo.name }}" multiple class="hidden">
-    <template
-      x-for="(opcion) in {% if opciones_agrupadas %}_flatOpcionesSeleccionadas{% else %}opcionesSeleccionadas{% endif %}"
-      :key="'{{ campo.name }}-'+opcion.id"
-    >
-      <option :value="opcion.id" selected></option>
-    </template>
-  </select>
+  {% include "componentes/campo.html#campo_error" %}
 </div>

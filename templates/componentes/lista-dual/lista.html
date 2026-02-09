@@ -5,7 +5,7 @@
 {% with label_id="{{ campo.name }}-lista-{{ cual_lista }}" %}
   <div
     role="group"
-    class="{{ lista_contenedor_class|default:''|add:" flex-1 border border-[--borde-caja]" }}"
+    class="{{ lista_contenedor_class|default:''|add:' flex-1 border border-[--borde-caja] group-[[data-invalido]]/contenedor:border-peligro! ' }}"
   >
     <div class="flex aic gap-x-2 p-1 px-2">
       <p
@@ -168,7 +168,7 @@
 
       {% with c="fc flex-col gap-y-3 h-full p-4 text-center text-texto-sutil font-500" ic="fc size-9 p-0.5 aspect-square bg-[--transparente-1] rounded" %}
         {% if busqueda_activa %}
-          <li class="{{ c }}" x-ref="{{ cual_lista }}-sinResultadosMsj">
+          <li class="{{ c }}" x-ref="{{ cual_lista }}-sinResultadosMsj" x-cloak>
             <span class="{{ ic|add:' p-1.5' }}">
               {% include "componentes/iconos/opciones.html#sin_resultados" %}
             </span>
@@ -177,6 +177,7 @@
         {% endif %}
 
         <li
+          x-cloak
           {% if opciones_agrupadas %}
             x-show="_flatOpciones{% if cuales_opciones != 'opcionesDisponibles' %}Seleccionadas{% else %}Disponibles{% endif %}.length
             === 0"
