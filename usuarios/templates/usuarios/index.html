@@ -48,9 +48,11 @@
   {{ block.super }}
 
   <dialog
-    class="size-325px min-[400px]:size-400px min-[500px]:size-500px **:size-full transition-[width,height] ease-out"
+    class="size-325px min-[400px]:size-400px min-[500px]:size-500px **:size-full transition-[width,height,transform,opacity] ease-out"
     x-show="modalAbierto === 'foto'"
     x-htmldialog="modalAbierto = null"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0 scale-90"
     @click="$event.target === $event.currentTarget && (modalAbierto = null)"
   >
     <img

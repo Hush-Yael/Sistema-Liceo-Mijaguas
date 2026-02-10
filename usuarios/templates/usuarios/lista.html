@@ -11,7 +11,7 @@
 {% block lista %}
   <ul
     data-lista
-    class="{{ 'col gap-3 flex-1 min-[700px]:(grid grid-cols-2 content-start)'|expandir_variantes }}"
+    class="col gap-3 flex-1 min-[500px]:grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] content-start"
     @click="{{
       '
         if ($event.target.closest("[data-foto-url]")) {
@@ -29,144 +29,146 @@
   >
     {% for usuario in lista_objetos %}
       <li class="max-h-max">
-        {% with icono_contenedor_c="ui-contenedor-icono align-middle mr-1 p-1 bg-[--transparente-1] text-texto-sutil" icono_class="size-4" %}
-          <article class="ui-caja col gap-y-4 p-3">
-            <div class="flex aic gap-x-3 ">
-              {% with c="size-22 size-min-22 aspect-square rounded-full" %}
-                {% if usuario.foto_perfil and usuario.miniatura_foto %}
-                  <button
-                    data-foto-url="{{ usuario.foto_perfil }}"
-                    data-id="{{ usuario.id }}"
-                    class="align-middle mr-2"
-                    aria-label="Inspeccionar foto de perfil"
-                  >
-                    <img
-                      class="{{ c|add:' scale-110 object-cover border-2 border-[--transparente-3]' }}"
-                      src="{{ media_url }}{{ usuario.miniatura_foto }}"
-                      alt="foto de perfil"
-                    />
-                  </button>
-                {% else %}
-                  <span
-                    class="{{ c|add:' tac lh-22 bg-fondo-950 text-texto-semi-sutil text-3xl font-bold' }}"
-                  >
-                    {{ usuario.username|capfirst|slice:"0:1" }}
-                  </span>
-                {% endif %}
-              {% endwith %}
-
-              <hgroup class="col jb gap-y-1 w-full">
-                <h3
-                  id="{{ usuario.id }}-nombre"
-                  class="font-bold min-[500px]:text-lg"
+        <article class="ui-caja col gap-y-3 p-3">
+          <div class="flex aic gap-x-3">
+            {% with c="size-18 size-min-18 lh-18 aspect-square rounded-full" %}
+              {% if usuario.foto_perfil and usuario.miniatura_foto %}
+                <button
+                  data-foto-url="{{ usuario.foto_perfil }}"
+                  data-id="{{ usuario.id }}"
+                  class="align-middle"
+                  aria-label="Inspeccionar foto de perfil"
                 >
-                  {% include "componentes/tabla-adaptable/enlace-editar.html" with objeto=usuario dato=usuario.username %}
-                </h3>
-                <p class="text-sm text-texto-semi-sutil">
-                  <span class="{{ icono_contenedor_c }}">
-                    <svg
-                      class="{{ icono_class }}"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 512 512"
-                    >
-                      <path
-                        d="M424 80H88a56.06 56.06 0 0 0-56 56v240a56.06 56.06 0 0 0 56 56h336a56.06 56.06 0 0 0 56-56V136a56.06 56.06 0 0 0-56-56Zm-14.18 92.63-144 112a16 16 0 0 1-19.64 0l-144-112a16 16 0 1 1 19.64-25.26L256 251.73l134.18-104.36a16 16 0 0 1 19.64 25.26Z"
-                      ></path>
-                    </svg>
-                  </span>
-                  {{ usuario.email|default:'sin correo' }}
-                </p>
-                <p class="text-sm text-texto-semi-sutil">
-                  <span class="{{ icono_contenedor_c }}">
-                    {% include "componentes/iconos/nav.html#permisos" with class=icono_class %}
-                  </span>
-                  {% with roles=usuario.grupos.all %}
-                    {% if roles %}
-                      {% for rol in roles %}
-                        {{ rol }}{% if not forloop.last %},{% endif %}
-                      {% endfor %}
-                    {% else %}
-                      Sin grupos
-                    {% endif %}
-                  {% endwith %}
-                </p>
-              </hgroup>
-            </div>
-
-            {% with c="flex aic jb" %}
-              <div
-                class="col gap-y-2 border-t border-[--borde-caja] pt-3 text-sm text-texto-sutil"
-              >
-                <dl class="col gap-y-2">
-                  <div class="{{ c }}">
-                    {% with activo=usuario.is_active %}
-                      <dt>
-                        <span class="{{ icono_contenedor_c }}">
-                          <svg
-                            class="{{ icono_class }}"
-                            stroke-width="2"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              d="M8 7a4 4 0 1 0 8 0 4 4 0 0 0-8 0M6 21v-2a4 4 0 0 1 4-4h3.5M19 22v.01M19 19a2.003 2.003 0 0 0 .914-3.782 1.98 1.98 0 0 0-2.414.483"
-                            ></path>
-                          </svg>
-                        </span>
-                        Estado:
-                      </dt>
-
-                      <dd
-                        class="{{ 'px-4 rounded-full font-bold border data-[estado=A]:(bg-exito-200 border-exito text-exito-900) data-[estado=I]:(bg-peligro-200 border-peligro text-peligro-900 dark:bg-peligro-300)'|expandir_variantes }}"
-                        data-estado="{{ activo|yesno:'A,I' }}"
-                      >
-                        {{ activo|yesno:'Activo,Inactivo' }}
-                      </dd>
-                    {% endwith %}
-                  </div>
-
-                  <div class="{{ c }}">
-                    <dt>
-                      <span class="{{ icono_contenedor_c }}">
-                        <svg
-                          class="{{ icono_class }}"
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M5 22h14c1.103 0 2-.897 2-2V6c0-1.103-.897-2-2-2h-2V2h-2v2H9V2H7v2H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2zm11-6h-3v3h-2v-3H8v-2h3v-3h2v3h3v2zM5 7h14v2H5V7z"
-                          ></path>
-                        </svg>
-                      </span>
-                      Fecha de añadido:
-                    </dt>
-                    <dd>{{ usuario.date_joined|date:"d M. Y, h:i A" }}</dd>
-                  </div>
-                </dl>
-
-                <label class="{{ c|add:' cursor-pointer select-none' }}">
-                  <span>
-                    <span class="{{ icono_contenedor_c|add:" size-6" }}">
-                      #
-                    </span>
-                    {% if page_obj.paginator.num_pages > 1 %}
-                      {% with total_anterior=page_obj.number|add:-1|multiplicar:view.paginate_by %}
-                        {# se multiplica la cantidad por página de acuerdo a la cantidad recorrida y la cantidad de objetos por página y se le añade cada valor del ciclo actual #}
-                        {{ total_anterior|add:forloop.counter }}
-                      {% endwith %}
-                    {% else %}
-                      {{ forloop.counter }}
-                    {% endif %}
-                  </span>
-                  {% include "componentes/tabla-adaptable/index.html#fila_check" with objeto=usuario %}
-                </label>
-              </div>
+                  <img
+                    class="{{ c|add:' object-cover border-2 border-[--transparente-3]' }}"
+                    src="{{ media_url }}{{ usuario.miniatura_foto }}"
+                    alt="foto de perfil"
+                  />
+                </button>
+              {% else %}
+                <span
+                  class="{{ c|add:' tac bg-fondo-950 text-texto-semi-sutil text-3xl font-bold' }}"
+                >
+                  {{ usuario.username|capfirst|slice:"0:1" }}
+                </span>
+              {% endif %}
             {% endwith %}
-          </article>
-        {% endwith %}
+
+            <hgroup class="col jb gap-y-1 w-full">
+              <h3
+                id="{{ usuario.id }}-nombre"
+                class="font-bold min-[500px]:text-lg"
+              >
+                {% include "componentes/tabla-adaptable/enlace-editar.html" with objeto=usuario dato=usuario.username %}
+              </h3>
+              <p class="text-sm text-texto-semi-sutil">
+                {% with roles=usuario.grupos.all %}
+                  {% if roles %}
+                    {% for rol in roles %}
+                      {{ rol }}{% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                  {% else %}
+                    Sin grupos
+                  {% endif %}
+                {% endwith %}
+              </p>
+            </hgroup>
+          </div>
+
+          <div
+            class="col gap-y-3 border-t border-[--borde-caja] pt-3 text-sm text-texto-sutil"
+          >
+            <dl class="col gap-y-2">
+              {% with c="flex aic jb" dtc="flex gap-x-2 aic font-500"  icono_contenedor_c="ui-contenedor-icono align-middle p-1 bg-[--transparente-1] text-texto-sutil" icono_class="size-4" %}
+                <div class="{{ c }}">
+                  <dt class="{{ dtc }}">
+                    <span class="{{ icono_contenedor_c }}">
+                      <svg
+                        class="{{ icono_class }}"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 512 512"
+                      >
+                        <path
+                          d="M424 80H88a56.06 56.06 0 0 0-56 56v240a56.06 56.06 0 0 0 56 56h336a56.06 56.06 0 0 0 56-56V136a56.06 56.06 0 0 0-56-56Zm-14.18 92.63-144 112a16 16 0 0 1-19.64 0l-144-112a16 16 0 1 1 19.64-25.26L256 251.73l134.18-104.36a16 16 0 0 1 19.64 25.26Z"
+                        ></path>
+                      </svg>
+                    </span>
+                    Correo:
+                  </dt>
+
+                  {% if usuario.email %}
+                    <a
+                      class="underline text-sky-600"
+                      href="mailto:{{ usuario.email }}"
+                    >
+                      {{ usuario.email }}
+                    </a>
+                  {% else %}
+                    no tiene
+                  {% endif %}
+                </div>
+
+                <div class="{{ c }}">
+                  <dt class="{{ dtc }}">
+                    <span class="{{ icono_contenedor_c }}">
+                      <svg
+                        class="{{ icono_class }}"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          d="M5 22h14c1.103 0 2-.897 2-2V6c0-1.103-.897-2-2-2h-2V2h-2v2H9V2H7v2H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2zm11-6h-3v3h-2v-3H8v-2h3v-3h2v3h3v2zM5 7h14v2H5V7z"
+                        ></path>
+                      </svg>
+                    </span>
+                    Fecha de añadido:
+                  </dt>
+                  <dd>{{ usuario.date_joined|date:"d M. Y, h:i A" }}</dd>
+                </div>
+              {% endwith %}
+            </dl>
+
+            <div class="flex flex-wrap aic jb gap-x-2">
+              {% with c="fc gap-x-2 p-1 px-4 rounded-full" %}
+                {% with activo=usuario.is_active %}
+                  <span
+                    role="status"
+                    class="{{ c }} {% if activo %}
+                      bg-exito-200 border-exito text-exito-900
+                    {% else %}
+                      bg-peligro-200 border-peligro text-peligro-900
+                      dark:bg-peligro-300
+                    {% endif %}"
+                  >
+                    <span
+                      class="size-3 rounded-full {% if activo %}
+                        bg-exito-400
+                      {% else %}
+                        bg-peligro-400
+                      {% endif %}"
+                    ></span>
+                    {{ activo|yesno:'Activo,Inactivo' }}
+                  </span>
+                {% endwith %}
+
+                <label
+                  class="{{ c|add:' gap-x-2.5 border border-[--transparente-3] has-checked:bg-fondo-900 cursor-pointer select-none' }}"
+                >
+                  {% include "componentes/tabla-adaptable/index.html#fila_check" with objeto=usuario %}
+                  #
+                  {% if page_obj.paginator.num_pages > 1 %}
+                    {% with total_anterior=page_obj.number|add:-1|multiplicar:view.paginate_by %}
+                      {# se multiplica la cantidad por página de acuerdo a la cantidad recorrida y la cantidad de objetos por página y se le añade cada valor del ciclo actual #}
+                      {{ total_anterior|add:forloop.counter }}
+                    {% endwith %}
+                  {% else %}
+                    {{ forloop.counter }}
+                  {% endif %}
+                </label>
+              {% endwith %}
+            </div>
+          </div>
+        </article>
       </li>
     {% endfor %}
   </ul>

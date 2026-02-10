@@ -121,7 +121,7 @@ class ListaUsuarios(VistaListaObjetos):
     )
     tabla = False
 
-    def get_queryset(self, *args, **kwargs) -> "list[dict]":
+    def get_queryset(self, *args, **kwargs):
         q = (
             Usuario.objects.prefetch_related("grupos")
             .annotate(fecha_añadido=TruncMinute("date_joined"))
