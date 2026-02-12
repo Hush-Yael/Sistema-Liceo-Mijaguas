@@ -75,6 +75,12 @@ class FormUsuario(forms.ModelForm):
         if self.instance.pk:
             self.fields["password"].required = False
 
+    field_order = (
+        nc(Usuario.username),
+        nc(Usuario.password),
+        nc(Usuario.email),
+    )
+
 
 class FormGrupo(forms.ModelForm):
     def __init__(self, *args, **kwargs):
