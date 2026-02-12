@@ -185,12 +185,14 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
 
 
 def contexto(request: HttpRequest):
-    permisos = request.user.get_all_permissions()  # type: ignore
+    autenticado = request.user.is_authenticated
+    if autenticado:  # type: ignore
+        permisos = request.user.get_all_permissions()  # type: ignore
 
     return {
         "DEBUG": settings.DEBUG,
-        "enlaces": obtener_enlaces(request, permisos)
-        if request.user.is_authenticated
+        "enlaces": obtener_enlaces(request, permisos)  # type: ignore - sí se define permisos
+        if autenticado
         else [],
         "media_url": MEDIA_URL,
     }
