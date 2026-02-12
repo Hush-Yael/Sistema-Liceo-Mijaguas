@@ -34,13 +34,6 @@ MATERIAS = [
 
 MATERIAS_PUNTUALES = {"Premilitar": (5,), "Física": (3, 4, 5), "Química": (3, 4, 5)}
 
-def obtener_modelos_modulo(modulo: ModuleType) -> "tuple[models.Model, ...]":
-    return tuple(
-        obj
-        for _, obj in inspect.getmembers(modulo)
-        if isinstance(obj, models.base.ModelBase)  # type: ignore - si se usa models.Model no funciona
-        and obj.__module__ == modulo.__name__
-    )
 
 
 class Command(BaseCommand):
