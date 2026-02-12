@@ -24,7 +24,7 @@ function rastrearErrorInputActual(e) {
 // verificar si se vuelve a introducir un valor erróneo o si se introduce uno diferente
 /** @param {Event} e */
 function limpiarAlCambiar(e) {
-  if (e.target !== e.currentTarget) {
+  if (e.target !== e.currentTarget && e.target.type !== "file") {
     /** @type {HTMLInputElement} */
     const campo = e.target;
 
