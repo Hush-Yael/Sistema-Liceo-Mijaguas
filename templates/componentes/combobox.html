@@ -211,9 +211,6 @@
 
             <template x-if="opciones.length === 0">
               <li class="{{ c }}">
-                <span class="{{ ic }}">
-                  {% include "componentes/iconos/opciones.html#sin_opciones" %}
-                </span>
                 {{ sin_opciones_msj|default:'No hay opciones para escoger' }}
               </li>
             </template>
