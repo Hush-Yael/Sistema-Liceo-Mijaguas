@@ -147,7 +147,7 @@
               <div
                 class="{{ 'flex gap-x-1 max-[700px]:(gap-x-1.5 pt-2 border-t border-t-[#fff3])'|expandir_variantes }}"
               >
-                {% with label="Totales:"  icono='total' %}
+                {% with label="Totales:" icono='total' %}
                   {% if view.total is not None %}
                     {% with dato=view.total %}
                       {% partial cantidad %}
@@ -380,7 +380,7 @@
     class="flex aic gap-x-2 flex-1 rounded p-1.5 pl-2 pr-3 bg-[#fff3] max-[500px]:text-sm min-[500px]:gap-x-3 min-[700px]:rounded-lg"
   >
     <span
-      class="inline-flex aic jcc rounded size-5 p-1 bg-[#fff3] min-[500px]:size-6"
+      class="inline-flex aic jcc rounded size-5 p-0.75 bg-[#fff3] min-[500px]:size-6"
     >
       {% include "componentes/iconos/tabla.html#"|add:icono %}
     </span>
