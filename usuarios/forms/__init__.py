@@ -1,4 +1,5 @@
 from django import forms
+from app.util import nc
 from usuarios.models import Grupo, Usuario
 
 
@@ -32,11 +33,11 @@ class FormularioDatosUsuario(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields[Usuario.username.field.name].help_text = ""
+        self.fields[nc(Usuario.username)].help_text = ""
 
         if not kwargs["instance"].email:
             self.fields[
-                Usuario.email.field.name
+                nc(Usuario.email)
             ].help_text = "Es importante que tenga un correo, para poder restablecer su contraseña en caso de olvido"
 
     email = forms.EmailField(required=False, label="Correo")

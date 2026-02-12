@@ -2,6 +2,7 @@ from enum import Enum
 from django import forms
 from app.campos import OPCIONES_TIPO_BUSQUEDA_CANTIDADES, CampoBooleanoONulo
 from app.forms import BusquedaFormMixin, ConjuntoOpcionesForm
+from app.util import nc
 from estudios.modelos.parametros import Lapso, Materia, Seccion, Año
 from app.campos import FiltrosConjuntoOpciones
 from app.settings import MIGRANDO
@@ -70,11 +71,11 @@ class SeccionBusquedaForm(BusquedaFormMixin, forms.Form):
     columnas_busqueda = (
         (
             {
-                "columna_db": Seccion.nombre.field.name,
+                "columna_db": nc(Seccion.nombre),
                 "nombre_campo": "nombre",
             },
             {
-                "columna_db": Seccion.capacidad.field.name,
+                "columna_db": nc(Seccion.capacidad),
                 "nombre_campo": "capacidad",
             },
             {
@@ -173,7 +174,7 @@ class MateriaBusquedaForm(ConjuntoOpcionesForm, BusquedaFormMixin):
     columnas_busqueda = (
         (
             {
-                "columna_db": Materia.nombre.field.name,
+                "columna_db": nc(Materia.nombre),
                 "nombre_campo": "nombre",
             },
         )

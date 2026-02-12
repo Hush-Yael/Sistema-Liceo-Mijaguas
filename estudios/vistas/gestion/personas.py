@@ -17,7 +17,7 @@ from django.db.models import (
 )
 from django.views.generic import CreateView, FormView, UpdateView
 from app import HTTPResponseHXRedirect
-from app.util import nc, nombre_url_lista_auto, obtener_filtro_bool_o_nulo
+from app.util import mn, nc, nombre_url_lista_auto, obtener_filtro_bool_o_nulo
 from app.vistas import (
     VistaActualizarObjeto,
     VistaCrearObjeto,
@@ -342,7 +342,7 @@ class ProfesorFormMixin(PermissionRequiredMixin, FormView):
 
 class CrearProfesor(ProfesorFormMixin, CreateView):
     form_class: Type[FormProfesor] = FormProfesor  # type: ignore - el tipo del form es correcto
-    permission_required = f"{Profesor._meta.app_label}.add_{Profesor._meta.model_name}"
+    permission_required = f"{Profesor._meta.app_label}.add_{mn(Profesor)}"
     mensaje_exito = "Profesor creado exitosamente."
     mensaje_exito_con_usuario = "creado exitosamente con usuario"
 
@@ -353,9 +353,7 @@ class CrearProfesor(ProfesorFormMixin, CreateView):
 
 class ActualizarProfesor(ProfesorFormMixin, UpdateView):
     form_class: Type[FormProfesor] = FormProfesor  # type: ignore - el tipo del form es correcto
-    permission_required = (
-        f"{Profesor._meta.app_label}.change_{Profesor._meta.model_name}"
-    )
+    permission_required = f"{Profesor._meta.app_label}.change_{mn(Profesor)}"
     mensaje_exito = "Profesor actualizado exitosamente."
     mensaje_exito_con_usuario = (
         "actualizado correctamente y asignado a un nuevo usuario"

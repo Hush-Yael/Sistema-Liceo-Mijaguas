@@ -10,7 +10,7 @@ from django.contrib.admin.models import LogEntry
 from django.contrib.sessions.models import Session
 from django.views.generic import UpdateView
 from django_group_model.models import Permission
-from app.util import obtener_filtro_bool_o_nulo
+from app.util import nc, obtener_filtro_bool_o_nulo
 from app.vistas import VistaActualizarObjeto, VistaCrearObjeto, VistaListaObjetos
 from usuarios.forms.auth import CambiarContraseñaForm
 from usuarios.forms.busqueda import UsuarioBusquedaForm
@@ -127,8 +127,9 @@ class ListaUsuarios(VistaListaObjetos):
             .annotate(fecha_añadido=TruncMinute("date_joined"))
             .only(
                 "id",
-                "foto_perfil",
-                "miniatura_foto",
+                nc(Usuario.foto_perfil),  # type: ignore
+                nc(Usuario.miniatura_foto),  # type: ignore
+                nc(Usuario.date_joined),
                 *(
                     col["clave"]
                     for col in self.columnas_totales

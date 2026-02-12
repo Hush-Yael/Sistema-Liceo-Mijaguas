@@ -1,6 +1,7 @@
 from django import forms
 from django.db.models import Exists
 
+from app.util import nc
 from estudios.forms import obtener_matriculas_de_lapso
 from estudios.modelos.gestion.personas import Estudiante, Matricula, MatriculaEstados
 from estudios.modelos.parametros import (
@@ -178,11 +179,11 @@ class FormSeccion(forms.ModelForm):
     class Meta:
         model = Seccion
         fields = (
-            Seccion.año.field.name,
-            Seccion.nombre.field.name,
-            Seccion.letra.field.name,  # type: ignore
-            Seccion.capacidad.field.name,
-            Seccion.vocero.field.name,
+            nc(Seccion.año),
+            nc(Seccion.nombre),
+            nc(Seccion.letra),  # type: ignore
+            nc(Seccion.capacidad),
+            nc(Seccion.vocero),
         )
 
     vocero = forms.ModelChoiceField(

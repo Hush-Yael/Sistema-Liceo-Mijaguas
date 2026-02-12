@@ -1,4 +1,4 @@
-from typing import Any, Mapping, Type
+from typing import TYPE_CHECKING, Any, Mapping, Type
 from django.db import models
 from app.campos import TextosBooleanos
 
@@ -25,3 +25,23 @@ def nombre_url_editar_auto(modelo: Type[models.Model]) -> str:
 
 def nombre_url_lista_auto(modelo: Type[models.Model]) -> str:
     return str(modelo._meta.model_name)
+
+
+if TYPE_CHECKING:
+    from django.db.models.fields import _FieldDescriptor
+    from django.db.models.fields.files import ImageFileDescriptor
+
+
+def nc(campo: "_FieldDescriptor | ImageFileDescriptor") -> str:
+    """Retorna el nombre del campo de acuerdo a su columna de la base de datos"""
+    return campo.field.name
+
+
+def mn(modelo: Type[models.Model]) -> str:
+    """Retorna el nombre del modelo"""
+    return str(modelo._meta.model_name)
+
+
+def vn(modelo: Type[models.Model]) -> str:
+    """Retorna el verbose name del modelo"""
+    return str(modelo._meta.verbose_name)

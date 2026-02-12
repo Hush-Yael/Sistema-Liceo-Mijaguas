@@ -4,6 +4,7 @@ from app.forms import (
     BusquedaFormMixin,
     OrdenFormMixin,
 )
+from app.util import nc
 from usuarios.models import Grupo, Usuario
 
 
@@ -16,19 +17,19 @@ class UsuarioBusquedaForm(OrdenFormMixin, BusquedaFormMixin):
     campos_prefijo_cookie = "usuarios"
     columnas_busqueda = (
         {
-            "columna_db": Usuario.username.field.name,
+            "columna_db": nc(Usuario.username),
             "nombre_campo": "nombre",
         },
         {
-            "columna_db": Usuario.email.field.name,
+            "columna_db": nc(Usuario.email),
             "nombre_campo": "correo",
         },
     )
     opciones_orden = (
-        (Usuario.username.field.name, "Nombre"),
-        (Usuario.email.field.name, "Correo"),
-        (Usuario.date_joined.field.name, "Fecha de añadido"),
-        (Usuario.last_login.field.name, "Último inicio de sesión"),
+        (nc(Usuario.username), "Nombre"),
+        (nc(Usuario.email), "Correo"),
+        (nc(Usuario.date_joined), "Fecha de añadido"),
+        (nc(Usuario.last_login), "Último inicio de sesión"),
     )
 
     activo = CampoBooleanoONulo(

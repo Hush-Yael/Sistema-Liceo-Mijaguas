@@ -5,6 +5,7 @@ from app.forms import (
     OrdenFormMixin,
 )
 from app.settings import MIGRANDO
+from app.util import mn, nc, vn
 from estudios.forms.parametros.busqueda import LapsoYSeccionFormMixin
 from estudios.modelos.parametros import Materia
 from estudios.modelos.gestion.personas import (
@@ -25,15 +26,15 @@ class NotasBusquedaForm(LapsoYSeccionFormMixin):
     campos_prefijo_cookie = "notas"
     columnas_busqueda = (
         {
-            "columna_db": f"{Matricula._meta.verbose_name}__{Estudiante._meta.verbose_name}__{Estudiante.nombres.field.name}",
+            "columna_db": f"{vn(Matricula)}__{vn(Estudiante)}__{nc(Estudiante.nombres)}",
             "nombre_campo": "nombres",
         },
         {
-            "columna_db": f"{Matricula._meta.verbose_name}__{Estudiante._meta.verbose_name}__{Estudiante.apellidos.field.name}",
+            "columna_db": f"{vn(Matricula)}__{vn(Estudiante)}__{nc(Estudiante.apellidos)}",
             "nombre_campo": "apellidos",
         },
         {
-            "columna_db": f"{Matricula._meta.verbose_name}__{Estudiante._meta.verbose_name}__{Estudiante.cedula.field.name}",
+            "columna_db": f"{vn(Matricula)}__{vn(Estudiante)}__{nc(Estudiante.cedula)}",
             "nombre_campo": "cedula",
         },
     )
@@ -48,29 +49,29 @@ class NotasBusquedaForm(LapsoYSeccionFormMixin):
 class MatriculaBusquedaForm(OrdenFormMixin, LapsoYSeccionFormMixin):
     columnas_busqueda = (
         {
-            "columna_db": f"{Estudiante._meta.verbose_name}__{Estudiante.nombres.field.name}",
+            "columna_db": f"{vn(Estudiante)}__{nc(Estudiante.nombres)}",
             "nombre_campo": "nombres",
         },
         {
-            "columna_db": f"{Estudiante._meta.verbose_name}__{Estudiante.apellidos.field.name}",
+            "columna_db": f"{vn(Estudiante)}__{nc(Estudiante.apellidos)}",
             "nombre_campo": "apellidos",
         },
         {
-            "columna_db": f"{Estudiante._meta.verbose_name}__{Estudiante.cedula.field.name}",
+            "columna_db": f"{vn(Estudiante)}__{nc(Estudiante.cedula)}",
             "nombre_campo": "cedula",
         },
     )
     opciones_orden = (
         (
-            f"{Estudiante._meta.verbose_name}__{Estudiante.nombres.field.name}",
+            f"{vn(Estudiante)}__{nc(Estudiante.nombres)}",
             "Nombres",
         ),
         (
-            f"{Estudiante._meta.verbose_name}__{Estudiante.apellidos.field.name}",
+            f"{vn(Estudiante)}__{nc(Estudiante.apellidos)}",
             "Apellidos",
         ),
         (
-            f"{Estudiante._meta.verbose_name}__{Estudiante.cedula.field.name}",
+            f"{vn(Estudiante)}__{nc(Estudiante.cedula)}",
             "Cedula",
         ),
     )

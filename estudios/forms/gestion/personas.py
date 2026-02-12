@@ -3,6 +3,7 @@ from django import forms
 from django.db.models import Exists
 from usuarios.models import Usuario
 from app.settings import MIGRANDO
+from app.util import nc
 from estudios.forms import LapsoActualForm, obtener_matriculas_de_lapso
 from estudios.modelos.gestion.personas import (
     Estudiante,
@@ -16,7 +17,6 @@ from estudios.modelos.parametros import (
     Seccion,
     obtener_lapso_actual,
 )
-from usuarios.models import GruposBase
 
 
 class FormMatricula(LapsoActualForm, forms.ModelForm):
@@ -50,10 +50,10 @@ class FormMatricula(LapsoActualForm, forms.ModelForm):
     class Meta:
         model = Matricula
         fields = (
-            Matricula.estudiante.field.name,
-            Matricula.seccion.field.name,
-            Matricula.estado.field.name,
-            Matricula.lapso.field.name,
+            nc(Matricula.estudiante),
+            nc(Matricula.seccion),
+            nc(Matricula.estado),
+            nc(Matricula.lapso),
         )
 
     lapso_actual: "Lapso | None" = None
@@ -100,7 +100,15 @@ class FormMatricula(LapsoActualForm, forms.ModelForm):
 class FormProfesor(forms.ModelForm):
     class Meta:
         model = Profesor
-        exclude = (Profesor.fecha_ingreso.field.name,)
+        exclude = (nc(Profesor.fecha_ingreso),)
+
+    field_order = (
+        nc(Profesor.nombres),
+        nc(Profesor.apellidos),
+        nc(Profesor.cedula),
+        nc(Profesor.sexo),
+        nc(Profesor.telefono),
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
