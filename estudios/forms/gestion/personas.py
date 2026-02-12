@@ -115,6 +115,8 @@ class FormProfesor(forms.ModelForm):
 
         campo_usuario: forms.ModelChoiceField = self.fields[nc(Profesor.usuario)]  # type: ignore
 
+        campo_usuario.label = "Escoja un usuario:"
+
         campo_usuario.queryset = campo_usuario.queryset.filter(  # type: ignore
             profesor__isnull=True,
         )

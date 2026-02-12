@@ -4,17 +4,20 @@
 {% load widget_tweaks %}
 
 <div
-  class="ui-elevado col gap-y-6 p-4 rounded-lg"
-  x-data="{ asignacionUsuario: {% if form.usuario_manual.value %}'manual'{% else %}'existente'{% endif %} }"
+  class="{{ 'ui-elevado col gap-6 p-4 rounded-lg min-[700px]:(grid grid-cols-2 p-6)'|expandir_variantes }}"
+  {# x-data="{ asignacionUsuario: {% if form.usuario_manual.value %}'manual'{% else %}'existente'{% endif %} }" #}
+  x-data="{ asignacionUsuario: 'manual'}"
 >
   {% render_field form.usuario_manual class="sr-only" %}
 
-  <h2 class="text-xl font-bold border-b border-[--transparente-2] pb-2">
+  <h2
+    class="text-xl font-bold border-b border-[--transparente-2] pb-2 col-span-2"
+  >
     Asignación de usuario
   </h2>
 
   {# Opciones de selección #}
-  <div class="col gap-2 min-[600px]:flex-row">
+  <div class="col gap-2 max-h-max">
     {# Opción 1: Usuario existente #}
     {%
       with
@@ -40,34 +43,44 @@
     {% endwith %}
   </div>
 
-  <div class="col gap-y-3 border-t pt-4 border-[--transparente-2]">
+  <div
+    class="{{ 'col gap-y-3 border-[--transparente-2] max-[700px]:(pt-4 border-t) min-[700px]:(h-full pl-4 border-l )'|expandir_variantes }}"
+  >
     {# Combobox de usuarios #}
-    <div x-show="asignacionUsuario === 'existente'" x-cloak>
+    <div
+      class="min-[700px]:h-full"
+      x-show="asignacionUsuario === 'existente'"
+      x-cloak
+    >
       {% partial campo_usuario_existente %}
     </div>
 
     {# Creación de nuevo usuario #}
     <div
-      class="col gap-6 min-[600px]:grid grid-cols-2"
+      class="col gap-y-6"
       x-show="asignacionUsuario === 'manual'"
       {# x-cloak #}
     >
-      <div class="col jcc aic gap-y-3" x-data="campoFoto({})">
-        {% with img_class="size-30 size-min-30" campo=usuario_form.foto_perfil %}
-          {% if campo.value %}
-            {% with src=campo.value %}
-              {{ src }}
-              {% include "componentes/foto/img.html" %}
-            {% endwith %}
-          {% else %}
-            {% include "componentes/foto/img.html" %}
-          {% endif %}
-        {% endwith %}
-      </div>
-
       {% with form=usuario_form %}
         {% for campo in form %}
-          {% if campo == form.username or campo == form.email or campo == form.password %}
+          {% if campo == form.username %}
+            <div class="flex items-start gap-y-6 gap-x-4 min-[500px]:gap-x-6">
+              {% include "componentes/campo.html" with class="flex-1" input_class="deshabilitar-al-subir ui-elevado-2" %}
+
+              <div class="col jcc aic gap-y-3" x-data="campoFoto({})">
+                {% with img_class="size-18 size-min-18 lh-18 min-[500px]:(size-20 size-min-20 lh-20)"|expandir_variantes campo=usuario_form.foto_perfil class="relative" error_class="absolute bottom-full mb-3 right-0 mr-6 p-1 px-2 w-max max-w-60vw rounded bg-peligro text-peligro-texto! animate-(bounce duration-700 count-[2] fill-forwards) before:(absolute -z-1 top-90% right-1 content-[''] size-4 bg-peligro border-peligro border-t border-l -transform-translate-y-1/2 transform-rotate-45) max-[500px]:text-xs"|expandir_variantes %}
+                  {% if campo.value %}
+                    {% with src=campo.value %}
+                      {{ src }}
+                      {% include "componentes/foto/img.html" %}
+                    {% endwith %}
+                  {% else %}
+                    {% include "componentes/foto/img.html" %}
+                  {% endif %}
+                {% endwith %}
+              </div>
+            </div>
+          {% elif campo == form.email or campo == form.password %}
             {% include "componentes/campo.html" with input_class="deshabilitar-al-subir ui-elevado-2" %}
           {% endif %}
         {% endfor %}
@@ -108,7 +121,7 @@
 {% partialdef campo_usuario_existente %}
   {% with campo=form.usuario %}
     <div
-      class="flex aic jb gap-x-4 w-full mxa max-w-400px"
+      class="flex jb gap-x-4 w-full max-[700px]:items-end min-[700px]:h-full min-[700px]:flex-col-reverse"
       {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
       x-data="{
         urlMiniatura:
@@ -124,6 +137,7 @@
       {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
       @change="
         const input = $event.target;
+        if (input.hasAttribute('data-btn-reiniciar')) return urlMiniatura = ''
         
         if (input.name === '{{ form.usuario.name }}') {
           const i = $el.$('[name={{ form.usuario.name }}]');
@@ -135,7 +149,7 @@
     >
       {%
         include "componentes/combobox.html" with
-        class="flex-1 max-w-[calc(100%-var(--spacing)*18)]"
+        class="max-[700px]:(flex-1 max-w-[calc(100%-var(--spacing)*18)])"|expandir_variantes
         btn_class="bg-fondo-700"
         caret_class="bg-fondo-900"
         label=campo.label
@@ -149,14 +163,14 @@
         sin_opciones_msj="No hay usuarios adecuados para escoger"
       %}
 
-      {% with c="size-14 size-min-14" %}
+      {% with class="size-14 size-min-14 min-[400px]:(size-20 size-min-20) min-[500px]:(size-25 size-min-25) min-[700px]:(size-60% max-w-max object-cover mxa)"|expandir_variantes %}
         <img
           src=""
           :src="urlMiniatura"
           alt="foto de perfil"
-          class="{{ c }} aspect-square object-cover outline-1 outline-#fff2 [&[src='']]:hidden rounded-full"
+          class="{{ class }} aspect-square object-cover outline-1 outline-#fff2 [&[src='']]:hidden rounded-full"
         />
-        {% include "componentes/iconos/sin-foto.html" with x_show="urlMiniatura === ''" class=c %}
+        {% include "componentes/iconos/sin-foto.html" with x_show="urlMiniatura === ''" %}
       {% endwith %}
     </div>
   {% endwith %}
