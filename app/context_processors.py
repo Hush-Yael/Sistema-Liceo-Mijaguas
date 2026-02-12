@@ -8,6 +8,7 @@ from estudios.modelos.gestion.calificaciones import Nota
 from estudios.modelos.gestion.personas import Profesor, ProfesorMateria, Matricula
 from estudios.modelos.parametros import Lapso, Materia, Seccion, Año
 from usuarios.models import Usuario, Grupo
+from app.settings import MEDIA_URL
 
 
 class Enlace(TypedDict):
@@ -191,4 +192,5 @@ def contexto(request: HttpRequest):
         "enlaces": obtener_enlaces(request, permisos)
         if request.user.is_authenticated
         else [],
+        "media_url": MEDIA_URL,
     }
