@@ -90,7 +90,7 @@
                           name="filas_id"
                           value="{{ objeto.id }}"
                           data-i="{{ forloop.counter0 }}"
-                          :checked="filasSeleccionadas.has($el.value)"
+                          :checked="filasSeleccionadas.has({{ objeto.id }})"
                           class="peer ui-opcion ui-opcion/checkbox cursor-pointer"
                           type="checkbox"
                           autocomplete="off"
