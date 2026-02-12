@@ -4,9 +4,15 @@
 {% with lista=lista|json_decode %}
   <nav
     class="border-b border-[--transparente-3]"
-    x-data="{ actualizar() { pestaña = decodeURIComponent(location.hash.slice(1)) } }"
+    x-data="{
+    actualizar() {
+        pestaña = location.hash 
+          ? decodeURIComponent(location.hash.slice(1))
+          : (pestaña = '{{ lista.0.id }}')
+      }
+    }"
     @hashchange.window="actualizar()"
-    x-init="location.hash ? actualizar() : (pestaña = '{{ lista.0.id }}')"
+    x-init="actualizar()"
   >
     <ul class="flex flex-wrap text-sm -mb-px font-500 text-center">
       {% for pestaña in lista %}
