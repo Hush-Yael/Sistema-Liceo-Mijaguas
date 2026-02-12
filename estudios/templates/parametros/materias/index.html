@@ -10,15 +10,6 @@
   {% include "componentes/combobox.html#scripts" %}
 {% endblock cabeza %}
 
-{% block contenido %}
-  {%
-    with
-    main_class="col gap-y-3 flex-1 max-h-[calc(100dvh-var(--altura-header))] max-w-800px mxa w-full p-4 py-2 min-[500px]:p-6 sidebar:(jcc p-8)"|expandir_variantes
-  %}
-    {{ block.super }}
-  {% endwith %}
-{% endblock contenido %}
-
 {% block opciones_filtros %}
   {%
     include "componentes/vista-lista/filtros/conjunto-opciones.html" with
@@ -69,7 +60,9 @@
         </hgroup>
 
         {% with asignaciones=form_asignaciones.asignaciones %}
-          <form>{% include "materias/form.html#asignaciones" %}</form>
+          <form>
+            {% include "parametros/materias/form.html#asignaciones" %}
+          </form>
 
           <div class="{{ btns_class }}" role="group">
             <button class="{{ cancelar_class }}" @click="modalAbierto = null">
@@ -100,7 +93,7 @@
                 limpiarSeleccion();
               }"
             >
-              <div class="ui-loader ui-loader/blanco"></div>
+              <span class="ui-loader ui-loader/blanco"></span>
               Asignar
             </button>
           </div>

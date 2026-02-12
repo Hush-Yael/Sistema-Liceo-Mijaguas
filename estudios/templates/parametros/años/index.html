@@ -5,12 +5,3 @@
   {{ block.super }}
   {% include "componentes/tabla-adaptable/cabeza.html" %}
 {% endblock cabeza %}
-
-{% block contenido %}
-  {%
-    with
-    main_class="col gap-y-3 flex-1 max-h-[calc(100dvh-var(--altura-header))] max-w-800px mxa w-full p-4 py-6 min-[500px]:py-8 sidebar:jcc sidebar:p-10"
-  %}
-    {{ block.super }}
-  {% endwith %}
-{% endblock contenido %}

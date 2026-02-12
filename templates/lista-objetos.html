@@ -40,7 +40,8 @@
 
 {% block contenido %}
   <main
-    class="{{ main_class }}"
+    class="col flex-1 w-full supports-[not(height:1dvh)]:(max-h-[calc(100vh-var(--altura-header))] h-[calc(100vh-var(--altura-header))]) max-h-[calc(100dvh-var(--altura-header))] h-[calc(100dvh-var(--altura-header))] {{ main_class }}"
+    |expandir_variantes
     {% if not no_hay_objetos %}
       hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
       hx-target="#{{ view.id_lista_objetos }}" hx-swap="outerHTML"
@@ -98,27 +99,24 @@
       </div>
     {% else %}
       {% block cabecera %}
-        <div>
-          <header
-            {% with c="min-[600px]:(flex gap-x-5 aic jb)"|expandir_variantes %}
-              {% if view.total is not None or is_paginated %}
-                class="{{ c|add:' min-[600px]:(pb-2 border-b border-[--transparente-2])'|expandir_variantes }}"
-              {% else %}
-                class="{{ c|add:' pb-2 border-b border-[--transparente-2]' }}"
-              {% endif %}
-            {% endwith %}
+        <header
+          class="bg-primario-600 dark:bg-primario-400 text-primario-texto border-b-2 border-t-[#fff2] border-b-[#fff3] p-2 px-4 shadow-lg max-sidebar:border-t-1"
+        >
+          <div
+            class="{{ 'max-[700px]:col gap-y-2 min-[700px]:(flex gap-x-5 aic jb)'|expandir_variantes }}"
           >
+            {# Título, separador y enlace #}
             <div
               {% with c="flex aic gap-x-4" %}
                 {% if view.total is not None or is_paginated %}
-                  class="{{ c|add:' pb-2 max-[600px]:jb min-[600px]:flex-row-reverse' }}"
+                  class="{{ c|add:' max-[700px]:jb min-[700px]:flex-row-reverse' }}"
                 {% else %}
                   class="{{ c|add:' flex-1 jb' }}"
                 {% endif %}
               {% endwith %}
             >
               <h1
-                {% with c="text-lg font-bold min-[500px]:text-xl truncate" %}
+                {% with c="text-lg font-500 min-[500px]:text-xl truncate" %}
                   {% if view.total is None and not is_paginated %}
                     class="{{ c|add:' flex-1' }}"
                   {% else %}
@@ -132,12 +130,10 @@
               </h1>
 
               {% if permisos.crear and view.url_crear %}
-                <hr
-                  class="max-[600px]:hidden h-6 w-1px border-0 bg-[--transparente-2]"
-                />
+                <hr class="max-[700px]:hidden h-6 w-1px border-0 bg-[#fff4]" />
 
                 <a
-                  class="ui-btn ui-btn/primario rounded-full p-1.25 size-7 text-sm"
+                  class="ui-btn size-6 rounded-full p-1 text-sm bg-primario-texto text-primario-600 pover:bg-primario-50 dark:pover:bg-primario-950 shadow-[inset_0_-1px_1px_1px_#0002]"
                   href="{% url view.url_crear %}"
                   aria-label="Añadir {{ view.nombre_objeto }}"
                 >
@@ -146,9 +142,10 @@
               {% endif %}
             </div>
 
+            {# Contadores #}
             {% if view.total is not None or is_paginated %}
               <div
-                class="{{ 'flex gap-x-1.5 pt-1 max-[600px]:(border-t border-t-[--transparente-2])'|expandir_variantes }}"
+                class="{{ 'flex gap-x-1 max-[700px]:(gap-x-1.5 pt-2 border-t border-t-[#fff3])'|expandir_variantes }}"
               >
                 {% with label="Totales:"  icono='total' %}
                   {% if view.total is not None %}
@@ -169,19 +166,20 @@
                 {% endif %}
               </div>
             {% endif %}
-          </header>
+          </div>
 
+          {# Indicador de búsqueda HTMX #}
           <div
             id="indicador-busqueda"
             role="status"
             aria-label="Cargando"
             class="{{ 'htmx-indicator relative h-1.25 w-full overflow-hidden rounded-xs before:(content-[""] absolute top-0 left-0 size-full bg-[--transparente-1] rounded-xs) after:(content-[""] absolute top-0 left-0 size-full bg-primario rounded-xs dark:bg-primario-600 transform translate-x-[-100%] animate-[moverIzquierdaDerecha_1s_linear_infinite]) max-[600px]:mt-2'|expandir_variantes }}"
           ></div>
-        </div>
+        </header>
       {% endblock cabecera %}
 
       <div
-        class="{{ 'tabla-contenido col gap-y-2 flex-1 h-full overflow-y-auto [@media_all_and_(display-mode:fullscreen)]:(p-4 bg-fondo-300)'|expandir_variantes }}"
+        class="{{ lista_clase|default:'p-3 min-[500px]:(p-4 px-5) sidebar:max-sidebar_full:px-6 min-[1000px]:(p-5 px-8)'|add:' tabla-contenido col gap-y-2 flex-1 mxa size-full overflow-y-auto [@media_all_and_(display-mode:fullscreen)]:(p-4 bg-fondo-300)'|expandir_variantes }}"
       >
         {% if form_filtros %}
           {% block filtros %}
@@ -379,14 +377,14 @@
 {% partialdef cantidad %}
   <div
     role="status"
-    class="{{ "ui-elevado flex aic gap-x-2 flex-1 p-1.5 pl-2 pr-3 max-[500px]:(text-sm) min-[500px]:(gap-x-3 py-2) max-[600px]:rounded-b-lg min-[600px]:rounded-lg"|expandir_variantes }}"
+    class="flex aic gap-x-2 flex-1 rounded p-1.5 pl-2 pr-3 bg-[#fff3] max-[500px]:text-sm min-[500px]:gap-x-3 min-[700px]:rounded-lg"
   >
     <span
-      class="inline-flex aic jcc rounded size-5 p-1 bg-secundario text-secundario-texto dark:bg-secundario-600 min-[500px]:size-6"
+      class="inline-flex aic jcc rounded size-5 p-1 bg-[#fff3] min-[500px]:size-6"
     >
       {% include "componentes/iconos/tabla.html#"|add:icono %}
     </span>
-    <p class="text-texto-sutil">{{ label }}</p>
+    <p class="opacity-90">{{ label }}</p>
     <b id="{{ dato_id }}" class="mla">{{ dato }}</b>
   </div>
 {% endpartialdef cantidad %}

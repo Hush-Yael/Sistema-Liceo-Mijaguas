@@ -16,15 +16,6 @@
   {% include "componentes/combobox.html#scripts" %}
 {% endblock cabeza %}
 
-{% block contenido %}
-  {%
-    with
-    main_class="col gap-y-3 flex-1 max-h-[calc(100dvh-var(--altura-header))] mxa w-full max-w-1000px p-3 px-4 min-[525px]:(p-5 gap-y-4) min-[600px]:px-8 sidebar:jcc sidebar:px-10"|expandir_variantes
-  %}
-    {{ block.super }}
-  {% endwith %}
-{% endblock contenido %}
-
 {% block opciones_filtros %}
   {{ block.super }}
   {%
