@@ -1,3 +1,4 @@
+from typing import Any
 from django import forms
 from app.util import nc
 from usuarios.models import Grupo, Usuario
@@ -6,26 +7,36 @@ from usuarios.models import Grupo, Usuario
 tamaño_minimo = 350
 
 
-def validarTamaño(foto: forms.ImageField):
-    if foto.size > 5242880:  # type: ignore
-        raise forms.ValidationError("El archivo es demasiado grande.")
+class FormUsuarioFotoMixin:
+    cleaned_data: "dict[str, Any]"
 
-    alto = foto.image.height  # type: ignore
-    ancho = foto.image.width  # type: ignore
+    foto_perfil = forms.ImageField(
+        required=False,
+        widget=forms.FileInput(),
+    )
 
-    if alto < tamaño_minimo:
-        raise forms.ValidationError(
-            f"La imagen no cumple con la altura requerida ({tamaño_minimo}px)"
-        )
-    elif ancho < tamaño_minimo:
-        raise forms.ValidationError(
-            f"La imagen no cumple con el ancho requerido ({tamaño_minimo}px)"
-        )
+    def clean_foto_perfil(self):
+        foto: forms.FileField = self.cleaned_data[nc(Usuario.foto_perfil)]  # type: ignore - Sí se obtiene el nombre del campo
 
-    return foto
+        if foto.size > 5242880:  # type: ignore
+            raise forms.ValidationError("El archivo es demasiado grande.")
+
+        alto = foto.image.height  # type: ignore
+        ancho = foto.image.width  # type: ignore
+
+        if alto < tamaño_minimo:
+            raise forms.ValidationError(
+                f"La imagen no cumple con la altura requerida ({tamaño_minimo}px)"
+            )
+        elif ancho < tamaño_minimo:
+            raise forms.ValidationError(
+                f"La imagen no cumple con el ancho requerido ({tamaño_minimo}px)"
+            )
+
+        return foto
 
 
-class FormularioDatosUsuario(forms.ModelForm):
+class FormularioDatosUsuario(FormUsuarioFotoMixin, forms.ModelForm):
     class Meta:
         model = Usuario
         fields = ("username", "email", "foto_perfil")
@@ -41,14 +52,9 @@ class FormularioDatosUsuario(forms.ModelForm):
             ].help_text = "Es importante que tenga un correo, para poder restablecer su contraseña en caso de olvido"
 
     email = forms.EmailField(required=False, label="Correo")
-    foto_perfil = forms.ImageField(
-        required=False,
-        widget=forms.FileInput(),
-        validators=[validarTamaño],  # type: ignore
-    )
 
 
-class FormUsuario(forms.ModelForm):
+class FormUsuario(FormUsuarioFotoMixin, forms.ModelForm):
     class Meta:
         model = Usuario
         fields = (
