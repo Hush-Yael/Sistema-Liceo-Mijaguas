@@ -32,11 +32,16 @@
     for="{{ name }}-texto"
     class="{{ label_class|default:''|add:' text-texto-semi-sutil' }}"
   >
-    {% if campo %}
-      {{ campo.label }}
-    {% else %}
-      {{ label }}
-    {% endif %}
+    <span>
+      {% if campo %}
+        {{ campo.label }}
+      {% else %}
+        {{ label }}
+      {% endif %}
+      {% if campo.field.required %}
+        {% include "componentes/campo.html#asterisco" %}
+      {% endif %}
+    </span>
 
     <input
       id="{{ name }}-texto"
