@@ -26,7 +26,9 @@ from app.util import (
 
 
 class Vista(PermissionRequiredMixin):
-    tipo_permiso: str
+    """Vista básica para todas las vistas de la app. Se encarga de validar los permisos pertinentes al modelo de la vista y de obtener datos relacionados al nombre de sus objetos."""
+
+    tipo_permiso: Literal["add", "change", "delete", "view"]
     nombre_modelo: str
     nombre_app_modelo: str
     nombre_objeto: str
@@ -63,6 +65,8 @@ class Vista(PermissionRequiredMixin):
 
 
 class VistaParaNoLogueados(View):
+    """Clase para vistas a las que solo deben acceder los usuarios que no han iniciado sesión"""
+
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             return redirect("inicio")
@@ -463,7 +467,7 @@ class VistaForm(SingleObjectTemplateResponseMixin, Vista):
     def form_valid(self, form: forms.ModelForm) -> HttpResponse:
         self.object = form.save()
 
-        nombre_modelo: str = self.model._meta.verbose_name  # type: ignore
+        nombre_modelo: str = self.model._meta.verbose_name  # type: ignore - sí es una string
 
         messages.success(
             self.request,
@@ -482,7 +486,7 @@ class VistaCrearObjeto(VistaForm, CreateView):
 
 class VistaActualizarObjeto(VistaForm, UpdateView):
     model: Type[models.Model]  # type: ignore
-    tipo_permiso = "edit"
+    tipo_permiso = "change"
     tipo_accion_palabra = "editad"
 
     def get_context_data(self, **kwargs):
