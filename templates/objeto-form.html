@@ -27,60 +27,62 @@
 {% endblock cabeza %}
 
 {% block contenido %}
-  <main
-    class="{{ class|default:'max-w-600px '|add:' col justify-center-safe flex-1  mxa w-full p-5 py-6 *:w-full min-[500px]:p-8 sidebar:jcc sidebar:p-10' }}"
-  >
-    <div class="col gap-y-2 mb-4 sidebar:mb-8">
-      <h1 class="text-2xl font-bold max-sidebar:tac">
-        {% if editando %}
-          Editar {{ view.nombre_objeto }}
-        {% else %}
-          Registro de {{ view.nombre_objeto_plural }}
-        {% endif %}
-      </h1>
-      <hr class="h-1px border-[--transparente-2] max-sidebar:hidden" />
-    </div>
-
-    <form
-      {% block form_attrs %}
-      {% endblock form_attrs %}
-      {% if form_class %}
-        class="{{ form_class }}"
-      {% endif %}
-      id="form"
-      hx-post
-      hx-target="#campos"
-      hx-indicator="#indicador"
-      hx-disabled-elt=".deshabilitar-al-subir"
-      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-    >
-      {% block campos %}{% endblock campos %}
-    </form>
-
+  <main class="col flex-1 size-full sidebar:min-h-100dvh {{ class }}">
     <div role="alert" id="indicador" class="htmx-indicator sr-only peer">
       Subiendo...
     </div>
 
-    <button
-      form="form"
-      id="submit"
-      class="{{
-        '
-          deshabilitar-al-subir ui-btn ui-btn/md ui-btn/primario gap-x-3 col-span-2 w-full mt-5 mla
-          peer-[:not(.htmx-request)]:[&>.ui-loader]:hidden
-          min-[500px]:(max-sidebar:mxa py-2.5)
-          sidebar:max-w-250px
-        '
-        |reemplazar_espacios:' '|expandir_variantes
-      }}"
+    <div
+      class="{{ cabecera_clase|default:' p-2 px-4 min-[500px]:px-8 max-sidebar:border-t-1 sidebar:px-10' }} group sticky z-4 top-[--altura-header] flex aic jb w-full border-b-2 border-t-[#fff2] border-b-[#fff3] bg-primario-600 dark:bg-primario-400 text-primario-texto shadow-lg "
     >
-      <span class="ui-loader ui-loader/blanco"></span>
-      {% if editando %}
-        Guardar cambios
-      {% else %}
-        Añadir
-      {% endif %}
-    </button>
+      <h1 class="text-lg font-500">
+        {% block titulo_form %}
+          {% if editando %}
+            Editar
+          {% else %}
+            Registrar
+          {% endif %}
+          {{ view.nombre_objeto }}
+        {% endblock titulo_form %}
+      </h1>
+
+      {% block acciones %}
+        <button
+          form="form"
+          id="submit"
+          class="deshabilitar-al-subir ui-btn gap-x-2! opacity-100! bg-primario-texto text-primario-600 pover:bg-primario-50 dark:pover:bg-primario-950 gap-x-3 outline-offset-3 p-0.5 px-4 [.peer:not(.htmx-request)~.group_&_.ui-loader]:hidden max-sidebar:text-sm"
+        >
+          {% block texto_subir %}
+            {% if editando %}
+              Guardar cambios
+            {% else %}
+              Añadir
+            {% endif %}
+          {% endblock texto_subir %}
+          <span
+            class="ui-loader border-2 border-current border-r-transparent size-3!"
+          ></span>
+        </button>
+      {% endblock acciones %}
+    </div>
+
+    {% with form_class="col aic justify-center-safe flex-1 p-4 py-6 min-[500px]:px-8 sidebar:px-10" %}
+      {% block form %}
+        <form
+          {% block form_attrs %}
+          {% endblock form_attrs %}
+          class="{{ form_class }}"
+          id="form"
+          hx-post
+          hx-target="#campos"
+          hx-indicator="#indicador"
+          hx-disabled-elt=".deshabilitar-al-subir"
+          hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+        >
+          {% block campos %}{% endblock campos %}
+        </form>
+      {% endblock form %}
+    {% endwith %}
   </main>
 {% endblock contenido %}
 

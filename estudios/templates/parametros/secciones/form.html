@@ -14,32 +14,27 @@
   {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
 {% endblock cabeza %}
 
-{% block contenido %}
-  {% with class="max-w-600px sidebar:max-w-700px" %}
-    {{ block.super }}
-  {% endwith %}
-{% endblock contenido %}
 {% block campos %}
   <div
     id="campos"
-    class="{{ 'ui-elevado col gap-y-6 gap-x-10 rounded-lg p-4 min-[550px]:(grid grid-cols-2 p-6)'|expandir_variantes }}"
+    class="{{ 'ui-elevado col gap-y-6 gap-x-10 rounded-lg w-full max-w-600px mxa p-4 min-[550px]:(grid grid-cols-2 gap-y-8 p-6) sidebar:max-w-700px'|expandir_variantes }}"
   >
     {% partialdef campos inline %}
       {% with input_class="deshabilitar-al-subir ui-elevado-2" %}
-        {% include "componentes/campo.html" with campo=form.año %}
+        {% include "componentes/campo.html" with class="min-[550px]:(row-[2/3] col-[1/2])"|expandir_variantes campo=form.año %}
 
-        <div class="flex gap-x-2">
+        <div class="flex gap-x-2 col-span-2">
           {% include "componentes/campo.html" with campo=form.nombre class="flex-1" %}
           {% include "componentes/campo.html" with campo=form.letra class="relative" input_class=input_class|add:' tac' error_class="absolute bottom-105% right-0 p-1 px-2 w-max max-w-50vw rounded bg-peligro text-peligro-texto! animate-bounce animate-duration-700 animate-count-[2] animate-fill-forwards before:(absolute -z-1 top-90% right-1 content-[''] size-4 bg-peligro border-peligro border-t border-l -transform-translate-y-1/2 transform-rotate-45) max-[500px]:text-xs"|expandir_variantes %}
         </div>
 
+        {% include "componentes/campo.html" with campo=form.capacidad %}
         {%
           include "componentes/combobox.html" with
+          class="col-span-2"
           name=form.vocero.name
           campo=form.vocero
           btn_class="[&>span]:py-1.5 bg-fondo-700"
-          lista_contenedor_clase="top-unset bottom-[calc(100%+var(--spacing)*8.5)]"
-          caret_class="bg-fondo-900 [&>svg]:transform-rotate-180"
           opciones_por_script="opcionesVocero"
           seleccionada=form.vocero.value
           sin_opciones_msj="No se han matriculado estudiantes en este lapso para esta sección"
@@ -47,7 +42,6 @@
           busqueda_activa=1
           mostrar_cantidad=1
         %}
-        {% include "componentes/campo.html" with campo=form.capacidad %}
       {% endwith %}
     {% endpartialdef campos %}
   </div>

@@ -14,20 +14,14 @@
   {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
 {% endblock cabeza %}
 
-{% block contenido %}
-  {% with class="max-w-1000px" %}
-    {{ block.super }}
-  {% endwith %}
-{% endblock contenido %}
-
 {% block campos %}
   <div
     id="campos"
-    class="ui-elevado col gap-y-6 p-4 rounded-lg min-[600px]:p-5"
+    class="ui-elevado col gap-y-6 p-4 rounded-lg w-full max-w-900px min-[600px]:p-5"
   >
     {% partialdef campos inline %}
-      {% include "componentes/campo.html" with campo=form.name input_class="deshabilitar-al-subir ui-elevado-2" %}
-      {% include "componentes/campo.html" with campo=form.descripcion input_class="deshabilitar-al-subir ui-elevado-2 min-h-20" %}
+      {% include "componentes/campo.html" with campo=form.name class="max-w-500px" input_class="deshabilitar-al-subir ui-elevado-2" %}
+      {% include "componentes/campo.html" with campo=form.descripcion class="max-w-700px" input_class="deshabilitar-al-subir ui-elevado-2 min-h-20" %}
       {%
         include "componentes/lista-dual/index.html" with
         campo=form.permissions

@@ -39,19 +39,19 @@ class FormLapso(forms.ModelForm):
         fields = "__all__"
 
         widgets = {
-            "numero": forms.NumberInput(
+            nc(Lapso.numero): forms.NumberInput(
                 attrs={
                     "min": 1,
-                    "placeholder": "Ej: 3",
+                    "placeholder": "Ejemplo: 3",
                 }
             ),
-            "nombre": forms.TextInput(
+            nc(Lapso.nombre): forms.TextInput(
                 attrs={
-                    "placeholder": f"Ej: {date.today().year}-III",
+                    "placeholder": f"Ejemplo: {date.today().year}-III",
                 }
             ),
-            "fecha_inicio": forms.DateInput(attrs={"type": "date"}),
-            "fecha_fin": forms.DateInput(attrs={"type": "date"}),
+            nc(Lapso.fecha_inicio): forms.DateInput(attrs={"type": "date"}),
+            nc(Lapso.fecha_fin): forms.DateInput(attrs={"type": "date"}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -132,7 +132,7 @@ class FormMateria(forms.ModelForm):
         }
 
         widgets = {
-            "nombre": forms.TextInput,
+            nc(Materia.nombre): forms.TextInput,
         }
 
 

@@ -2,10 +2,16 @@
 {% load partials %}
 {% load grupos_variantes %}
 
+{% block form %}
+  {% with form_class=form_class|add:' gap-y-6' %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock form %}
+
 {% block campos %}
   <div
     id="campos"
-    class="{{ 'ui-elevado col gap-y-6 gap-x-10 rounded-lg p-4 min-[600px]:(grid grid-cols-2 p-6)'|expandir_variantes }}"
+    class="{{ 'ui-elevado col gap-y-6 gap-x-10 w-full max-w-600px rounded-lg p-4 min-[700px]:(grid grid-cols-2 gap-y-12 p-6)'|expandir_variantes }}"
   >
     {% partialdef campos inline %}
       {% for campo in form %}
@@ -13,4 +19,30 @@
       {% endfor %}
     {% endpartialdef campos %}
   </div>
+
+  {% if not editando %}
+    <div
+      role="alert"
+      class="flex gap-x-4 max-w-600px bg-advertencia text-advertencia-texto p-4 rounded-lg"
+    >
+      <span
+        class="ui-contenedor-icono size-6.5 p-1.25 mt-0.5 bg-advertencia-300 text-advertencia-800 dark:bg-advertencia-600 dark:text-advertencia-50"
+      >
+        {% include "componentes/iconos/mensajes.html#alerta" with class="size-5" %}
+      </span>
+      <div class="col gap-y-1">
+        <b
+          class="flex aic gap-x-2 underline underline-offset-3 decoration-1 decoration-[#fff7] dark:decoration-[#0003]"
+        >
+          Tenga en cuenta lo siguiente:
+        </b>
+        <p class="opacity-90 lh-[1.6]">
+          Al añadir un nuevo lapso, este se considera como el
+          <b>lapso actual</b>. Asegúrese de que no quedan tareas administrativas
+          por realizar pertinentes al lapso corriente antes de añadir uno nuevo,
+          ya que <b>NO SE PODRÁN REALIZAR</b> una vez que lo haya hecho
+        </p>
+      </div>
+    </div>
+  {% endif %}
 {% endblock campos %}

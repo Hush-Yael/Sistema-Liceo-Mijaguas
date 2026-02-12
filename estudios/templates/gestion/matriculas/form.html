@@ -15,21 +15,28 @@
   {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
 {% endblock cabeza %}
 
-{% block contenido %}
-  {{ block.super }}
-{% endblock contenido %}
+{% block titulo_form %}
+  {% if editando %}
+    Editar matricula de estudiante
+  {% else %}
+    Matricular estudiante
+  {% endif %}
+{% endblock titulo_form %}
+
+{% block form %}
+  {% with form_class=form_class|add:' gap-y-6' %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock form %}
 
 {% block campos %}
   <div
-    class="{{ 'ui-elevado col gap-y-6 p-4 rounded-lg min-[600px]:(p-6 gap-y-8)'|expandir_variantes }}"
+    id="campos"
+    class="{{ 'ui-elevado col gap-y-6 gap-x-10 w-full max-w-600px p-4 rounded-lg min-[600px]:(grid grid-cols-2 p-6 gap-y-8)'|expandir_variantes }}"
   >
-    <div
-      id="campos"
-      class="{{ 'col gap-y-6 gap-x-10 min-[600px]:(grid grid-cols-2)'|expandir_variantes }}"
-    >
-      {% partialdef campos inline %}
-        {% with btn_class="bg-fondo-700" caret_class="bg-fondo-900" %}
-          {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+    {% partialdef campos inline %}
+      {% with btn_class="bg-fondo-700" caret_class="bg-fondo-900" %}
+        {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
             {%
               include "componentes/combobox.html" with
               name=form.estudiante.name
@@ -39,6 +46,7 @@
               multiple=0
               busqueda_activa=1
               mostrar_cantidad=1
+              sin_opciones_msj="No se han registrado estudiantes"
             %}
             
             {%
@@ -50,46 +58,64 @@
               multiple=0
               busqueda_activa=1
               mostrar_cantidad=1
+              sin_opciones_msj="No se han registrado secciones"
             %}
             
             {% include "componentes/campo.html" with campo=form.estado input_class="deshabilitar-al-subir ui-elevado-2" %}
             
             {% include "componentes/campo.html" with campo=form.lapso input_class="deshabilitar-al-subir ui-elevado-2" %}
           {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
-        {% endwith %}
-      {% endpartialdef campos %}
-    </div>
-
-    <div
-      role="note"
-      {% with c="flex gap-x-2.5 py-2 px-3 rounded text-sm" %}
-        {% if form.lapso_actual is None %}
-          class="{{ c|add:' bg-peligro-200 dark:bg-peligro-400 text-peligro-900' }}"
-        {% else %}
-          class="{{ c|add:' bg-info-200 dark:bg-info-800' }}"
-        {% endif %}
       {% endwith %}
-    >
-      <span class="ui-contenedor-icono size-6 p-1 bg-[--transparente-2]">
-        {% if form.lapso_actual is None %}
-          {% include "componentes/iconos/mensajes.html#error" %}
-        {% else %}
-          {% include "componentes/iconos/mensajes.html#info" %}
-        {% endif %}
-      </span>
+    {% endpartialdef campos %}
+  </div>
 
-      <span class="mya">
-        <b>Nota</b>:
+  <div
+    role="alert"
+    {% with class="flex gap-x-4 w-full max-w-600px p-4 rounded-lg" %}
+      {% if form.lapso_actual is None %}
+        class="{{ class }} bg-peligro text-peligro-texto"
+      {% else %}
+        class="{{ class }} bg-info-200 dark:bg-info-800"
+      {% endif %}
+    {% endwith %}
+  >
+    <span
+      {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+        {% with class="ui-contenedor-icono size-6.5 p-1.25 mt-0.5 bg-[--transparente-2]" %}
+          {% if form.lapso_actual is None %}
+            class="{{ class }} bg-peligro-400 dark:bg-peligro-600"
+          {% else %}
+            class="{{ class }} bg-info-300 text-info-800 dark:bg-info-600 dark:text-info-50"
+          {% endif %}
+        {% endwith %}
+      {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+    >
+      {% if form.lapso_actual is None %}
+        {% include "componentes/iconos/mensajes.html#error" %}
+      {% else %}
+        {% include "componentes/iconos/mensajes.html#info" %}
+      {% endif %}
+    </span>
+
+    <div class="col gap-y-1">
+      <b>
         {% if form.lapso_actual is None %}
-          no se encontró un lapso actual, no se pueden crear matrículas
+          Error:
+        {% else %}
+          Nota:
+        {% endif %}
+      </b>
+      <p>
+        {% if form.lapso_actual is None %}
+          No se encontró un lapso actual, no podrás crear matrículas.
         {% else %}
           {% if editando %}
-            no se pueden modificar matrículas de lapsos anteriores
+            No pueden modificar matrículas de lapsos anteriores.
           {% else %}
-            solo se pueden añadir matrículas en el lapso actual
+            Solo se pueden añadir matrículas en el lapso actual.
           {% endif %}
         {% endif %}
-      </span>
+      </p>
     </div>
   </div>
 {% endblock campos %}

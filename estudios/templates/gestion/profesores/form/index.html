@@ -18,12 +18,6 @@
   {% comment %}{# prettier-ignore-end #}{% endcomment %}
 {% endblock cabeza %}
 
-{% block contenido %}
-  {% with class="max-w-1000px" %}
-    {{ block.super }}
-  {% endwith %}
-{% endblock contenido %}
-
 {% block titulo_form %}
   {% if editando %}
     Editar
@@ -38,8 +32,6 @@
 {% endblock form_attrs %}
 
 {% block campos %}
-  {{ view.nombre_objeto }}
-
   <div id="campos" class="col gap-6 h-full">
     {% partialdef campos inline %}
       <div class="ui-elevado col gap-y-6 gap-x-10 p-4 rounded-lg">

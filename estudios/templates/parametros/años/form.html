@@ -1,8 +1,12 @@
 {% extends "objeto-form.html" %}
 {% load partials %}
+{% load grupos_variantes %}
 
 {% block campos %}
-  <div id="campos" class="ui-elevado col gap-y-6 p-4 rounded-lg">
+  <div
+    id="campos"
+    class="{{ 'ui-elevado col gap-10 p-4 py-6 w-full rounded-lg min-[600px]:(grid grid-cols-2 p-6)'|expandir_variantes }}"
+  >
     {% partialdef campos inline %}
       {% for campo in form %}
         {% include "componentes/campo.html" with input_class="deshabilitar-al-subir ui-elevado-2" %}

@@ -39,7 +39,6 @@
   </div>
 {% else %}
   {# al cambiar la lista, actualizar la cantidad de resultados #}
-
   {% if view.form_filtros and lista_reemplazada_por_htmx and is_paginated %}
     <span hx-swap-oob="innerHTML:#filtrados-cantidad">
       {{ page_obj.paginator.count }}
