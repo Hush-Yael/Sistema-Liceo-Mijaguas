@@ -92,13 +92,13 @@ class ArgumentosGestionMixin(BaseComandos):
                 continue
 
             # Generar datos con Faker (edades entre 13-18 años para secundaria)
-            sexo, nombre, apellido = self.crear_datos_persona()
+            cedula, sexo, nombre, apellido = self.crear_datos_persona()
 
             # Fecha de nacimiento para estudiantes de secundaria (13-18 años)
             fecha_nacimiento = self.faker.date_of_birth(minimum_age=13, maximum_age=18)
 
             Estudiante.objects.create(
-                cedula=i + 1,
+                cedula=cedula,
                 sexo=sexo,
                 nombres=nombre,
                 apellidos=apellido,
@@ -133,6 +133,7 @@ class ArgumentosGestionMixin(BaseComandos):
             )
 
     def crear_datos_persona(self):
+        cedula = self.faker.random_int(min=1, max=32_000_000)
         sexo = self.faker.random_element(Persona.OpcionesSexo.values)
         nombre = (
             f"{self.faker.first_name_female()} {self.faker.first_name_female()}"
@@ -141,7 +142,7 @@ class ArgumentosGestionMixin(BaseComandos):
         )
         apellido = f"{self.faker.last_name()} {self.faker.last_name()}"
 
-        return sexo, nombre, apellido
+        return cedula, sexo, nombre, apellido
 
     def crear_profesores(self, cantidad):
         self.stdout.write(f"Creando {cantidad} profesores...")
@@ -176,7 +177,7 @@ class ArgumentosGestionMixin(BaseComandos):
             prof_usuario.save()
 
             Profesor.objects.create(
-                cedula=i + 1,
+                cedula=cedula,
                 sexo=sexo,
                 nombres=nombre,
                 apellidos=apellido,
