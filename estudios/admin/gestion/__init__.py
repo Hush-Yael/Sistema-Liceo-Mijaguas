@@ -32,12 +32,12 @@ class ProfesorAdmin(ModelAdmin):
     list_display = [
         "nombres",
         "apellidos",
-        "esta_activo",
+        "activo",
     ]
-    list_filter = ["esta_activo"]
+    list_filter = ["activo"]
     search_fields = ["nombres", "apellidos"]
     autocomplete_fields = ["usuario"]
-    list_editable = ["esta_activo"]
+    list_editable = ["activo"]
     readonly_fields = ["fecha_ingreso"]
 
 

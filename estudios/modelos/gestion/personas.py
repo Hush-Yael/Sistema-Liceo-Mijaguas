@@ -39,12 +39,13 @@ class Profesor(Persona):
         max_length=15, blank=True, null=True, verbose_name="teléfono"
     )
 
-    esta_activo = models.BooleanField(default=True, verbose_name="está activo")
+    activo = models.BooleanField(default=True)
     usuario = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
+        error_messages={"unique": "El usuario ya está asignado a un profesor."},
     )
 
     class Meta:  # type: ignore
