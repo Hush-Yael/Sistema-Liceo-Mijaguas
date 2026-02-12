@@ -42,6 +42,11 @@
     </div>
 
     <form
+      {% block form_attrs %}
+      {% endblock form_attrs %}
+      {% if form_class %}
+        class="{{ form_class }}"
+      {% endif %}
       id="form"
       hx-post
       hx-target="#campos"
