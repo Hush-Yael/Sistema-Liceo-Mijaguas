@@ -7,7 +7,16 @@
     x-data="{ visible: false }"
   {% endif %}
 >
-  {{ campo.label_tag }}
+  {% if campo.field.required %}
+    <span>
+      {{ campo.label_tag }}
+      {% partialdef asterisco inline %}
+        <span class="font-bold text-red-600 dark:text-red-400">*</span>
+      {% endpartialdef asterisco %}
+    </span>
+  {% else %}
+    {{ campo.label_tag }}
+  {% endif %}
 
   {% with wrapper_class="contra-wrapper flex aic jb gap-x-2 outline-2 -outline-offset-1 outline-#0000 focus-within:outline-current focus-within:has-[button:focus-visible]:outline-0" error_id=campo.id_for_label|add:'-error' ic=input_class|default:''|add:' peer' %}
     {% if 'contraseña' in campo.name or 'password' in campo.name %}
