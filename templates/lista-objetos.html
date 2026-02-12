@@ -55,12 +55,23 @@
       <div
         id="{{ view.id_lista_objetos }}"
         role="alert"
-        class="ui-caja col aic gap-y-6 max-w-[400px] max-h-max ma flex-1 p-5 px-6 tac text-balance"
+        class="col aic gap-y-6 ma p-5 px-6 tac text-balance"
       >
         <span
-          class="ui-contenedor-icono size-min-[5rem] p-3 bg-primario-50 dark:bg-primario-800 text-primario-600 dark:text-primario-100 [&>svg]:size-full"
+          class="ui-contenedor-icono size-min-[5rem] p-3 bg-peligro-200 dark:bg-peligro-700 text-peligro-600 dark:text-peligro-50 animate-bounce-in animate-duration-500 animate-iteration-1 animate-delay-100"
         >
-          {% include "componentes/iconos/tabla.html#sin_notas" %}
+          {% block icono_sin_objetos %}
+            <svg
+              class="m-3"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 384 512"
+            >
+              <path
+                fill="currentColor"
+                d="M55.1 73.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L147.2 256 9.9 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l137.3-137.4 137.4 137.3c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.8 256l137.3-137.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192.5 210.7 55.1 73.4z"
+              ></path>
+            </svg>
+          {% endblock icono_sin_objetos %}
         </span>
 
         <hgroup class="col gap-y-2">
