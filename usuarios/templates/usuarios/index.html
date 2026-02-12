@@ -26,22 +26,11 @@
 {% endblock contenido %}
 
 {% block opciones_filtros %}
-  {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
-    {%
-      include "componentes/vista-lista/filtros/yesno.html" with
-      campo=form_filtros.tiene_email
-    %}
-
-    {% include "componentes/vista-lista/filtros/conjunto-opciones.html" with
-      campo=form_filtros.grupos
-    %}
-
-    {%
-      include "componentes/vista-lista/filtros/yesno.html" with
-      campo=form_filtros.activo
-    %}
-
-  {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+  {{ block.super }}
+  {%
+    include "componentes/vista-lista/filtros/conjunto-opciones.html" with
+    campo=form_filtros.grupos
+  %}
 {% endblock opciones_filtros %}
 
 {% block modales %}

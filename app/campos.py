@@ -49,6 +49,8 @@ def CampoBooleanoONulo(
         ),
     )
 
+    setattr(campo, "campo_booleano", True)
+
     setattr(
         campo,
         "labels_escogidos",

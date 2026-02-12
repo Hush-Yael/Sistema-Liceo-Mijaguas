@@ -204,6 +204,11 @@
                       x-show="abierto || abiertoPorTeclado"
                     >
                       {% block opciones_filtros %}
+                        {% for campo in form_filtros %}
+                          {% if campo.field.campo_booleano %}
+                            {% include "componentes/vista-lista/filtros/yesno.html" %}
+                          {% endif %}
+                        {% endfor %}
                       {% endblock opciones_filtros %}
                     </div>
                   </div>

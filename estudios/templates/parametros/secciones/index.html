@@ -26,7 +26,7 @@
 {% endblock contenido %}
 
 {% block opciones_filtros %}
-  {% include "componentes/vista-lista/filtros/yesno.html" with campo=form_filtros.tiene_vocero %}
+  {{ block.super }}
   {%
     include "componentes/vista-lista/filtros/conjunto-opciones.html" with
     multiple=1
