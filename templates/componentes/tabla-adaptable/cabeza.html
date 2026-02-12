@@ -9,17 +9,18 @@
     {% include "componentes/tabla-adaptable/style.html" with rango_columnas=columnas_ocultables|length|convertir_a_rango %}
   {% endif %}
 {% endpartialdef tabla_estilos %}
-<link rel="stylesheet" href="{% static 'css/componentes/tabla.css' %}" />
-
-{# lógica de la tabla #}
-<script defer src="{% static 'js/componentes/tabla-adaptable.js' %}"></script>
-{# script para cambiar la fila sticky a medida que se hace scroll #}
-<script
-  defer
-  src="{% static 'js/componentes/tabla-con-fila-sticky.js' %}"
-></script>
 
 {% if not no_hay_objetos %}
+  <link rel="stylesheet" href="{% static 'css/componentes/tabla.css' %}" />
+
+  {# lógica de la tabla #}
+  <script defer src="{% static 'js/componentes/tabla-adaptable.js' %}"></script>
+  {# script para cambiar la fila sticky a medida que se hace scroll #}
+  <script
+    defer
+    src="{% static 'js/componentes/tabla-con-fila-sticky.js' %}"
+  ></script>
+
   <script>
     document.addEventListener("alpine:initialized", () => {
       new TablaConFilaSticky("{{ view.id_lista_objetos }}");
