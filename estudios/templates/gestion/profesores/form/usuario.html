@@ -1,0 +1,163 @@
+{% load grupos_variantes %}
+{% load utilidades %}
+{% load partials %}
+{% load widget_tweaks %}
+
+<div
+  class="ui-elevado col gap-y-6 p-4 rounded-lg"
+  x-data="{ asignacionUsuario: {% if form.usuario_manual.value %}'manual'{% else %}'existente'{% endif %} }"
+>
+  {% render_field form.usuario_manual class="sr-only" %}
+
+  <h2 class="text-xl font-bold border-b border-[--transparente-2] pb-2">
+    Asignación de usuario
+  </h2>
+
+  {# Opciones de selección #}
+  <div class="col gap-2 min-[600px]:flex-row">
+    {# Opción 1: Usuario existente #}
+    {%
+      with
+      tipo_asignacion="existente"
+      titulo="Seleccionar usuario existente"
+      descripcion="Elija un usuario disponible ya creado en el sistema"
+      clase="border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900/25"
+      clase_radio="peer-checked:(border-blue-500 bg-blue-500) peer-focus-visible:outline-blue-500"
+    %}
+      {% partial opcion_asignacion_usuario %}
+    {% endwith %}
+
+    {# Opción 2: Crear manualmente #}
+    {%
+      with
+      tipo_asignacion="manual"
+      titulo="Crear un nuevo usuario"
+      descripcion="Indique sus credenciales correspondientes"
+      clase="border-orange-500 bg-orange-200 dark:bg-orange-800/25"
+      clase_radio="peer-checked:(border-orange-500 bg-orange-500) peer-focus-visible:outline-orange-500"
+    %}
+      {% partial opcion_asignacion_usuario %}
+    {% endwith %}
+  </div>
+
+  <div class="col gap-y-3 border-t pt-4 border-[--transparente-2]">
+    {# Combobox de usuarios #}
+    <div x-show="asignacionUsuario === 'existente'" x-cloak>
+      {% partial campo_usuario_existente %}
+    </div>
+
+    {# Creación de nuevo usuario #}
+    <div
+      class="col gap-6 min-[600px]:grid grid-cols-2"
+      x-show="asignacionUsuario === 'manual'"
+      {# x-cloak #}
+    >
+      <div class="col jcc aic gap-y-3" x-data="campoFoto({})">
+        {% with img_class="size-30 size-min-30" campo=usuario_form.foto_perfil %}
+          {% if campo.value %}
+            {% with src=campo.value %}
+              {{ src }}
+              {% include "componentes/foto/img.html" %}
+            {% endwith %}
+          {% else %}
+            {% include "componentes/foto/img.html" %}
+          {% endif %}
+        {% endwith %}
+      </div>
+
+      {% with form=usuario_form %}
+        {% for campo in form %}
+          {% if campo == form.username or campo == form.email or campo == form.password %}
+            {% include "componentes/campo.html" with input_class="deshabilitar-al-subir ui-elevado-2" %}
+          {% endif %}
+        {% endfor %}
+      {% endwith %}
+    </div>
+  </div>
+</div>
+
+{% partialdef opcion_asignacion_usuario %}
+  <label
+    :class="{
+      '{{ clase }}': asignacionUsuario === '{{ tipo_asignacion }}',
+      'ui-elevado-2 border-[--transparente-3]': asignacionUsuario !== '{{ tipo_asignacion }}'
+    }"
+    class="flex-1 p-4 border-1 rounded-xl cursor-pointer transition-[border-color,background-color] duration-200"
+  >
+    <div class="flex items-start">
+      <input
+        class="deshabilitar-al-subir peer sr-only"
+        type="radio"
+        name="tipo-asignacion"
+        :checked="asignacionUsuario === '{{ tipo_asignacion }}'"
+        @change="asignacionUsuario = '{{ tipo_asignacion }}'"
+      />
+
+      <div
+        class="{{ 'flex-shrink-0 mt-0.5 size-5 rounded-full border-1 fc outline-2 outline-offset-2 outline-#0000 border-[--transparente-3] bg-fondo-900 before:(size-2 rounded-full bg-white) peer-checked:before:content-[""]'|add:' '|add:clase_radio|expandir_variantes }}"
+      ></div>
+
+      <div class="ml-3">
+        <h3 class="font-medium opacity-85">{{ titulo }}</h3>
+        <p class="text-sm text-texto-sutil mt-1">{{ descripcion }}</p>
+      </div>
+    </div>
+  </label>
+{% endpartialdef opcion_asignacion_usuario %}
+
+{% partialdef campo_usuario_existente %}
+  {% with campo=form.usuario %}
+    <div
+      class="flex aic jb gap-x-4 w-full mxa max-w-400px"
+      {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+      x-data="{
+        urlMiniatura:
+          {% if not form.usuario.value %}
+          ''
+          {% else %}
+          {# Verificar si el usuario tiene miniatura #}
+            miniaturas.get('{{ form.usuario.value }}')
+              ? `{{ media_url }}${miniaturas.get('{{ form.usuario.value }}')}`
+              : ''
+          {% endif %}
+      }"
+      {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+      @change="
+        const input = $event.target;
+        
+        if (input.name === '{{ form.usuario.name }}') {
+          const i = $el.$('[name={{ form.usuario.name }}]');
+          const id = Alpine.$data(i).seleccionada
+          if (miniaturas.has(id)) urlMiniatura = `{{ media_url }}${miniaturas.get(id)}`
+          else urlMiniatura = ''
+        }
+      "
+    >
+      {%
+        include "componentes/combobox.html" with
+        class="flex-1 max-w-[calc(100%-var(--spacing)*18)]"
+        btn_class="bg-fondo-700"
+        caret_class="bg-fondo-900"
+        label=campo.label
+        name=campo.name
+        opciones_por_script="opcionesUsuarios"
+        seleccionada=campo.value
+        variable_imgs="miniaturas"
+        multiple=0
+        busqueda_activa=1
+        mostrar_cantidad=1
+        sin_opciones_msj="No hay usuarios adecuados para escoger"
+      %}
+
+      {% with c="size-14 size-min-14" %}
+        <img
+          src=""
+          :src="urlMiniatura"
+          alt="foto de perfil"
+          class="{{ c }} aspect-square object-cover outline-1 outline-#fff2 [&[src='']]:hidden rounded-full"
+        />
+        {% include "componentes/iconos/sin-foto.html" with x_show="urlMiniatura === ''" class=c %}
+      {% endwith %}
+    </div>
+  {% endwith %}
+{% endpartialdef campo_usuario_existente %}

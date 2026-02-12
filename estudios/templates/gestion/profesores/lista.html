@@ -1,0 +1,199 @@
+{% extends "componentes/vista-lista/lista.html" %}
+{% load grupos_variantes %}
+{% load utilidades %}
+{% load partials %}
+{% load l10n %}
+
+{% block contenedor %}
+  {% with contenedor_class="col jb flex-1 overflow-y-auto" %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock contenedor %}
+
+{% block lista %}
+  <ul
+    data-lista
+    class="{{ 'col min-[500px]:grid grid-cols-[repeat(auto-fill,minmax(325px,1fr))] gap-3 flex-1'|expandir_variantes }}"
+    @click="{{
+      '
+        if ($event.target.closest("[data-foto-url]")) {
+          const url = $event.target.closest("[data-foto-url]").getAttribute("data-foto-url");
+
+          if (url !== null) {
+            urlFotoSeleccionada = url;
+
+            const id = $event.target.closest("[data-foto-url]").getAttribute("data-id");
+            modalAbierto = "foto";
+          }
+        }
+      '|reemplazar_espacios:''
+    }}"
+  >
+    {% for profesor in lista_objetos %}
+      <li class="max-h-max">
+        <article class="ui-caja col gap-y-4 p-3">
+          <div class="flex aic gap-x-3 ">
+            {% with c="size-16 size-min-16 lh-16 aspect-square rounded-full" %}
+              {% if profesor.miniatura_foto %}
+                <button
+                  data-foto-url="{{ profesor.foto_perfil }}"
+                  data-id="{{ profesor.id }}"
+                  class="align-middle mr-2"
+                  aria-label="Inspeccionar foto de perfil"
+                >
+                  <img
+                    class="{{ c|add:' object-cover border-2 border-[--transparente-3]' }}"
+                    src="{{ media_url }}{{ profesor.miniatura_foto }}"
+                    alt="foto de perfil"
+                  />
+                </button>
+              {% else %}
+                <span
+                  class="{{ c|add:' tac bg-fondo-950 text-texto-semi-sutil text-[1.7rem] font-bold' }}"
+                >
+                  {{ profesor.nombres|slice:"0:1" }}{{ profesor.apellidos|slice:"0:1" }}
+                </span>
+              {% endif %}
+            {% endwith %}
+
+            <hgroup class="col jb gap-y-1 w-full">
+              <h3
+                id="{{ profesor.id }}-nombre"
+                class="font-bold min-[500px]:text-lg"
+              >
+                {% include "componentes/tabla-adaptable/enlace-editar.html" with objeto=profesor dato=profesor.nombre_completo %}
+              </h3>
+              <p class="text-sm text-texto-semi-sutil tracking-wider">
+                <span class="text-texto-sutil">V-</span
+                >{{ profesor.cedula|default:'?'|localize }}
+              </p>
+            </hgroup>
+          </div>
+
+          <div class="col gap-y-4 border-t border-[--borde-caja] pt-3">
+            {% partial datos %}
+            {% partial estados %}
+          </div>
+        </article>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock lista %}
+
+{% partialdef datos %}
+  {% with c="flex gap-x-2 jb aic" dtc="flex gap-x-2 aic font-500" ic="ui-contenedor-icono size-4.5 bg-[--transparente-2] text-texto-sutil" %}
+    <dl class="col gap-y-2">
+      <div class="{{ c }}">
+        <dt class="{{ dtc }}">
+          <span class="{{ ic }} p-1">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+              <path
+                d="M224 248a120 120 0 1 0 0-240 120 120 0 1 0 0 240zm-29.7 56C95.8 304 16 383.8 16 482.3c0 16.4 13.3 29.7 29.7 29.7h356.6c16.4 0 29.7-13.3 29.7-29.7 0-98.5-79.8-178.3-178.3-178.3h-59.4z"
+              ></path>
+            </svg>
+          </span>
+          Usuario:
+        </dt>
+        <dd>
+          {% if profesor.usuario %}
+            <a class="text-sky-600 underline" href="{% url 'usuario' %}">
+              {{ profesor.usuario.username }}
+            </a>
+          {% else %}
+            <span
+              class="fc gap-x-2 p-0.5 px-3 -mr-0.5 rounded-full bg-advertencia text-advertencia-texto text-sm"
+            >
+              {% include "componentes/iconos/mensajes.html#alerta" with class="size-3.5" %}
+              No tiene
+            </span>
+          {% endif %}
+        </dd>
+      </div>
+
+      <div class="{{ c }}">
+        <dt class="{{ dtc }}">
+          <span class="{{ ic }} p-1">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+              <path
+                d="M160.2 25c-7.9-18.9-28.5-28.9-48.1-23.6l-5.5 1.5C42 20.5-13.2 83.1 2.9 159.3 40 334.3 177.7 472 352.7 509.1 429 525.3 491.5 470 509.1 405.4l1.5-5.5c5.4-19.7-4.7-40.3-23.5-48.1l-97.3-40.5c-16.5-6.9-35.6-2.1-47 11.8l-38.6 47.2c-70.3-34.9-126.9-93.3-159.4-165l44.2-36c13.9-11.3 18.6-30.4 11.8-47L160.2 25z"
+              ></path></svg
+          ></span>
+          Teléfono:
+        </dt>
+        <dd>
+          {% with t=profesor.telefono %}
+            {% if t %}
+              <a aria-label="Llamar" href="tel:{{ t|urlencode }}">{{ t }}</a>
+            {% else %}
+              <span class="text-texto-sutil">no indicado</span>
+            {% endif %}
+          {% endwith %}
+        </dd>
+      </div>
+
+      <div class="{{ c }}">
+        <dt class="{{ dtc }}">
+          <span class="{{ ic }} p-0.5">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path
+                d="M5 22h14c1.103 0 2-.897 2-2V6c0-1.103-.897-2-2-2h-2V2h-2v2H9V2H7v2H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2zm11-6h-3v3h-2v-3H8v-2h3v-3h2v3h3v2zM5 7h14v2H5V7z"
+              ></path>
+            </svg>
+          </span>
+          Fecha ingreso:
+        </dt>
+        <dd class="text-texto-sutil max-sidebar:text-sm">
+          {{ profesor.fecha_ingreso|date:"d M. Y, h:i A" }}
+        </dd>
+      </div>
+    </dl>
+  {% endwith %}
+{% endpartialdef datos %}
+
+{% partialdef estados %}
+  {% with c="fc gap-x-2 p-1 px-4 rounded-full" ic="size-4" %}
+    <div class="flex flex-wrap gap-2 px-0.5 rounded text-sm text-texto-sutil">
+      {% with activo=profesor.activo %}
+        <span
+          role="status"
+          class="{{ c }} {% if activo %}
+            bg-exito-200 border-exito text-exito-900
+          {% else %}
+            bg-peligro-200 border-peligro text-peligro-900 dark:bg-peligro-300
+          {% endif %}"
+        >
+          <span
+            class="size-3 rounded-full {% if activo %}
+              bg-exito-400
+            {% else %}
+              bg-peligro-400
+            {% endif %}"
+          ></span>
+          {{ activo|yesno:'Activo,Inactivo' }}
+        </span>
+      {% endwith %}
+
+      <span
+        role="status"
+        class="{{ c }} bg-secundario border border-secundario-600 text-secundario-texto"
+      >
+        {{ profesor.materias_asignadas }} Materias
+      </span>
+
+      <label
+        class="{{ c|add:' gap-x-2.5 border border-[--transparente-3] has-checked:bg-fondo-900 cursor-pointer select-none' }}"
+      >
+        {% include "componentes/tabla-adaptable/index.html#fila_check" with objeto=profesor %}
+        #
+        {% if page_obj.paginator.num_pages > 1 %}
+          {% with total_anterior=page_obj.number|add:-1|multiplicar:view.paginate_by %}
+            {# se multiplica la cantidad por página de acuerdo a la cantidad recorrida y la cantidad de objetos por página y se le añade cada valor del ciclo actual #}
+            {{ total_anterior|add:forloop.counter }}
+          {% endwith %}
+        {% else %}
+          {{ forloop.counter }}
+        {% endif %}
+      </label>
+    </div>
+  {% endwith %}
+{% endpartialdef estados %}

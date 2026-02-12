@@ -28,11 +28,19 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
             "enlaces": [
                 si_permitido(
                     "estudios.add_profesor",
-                    {"label": "Añadir profesor", "icono_nombre": "añadir"},
+                    {
+                        "label": "Añadir profesor",
+                        "icono_nombre": "añadir",
+                        "href": reverse_lazy(nombre_url_crear_auto(Profesor)),
+                    },
                 ),
                 si_permitido(
                     "estudios.view_profesor",
-                    {"label": "Lista de profesores", "icono_nombre": "usuarios"},
+                    {
+                        "label": "Lista de profesores",
+                        "icono_nombre": "usuarios",
+                        "href": reverse_lazy(nombre_url_lista_auto(Profesor)),
+                    },
                 ),
                 si_permitido(
                     "estudios.view_profesormateria",

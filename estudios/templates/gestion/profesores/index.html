@@ -1,0 +1,50 @@
+{% extends "lista-objetos.html" %}
+{% load static %}
+{% load grupos_variantes %}
+
+{% block cabeza %}
+  {{ block.super }}
+  <script defer src="{% static 'js/componentes/combobox.js' %}"></script>
+{% endblock cabeza %}
+
+{% block icono_sin_objetos %}
+  <svg
+    stroke-width="2"
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    viewBox="0 0 24 24"
+  >
+    <path
+      d="M8 19H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v11a1 1 0 0 1-1 1"
+    ></path>
+    <path
+      d="M12 14a2 2 0 1 0 4.001-.001A2 2 0 0 0 12 14M17 19a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2"
+    ></path>
+  </svg>
+{% endblock icono_sin_objetos %}
+
+{% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+  {% block x_data %}
+      urlFotoSeleccionada: '',
+  {% endblock x_data %}
+{% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+
+{% block modales %}
+  {{ block.super }}
+  <dialog
+    class="size-325px min-[400px]:size-400px min-[500px]:size-500px **:size-full transition-[width,height,transform,opacity] ease-out"
+    x-show="modalAbierto === 'foto'"
+    x-htmldialog="modalAbierto = null"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0 scale-90"
+    @click="$event.target === $event.currentTarget && (modalAbierto = null)"
+  >
+    <img
+      class="aspect-square object-cover"
+      :src="urlFotoSeleccionada ? '{{ media_url }}' + urlFotoSeleccionada : false"
+      alt="foto"
+    />
+  </dialog>
+{% endblock modales %}

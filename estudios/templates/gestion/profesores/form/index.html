@@ -1,0 +1,86 @@
+{% extends "objeto-form.html" %}
+{% load partials %}
+{% load static %}
+{% load utilidades %}
+{% load grupos_variantes %}
+
+{% block cabeza %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/componentes/dialog.css' %}" />
+  {% include "componentes/combobox.html#scripts" %}
+  <script defer src="{% static 'js/alpine-dialog.min.js' %}"></script>
+  <script defer src="{% static 'js/componentes/campo-foto.js' %}"></script>
+  {% comment %}{# prettier-ignore-start #}{% endcomment %}
+  <script>
+    const opcionesUsuarios = {{ form.usuario|obtener_lista_opciones|json|safe }}
+    const miniaturas = new Map({{ miniaturas|json|safe }})
+  </script>
+  {% comment %}{# prettier-ignore-end #}{% endcomment %}
+{% endblock cabeza %}
+
+{% block contenido %}
+  {% with class="max-w-1000px" %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock contenido %}
+
+{% block titulo_form %}
+  {% if editando %}
+    Editar
+  {% else %}
+    Registrar
+  {% endif %}
+  profesor
+{% endblock titulo_form %}
+
+{% block form_attrs %}
+  enctype="multipart/form-data"
+{% endblock form_attrs %}
+
+{% block campos %}
+  {{ view.nombre_objeto }}
+
+  <div id="campos" class="col gap-6 h-full">
+    {% partialdef campos inline %}
+      <div class="ui-elevado col gap-y-6 gap-x-10 p-4 rounded-lg">
+        <h2 class="text-xl font-bold border-b border-[--transparente-2] pb-2">
+          Datos personales {% include "componentes/campo.html#asterisco" %}
+        </h2>
+
+        <div class="col gap-y-6 gap-x-8 min-[600px]:grid grid-cols-2">
+          {% with class="" %}
+            {% for campo in form %}
+              {% if campo == form.activo %}
+                {% partial campo_activo %}
+              {% elif campo.field  not in form.campos_usuario %}
+                {% include "componentes/campo.html" with input_class="deshabilitar-al-subir ui-elevado-2" %}
+              {% endif %}
+            {% endfor %}
+          {% endwith %}
+        </div>
+      </div>
+
+      {% include "gestion/profesores/form/usuario.html" %}
+    {% endpartialdef campos %}
+  </div>
+{% endblock campos %}
+
+{% partialdef campo_activo %}
+  <label class="col gap-y-1 cursor-pointer">
+    {{ campo.label }}:
+    <div
+      class="flex aic jb gap-x-2 rounded-campo p-1 px-2 ui-elevado-2"
+      x-data="{ valor: {% if campo.value %}true{% else %}false{% endif %} }"
+      @change="valor = $event.target.checked"
+    >
+      <span x-text="valor ? 'Sí' : 'No'">
+        {% if campo.value %}
+          Sí
+        {% else %}
+          No
+        {% endif %}
+      </span>
+      {% include "componentes/switch.html" with class="bg-[--transparente-2]" input_class="deshabilitar-al-subir" %}
+    </div>
+  </label>
+{% endpartialdef campo_activo %}

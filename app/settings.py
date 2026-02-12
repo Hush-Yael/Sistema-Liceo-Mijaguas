@@ -128,6 +128,7 @@ TIME_ZONE = "America/Caracas"
 
 USE_I18N = True
 USE_L10N = False
+USE_THOUSAND_SEPARATOR = True
 
 USE_TZ = True
 

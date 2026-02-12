@@ -1,5 +1,7 @@
+from typing import Any
 from django import forms
 from django.db.models import Exists
+from usuarios.models import Usuario
 from app.settings import MIGRANDO
 from estudios.forms import LapsoActualForm, obtener_matriculas_de_lapso
 from estudios.modelos.gestion.personas import (
@@ -103,14 +105,34 @@ class FormProfesor(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields[Profesor.usuario.field.name].queryset = (  # type: ignore
-            self.fields[Profesor.usuario.field.name]
-            .queryset.filter(  # type: ignore
-                profesor__isnull=True,
-                is_superuser=False,
-            )
-            .exclude(grupos__name__iexact=GruposBase.ADMIN.value)
+        campo_usuario: forms.ModelChoiceField = self.fields[nc(Profesor.usuario)]  # type: ignore
+
+        campo_usuario.queryset = campo_usuario.queryset.filter(  # type: ignore
+            profesor__isnull=True,
         )
+
+        # Al editar, incluir el usuario asociado al profesor
+        if self.instance.pk:
+            if self.instance.usuario:
+                campo_usuario.queryset |= (  # type: ignore
+                    Usuario.objects.filter(pk=self.instance.usuario.pk)
+                )
+
+        self.campos_usuario = (
+            campo_usuario,
+            self.fields["usuario_manual"],
+        )
+
+    usuario_manual = forms.BooleanField(
+        label="Crear usuario automáticamente",
+        initial=False,
+        required=False,
+        widget=forms.CheckboxInput(
+            attrs={
+                ":checked": "asignacionUsuario === 'manual'",
+            }
+        ),
+    )
 
 
 class FormProfesorMateria(forms.ModelForm):
