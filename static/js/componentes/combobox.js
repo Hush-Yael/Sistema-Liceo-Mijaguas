@@ -144,6 +144,7 @@ function seleccionarOpcion(opcion) {
 function reiniciar() {
   if (this.multiple) this.opcionesSeleccionadas.clear();
   else this.seleccionada = null;
+  this.$el.dispatchEvent(new Event("change", { bubbles: true }));
 }
 
 /** @this { ComboboxContext } **/
