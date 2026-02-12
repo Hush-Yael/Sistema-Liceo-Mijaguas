@@ -64,6 +64,10 @@ class FormUsuario(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.fields[
+            nc(Usuario.username)
+        ].help_text = "Solo letras, números, puntos, @, +, -"
+
         self.fields["grupos"].label = "Grupos asignados"
         self.fields["user_permissions"].label = "Permisos asignados"
 
