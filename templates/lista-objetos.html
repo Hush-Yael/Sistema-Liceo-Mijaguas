@@ -69,6 +69,20 @@
               No se encontraron {{ view.nombre_objeto_plural }}
             </h1>
           {% endblock sin_objetos %}
+          {% if permisos.crear %}
+            <a
+              href="{% url view.url_crear %}"
+              class="ui-btn ui-btn/primario p-1.5 px-4 mt-4 mxa"
+            >
+              <span class="ui-contenedor-icono bg-[#fff2] p-1 size-6">
+                {% include "componentes/iconos/edicion.html#suma" %}
+              </span>
+
+              {% with por_defecto="Añade un"|add:view.vocal_del_genero %}
+                {{ texto_sin_objetos_btn|default:por_defecto }}
+              {% endwith %}
+            </a>
+          {% endif %}
         </hgroup>
       </div>
     {% else %}
