@@ -22,6 +22,10 @@
     opcionesSeleccionadas: new Set({{ opciones_seleccionadas|default:''|safe }}),
     {% endif %}
     mostrarCantidad: {% if mostrar_cantidad %}true{% else %}false{% endif %},
+    {% if campo.errors %}
+    name: '{{ name }}',
+    valorErroneoIntroducido: true,
+    {% endif %}
   })"
   {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
   {% if not busqueda_activa %}
@@ -44,6 +48,7 @@
     </span>
 
     <input
+      class="sr-only"
       id="{{ name }}-texto"
       type="text"
       {% if multiple  == 0 %}
@@ -53,7 +58,6 @@
           :value="opcionesSeleccionadas.size ? Array.from(opcionesSeleccionadas).join(',') : ''"
         {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
       {% endif %}
-      hidden
       {% if hx_post %}
         hx-post="{{ hx_post }}"
       {% elif hx_get %}
@@ -63,8 +67,12 @@
   </label>
 
   <div
-    class="{{ btn_contenedor_class|default:''|add:' relative flex' }}"
+    class="{{ btn_contenedor_class|default:''|add:' peer relative flex' }}"
     x-data="dropdown({ ariaHaspopup: 'listbox' })"
+    {% if campo.errors %}
+      data-invalido="true"
+    {% endif %}
+    x-ref="contenedor"
   >
     {% if not sin_valor_nulo %}
       <template
@@ -79,7 +87,7 @@
           aria-label="eliminar valores"
           data-btn-reiniciar
           @click="reiniciar()"
-          class="peer ui-btn border border-[--transparente-2] bg-fondo-700 max-h-[min(100%,40px)] aspect-1 min-w-7 p-0.5 rounded-r-0 border-r-0! "
+          class="peer/btn-reiniciar ui-btn border border-[--transparente-2] bg-fondo-700 aspect-1 min-w-7 p-0.5 rounded-r-0 border-r-0!"
           {% if hx_post %}
             hx-post="{{ hx_post }}"
           {% elif hx_get %}
@@ -92,13 +100,13 @@
     {% endif %}
 
     <div
-      class="col gap-y-1 w-full outline-0 peer-not-disabled:[&>button]:rounded-l-0 overflow-hidden"
+      class="col gap-y-1 w-full outline-0 peer-not-disabled/btn-reiniciar:[&>button]:rounded-l-0 overflow-hidden"
     >
       <button
         x-bind="trigger"
         role="combobox"
         aria-controls="{{ name }}-lista"
-        {% with c=" peer ui-elevado inline-flex justify-between gap-2 w-full rounded-campo whitespace-nowrap text-sm" %}
+        {% with c=" ui-elevado inline-flex justify-between gap-2 w-full rounded-campo whitespace-nowrap" %}
           {% if campo.errors %}
             class="{{ btn_class|default:''|add:c|add:' animate-head-shake animate-delay-200' }}"
           {% else %}
@@ -132,10 +140,6 @@
           {% include "componentes/iconos/caret.html#abajo" with class="size-5 size-min-max" %}
         </div>
       </button>
-
-      {% if campo %}
-        {% include "componentes/campo.html#campo_error" %}
-      {% endif %}
     </div>
 
     <div
@@ -174,16 +178,7 @@
       {% partialdef lista inline %}
         <ul
           class="{{ lista_clase|default:''|add:' py-1.5 select-none empty:hidden' }}"
-          @change="{{
-            "
-              seleccionarOpcion($event.target);
-
-              if ($refs.trigger.hasAttribute('aria-invalid')) {
-                $refs.trigger.setAttribute('aria-invalid', 'false');
-                $refs.trigger.removeAttribute('aria-errormessage');
-              }
-            "|reemplazar_espacios:''
-          }}"
+          @change="seleccionarOpcion($event.target)"
           @keydown.enter.prevent="{{
             '
               const input = $event.target;
@@ -240,6 +235,7 @@
                     {% if multiple == 0 %}
                       <input
                         type="radio"
+                        autocomplete="off"
                         class="{{ c|add:' ui-opcion/radio' }}"
                         name="{{ name }}"
                         {% if filtro %}data-filtro{% endif %}
@@ -250,6 +246,7 @@
                     {% else %}
                       <input
                         type="checkbox"
+                        autocomplete="off"
                         :tabindex="index === 0 ? 0 : -1"
                         class="{{ c|add:' peer ui-opcion/checkbox' }}"
                         name="{{ name }}"
@@ -299,4 +296,9 @@
       {% endpartialdef lista %}
     </div>
   </div>
+
+  {% if campo %}
+    {% include "componentes/campo.html#campo_error" with error_id=campo.name|add:"-error" %}
+    {% include "componentes/campo.html#desc" %}
+  {% endif %}
 </div>

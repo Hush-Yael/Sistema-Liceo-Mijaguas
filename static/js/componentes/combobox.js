@@ -1,50 +1,58 @@
 "use strict";
 /** @typedef {{ id: string, label: string }} ComboboxOpcion */
 
-document.addEventListener("alpine:init", () => {
-  Alpine.data("combobox", (config) => ({
-    /** @type { boolean } */
-    multiple: config.multiple || false,
-    /** @type { ComboboxOpcion[] } **/
-    opciones: config.opciones || [],
-    /** @type { Set<number> } **/
-    opcionesSeleccionadas: config.opcionesSeleccionadas || new Set(),
-    /** @type { ComboboxOpcion['id'] | null } **/
-    seleccionada: config.seleccionada || null,
-    /** @type { HTMLInputElement | null } **/
-    ultimaSeleccionada: null,
-    /** @type { boolean } */
-    shiftPresionado: false,
-    q: "",
-    /** @type { boolean } */
-    mostrarCantidad: config.mostrarCantidad || false,
-    /** @type { number } */
-    cantidadFiltradas: config.opciones?.length || 0,
-    establecerTextoLabel,
-    destacarPrimeraCoincidencia,
-    seleccionarOpcion,
-    reiniciar,
-    filtrarOpciones,
-
-    ...config,
-  }));
-});
-
 /**
  * @typedef {{
  *   opciones: ComboboxOpcion[],
  *   opcionesSeleccionadas: Set<number>,
  *   seleccionada: ComboboxOpcion['id'] | null,
  *   ultimaSeleccionada: HTMLInputElement | null,
+ *   name: string | null,
+ *   ultimoValorIncorrecto: number | null,
+ *   valorErroneoIntroducido: boolean,
  *   shiftPresionado: boolean,
  *   multiple: boolean,
  *   reiniciar: () => void,
  *   q: string,
  *   mostrarCantidad: boolean,
  *   cantidadFiltradas: number,
- *   $el: HTMLDivElement
+ *   $el: HTMLDivElement,
+ *   $refs: Record<string, HTMLElement>
  * }} ComboboxContext
  **/
+
+/** @param { ComboboxContext } config */
+// oxlint-disable-next-line no-unused-vars
+function combobox(config) {
+  return {
+    ...config,
+    multiple: config.multiple || false,
+    opciones: config.opciones || [],
+    opcionesSeleccionadas: config.opcionesSeleccionadas || new Set(),
+    seleccionada: config.seleccionada || null,
+    name: config.name,
+    valorErroneoIntroducido: config.valorErroneoIntroducido || false,
+    /** @type { number | null } */
+    ultimoValorIncorrecto: null,
+    /** @type { HTMLInputElement | null } **/
+    ultimaSeleccionada: null,
+    /** @type { boolean } */
+    shiftPresionado: false,
+    q: "",
+    mostrarCantidad: config.mostrarCantidad || false,
+    cantidadFiltradas: config.opciones?.length || 0,
+    establecerTextoLabel,
+    destacarPrimeraCoincidencia,
+    seleccionarOpcion,
+    reiniciar,
+    filtrarOpciones,
+    verificarEstadoError,
+    reintroducirError,
+    limpiarError,
+
+    ...config,
+  };
+}
 
 /**
  * @this { ComboboxContext }
@@ -135,15 +143,59 @@ function seleccionarOpcion(opcion) {
       // guardar la última opción seleccionada, para usarla como referencia en el siguiente cambio, si se presiona shift
       this.ultimaSeleccionada = opcion;
     }
+
+    limpiarError(this.$refs);
   }
+
   // marcar una única opción como el valor seleccionado
-  else this.seleccionada = opcion.value;
+  else {
+    this.seleccionada = opcion.value;
+    this.verificarEstadoError(this.refs);
+  }
+}
+
+/** @this { ComboboxContext } ***/
+function verificarEstadoError() {
+  if (this.valorErroneoIntroducido) {
+    if (this.ultimoValorIncorrecto === this.seleccionada)
+      this.reintroducirError();
+    else this.limpiarError();
+  }
+}
+
+/** @this { ComboboxContext } ***/
+function reintroducirError() {
+  const refs = this.$refs;
+
+  if (this.name) {
+    refs.contenedor.setAttribute("data-invalido", "true");
+    refs.trigger.setAttribute("aria-invalid", "true");
+    refs.trigger.setAttribute("aria-errormessage", this.name + "-error");
+  }
+}
+
+/** @this { ComboboxContext } ***/
+function limpiarError() {
+  /** @type { Record<string, HTMLElement> } */
+  const refs = this.$refs;
+
+  if (refs.trigger.hasAttribute("aria-invalid")) {
+    refs.contenedor.setAttribute("data-invalido", "false");
+    refs.trigger.setAttribute("aria-invalid", "false");
+    refs.trigger.removeAttribute("aria-errormessage");
+  }
 }
 
 /** @this { ComboboxContext } **/
 function reiniciar() {
-  if (this.multiple) this.opcionesSeleccionadas.clear();
-  else this.seleccionada = null;
+  if (this.multiple) {
+    this.opcionesSeleccionadas.clear();
+    this.limpiarError();
+  } else {
+    this.seleccionada = null;
+    this.verificarEstadoError();
+  }
+
   this.$el.dispatchEvent(new Event("change", { bubbles: true }));
 }
 
