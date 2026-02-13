@@ -4,6 +4,9 @@
     id="{{ id }}"
   {% endif %}
   {% if x_show %}
+    {% if x_cloak %}
+      x-cloak
+    {% endif %}
     x-show="{{ x_show }}"
   {% endif %}
   viewBox="0 0 512 512"

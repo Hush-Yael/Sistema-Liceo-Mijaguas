@@ -5,32 +5,19 @@
 
 {% addtoblock "cabeza" %}
   <script defer src="{% static 'js/alpine-dialog.min.js' %}"></script>
+  <script defer src="{% static 'js/componentes/campo-foto.js' %}"></script>
 {% endaddtoblock %}
 
 <div
-  x-data='{
-    urlFotoPerfil: "{% if request.user.foto_perfil %}{{ request.user.foto_perfil.url }}{% endif %}",
-    modalFotoAbierto: false,
-    actualizarFoto() {
-      const input = this.$el;
-      const archivo = input.files[0];
-
-      if (archivo) {
-        if (archivo.size > 5242880) {
-          alert("El archivo no puede superar los 5MB.");
-          return (input.value = "");
-        }
-
-        this.urlFotoPerfil = URL.createObjectURL(archivo);
-
-        if (input.getAttribute("aria-invalid")) {
-          input.removeAttribute("aria-invalid");
-          input.removeAttribute("aria-errormessage");
-        }
-      }
-    },
-  }'
   x-show="pestaña === 'datos'"
+  {% if form.foto_eliminada %}
+    {# eliminar miniatura de la barra lateral al eliminar la foto #}
+    x-init="document.getElementById('foto-barra-lateral').src = ''"
+  {% elif form.foto_actualizada and request.user.miniatura_foto %}
+    {# cambiar miniatura de la barra lateral al subir una foto #}
+    x-init="document.getElementById('foto-barra-lateral').src =
+    '{{ request.user.miniatura_foto.url }}'"
+  {% endif %}
 >
   <form
     id="form"
@@ -48,42 +35,20 @@
       class="{{ 'col gap-y-5 min-[600px]:(grid grid-cols-2 gap-x-10)'|expandir_variantes }}"
     >
       {% for campo in form %}
-        {% if campo != form.foto_perfil %}
+        {% if campo != form.foto_perfil and campo != form.foto_perfil_limpiar %}
           {% include "componentes/campo.html" with input_class="ui-elevado" %}
         {% endif %}
       {% endfor %}
     </div>
 
     <button
-      disabled
+      {# disabled #}
       x-ref="submit"
       class="{{ 'ui-btn ui-btn/primario p-1 px-3 max-[600px]:flex-1 min-[600px]:(w-[250px] mla)'|expandir_variantes }}"
     >
       Guardar cambios
     </button>
   </form>
-
-  <dialog
-    id="modal-img"
-    x-show="modalFotoAbierto"
-    x-transition:leave-start="opacity-100"
-    x-transition:leave-end="opacity-0 scale-98"
-    x-htmldialog="modalFotoAbierto = false"
-    class="size-325px min-[400px]:size-400px min-[500px]:size-500px **:size-full transition-[width,height,opacity,transform]"
-    @click="$event.target === $event.currentTarget && (modalFotoAbierto = false)"
-  >
-    <div>
-      <img
-        x-ref="fotoModal"
-        class="aspect-square object-cover"
-        {% if request.user.foto_perfil %}
-          src="{{ request.user.foto_perfil.url }}"
-        {% endif %}
-        :src="urlFotoPerfil"
-        alt="foto"
-      />
-    </div>
-  </dialog>
 </div>
 
 {% if respuesta %}

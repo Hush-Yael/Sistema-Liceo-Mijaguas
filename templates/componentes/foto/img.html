@@ -1,0 +1,155 @@
+{% load grupos_variantes %}
+{% load widget_tweaks %}
+
+<div class="{{ class }}" x-data="campoFoto({ url: '{{ url }}' })">
+  {% with error_id=campo.id_for_label|add:'-error' %}
+    {% if campo.errors %}
+      {% render_field campo x-ref="input" @change="actualizarFoto()" class="{{ campo_clase }} deshabilitar-al-subir peer peer/error-img sr-only" aria-errormessage=error_id aria-invalid="true" %}
+    {% else %}
+      {% render_field campo x-ref="input" @change="actualizarFoto()" class="{{ campo_clase }} deshabilitar-al-subir peer peer/error-img sr-only" %}
+    {% endif %}
+
+    {% if campo_limpiar %}
+      <input
+        type="checkbox"
+        name="{{ campo_limpiar.name }}"
+        x-ref="limpiar"
+        class="sr-only"
+      />
+    {% endif %}
+
+    <div class="group relative max-w-max">
+      <img
+        {% if url %}
+          src="{{ url }}"
+        {% else %}
+          src="" x-cloak
+        {% endif %}
+        :src="url"
+        alt="foto de perfil"
+        class="{{ img_class }} aspect-square object-cover outline-1 outline-#fff2 [&[src='']]:hidden rounded-full"
+      />
+
+      {%
+        include "componentes/iconos/sin-foto.html" with
+        variable_url=url
+        x_cloak=url
+        x_show="!url"
+        class=img_class
+      %}
+
+      <label
+        for="{{ campo.id_for_label }}"
+        {# Tratar de aplicar inmediatamente los estilos para evitar cambios bruscos al iniciar el componente según si ya hay una foto cargada o no #}
+        {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+          {% with
+            clase_foto_subida="ui-btn absolute z-1 size-7.5 p-1 border-2 border-fondo-500! rounded-full ui-btn/secundario outline-2 outline-#0000 peer-focus-visible:outline-[--texto-base] "
+            clase_foto_no_subida="absolute inset-0 z-1 fc rounded-full opacity-0 bg-[#0008] text-white pover:opacity-100 peer-focus:opacity-100 transition-opacity"
+          %}
+            {% if url %}
+                class="{{ clase_foto_subida }} {{ pos_btn_subir|default:'-right-1 -bottom-1' }} cursor-pointer"
+            {% else %}
+              class="{{ clase_foto_no_subida }} cursor-pointer"
+            {% endif %}
+            :class='{ "{{ clase_foto_subida }} {{ pos_btn_subir|default:'-right-1 -bottom-1' }}": url,
+            "{{ clase_foto_no_subida }}": !url }'
+          {% endwith %}
+        {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+      >
+        <span class="sr-only">Subir {{ campo.label }}</span>
+        <svg
+          x-show="url"
+          {% if not url %}
+            x-cloak
+          {% endif %}
+          class="size-4"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M7 9l5-5 5 5M12 4v12"
+          ></path>
+        </svg>
+
+        <svg
+          class="size-6.5"
+          x-show="!url"
+          {% if url %}
+            x-cloak
+          {% endif %}
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+        >
+          <path d="M12 8.8A3.2 3.2 0 1 0 12 15.2 3.2 3.2 0 1 0 12 8.8z"></path>
+          <path
+            d="M9 2 7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"
+          ></path>
+        </svg>
+      </label>
+
+      <button
+        type="button"
+        {# solo se abre el modal si la foto es una imagen (al no tener es un svg) #}
+        :disabled="!url"
+        @click="url && (modalFotoAbierto = true)"
+        aria-haspopup="dialog"
+        :aria-expanded="modalFotoAbierto === true"
+        {# Tratar de aplicar inmediatamente los estilos para evitar cambios bruscos al iniciar el componente según si ya hay una foto cargada o no #}
+        {%
+          with
+          class="absolute top-0 left-0 right-0 bottom-0 outline-2 outline-offset-2 rounded-full transition-[outline-color] ease [.peer\/error-img[aria-invalid=true]~.group_&]:outline-peligro dark:[.peer\/error-img[aria-invalid=true]~.group_&]:(opacity-100 outline-peligro-400) media-mouse:focus-visible:(outline-primario dark:outline-primario-700) media-touch:focus-visible:outline-primario-500"|expandir_variantes
+          clase_foto_subida="outline-[--transparente-2]"
+          clase_foto_no_subida="outline-#0000"
+        %}
+          {% if url %}
+            class="{{ class }} {{ clase_foto_subida }}"
+          {% else %}
+            class="{{ class }} {{ clase_foto_no_subida }}"
+          {% endif %}
+          :class="{ '{{ clase_foto_subida }}': url,
+          '{{ clase_foto_no_subida }}': !url }"
+        {% endwith %}
+        aria-label="Ver foto de perfil"
+      ></button>
+
+      <dialog
+        x-show="modalFotoAbierto"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0 scale-98"
+        x-htmldialog="modalFotoAbierto = false"
+        @click="$event.target === $event.currentTarget && (modalFotoAbierto = false)"
+        class="bg-transparent size-325px min-[450px]:size-400px min-[550px]:size-500px transition-[width,height,opacity,transform] overflow-visible"
+      >
+        <div class="col gap-y-5">
+          <img
+            x-ref="modal"
+            class="peer size-full aspect-square object-cover rounded [&[src='']]:hidden"
+            {% if url %}
+              src="{{ url }}"
+            {% endif %}
+            :src="url"
+            alt="foto de perfil"
+          />
+
+          {% include "componentes/iconos/sin-foto.html" with class="scale-90 size-full peer-not-[[src='']]:hidden" %}
+
+          <button
+            class="ui-btn ui-btn/peligro p-2 -outline-offset-2 peer-[[src='']]:mxa"
+            @click="borrarFoto()"
+            type="button"
+            :disabled="!url"
+          >
+            {% include "componentes/iconos/edicion.html#borrar" with class="size-5" %}
+            Eliminar foto
+          </button>
+        </div>
+      </dialog>
+    </div>
+
+    {% include "componentes/campo.html#campo_error" %}
+  {% endwith %}
+</div>

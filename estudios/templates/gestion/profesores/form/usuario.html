@@ -67,18 +67,21 @@
             <div class="flex items-start gap-y-6 gap-x-4 min-[500px]:gap-x-6">
               {% include "componentes/campo.html" with class="flex-1" input_class="deshabilitar-al-subir ui-elevado-2" %}
 
-              <div class="col jcc aic gap-y-3" x-data="campoFoto({})">
-                {% with img_class="size-18 size-min-18 lh-18 min-[500px]:(size-20 size-min-20 lh-20)"|expandir_variantes campo=usuario_form.foto_perfil class="relative" error_class="absolute bottom-full mb-3 right-0 mr-6 p-1 px-2 w-max max-w-60vw rounded bg-peligro text-peligro-texto! animate-(bounce duration-700 count-[2] fill-forwards) before:(absolute -z-1 top-90% right-1 content-[''] size-4 bg-peligro border-peligro border-t border-l -transform-translate-y-1/2 transform-rotate-45) max-[500px]:text-xs"|expandir_variantes %}
-                  {% if campo.value %}
-                    {% with src=campo.value %}
-                      {{ src }}
-                      {% include "componentes/foto/img.html" %}
-                    {% endwith %}
-                  {% else %}
+              {%
+                with
+                class="relative"
+                img_class="size-18 size-min-18 lh-18 min-[500px]:(size-20 size-min-20 lh-20)"|expandir_variantes
+                campo=usuario_form.foto_perfil
+                error_class="absolute bottom-full mb-3 right-0 mr-6 p-1 px-2 w-max max-w-60vw rounded bg-peligro text-peligro-texto! animate-(bounce duration-700 count-[2] fill-forwards) before:(absolute -z-1 top-90% right-1 content-[''] size-4 bg-peligro border-peligro border-t border-l -transform-translate-y-1/2 transform-rotate-45) max-[500px]:text-xs"|expandir_variantes
+              %}
+                {% if campo.value %}
+                  {% with src=campo.value %}
                     {% include "componentes/foto/img.html" %}
-                  {% endif %}
-                {% endwith %}
-              </div>
+                  {% endwith %}
+                {% else %}
+                  {% include "componentes/foto/img.html" %}
+                {% endif %}
+              {% endwith %}
             </div>
           {% elif campo == form.email or campo == form.password %}
             {% include "componentes/campo.html" with input_class="deshabilitar-al-subir ui-elevado-2" %}

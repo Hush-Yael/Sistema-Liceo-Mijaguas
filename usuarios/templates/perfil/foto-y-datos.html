@@ -5,120 +5,32 @@
 {% load static %}
 {% load sekizai_tags %}
 
-<div
-  class="{{ 'gap-y-5 max-[600px]:col min-[600px]:(grid grid-cols-[1fr_auto])'|expandir_variantes }}"
->
-  {# input oculto para cambiar la foto #}
-  {% with error_id=form.foto_perfil.id_for_label|add:'-error' %}
-    {% if form.foto_perfil.errors %}
-      {% render_field form.foto_perfil class="sr-only peer/error-img" @change="actualizarFoto()" form="form" aria-errormessage=error_id aria-invalid="true" %}
+<div class="flex aic gap-x-4">
+  {%
+    with
+    class="relative"
+    img_class="size-18 size-min-18 lh-18 min-[500px]:(size-20 size-min-20 lh-20)"|expandir_variantes
+    campo=form.foto_perfil
+    campo_limpiar=form.foto_perfil_limpiar
+    error_class="absolute bottom-full mb-3 left-0 ml-6 p-1 px-2 w-max max-w-60vw rounded bg-peligro text-peligro-texto! animate-(bounce duration-700 count-[2] fill-forwards) before:(absolute -z-1 top-90% left-1 content-[''] size-4 bg-peligro border-peligro border-t border-l -transform-translate-y-1/2 transform-rotate-45) max-[500px]:text-xs"|expandir_variantes
+  %}
+    {% if request.user.foto_perfil %}
+      {% include "componentes/foto/img.html" with url=request.user.foto_perfil.url %}
     {% else %}
-      {% render_field form.foto_perfil class="sr-only" @change="actualizarFoto()" form="form" %}
-    {% endif %}
-
-    <div class="group col gap-y-3">
-      <div class=" flex aic gap-x-4">
-        {% with class="size-[5rem] supports-[aspect-ratio:_1]:min-w-max aspect-square rounded-full object-cover italic tac -indent-4 lh-[5rem] shadow-[0_0_10px_#0001,_0_7px_15px_#0001] dark:shadow-none" %}
-          <div class="relative max-w-max">
-            <img
-              {% if request.user.foto_perfil %}
-                src="{{ request.user.foto_perfil.url }}"
-              {% endif %}
-              x-cloak
-              x-ref="fotoPerfil"
-              x-show="urlFotoPerfil !== ''"
-              :src="urlFotoPerfil"
-              alt="foto del perfil"
-              class="{{ class }}"
-              {% if datos_cambiados and request.user.miniatura_foto %}
-                x-init="document.getElementById('foto-barra-lateral').src =
-                '{{ request.user.miniatura_foto.url }}'"
-              {% endif %}
-            />
-
-            {% include "componentes/iconos/sin-foto.html" with x_show="urlFotoPerfil === ''" %}
-
-            <button
-              type="button"
-              {# solo se abre el modal si la foto es una imagen (al no tener es un svg) #}
-              @click="urlFotoPerfil && (modalFotoAbierto = true)"
-              aria-haspopup="dialog"
-              :aria-expanded="modalFotoAbierto === true"
-              class="{{ 'absolute top-0 left-0 right-0 bottom-0 outline-2 outline-#0002 dark:outline-#fff2 outline-offset-2 rounded-full transition-[outline-color] ease [.peer\/error-img[aria-invalid=true]~.group_&]:outline-peligro media-mouse:focus-visible:(outline-primario dark:outline-primario-700) media-touch:focus-visible:outline-primario-500'|expandir_variantes }}"
-              aria-label="Ver foto de perfil"
-            ></button>
-          </div>
-        {% endwith %}
-
-        <hgroup class="col gap-y-1">
-          <h2 class="font-bold text-lg">{{ request.user.username }}</h2>
-          <p class="text-sm text-texto-semi-sutil">
-            {% if request.user.is_superuser %}
-              superusuario
-            {% else %}
-              {% for grupo in request.user.grupos.all %}
-                {{ grupo }}{% if not forloop.last %},{% endif %}
-              {% endfor %}
-            {% endif %}
-          </p>
-        </hgroup>
-      </div>
-    </div>
-
-    {% if form.foto_perfil.errors %}
-      <p
-        id="{{ error_id }}"
-        class="col-span-2 row-start-2 pl-1 text-peligro dark:text-peligro-400 text-sm hidden [.peer\/error-img[aria-invalid=true]~&]:block"
-      >
-        {{ form.foto_perfil.errors|first }}
-      </p>
+      {% include "componentes/foto/img.html" with url='' %}
     {% endif %}
   {% endwith %}
 
-  <div class="flex gap-2 min-[600px]:flex-col">
-    {% with c="ui-btn ui-btn/sm max-[400px]:py-1.5 min-[400px]:ui-btn/md max-[500px]:flex-1" %}
-      <button
-        type="button"
-        class="{{ c }} ui-btn/borde"
-        hx-delete="{% url 'cambiar_datos' %}"
-        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-        hx-confirm="¿Seguro que quieres borrar tu foto de perfil?"
-        @htmx:after-request.window="{{
-          "
-            if ($event.target === $el && $event.detail.xhr.status === 200) {
-              urlFotoPerfil = '';
-              document.getElementById('foto-barra-lateral').src = '';
-            }
-          "|reemplazar_espacios:''
-        }}"
-        hx-indicator="#indicador-eli"
-        {% if not request.user.foto_perfil %}
-          disabled
-        {% endif %}
-        hx-swap="none"
-      >
-        <span
-          id="indicador-eli"
-          class="peer htmx-indicator ui-loader ui-loader/primario"
-        ></span>
-        {% include "componentes/iconos/edicion.html#borrar" with class="size-[1.125em] [.peer.htmx-request~&]:hidden" %}
-        Eliminar foto
-        <span class="sr-only">de perfil</span>
-      </button>
-
-      <label
-        for="{{ form.foto_perfil.id_for_label }}"
-        id="btn-subir-foto"
-        class="{{ c }} ui-btn/secundario"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <path
-            d="M21 15v3h3v2h-3v3h-2v-3h-3v-2h3v-3h2Zm.008-12c.548 0 .992.445.992.993v9.349A5.99 5.99 0 0 0 20 13V5H4l.001 14 9.292-9.293a.999.999 0 0 1 1.32-.084l.094.085 3.545 3.55a6.003 6.003 0 0 0-3.91 7.743L2.992 21A.993.993 0 0 1 2 20.007V3.993A1 1 0 0 1 2.992 3h18.016ZM8 7a2 2 0 1 1 0 4 2 2 0 0 1 0-4Z"
-          ></path>
-        </svg>
-
-        Subir foto <span class="sr-only">de perfil</span>
-      </label>
-    {% endwith %}
-  </div>
+  <hgroup class="col gap-y-1">
+    <h2 class="font-bold text-lg">{{ request.user.username }}</h2>
+    <p class="text-sm text-texto-semi-sutil">
+      {% if request.user.is_superuser %}
+        superusuario
+      {% else %}
+        {% for grupo in request.user.grupos.all %}
+          {{ grupo }}{% if not forloop.last %},{% endif %}
+        {% endfor %}
+      {% endif %}
+    </p>
+  </hgroup>
 </div>
