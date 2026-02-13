@@ -18,7 +18,7 @@
     {{ campo.label_tag }}
   {% endif %}
 
-  {% with wrapper_class="contra-wrapper flex aic jb gap-x-2 outline-2 -outline-offset-1 outline-#0000 focus-within:outline-current focus-within:has-[button:focus-visible]:outline-0" error_id=campo.id_for_label|add:'-error' ic=input_class|default:''|add:' peer' %}
+  {% with wrapper_class="contra-wrapper flex aic jb gap-x-2 outline-2 -outline-offset-1 outline-#0000 focus-within:outline-current focus-within:has-[button:focus-visible]:outline-0" error_id=campo.name|add:'-error' ic=input_class|default:''|add:' peer' %}
     {% if 'contraseña' in campo.name or 'password' in campo.name %}
       <div
         {% if campo.errors %}

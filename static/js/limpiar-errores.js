@@ -47,7 +47,10 @@ function limpiarAlCambiar(e) {
         if (wrapper) wrapper.setAttribute("data-invalido", "true");
 
         campo.setAttribute("aria-invalid", "true");
-        campo.setAttribute("aria-errormessage", "error");
+        campo.setAttribute(
+          "aria-errormessage",
+          (campo.name || campo.id) + "-error",
+        );
         inputsLimpiados.delete(campo.id);
       }
     }
