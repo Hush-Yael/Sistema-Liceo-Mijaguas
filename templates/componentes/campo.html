@@ -63,9 +63,11 @@
       {% endif %}
     {% endpartialdef campo_error %}
 
-    {% if campo.help_text %}
-      <p class="text-sm text-texto-sutil mt-1">{{ campo.help_text }}</p>
-    {% endif %}
+    {% partialdef desc inline %}
+      {% if campo.help_text %}
+        <p class="text-sm text-texto-sutil mt-1">{{ campo.help_text }}</p>
+      {% endif %}
+    {% endpartialdef desc %}
   {% endwith %}
 </div>
 
