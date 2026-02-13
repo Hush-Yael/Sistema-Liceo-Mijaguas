@@ -70,32 +70,6 @@ class DatosPerfil(VistaPestañaPerfil, LoginRequiredMixin, UpdateView):
     def get_object(self, queryset=None):
         return self.request.user
 
-    def delete(self, *args, **kwargs):
-        request = self.request
-        try:
-            request.user.foto_perfil.delete(save=False)  # type: ignore
-            request.user.miniatura_foto.delete(save=False)  # type: ignore
-
-            # eliminar las urls de la base de datos, ya que por alguna razón no se borran al eliminar los archivos (¿A quién se le ocurre? >:( )
-            with connection.cursor() as cursor:
-                tabla_nombre = Usuario._meta.db_table  # type: ignore
-                foto_col_nombre = Usuario._meta.get_field("foto_perfil").column  # type: ignore
-                miniatura_col_nombre = Usuario._meta.get_field("miniatura_foto").column  # type: ignore
-
-                cursor.execute(
-                    f"UPDATE {tabla_nombre} SET {foto_col_nombre} = NULL, {miniatura_col_nombre} = NULL WHERE id = %s",  # type: ignore
-                    [request.user.id],  # type: ignore
-                )
-
-                if cursor.rowcount < 1:
-                    print("No se pudo dejar en blanco los campos de las fotos")
-
-            messages.success(request, "Foto eliminada")
-            return render(request, "componentes/mensajes.html#como_respuesta")
-        except Exception as e:
-            print("Error al eliminar la foto", e)
-            return HttpResponse("Error al eliminar la foto: ", status=204)  # type: ignore
-
 
 class CambiarContraseña(VistaPestañaPerfil, PasswordChangeView):
     form_class = CambiarContraseñaForm

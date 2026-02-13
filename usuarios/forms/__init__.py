@@ -7,16 +7,25 @@ from usuarios.models import Grupo, Usuario
 tamaño_minimo = 350
 
 
-class FormUsuarioFotoMixin:
+class FormUsuarioFotoMixin(forms.Form):
     cleaned_data: "dict[str, Any]"
 
     foto_perfil = forms.ImageField(
         required=False,
-        widget=forms.FileInput(),
+        widget=forms.FileInput(
+            attrs={
+                "accept": "image/*",
+            }
+        ),
     )
+
+    foto_perfil_limpiar = forms.BooleanField(required=False)
 
     def clean_foto_perfil(self):
         foto: forms.FileField = self.cleaned_data[nc(Usuario.foto_perfil)]  # type: ignore - Sí se obtiene el nombre del campo
+
+        if not hasattr(foto, "image") or not foto:
+            return
 
         if foto.size > 5242880:  # type: ignore
             raise forms.ValidationError("El archivo es demasiado grande.")
@@ -34,6 +43,23 @@ class FormUsuarioFotoMixin:
             )
 
         return foto
+
+    def save(self, commit: bool = True):
+        # Se indicó eliminar la foto
+        if self.cleaned_data.get(f"{nc(Usuario.foto_perfil)}_limpiar"):  # type: ignore - Sí se obtiene el nombre del campo
+            usuario: Usuario = self.instance  # type: ignore - Sí se obtiene la instancia
+
+            usuario.foto_perfil.delete(save=False)  # type: ignore
+            usuario.miniatura_foto.delete(save=False)  # type: ignore
+
+            setattr(usuario, "foto_perfil", None)  # type: ignore
+            setattr(usuario, "miniatura_foto", None)  # type: ignore
+            setattr(self, "foto_eliminada", True)
+        # Se subió una foto, indicar actualizar
+        elif self.cleaned_data.get(nc(Usuario.foto_perfil)):  # type: ignore - Sí se obtiene el nombre del campo
+            setattr(self, "foto_actualizada", True)
+
+        return super().save(commit)  # type: ignore - sí existe el método
 
 
 class FormularioDatosUsuario(FormUsuarioFotoMixin, forms.ModelForm):
