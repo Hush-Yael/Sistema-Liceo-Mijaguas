@@ -10,7 +10,7 @@
 
 {% block lista %}
   <ul
-    x-ref="lista"
+    x-bind="eventosLista"
     class="col gap-3 flex-1 min-[500px]:grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] content-start"
     @click="{{
       '

@@ -48,8 +48,8 @@
       {% if form_filtros %}
         hx-indicator="#indicador-busqueda"
       {% endif %}
-      x-data="listaObjetos({ contenedorManejoTeclas: $el.$('[data-lista]'),
-      {% block x_data %}{% endblock x_data %} })"
+      x-data="new ListaObjetos({ {% block x_data %}{% endblock x_data %} })"
+      x-bind="eventos"
     {% endif %}
   >
     {% if no_hay_objetos %}
