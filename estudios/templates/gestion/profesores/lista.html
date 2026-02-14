@@ -12,7 +12,7 @@
 
 {% block lista %}
   <ul
-    data-lista
+    x-ref="lista"
     class="{{ 'col min-[500px]:grid grid-cols-[repeat(auto-fill,minmax(325px,1fr))] gap-3 flex-1'|expandir_variantes }}"
     @click="{{
       '
@@ -38,7 +38,7 @@
                 <button
                   data-foto-url="{{ profesor.foto_perfil }}"
                   data-id="{{ profesor.id }}"
-                  class="align-middle mr-2"
+                  class="align-middle"
                   aria-label="Inspeccionar foto de perfil"
                 >
                   <img

@@ -18,7 +18,7 @@
   {% endif %}
 
   <table
-    data-lista
+    x-ref="lista"
     {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
       x-data="tablaAdaptable({
         hayColumnasOcultables: {% if view.columnas_mostradas|length > 1 %}true{% else %}false{% endif %},

@@ -117,8 +117,8 @@ document.addEventListener("alpine:init", () => {
         },
       });
 
-      if (config.contenedorManejoTeclas)
-        Alpine.bind(config.contenedorManejoTeclas, {
+      if (this.$refs.lista)
+        Alpine.bind(this.$refs.lista, {
           /** @this Contexto */
           // Navegar entre elementos enfocables de la lista, para no tener que usar Tab
           "x-on:keydown"() {
