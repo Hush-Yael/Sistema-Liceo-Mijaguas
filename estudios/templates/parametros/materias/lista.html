@@ -1,4 +1,5 @@
-{% extends "componentes/tabla-adaptable/index.html" %}
+{% extends "componentes/vista-lista/lista.html" %}
+{% load grupos_variantes %}
 
 {% block acciones %}
   {{ block.super }}
@@ -36,33 +37,67 @@
   </button>
 {% endblock acciones %}
 
-{% block td %}
-  {% if columna.clave == 'asignaciones' %}
-    {% if objeto.asignaciones|length == 0 %}
-      <span
-        role="status"
-        class="flex aic gap-2 rounded-full w-max p-1 px-3 text-sm bg-advertencia text-advertencia-texto"
-      >
-        {% include "componentes/iconos/mensajes.html#alerta" with class="size-4" %}
-        Ningún año
-      </span>
-    {% else %}
-      <ul class="flex flex-wrap gap-2">
-        {% for añomateria in objeto.asignaciones %}
-          <li>
+{% block lista %}
+  <ul
+    x-bind="eventosLista"
+    class="{{ 'grid grid-cols-[repeat(auto-fill,minmax(325px,1fr))] grid-cols-[repeat(auto-fill,minmax(140px,1fr))] supports-[not(grid-template-columns:repeat(auto-fill,minmax(140px,1fr)))]:(flex flex-wrap) gap-5'|expandir_variantes }}"
+  >
+    {% for materia in lista_objetos %}
+      <li>
+        <article class="ui-elevado rounded-xl">
+          <header
+            class="flex aic gap-x-3 rounded-t-xl border-b border-[--transparente-1] p-2 px-4 bg-fondo-700"
+          >
+            {% if permisos.crear or permisos.editar or permisos.eliminar %}
+              {% include "componentes/vista-lista/objeto-check.html" with objeto=materia indicador_class="bg-[#0001]! dark:bg-[#ffffff1a]!" %}
+            {% endif %}
+            <h2 class="font-bold">
+              {% with dato=materia.nombre %}
+                {% if permisos.editar %}
+                  {% include "componentes/tabla-adaptable/enlace-editar.html" with objeto=materia %}
+                {% else %}
+                  {{ dato }}
+                {% endif %}
+              {% endwith %}
+            </h2>
+          </header>
+
+          <div
+            class="flex aic gap-x-2 p-2 px-3.5 border-b border-[--transparente-1] bg-fondo-600 text-sm text-texto-sutil"
+          >
             <span
-              class="rounded-full p-0.5 px-2 text-sm ui-elevado-2"
-              role="status"
+              class="ui-contenedor-icono size-5 bg-[--transparente-2] text-texto-sutil p-1"
             >
-              {{ añomateria.año.nombre_corto }}
+              {% include "componentes/iconos/fecha.html#creacion" %}
             </span>
-          </li>
-        {% endfor %}
-      </ul>
-    {% endif %}
-  {% elif 'fecha' in columna.clave %}
-    {{ dato|date:"d M. Y, h:i A" }}
-  {% else %}
-    {{ dato }}
-  {% endif %}
-{% endblock td %}
+            Creada el: {{ materia.fecha|date:"d M. Y, h:i A" }}
+          </div>
+
+          <ul
+            class="{{ 'grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] supports-[not(grid-template-columns:repeat(auto-fill,minmax(100px,1fr)))]:(flex flex-wrap) text-sm gap-2 p-3'|expandir_variantes }}"
+          >
+            {% for añomateria in materia.asignaciones %}
+              <li>
+                <article
+                  class="rounded p-1 px-2 rounded-full bg-[--transparente-1] text-texto-semi-sutil tac"
+                >
+                  <h3>{{ añomateria.año.nombre }}</h3>
+                </article>
+              </li>
+              {% empty %}
+              <li>
+                <span
+                  role="status"
+                  class="flex aic gap-x-2 w-max rounded p-1.5 px-4 rounded-full bg-advertencia text-advertencia-texto"
+                >
+                  {% include "componentes/iconos/mensajes.html#alerta" with class="size-4" %}
+                  Esta materia no fue asignada a ningún año
+                </span>
+              </li>
+            {% endfor %}
+          </ul>
+        </article>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock lista %}

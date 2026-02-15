@@ -1,4 +1,5 @@
 {% extends "lista-objetos.html" %}
+{% load static %}
 {% load partials %}
 {% load widget_tweaks %}
 {% load utilidades %}
@@ -6,8 +7,7 @@
 
 {% block cabeza %}
   {{ block.super }}
-  {% include "componentes/tabla-adaptable/cabeza.html" %}
-  {% include "componentes/combobox.html#scripts" %}
+  <script defer src="{% static 'js/componentes/combobox.js' %}"></script>
 {% endblock cabeza %}
 
 {% block opciones_filtros %}
@@ -64,7 +64,10 @@
           </h1>
           <div class="{{ contenido_class }} gap-y-5">
             <p class="text-texto-semi-sutil px-1">
-              Marca los años que quieres asignarles, los que
+              Marca los años que quieres asignarles a
+              {{ view.articulo_sustantivo_plural }}
+              {{ view.nombre_objeto_plural }}
+              seleccionad{{ view.vocal_del_genero }}s, los años que
               <span class="text-peligro dark:text-peligro-400">NO</span> estén
               marcados
               <span class="text-peligro dark:text-peligro-400">NO</span> se

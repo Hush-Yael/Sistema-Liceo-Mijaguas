@@ -78,6 +78,7 @@ class ListaMaterias(VistaListaObjetos):
         {"clave": "asignaciones", "titulo": "Años asignados", "anotada": True},
         {"clave": "fecha", "titulo": "Fecha de creación", "anotada": True},
     )
+    tabla = False
 
     def get_queryset(self, *args, **kwargs) -> "list[dict]":
         queryset = (
