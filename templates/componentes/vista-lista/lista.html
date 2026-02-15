@@ -89,7 +89,8 @@
             class="truncate"
             x-show="filasSeleccionadas.size === {% partial total %}"
           >
-            Todas las filas seleccionadas
+            Tod{{ view.vocal_del_genero|default:'o' }}s
+            seleccionad{{ view.vocal_del_genero|default:'o' }}s
           </span>
 
           <div class="flex aic gap-x-2">
