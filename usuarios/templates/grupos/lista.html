@@ -1,1 +1,60 @@
-{% extends "componentes/tabla-adaptable/index.html" %}
+{% extends "componentes/vista-lista/lista.html" %}
+{% load grupos_variantes %}
+
+{% block lista %}
+  <ul
+    x-bind="eventosLista"
+    class="{{ 'grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] grid-cols-[repeat(auto-fill,minmax(140px,1fr))] supports-[not(grid-template-columns:repeat(auto-fill,minmax(140px,1fr)))]:(flex flex-wrap) gap-5'|expandir_variantes }}"
+  >
+    {% for grupo in lista_objetos %}
+      <li>
+        <article class="ui-elevado rounded-xl">
+          <header
+            class="flex aic jb gap-x-3 rounded-t-xl border-b border-[--transparente-1] p-2 px-4 bg-fondo-700"
+          >
+            <h2 class="font-bold">
+              {% with dato=grupo.name %}
+                {% if permisos.editar %}
+                  {% include "componentes/tabla-adaptable/enlace-editar.html" with objeto=grupo %}
+                {% else %}
+                  {{ dato }}
+                {% endif %}
+              {% endwith %}
+            </h2>
+            {% if permisos.eliminar %}
+              {% include "componentes/vista-lista/objeto-check.html" with objeto=grupo indicador_class="bg-[#0001]! dark:bg-[#ffffff1a]!" %}
+            {% endif %}
+          </header>
+
+          <p class="p-3 text-texto-sutil">{{ grupo.descripcion }}</p>
+
+          <span
+            role="status"
+            class="flex aic gap-x-2 p-2 px-3.5 rounded-b-xl border-b border-[--transparente-1] bg-fondo-600 text-sm text-texto-sutil"
+          >
+            {% with c=grupo.cantidad %}
+              {% if c > 0 %}
+                <span
+                  class="ui-contenedor-icono size-5 bg-info text-info-texto p-1"
+                >
+                  {% include "componentes/iconos/mensajes.html#info" %}
+                </span>
+                <p>
+                  Hay <b>{{ c }}</b> usuario{{ c|pluralize }}
+                  asociado{{ c|pluralize }} a este grupo
+                </p>
+              {% else %}
+                <span
+                  class="ui-contenedor-icono size-5 bg-advertencia text-advertencia-texto p-1"
+                >
+                  {% include "componentes/iconos/mensajes.html#alerta" %}
+                </span>
+                <p>No hay usuarios asociados a este grupo</p>
+              {% endif %}
+            {% endwith %}
+          </span>
+        </article>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock lista %}

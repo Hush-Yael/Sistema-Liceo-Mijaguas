@@ -224,7 +224,9 @@ class ListaGrupos(VistaListaObjetos):
     plantilla_lista = "grupos/lista.html"
 
     def get_queryset(self, *args, **kwargs) -> "list[dict]":
-        return super().get_queryset(Grupo.objects.all().order_by("name"))
+        return super().get_queryset(
+            Grupo.objects.annotate(cantidad=Count("user")).order_by("name")
+        )
 
 
 class CrearGrupo(VistaGrupoForm, VistaCrearObjeto):
