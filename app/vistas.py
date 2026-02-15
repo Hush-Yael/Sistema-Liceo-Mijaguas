@@ -558,22 +558,22 @@ def crear_crud_urls(
     vista_crear: Type[VistaCrearObjeto],
     vista_actualizar: Type[VistaActualizarObjeto],
 ):
-    nombre_objeto_plural: str = modelo._meta.verbose_name_plural  # type: ignore
+    nombre_objeto_plural = f"{modelo._meta.verbose_name_plural}/"
 
     """Crear urls para el CRUD de un modelo"""
     return (
         path(
-            nombre_objeto_plural + "/",
+            nombre_objeto_plural,
             vista_lista.as_view(),
             name=nombre_url_lista_auto(modelo),
         ),
         path(
-            f"{nombre_objeto_plural}/crear/",
+            f"{nombre_objeto_plural}crear/",
             vista_crear.as_view(),
             name=nombre_url_crear_auto(modelo),
         ),
         path(
-            f"{nombre_objeto_plural}/editar/<int:pk>/",
+            f"{nombre_objeto_plural}editar/<int:pk>/",
             vista_actualizar.as_view(),
             name=nombre_url_editar_auto(modelo),
         ),
