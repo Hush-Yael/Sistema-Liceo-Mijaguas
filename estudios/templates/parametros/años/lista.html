@@ -1,9 +1,65 @@
-{% extends "componentes/tabla-adaptable/index.html" %}
+{% extends "componentes/vista-lista/lista.html" %}
+{% load grupos_variantes %}
 
-{% block td %}
-  {% if 'fecha' in columna.clave %}
-    {{ dato|date:"d F Y" }}
-  {% else %}
-    {{ dato }}
-  {% endif %}
-{% endblock td %}
+{% block lista %}
+  <ul
+    x-bind="eventosLista"
+    class="{{ 'grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] grid-cols-[repeat(auto-fill,minmax(140px,1fr))] supports-[not(grid-template-columns:repeat(auto-fill,minmax(140px,1fr)))]:(flex flex-wrap) gap-5'|expandir_variantes }}"
+  >
+    {% for año in lista_objetos %}
+      <li>
+        <article class="ui-elevado rounded-xl">
+          <header
+            class="flex aic jb gap-x-3 rounded-t-xl border-b border-[--transparente-1] p-2 px-4 bg-fondo-700"
+          >
+            <h2 class="font-bold">
+              {% with dato=año.nombre %}
+                {% if permisos.editar %}
+                  {% include "componentes/tabla-adaptable/enlace-editar.html" with objeto=año %}
+                {% else %}
+                  {{ dato }}
+                {% endif %}
+              {% endwith %}
+            </h2>
+            {% if permisos.crear or permisos.editar or permisos.eliminar %}
+              {% include "componentes/vista-lista/objeto-check.html" with objeto=año indicador_class="bg-[#0001]! dark:bg-[#ffffff1a]!" %}
+            {% endif %}
+          </header>
+
+          <dl class="divide-y divide-[--transparente-1] px-3.5">
+            {%
+              with
+              c="flex aic jb gap-x-2 py-2 text-sm text-texto-sutil"
+              dtc="flex gap-x-2 aic font-500"
+              icc="ui-contenedor-icono size-5 bg-[--transparente-2] text-texto-sutil p-1"
+            %}
+              <div class="{{ c }}">
+                <dt class="{{ dtc }}">
+                  <span class="{{ icc }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+                      <path
+                        d="M23.49 7.245A4.25 4.25 0 0 1 26.495 6h11.257a4.25 4.25 0 0 1 4.25 4.25v11.257a4.25 4.25 0 0 1-1.245 3.006l-16.24 16.24a4.25 4.25 0 0 1-6.01 0L7.248 29.495a4.25 4.25 0 0 1 0-6.01zM33.5 17a2.5 2.5 0 1 0 0-5a2.5 2.5 0 0 0 0 5"
+                      />
+                    </svg>
+                  </span>
+                  Nombre corto:
+                </dt>
+                <dd>{{ año.nombre_corto }}</dd>
+              </div>
+
+              <div class="{{ c }}">
+                <dt class="{{ dtc }}">
+                  <span class="{{ icc }}">
+                    {% include "componentes/iconos/fecha.html#creacion" %}
+                  </span>
+                  Creado el:
+                </dt>
+                <dd>{{ año.fecha_creacion|date:"d M. Y, h:i A" }}</dd>
+              </div>
+            {% endwith %}
+          </dl>
+        </article>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock lista %}

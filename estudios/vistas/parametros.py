@@ -286,6 +286,7 @@ class ListaAños(VistaListaObjetos):
     template_name = "parametros/años/index.html"
     plantilla_lista = "parametros/años/lista.html"
     model = Año
+    tabla = False
 
     def get_queryset(self, *args, **kwargs):
         return super().get_queryset(Año.objects.all())
