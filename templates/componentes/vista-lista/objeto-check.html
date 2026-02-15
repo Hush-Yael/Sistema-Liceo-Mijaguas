@@ -1,0 +1,27 @@
+{% with default_loop=forloop.counter0 %}
+  <input
+    name="filas_id"
+    id="filas_id-{{ id_fila|default:default_loop }}"
+    value="{{ objeto.id }}"
+    data-i="{{ indice|default:default_loop }}"
+    :checked="filasSeleccionadas.has('{{ objeto.id }}')"
+    class="{{ input_class|default:'peer sr-only' }}"
+    type="checkbox"
+    autocomplete="off"
+    aria-label="Seleccionar fila"
+    {% if not forloop.first %}
+      tabindex="-1"
+    {% endif %}
+  />
+
+  <label
+    for="filas_id-{{ id_fila|default:default_loop }}"
+    class="group group/label cursor-pointer {{ label_class|default:'relative fc size-4' }}"
+  >
+    {% if not sin_indicador %}
+      <span class="ui-opcion ui-opcion/checkbox">
+        {% include "componentes/checkbox-icono.html" with class=icono_class|default:''|add:" pointer-events-none" %}
+      </span>
+    {% endif %}
+  </label>
+{% endwith %}
