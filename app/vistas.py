@@ -84,6 +84,22 @@ class ColumnaFija(Columna):
     anotada: NotRequired[bool]
 
 
+class PermisosVistaLista(TypedDict):
+    crear: bool
+    editar: bool
+    eliminar: bool
+
+
+class VistaListaContexto(TypedDict):
+    form_filtros: "forms.Form | None"
+    form_con_orden: bool
+    permisos: PermisosVistaLista
+    no_hay_objetos: bool
+    modelos_relacionados: "list[str]"
+    lista_reemplazada_por_htmx: NotRequired[bool]
+    mensajes_recibidos: NotRequired[bool]
+
+
 class VistaListaObjetos(Vista, ListView):
     model: Type[models.Model]  # type: ignore
     tipo_permiso = "view"
@@ -322,15 +338,15 @@ class VistaListaObjetos(Vista, ListView):
             ctx["modelos_relacionados"] = []
 
         ctx.update(
-            {
-                "form_filtros": self.form_filtros
+            VistaListaContexto(
+                form_filtros=self.form_filtros
                 if hasattr(self, "form_filtros")
                 else None,
-                "form_con_orden": True
+                form_con_orden=True
                 if hasattr(self, "form_filtros")
                 and isinstance(self.form_filtros, OrdenFormMixin)
                 else False,
-                "permisos": {
+                permisos={
                     "editar": self.request.user.has_perm(  # type: ignore
                         f"{self.nombre_app_modelo}.change_{self.nombre_modelo}"
                     ),
@@ -341,10 +357,10 @@ class VistaListaObjetos(Vista, ListView):
                         f"{self.nombre_app_modelo}.delete_{self.nombre_modelo}"
                     ),
                 },
-                "no_hay_objetos": self.total == 0
+                no_hay_objetos=self.total == 0
                 if self.total is not None
                 else not self.model.objects.exists(),
-            }
+            )
         )
 
         return ctx
