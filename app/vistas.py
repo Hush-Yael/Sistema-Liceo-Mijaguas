@@ -99,6 +99,8 @@ class VistaListaObjetos(Vista, ListView):
     tabla: bool = True
     url_crear: str
     url_editar: str
+    # nombre del campo o atributo que contiene los ids de los objetos seleccionados
+    ids_objetos_kwarg = "ids"
 
     def __init__(self):
         setattr(self, "nombre_modelo_plural", self.model._meta.verbose_name_plural)
@@ -411,11 +413,11 @@ class VistaListaObjetos(Vista, ListView):
                 f"No tienes permisos para eliminar {self.nombre_objeto_plural}"
             )
 
-        ids = request.GET.getlist("ids")
+        ids = request.GET.getlist(self.ids_objetos_kwarg)
 
         if not ids or not isinstance(ids, list):
             return HttpResponseBadRequest(
-                "No se indicó una lista de ids"
+                f"No se indicó una lista de {self.ids_objetos_kwarg}"
             )
 
         respuesta = self.eliminar(request, ids)

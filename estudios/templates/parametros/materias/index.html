@@ -84,7 +84,7 @@
               hx-disabled-elt=".deshabilitar-al-subir"
               hx-vals="js:{
                   {# obtener los ids de las filas seleccionadas desde el componente de la lista #}
-                  ids: Array.from(Alpine.$data($id('{{ view.id_lista_objetos }}')).filasSeleccionadas),
+                  {{ view.ids_objetos_kwarg }}: Array.from(Alpine.$data(this).filasSeleccionadas),
                   {{ asignaciones.name }}:
                     new FormData(this.closest('dialog').$('form')).getAll('{{ asignaciones.name }}')
                 }"

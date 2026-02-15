@@ -354,7 +354,7 @@
                       hx-indicator="#indicador-eliminar"
                       hx-disabled-elt=".deshabilitar-al-subir"
                       {# obtener los ids de las filas seleccionadas desde el componente de la lista #}
-                      hx-vals="js:{ ids: Array.from(Alpine.$data($id('{{ view.id_lista_objetos }}')).filasSeleccionadas) }"
+                      hx-vals="js:{ {{ view.ids_objetos_kwarg }}: Array.from(Alpine.$data(this).filasSeleccionadas) }"
                       @htmx:after-request.window="if ($event.target === $el) {
                       modalAbierto = null;
                       limpiarSeleccion();
