@@ -16,10 +16,12 @@
 
   <label
     for="filas_id-{{ id_fila|default:default_loop }}"
-    class="group group/label cursor-pointer {{ label_class|default:'relative fc size-4' }}"
+    class="group group/label cursor-pointer select-none {{ label_class|default:'relative fc size-4' }}"
   >
     {% if not sin_indicador %}
-      <span class="ui-opcion ui-opcion/checkbox">
+      <span
+        class="ui-opcion ui-opcion/checkbox [.peer:focus-visible~.group\/label_&]:outline-1 {{ indicador_class }}"
+      >
         {% include "componentes/checkbox-icono.html" with class=icono_class|default:''|add:" pointer-events-none" %}
       </span>
     {% endif %}
