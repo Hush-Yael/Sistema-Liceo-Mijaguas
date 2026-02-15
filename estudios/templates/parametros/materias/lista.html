@@ -46,11 +46,8 @@
       <li>
         <article class="ui-elevado rounded-xl">
           <header
-            class="flex aic gap-x-3 rounded-t-xl border-b border-[--transparente-1] p-2 px-4 bg-fondo-700"
+            class="flex aic jb gap-x-3 rounded-t-xl border-b border-[--transparente-1] p-2 px-4 bg-fondo-700"
           >
-            {% if permisos.crear or permisos.editar or permisos.eliminar %}
-              {% include "componentes/vista-lista/objeto-check.html" with objeto=materia indicador_class="bg-[#0001]! dark:bg-[#ffffff1a]!" %}
-            {% endif %}
             <h2 class="font-bold">
               {% with dato=materia.nombre %}
                 {% if permisos.editar %}
@@ -60,6 +57,9 @@
                 {% endif %}
               {% endwith %}
             </h2>
+            {% if permisos.crear or permisos.editar or permisos.eliminar %}
+              {% include "componentes/vista-lista/objeto-check.html" with objeto=materia indicador_class="bg-[#0001]! dark:bg-[#ffffff1a]!" %}
+            {% endif %}
           </header>
 
           <div
