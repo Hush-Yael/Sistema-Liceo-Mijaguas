@@ -173,7 +173,21 @@
             id="indicador-busqueda"
             role="status"
             aria-label="Cargando"
-            class="{{ 'htmx-indicator relative h-1.25 w-full overflow-hidden rounded-xs before:(content-[""] absolute top-0 left-0 size-full bg-[--transparente-1] rounded-xs) after:(content-[""] absolute top-0 left-0 size-full bg-primario rounded-xs dark:bg-primario-600 transform translate-x-[-100%] animate-[moverIzquierdaDerecha_1s_linear_infinite]) max-[600px]:mt-2'|expandir_variantes }}"
+            {% with pseudo_c="before:content-[''] after:content-[''] " %}
+              class="
+              {{
+                pseudo_c|add:'
+                htmx-indicator relative h-1.25 w-full overflow-hidden rounded-xs
+                before:(absolute top-0 left-0 size-full bg-[#fff2] rounded-xs)
+                after:(
+                  absolute top-0 left-0 size-full bg-primario-texto rounded-xs transform translate-x-[-100%] animate-[moverIzquierdaDerecha_1s_linear_infinite]
+                )
+                max-[600px]:mt-2
+                '
+                |reemplazar_espacios:" "
+                |expandir_variantes
+              }}"
+            {% endwith %}
           ></div>
         </header>
       {% endblock cabecera %}
