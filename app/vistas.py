@@ -11,7 +11,7 @@ from django.http import (
     QueryDict,
 )
 from django.shortcuts import redirect, render
-from django.urls import path
+from django.urls import path, reverse
 from django.views.generic import ListView, View
 from django.views.generic.detail import SingleObjectTemplateResponseMixin
 from django.views.generic.edit import CreateView, UpdateView
@@ -441,12 +441,6 @@ class VistaForm(SingleObjectTemplateResponseMixin, Vista):
             f"{self.nombre_app_modelo}.add_{self.model._meta.model_name}"
         )
 
-    def get_success_url(self) -> str:
-        if not hasattr(self, "success_url"):
-            return nombre_url_lista_auto(self.model)
-
-        return super().get_success_url()  # type: ignore
-
     def form_invalid(self, form: forms.ModelForm) -> HttpResponse:
         if not (errores_generales := form.non_field_errors()):
             messages.error(self.request, "Corrige los errores en el formulario")
@@ -475,7 +469,7 @@ class VistaForm(SingleObjectTemplateResponseMixin, Vista):
         )
 
         # ya que la petición se hace por HTMX, se debe usar la clase que permite redireccionar con este
-        return HTTPResponseHXRedirect(self.get_success_url())  # type: ignore
+        return HTTPResponseHXRedirect(reverse(nombre_url_lista_auto(self.model)))  # type: ignore
 
 
 class VistaCrearObjeto(VistaForm, CreateView):
