@@ -57,7 +57,7 @@
 
 {% partialdef x_data %}
   {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
-    x-data='combobox({
+    x-data='new Combobox({
       opciones: {% if opciones_por_script %}{{ opciones_por_script }}{% else %}{{ campo|obtener_lista_opciones|json|safe }}{% endif %},
       {% if multiple == 0 %}
         multiple: false,
