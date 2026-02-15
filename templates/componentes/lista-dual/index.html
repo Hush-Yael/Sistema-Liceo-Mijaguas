@@ -75,6 +75,9 @@
     class="{{ label_class|default:''|add:' text-texto-semi-sutil' }}"
   >
     {{ campo.label }}
+    {% if campo.field.required %}
+      {% include "componentes/campo.html#asterisco" %}
+    {% endif %}
   </h2>
 
   {# contiene el valor enviado #}
