@@ -125,7 +125,7 @@ const Combobox = class {
         this.ultimaSeleccionada = opcion;
       }
 
-      limpiarError(this.$refs);
+      this.limpiarError();
     }
 
     // marcar una única opción como el valor seleccionado
