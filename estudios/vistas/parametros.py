@@ -39,7 +39,6 @@ from django.db.models.functions import Concat
 class ListaLapsos(VistaListaObjetos):
     template_name = "parametros/lapsos/index.html"
     plantilla_lista = "parametros/lapsos/lista.html"
-    nombre_url_editar = "editar_lapso"
     model = Lapso
     form_filtros = LapsoBusquedaForm  # type: ignore
 
@@ -68,7 +67,6 @@ class ActualizarLapso(VistaActualizarObjeto):
 class ListaMaterias(VistaListaObjetos):
     template_name = "parametros/materias/index.html"
     plantilla_lista = "parametros/materias/lista.html"
-    nombre_url_editar = "editar_materia"
     model = Materia
     form_filtros = MateriaBusquedaForm  # type: ignore
     form_asignaciones = FormAsignaciones
@@ -264,7 +262,6 @@ class ActualizarMateria(VistaActualizarObjeto):
 class ListaAños(VistaListaObjetos):
     template_name = "parametros/años/index.html"
     plantilla_lista = "parametros/años/lista.html"
-    nombre_url_editar = "editar_año"
     model = Año
 
     def get_queryset(self, *args, **kwargs):
@@ -286,7 +283,6 @@ class ActualizarAño(VistaActualizarObjeto):
 class ListaSecciones(VistaListaObjetos):
     template_name = "parametros/secciones/index.html"
     plantilla_lista = "parametros/secciones/lista.html"
-    nombre_url_editar = "editar_seccion"
     model = Seccion
     paginate_by = 50
     genero_sustantivo_objeto = "F"

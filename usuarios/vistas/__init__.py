@@ -22,7 +22,6 @@ from usuarios.forms import (
 from django.http import HttpRequest
 from usuarios.forms import FormularioDatosUsuario
 from django.contrib import messages
-from django.db import connection
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
@@ -82,7 +81,6 @@ class ListaUsuarios(VistaListaObjetos):
     model = Usuario
     template_name = "usuarios/index.html"
     plantilla_lista = "usuarios/lista.html"
-    nombre_url_editar = "editar_usuario"
     form_filtros = UsuarioBusquedaForm  # type: ignore
     paginate_by = 4
     columnas_totales = (
@@ -224,7 +222,6 @@ class ListaGrupos(VistaListaObjetos):
     model = Grupo
     template_name = "grupos/index.html"
     plantilla_lista = "grupos/lista.html"
-    nombre_url_editar = "editar_grupo"
 
     def get_queryset(self, *args, **kwargs) -> "list[dict]":
         return super().get_queryset(Grupo.objects.all().order_by("name"))
