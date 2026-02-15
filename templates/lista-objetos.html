@@ -100,10 +100,10 @@
     {% else %}
       {% block cabecera %}
         <header
-          class="bg-primario-600 dark:bg-primario-400 text-primario-texto border-b-2 border-t-[#fff2] border-b-[#fff3] p-2 px-4 shadow-lg min-[500px]:px-5 sidebar:max-sidebar_full:px-6 min-[1000px]:px-8 max-sidebar:border-t-1"
+          class="bg-primario-600 dark:bg-primario-400 text-primario-texto border-b-2 border-t-[#fff2] border-b-[#fff3] shadow-lg max-sidebar:border-t-1"
         >
           <div
-            class="{{ 'max-[700px]:col gap-y-2 min-[700px]:(flex gap-x-5 aic jb)'|expandir_variantes }}"
+            class="{{ cabecera_clase|default:'p-2 px-4 min-[500px]:px-5 sidebar:max-sidebar_full:px-6 min-[1000px]:px-8' }} {{ 'max-[700px]:col gap-y-2 min-[700px]:(flex gap-x-5 aic jb)'|expandir_variantes }}"
           >
             {# Título, separador y enlace #}
             <div
@@ -133,7 +133,7 @@
                 <hr class="max-[700px]:hidden h-6 w-1px border-0 bg-[#fff4]" />
 
                 <a
-                  class="ui-btn size-6 rounded-full p-1 text-sm bg-primario-texto text-primario-600 pover:bg-primario-50 dark:pover:bg-primario-950 shadow-[inset_0_-1px_1px_1px_#0002]"
+                  class="ui-btn size-6 rounded-full p-1 text-sm bg-primario-texto text-primario-600 pover:bg-primario-50 dark:pover:bg-primario-950 shadow-[inset_0_-1px_1px_1px_#00000018]"
                   href="{% url view.url_crear %}"
                   aria-label="Añadir {{ view.nombre_objeto }}"
                 >
