@@ -39,18 +39,18 @@
   </div>
 {% else %}
   {# al cambiar la lista, actualizar la cantidad de resultados #}
-  {% if view.form_filtros and lista_reemplazada_por_htmx and is_paginated %}
-    <span hx-swap-oob="innerHTML:#filtrados-cantidad">
-      {{ page_obj.paginator.count }}
-    </span>
+  {% if view.form_filtros and lista_reemplazada_por_htmx %}
+    {% with cantidad_paginador=page_obj.paginator.count %}
+      <span hx-swap-oob="innerHTML:#filtrados-cantidad">
+        {{ view.cantidad_filtradas|default_if_none:cantidad_paginador }}
+      </span>
+    {% endwith %}
   {% endif %}
 
   {% block contenedor %}
     <div
       id="{{ view.id_lista_objetos }}"
-      {% if contenedor_class %}
-        class="{{ contenedor_class }}"
-      {% endif %}
+      class="overflow-y-auto {{ contenedor_class }}"
       x-init="cargarIds()"
     >
       <div

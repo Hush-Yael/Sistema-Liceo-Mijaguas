@@ -160,8 +160,10 @@
                 {% endwith %}
 
                 {% if form_filtros %}
-                  {% with label="Filtrad"|add:view.vocal_del_genero|add:"s:" dato_id="filtrados-cantidad" dato=page_obj.paginator.count icono='filtros' %}
-                    {% partial cantidad %}
+                  {% with cantidad_paginador=page_obj.paginator.count %}
+                    {% with label="Filtrad"|add:view.vocal_del_genero|add:"s:" dato_id="filtrados-cantidad" dato=view.cantidad_filtradas|default_if_none:cantidad_paginador icono='filtros' %}
+                      {% partial cantidad %}
+                    {% endwith %}
                   {% endwith %}
                 {% endif %}
               </div>
