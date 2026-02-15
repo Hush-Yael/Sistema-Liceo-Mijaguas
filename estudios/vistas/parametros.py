@@ -1,4 +1,5 @@
 from typing import Any, Mapping
+from django.contrib import messages
 from django.db import models
 from django.db.models.functions.datetime import TruncMinute
 from django.http import (
@@ -166,17 +167,50 @@ class ListaMaterias(VistaListaObjetos):
         if not form.is_valid():
             return HttpResponseBadRequest("La lista de años es inválida")
 
-        asignaciones = form.cleaned_data["asignaciones"]
-        años = Año.objects.filter(id__in=asignaciones)
+        materias = Materia.objects.filter(id__in=ids)
+        asignaciones: list[Año] = form.cleaned_data["asignaciones"]
 
-        for id in ids:
-            materia = Materia.objects.get(id=id)
-            AñoMateria.objects.filter(materia=materia).delete()
+        if len(materias):
+            # eliminar las asignaciones que no estén en la lista
+            AñoMateria.objects.filter(materia__in=materias).exclude(
+                año__in=asignaciones
+            ).delete()
 
-            if asignaciones:
-                AñoMateria.objects.bulk_create(
-                    [AñoMateria(año=año, materia=materia) for año in años]
+            if len(asignaciones):
+                asignadas = 0
+                for materia in materias:
+                    asignadas = len(
+                        AñoMateria.objects.bulk_create(
+                            (
+                                AñoMateria(año=año, materia=materia)
+                                for año in asignaciones
+                            ),
+                            ignore_conflicts=True,
+                        )
+                    )
+
+                if asignadas > 0:
+                    messages.success(
+                        request,
+                        "Las materias seleccionadas fueron asignadas a los años seleccionados correctamente",
+                        "retraso=8000",
+                    )
+                else:
+                    messages.error(
+                        request,
+                        "No se pudieron actualizar las materias seleccionadas",
+                    )
+            else:
+                messages.success(
+                    request,
+                    "Las materias seleccionadas fueron desasignadas de todos los años correctamente",
+                    "retraso=8000",
                 )
+        else:
+            messages.error(
+                request,
+                "No se pudieron actualizar las materias seleccionadas",
+            )
 
 
 class CrearMateria(VistaCrearObjeto):
