@@ -43,29 +43,45 @@
       x-htmldialog="modalAbierto = null"
       @click="$event.target === $event.currentTarget && (modalAbierto = null)"
     >
-      <div class="{{ div_class }}">
-        <hgroup class="col gap-y-3 ">
-          <h1 class="text-lg font-bold tac text-balance">
-            Cambiar asignaciones de años de las materias seleccionadas
+      {% with asignaciones=form_asignaciones.asignaciones %}
+        <form
+          class="{{ div_class }}"
+          hx-put
+          hx-disabled-elt=".deshabilitar-al-subir"
+          hx-indicator="#indicador-asignar"
+          hx-vals="js:{
+          {{ view.ids_objetos_kwarg }}: Array.from(Alpine.$data(this).filasSeleccionadas),
+          {{ asignaciones.name }}:
+            new FormData(this).getAll('{{ asignaciones.name }}')
+        }"
+          @htmx:after-request.window="if ($event.target === $el) {
+          modalAbierto = null;
+          limpiarSeleccion();
+        }"
+        >
+          <h1 class="{{ titulo_class }}">
+            Cambiar los años asignados de las materias seleccionadas
           </h1>
-          <p class="text-texto-semi-sutil">
-            Marca los años que quieres asignarles, los que
-            <span class="text-peligro dark:text-peligro-400">NO</span> estén
-            marcados
-            <span class="text-peligro dark:text-peligro-400">NO</span> se
-            añadirán o serán
-            <span class="text-peligro dark:text-peligro-400">ELIMINADOS</span>
-            si ya estaban asignados:
-          </p>
-        </hgroup>
+          <div class="{{ contenido_class }} gap-y-5">
+            <p class="text-texto-semi-sutil px-1">
+              Marca los años que quieres asignarles, los que
+              <span class="text-peligro dark:text-peligro-400">NO</span> estén
+              marcados
+              <span class="text-peligro dark:text-peligro-400">NO</span> se
+              añadirán o serán
+              <span class="text-peligro dark:text-peligro-400">ELIMINADOS</span>
+              si ya estaban asignados:
+            </p>
 
-        {% with asignaciones=form_asignaciones.asignaciones %}
-          <form>
             {% include "parametros/materias/form.html#asignaciones" %}
-          </form>
+          </div>
 
           <div class="{{ btns_class }}" role="group">
-            <button class="{{ cancelar_class }}" @click="modalAbierto = null">
+            <button
+              type="button"
+              class="{{ cancelar_class }}"
+              @click="modalAbierto = null"
+            >
               Cancelar
             </button>
 
@@ -77,28 +93,13 @@
               Asignando...
             </div>
 
-            <button
-              class="{{ subir_class|add:' ui-btn/primario' }}"
-              hx-put
-              hx-indicator="#indicador-asignar"
-              hx-disabled-elt=".deshabilitar-al-subir"
-              hx-vals="js:{
-                  {# obtener los ids de las filas seleccionadas desde el componente de la lista #}
-                  {{ view.ids_objetos_kwarg }}: Array.from(Alpine.$data(this).filasSeleccionadas),
-                  {{ asignaciones.name }}:
-                    new FormData(this.closest('dialog').$('form')).getAll('{{ asignaciones.name }}')
-                }"
-              @htmx:after-request.window="if ($event.target === $el) {
-                modalAbierto = null;
-                limpiarSeleccion();
-              }"
-            >
+            <button class="{{ subir_class|add:' ui-btn/primario' }}">
               <span class="ui-loader ui-loader/blanco"></span>
               Asignar
             </button>
           </div>
-        {% endwith %}
-      </div>
+        </form>
+      {% endwith %}
     </dialog>
   {% endif %}
 {% endblock modales %}
