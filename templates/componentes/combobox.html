@@ -260,6 +260,14 @@
                   {% endwith %}
                 </div>
                 <span x-text="item.label"></span>
+                {% if variable_imgs %}
+                  <template x-if="{{ variable_imgs }}.has(item.id)">
+                    <img
+                      class="size-5 size-min-5 rounded-full aspect-square object-cover mla"
+                      :src="`{{ media_url|default:'/media/' }}${ {{ variable_imgs }}.get(item.id)}`"
+                    />
+                  </template>
+                {% endif %}
               </label>
             </li>
           </template>
