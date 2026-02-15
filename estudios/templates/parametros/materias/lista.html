@@ -48,17 +48,15 @@
       </span>
     {% else %}
       <ul class="flex flex-wrap gap-2">
-        {% for año in lista_años %}
-          {% if año.id in objeto.asignaciones %}
-            <li>
-              <span
-                class="rounded-full p-0.5 px-2 text-sm ui-elevado-2"
-                role="status"
-              >
-                {{ año.nombre_corto }}
-              </span>
-            </li>
-          {% endif %}
+        {% for añomateria in objeto.asignaciones %}
+          <li>
+            <span
+              class="rounded-full p-0.5 px-2 text-sm ui-elevado-2"
+              role="status"
+            >
+              {{ añomateria.año.nombre_corto }}
+            </span>
+          </li>
         {% endfor %}
       </ul>
     {% endif %}

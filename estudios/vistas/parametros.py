@@ -4,7 +4,7 @@ from django.db.models.functions.datetime import TruncMinute
 from django.http import (
     HttpResponseBadRequest,
 )
-from django.db.models import Case, Count, Q, F, Value, When
+from django.db.models import Case, Count, Q, F, Prefetch, Value, When
 from app.campos import FiltrosConjuntoOpciones
 from app.forms import ConjuntoOpcionesForm
 from app.util import obtener_filtro_bool_o_nulo
@@ -83,35 +83,21 @@ class ListaMaterias(VistaListaObjetos):
             Materia.objects.annotate(
                 fecha=TruncMinute("fecha_creacion"),
             )
-            .values(
+            .only(
                 "id",
                 "nombre",
-                "fecha",
             )
             .order_by("nombre")
         )
 
-        materias = super().get_queryset(queryset)
-
-        if materias:
-            años = Año.objects.values("id", "nombre_corto")
-            self.lista_años = list(años)
-            asignaciones = list(AñoMateria.objects.values("año_id", "materia__id"))
-
-            for materia in materias:
-                materia["asignaciones"] = [
-                    asignacion["año_id"]
-                    for asignacion in asignaciones
-                    if (asignacion["materia__id"] == materia["id"])
-                ]
-
-        return materias
+        return super().get_queryset(queryset)
 
     def aplicar_filtros(
         self,
         queryset: models.QuerySet,
         datos_form: "dict[str, Any] | Mapping[str, Any]",
     ):
+        am_queryset = AñoMateria.objects.select_related("materia", "año")
         queryset = super().aplicar_filtros(queryset, datos_form)
 
         if años_asignados := datos_form.get(MateriaBusquedaForm.Campos.ANIOS_ASIGNADOS):
@@ -157,19 +143,21 @@ class ListaMaterias(VistaListaObjetos):
             ):
                 queryset = queryset.exclude(añomateria__año__in=años_asignados)
 
-        return queryset
+        return queryset.prefetch_related(
+            Prefetch(
+                "añomateria_set",
+                queryset=am_queryset,
+                to_attr="asignaciones",
+            )
+        )
 
     def get_context_data(self, *args, **kwargs):
         if not self.object_list:
             return super().get_context_data(*args, **kwargs)
 
         ctx = super().get_context_data(*args, **kwargs)
-        ctx.update(
-            {
-                "lista_años": self.lista_años,
-                "form_asignaciones": self.form_asignaciones(),
-            }
-        )
+
+        ctx["form_asignaciones"] = self.form_asignaciones()
         return ctx
 
     def actualizar(self, request, ids, datos, *args, **kwargs):
