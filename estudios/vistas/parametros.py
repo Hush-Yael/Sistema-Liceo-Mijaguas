@@ -33,6 +33,7 @@ from estudios.modelos.parametros import (
     Seccion,
     Materia,
     AñoMateria,
+    obtener_lapso_actual,
 )
 from django.db.models.functions import Concat
 
@@ -42,15 +43,19 @@ class ListaLapsos(VistaListaObjetos):
     plantilla_lista = "parametros/lapsos/lista.html"
     model = Lapso
     form_filtros = LapsoBusquedaForm  # type: ignore
+    tabla = False
 
     def get_queryset(self, *args, **kwargs) -> "list[dict]":
-        return super().get_queryset(Lapso.objects.all().order_by("-id", "numero"))
+        lapso_actual = obtener_lapso_actual()
 
-    def establecer_columnas(self):
-        super().establecer_columnas()
-        self.columnas_mostradas[0]["alinear"] = "derecha"
-        col_n_lapso = self.columnas_mostradas.pop(0)
-        self.columnas_mostradas.insert(1, col_n_lapso)
+        q = Lapso.objects.order_by("-id", "numero")
+
+        if lapso_actual is not None:
+            q = q.annotate(
+                es_actual=Case(When(id=lapso_actual.pk, then=True), default=False)
+            )
+
+        return super().get_queryset(q)
 
 
 class CrearLapso(VistaCrearObjeto):

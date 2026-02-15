@@ -1,9 +1,65 @@
-{% extends "componentes/tabla-adaptable/index.html" %}
+{% extends "componentes/vista-lista/lista.html" %}
+{% load grupos_variantes %}
 
-{% block td %}
-  {% if 'fecha_' in columna.clave %}
-    {{ dato|date:"d F Y" }}
-  {% else %}
-    {{ dato }}
-  {% endif %}
-{% endblock td %}
+{% block lista %}
+  <ul
+    x-bind="eventosLista"
+    class="{{ 'grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] grid-cols-[repeat(auto-fill,minmax(140px,1fr))] supports-[not(grid-template-columns:repeat(auto-fill,minmax(140px,1fr)))]:(flex flex-wrap) gap-4'|expandir_variantes }}"
+  >
+    {% for lapso in lista_objetos %}
+      <li>
+        <article class="ui-elevado rounded-lg">
+          <header
+            class="flex aic jb gap-x-3 rounded-t-xl border-b border-[--transparente-1] p-2 px-4 bg-fondo-700"
+          >
+            <h2 class="font-bold">
+              {% with dato=lapso.nombre %}
+                {% if permisos.editar %}
+                  {% include "componentes/tabla-adaptable/enlace-editar.html" with objeto=lapso %}
+                {% else %}
+                  {{ dato }}
+                {% endif %}
+              {% endwith %}
+            </h2>
+
+            {% if permisos.crear or permisos.editar or permisos.eliminar %}
+              {% include "componentes/vista-lista/objeto-check.html" with objeto=lapso indicador_class="bg-[#0001]! dark:bg-[#ffffff1a]!" %}
+            {% endif %}
+          </header>
+
+          <dl class="divide-y divide-[--transparente-1] px-3.5">
+            {%
+              with
+              c="flex aic jb gap-x-2 py-2 text-sm"
+              dtc="flex gap-x-2 aic font-500 text-texto-sutil"
+              ddc="text-texto-semi-sutil"
+            %}
+              <div class="{{ c }}">
+                <dt class="{{ dtc }}">Fecha inicio:</dt>
+
+                <dd class="{{ ddc }}">{{ lapso.fecha_inicio|date:"d F Y" }}</dd>
+              </div>
+
+              <div class="{{ c }}">
+                <dt class="{{ dtc }}">Fecha fin:</dt>
+
+                <dd class="{{ ddc }}">{{ lapso.fecha_fin|date:"d F Y" }}</dd>
+              </div>
+
+              <div class="{{ c }}">
+                <dt class="{{ dtc }}">Es el actual:</dt>
+                {% with actual=lapso.es_actual %}
+                  <dd
+                    class="fc gap-x-2 p-1 px-4 rounded-full font-500 {{ actual|yesno:'bg-exito text-exito-texto , bg-peligro text-peligro-texto' }}"
+                  >
+                    {{ actual|yesno:'Sí,No' }}
+                  </dd>
+                {% endwith %}
+              </div>
+            {% endwith %}
+          </dl>
+        </article>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock lista %}
