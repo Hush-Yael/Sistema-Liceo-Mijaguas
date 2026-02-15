@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.http import HttpRequest
 from unfold.admin import ModelAdmin
-from estudios.modelos.gestion import ProfesorMateria
+from estudios.modelos.gestion.personas import ProfesorMateria
 from estudios.admin.parametros.forms import LapsoAdminForm
 from estudios.modelos.parametros import Lapso, Materia, Seccion, Año, AñoMateria
 

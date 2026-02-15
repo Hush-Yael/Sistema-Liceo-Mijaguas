@@ -7,7 +7,7 @@ from app.forms import (
 from app.settings import MIGRANDO
 from app.util import mn, nc, vn
 from estudios.forms.parametros.busqueda import LapsoYSeccionFormMixin
-from estudios.modelos.parametros import Materia
+from estudios.modelos.parametros import Materia, Seccion, Año
 from estudios.modelos.gestion.personas import (
     Estudiante,
     Matricula,
@@ -85,17 +85,11 @@ class MatriculaBusquedaForm(OrdenFormMixin, LapsoYSeccionFormMixin):
     )
 
 
-class ProfesorBusquedaForm(OrdenFormMixin, BusquedaFormMixin):
-    class Campos:
-        TIENE_USUARIO = "tiene_usuario"
-        ACTIVO = "activo"
-        TIENE_TELEFONO = "tiene_telefono"
-
+class ProfesorBusquedaFormMixin(OrdenFormMixin, BusquedaFormMixin):
     opciones_orden = (
         (nc(Profesor.nombres), "Nombres"),
         (nc(Profesor.apellidos), "Apellidos"),
         (nc(Profesor.cedula), "Cédula"),
-        (nc(Profesor.telefono), "Telefono"),
         (f"{mn(Usuario)}__{nc(Usuario.username)}", "Nombre de usuario"),
     )
 
@@ -108,7 +102,6 @@ class ProfesorBusquedaForm(OrdenFormMixin, BusquedaFormMixin):
                 "nombre_campo": "cedula",
                 "label_campo": "Cédula",
             },
-            {"columna_db": nc(Profesor.telefono), "nombre_campo": "telefono"},
             {
                 "columna_db": f"{mn(Usuario)}__{nc(Usuario.username)}",
                 "nombre_campo": "username",
@@ -118,6 +111,27 @@ class ProfesorBusquedaForm(OrdenFormMixin, BusquedaFormMixin):
         if not MIGRANDO
         else ()
     )
+
+
+class ProfesorBusquedaForm(ProfesorBusquedaFormMixin):
+    def __init__(self, *args, **kwargs) -> None:
+        self.columnas_busqueda = (
+            *(self.columnas_busqueda),
+            {"columna_db": nc(Profesor.telefono), "nombre_campo": "telefono"},
+        )
+
+        self.opciones_orden = (
+            *(self.opciones_orden),
+            (nc(Profesor.telefono), "Telefono"),
+        )
+
+        super().__init__(*args, **kwargs)
+
+    class Campos:
+        TIENE_USUARIO = "tiene_usuario"
+        ACTIVO = "activo"
+        TIENE_TELEFONO = "tiene_telefono"
+
     campos_prefijo_cookie = "profesores"
 
     tiene_usuario = CampoBooleanoONulo(
@@ -136,4 +150,49 @@ class ProfesorBusquedaForm(OrdenFormMixin, BusquedaFormMixin):
         label="Tiene teléfono",
         label_no_escogido="NO Tiene teléfono",
         label_si_escogido="Tiene teléfono",
+    )
+
+
+# Se usa ProfesorBusquedaFormMixin ya que el queryset también es del modelo Profesor (las materias se añaden con Prefetch)
+class ProfesorMateriaBusquedaForm(ProfesorBusquedaFormMixin):
+    def __init__(self, *args, **kwargs) -> None:
+        self.columnas_busqueda = (
+            *(self.columnas_busqueda),
+            {
+                "columna_db": "cantidad_materias",
+                "nombre_campo": "cantidad_materias",
+                "label_campo": "Cantidad de materias",
+            },
+        )
+
+        self.opciones_orden = (
+            *(self.opciones_orden),
+            ("cantidad_materias", "Cantidad de materias"),
+        )
+
+        super(ProfesorBusquedaFormMixin, self).__init__(*args, **kwargs)
+
+    class Campos:
+        MATERIAS = "materias"
+        AÑOS = "anios"
+        SECCIONES = "secciones"
+
+    campos_prefijo_cookie = "pm"
+
+    materias = forms.ModelMultipleChoiceField(
+        label="Materias",
+        queryset=Materia.objects.all() if not MIGRANDO else None,
+        required=False,
+    )
+
+    anios = forms.ModelMultipleChoiceField(
+        label="Años",
+        queryset=Año.objects.all() if not MIGRANDO else None,
+        required=False,
+    )
+
+    secciones = forms.ModelMultipleChoiceField(
+        label="Secciones",
+        queryset=Seccion.objects.all() if not MIGRANDO else None,
+        required=False,
     )

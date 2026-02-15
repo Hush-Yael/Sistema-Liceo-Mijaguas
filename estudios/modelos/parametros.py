@@ -56,7 +56,9 @@ class Seccion(models.Model):
         ],
     )
     nombre = models.CharField(max_length=100)
-    capacidad = models.IntegerField(default=30)
+    capacidad = models.IntegerField(
+        default=30, help_text="Esta es la cantidad máxima de alumnos permitidos."
+    )
     vocero = models.ForeignKey(
         "estudios.Estudiante",
         on_delete=models.SET_NULL,

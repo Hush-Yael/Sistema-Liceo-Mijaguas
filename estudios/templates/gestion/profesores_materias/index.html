@@ -1,0 +1,220 @@
+{% extends "lista-objetos.html" %}
+{% load static %}
+{% load grupos_variantes %}
+{% load utilidades %}
+
+{% block cabeza %}
+  {{ block.super }}
+  <script defer src="{% static 'js/componentes/combobox.js' %}"></script>
+  {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+  <script>
+    opcionesProfesores = {{ form_transferencia.profesor|obtener_lista_opciones|json|safe }}  
+  </script>
+  {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+{% endblock cabeza %}
+
+{% block cabecera %}
+  {{ block.super }}
+
+  {% if permisos.editar and profesores_faltantes > 0 %}
+    <div
+      class="relative z-3 flex aic jb gap-x-3 p-1.5 pl-3 pr-2 rounded-b bg-advertencia text-advertencia-texto max-[500px]:text-sm"
+    >
+      <span role="status" class="flex aic gap-x-2 truncate">
+        {% include "componentes/iconos/mensajes.html#alerta" with class="size-4" %}
+        <span>
+          {% with l=profesores_faltantes %}
+            <b>{{ l }}</b> profesor{{ l|pluralize:"es" }} no
+            tiene{{ l|pluralize:"n" }}
+          {% endwith %}
+          asignaciones
+        </span>
+      </span>
+
+      <a
+        href="{% url 'profesor' %}?sin_asignaciones=true"
+        class="ui-btn size-6 p-0.5 font-bold bg-advertencia-600 focus-visible:bg-advertencia-400 pover:bg-advertencia-700 dark:text-white truncate"
+        aria-label="Ver profesores sin asignaciones"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+          <path
+            d="M2.984 8.625v.003a.5.5 0 0 1-.612.355c-.431-.114-.355-.611-.355-.611l.018-.062s.026-.084.047-.145a6.7 6.7 0 0 1 1.117-1.982C4.096 5.089 5.605 4 8 4s3.904 1.089 4.802 2.183a6.7 6.7 0 0 1 1.117 1.982 4.077 4.077 0 0 1 .06.187l.003.013v.004l.001.002a.5.5 0 0 1-.966.258l-.001-.004-.008-.025a4.872 4.872 0 0 0-.2-.52 5.696 5.696 0 0 0-.78-1.263C11.286 5.912 10.044 5 8 5c-2.044 0-3.285.912-4.028 1.817a5.7 5.7 0 0 0-.945 1.674 3.018 3.018 0 0 0-.035.109l-.008.025ZM8 7a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5ZM6.5 9.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Z"
+          ></path>
+        </svg>
+      </a>
+    </div>
+  {% endif %}
+{% endblock cabecera %}
+
+{% block titulo_lista %}
+  {{ view.nombre_objeto_plural|capfirst }}
+{% endblock titulo_lista %}
+
+{% block sin_objetos %}
+  {{ block.super }}
+  <p class="text-lg text-texto-semi-sutil">
+    Los profesores no podrán añadir notas
+  </p>
+{% endblock sin_objetos %}
+
+{% block icono_sin_objetos %}
+  <svg
+    stroke-width="2"
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    viewBox="0 0 24 24"
+  >
+    <path
+      d="M3 19a9 9 0 0 1 9 0 9 9 0 0 1 5.899-1.096M3 6a9 9 0 0 1 2.114-.884m3.8-.21C9.984 5.076 11.03 5.44 12 6a9 9 0 0 1 9 0M3 6v13M12 6v2m0 4v7M21 6v11M3 3l18 18"
+    ></path>
+  </svg>
+{% endblock icono_sin_objetos %}
+
+{% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+  {% block x_data %}
+      urlFotoSeleccionada: '',
+  {% endblock x_data %}
+{% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+
+{% block contenido %}
+  {%
+    with
+    texto_sin_objetos_btn='Empieza a asignar'
+    lista_clase="max-w-1000px p-5 min-[500px]:p-6 min-[600px]:px-8 sidebar_full:py-8"
+    cabecera_clase="max-w-1000px mxa p-2 px-5 min-[500px]:px-6 min-[600px]:px-8 sidebar_full:px-10"
+  %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock contenido %}
+
+{% block opciones_filtros %}
+  {%
+    include "componentes/vista-lista/filtros/conjunto-opciones.html" with
+    campo=form_filtros.materias
+    opciones=form_filtros.materias|obtener_lista_opciones
+    opciones_seleccionadas=form_filtros.materias.value
+  %}
+  {%
+    include "componentes/vista-lista/filtros/conjunto-opciones.html" with
+    campo=form_filtros.anios
+    opciones=form_filtros.anios|obtener_lista_opciones
+    opciones_seleccionadas=form_filtros.anios.value
+  %}
+  {%
+    include "componentes/vista-lista/filtros/conjunto-opciones.html" with
+    campo=form_filtros.secciones
+    opciones=form_filtros.secciones.field.choices|obtener_lista_opciones
+    opciones_seleccionadas=form_filtros.secciones.value
+  %}
+{% endblock opciones_filtros %}
+
+{% block modales %}
+  {{ block.super }}
+
+  {% if permisos.editar %}
+    <dialog
+      class="{{ dialog_class }} overflow-visible"
+      x-show="modalAbierto === 'transferir'"
+      {# x-show="!modalAbierto" #}
+      x-htmldialog="modalAbierto = null"
+      @click="$event.target === $event.currentTarget && (modalAbierto = null)"
+    >
+      <form
+        class="{{ div_class }}"
+        hx-put
+        hx-indicator="#indicador-eliminar"
+        hx-disabled-elt=".deshabilitar-al-subir"
+        hx-vals="js:{
+          {{ view.ids_objetos_kwarg }}: Array.from(Alpine.$data(this).filasSeleccionadas),
+          profesor: Alpine.$data(this).profesor_id
+        }"
+        x-data="{ profesor_id: undefined }"
+        @change="
+          const input = $event.target
+          if (input.hasAttribute('data-btn-reiniciar')) profesor_id = undefined
+          else if (input.name === '{{ form_transferencia.profesor.name }}') profesor_id = $event.target.value
+        "
+        @htmx:after-request.window="{{
+          '
+            if ($event.target === $el) {
+              modalAbierto = null;
+              limpiarSeleccion();
+            }
+          '|reemplazar_espacios:''
+        }}"
+      >
+        <h1 class="{{ titulo_class }}">Transferir materias</h1>
+
+        <div class="{{ contenido_class }} gap-y-4 overflow-y-unset!">
+          <p>
+            <b x-text="filasSeleccionadas.size"></b>
+            <span
+              x-text="
+              filasSeleccionadas.size === 1 
+                ? `{{ view.nombre_objeto }} seleccionad{{ view.vocal_del_genero }}`
+                : `{{ view.nombre_objeto_plural }} seleccionad{{ view.vocal_del_genero }}s`
+            "
+            ></span>
+          </p>
+
+          {# obtener los ids de las filas seleccionadas desde el componente de la lista #}
+          {%
+            include "componentes/combobox.html" with
+              lista_clase=""
+              name=form_transferencia.profesor.name
+              campo=form_transferencia.profesor
+              opciones_por_script="opcionesProfesores"
+              seleccionada=form_transferencia.profesor.value
+              multiple=0
+              busqueda_activa=1
+              mostrar_cantidad=1
+            lista_contenedor_clase="max-h-40dvh!"
+          %}
+        </div>
+
+        <div class="{{ btns_class }}" role="group">
+          <button
+            type="button"
+            class="{{ cancelar_class }}"
+            @click="modalAbierto = null"
+          >
+            Cancelar
+          </button>
+
+          <div
+            role="alert"
+            id="indicador-eliminar"
+            class="htmx-indicator peer sr-only"
+          >
+            Transfiriendo...
+          </div>
+
+          <button
+            class="{{ subir_class|add:' ui-btn/peligro' }}"
+            :disabled="!filasSeleccionadas.size || profesor_id === undefined"
+          >
+            <div class="ui-loader ui-loader/blanco"></div>
+            Transferir
+          </button>
+        </div>
+      </form>
+    </dialog>
+  {% endif %}
+
+  <dialog
+    class="size-325px min-[400px]:size-400px min-[500px]:size-500px **:size-full transition-[width,height,transform,opacity] ease-out"
+    x-show="modalAbierto === 'foto'"
+    x-htmldialog="modalAbierto = null"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0 scale-90"
+    @click="$event.target === $event.currentTarget && (modalAbierto = null)"
+  >
+    <img
+      class="aspect-square object-cover"
+      :src="urlFotoSeleccionada ? urlFotoSeleccionada : false"
+      alt="foto"
+    />
+  </dialog>
+{% endblock modales %}

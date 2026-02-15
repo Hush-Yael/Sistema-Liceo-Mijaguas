@@ -1,5 +1,5 @@
 from django.contrib import admin
-from estudios.modelos.gestion import ProfesorMateria
+from estudios.modelos.gestion.personas import ProfesorMateria
 from estudios.modelos.parametros import Lapso, Materia, Seccion, Año
 
 

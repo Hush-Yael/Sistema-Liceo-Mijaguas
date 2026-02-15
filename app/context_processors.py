@@ -46,8 +46,9 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
                 si_permitido(
                     "estudios.view_profesormateria",
                     {
-                        "label": "Asignación de materias",
+                        "label": "Materias impartidas",
                         "icono_nombre": "asignaciones_pm",
+                        "href": reverse_lazy(nombre_url_lista_auto(ProfesorMateria)),
                     },
                 ),
             ],

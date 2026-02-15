@@ -1,0 +1,106 @@
+{% extends "objeto-form.html" %}
+{% load partials %}
+{% load static %}
+{% load utilidades %}
+{% load grupos_variantes %}
+
+{% block cabeza %}
+  {{ block.super }}
+  {% include "componentes/combobox.html#scripts" %}
+  {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+  <script>
+    const opcionesProfesores = {{ form.profesor|obtener_lista_opciones|json|safe }};
+    const opcionesMaterias = {{ materias_disponibles_agrupadas|safe }};
+    const miniaturas = new Map({{ miniaturas|json|safe }})
+  </script>
+  {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+{% endblock cabeza %}
+
+{% block titulo_form %}
+  <span class="max-[600px]:text-base">
+    {% if editando %}
+      Cambiar materias asignadas a profesores
+    {% else %}
+      Asignación de materias a profesores
+    {% endif %}
+  </span>
+{% endblock titulo_form %}
+
+{% block campos %}
+  {{ block.super }}
+  <div
+    class="{{ 'ui-elevado col gap-y-6 p-4 rounded-lg w-full max-w-1000px min-[600px]:(p-6 gap-y-8)'|expandir_variantes }}"
+    {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+    x-data="{
+      urlMiniatura: 
+        {% if form.profesor.value %}
+          miniaturas.get('{{ form.profesor.value }}') 
+            ? `{{ media_url }}${miniaturas.get('{{ form.profesor.value }}')}`
+            : ''
+        {% else %}
+          ''
+        {% endif %}
+    }"
+    {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+    @change="
+      const input = $event.target;
+      if (input.hasAttribute('data-btn-reiniciar')) return urlMiniatura = ''
+      
+      if (input.name === '{{ form.profesor.name }}') {
+        const i = $el.$('[name={{ form.profesor.name }}]');
+        const id = Alpine.$data(i).seleccionada
+        if (miniaturas.has(id)) urlMiniatura = `{{ media_url }}${miniaturas.get(id)}`
+        else urlMiniatura = ''
+      }
+    "
+  >
+    <div id="campos" class="{{ 'col gap-y-6 gap-x-10'|expandir_variantes }}">
+      {% partialdef campos inline %}
+        {%
+          with busqueda_activa=1
+          mostrar_cantidad=1
+          btn_class="bg-fondo-700"
+          caret_class="bg-fondo-900"
+        %}
+          <div class="flex aic gap-x-4 w-full max-w-[550px]">
+            {% with c="size-14 size-min-14" %}
+              {%
+                include "componentes/combobox.html" with
+                class="flex-1 max-w-[calc(100%-var(--spacing)*18)]"
+                id=form.profesor.name
+                name=form.profesor.name
+                campo=form.profesor
+                opciones_por_script="opcionesProfesores"
+                seleccionada=form.profesor.value
+                variable_imgs="miniaturas"
+                multiple=0
+              %}
+
+              <img
+                src
+                :src="urlMiniatura"
+                alt="foto de perfil"
+                class="{{ c }} aspect-square object-cover outline-1 outline-#fff2 [&[src='']]:hidden rounded-full"
+              />
+              {% include "componentes/iconos/sin-foto.html" with x_show="urlMiniatura === ''" class=c %}
+            {% endwith %}
+          </div>
+
+          {%
+            include "componentes/lista-dual/index.html" with
+            campo=form.materias
+            opciones_por_script="opcionesMaterias"
+            seleccionadas=form.materias.value|json|safe
+            label_cantidad_seleccionadas="asignadas"
+            opciones_agrupadas=1
+            msg_sin_opciones_disponibles="No hay materias para escoger"
+            msg_sin_opciones_seleccionadas="No seleccionaron materias"
+            ancho_cambio=650
+            busqueda_activa=1
+            lista_contenedor_class="ui-elevado-2"
+          %}
+        {% endwith %}
+      {% endpartialdef campos %}
+    </div>
+  </div>
+{% endblock campos %}

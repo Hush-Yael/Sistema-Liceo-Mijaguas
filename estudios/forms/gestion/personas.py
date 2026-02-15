@@ -1,4 +1,3 @@
-from typing import Any
 from django import forms
 from django.db.models import Exists
 from usuarios.models import Usuario
@@ -13,8 +12,8 @@ from estudios.modelos.gestion.personas import (
 )
 from estudios.modelos.parametros import (
     Lapso,
-    Materia,
     Seccion,
+    AñoMateria,
     obtener_lapso_actual,
 )
 
@@ -145,39 +144,174 @@ class FormProfesor(forms.ModelForm):
     )
 
 
-class FormProfesorMateria(forms.ModelForm):
+class ProfesorMateriaForm(forms.ModelForm):
     class Meta:
         model = ProfesorMateria
-        # excluir el campo "materia", ya que este form permite añadir varias materias a la vez
-        exclude = (ProfesorMateria.materia.field.name,)
+        fields = ["profesor", "materia", "seccion"]
+        widgets = {
+            "profesor": forms.Select(
+                attrs={
+                    "class": "profesor-select w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500",
+                    "x-model": "profesorId",
+                }
+            ),
+            "materia": forms.Select(
+                attrs={
+                    "class": "materia-select w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500",
+                    "x-model": "materiaId",
+                }
+            ),
+            "seccion": forms.Select(
+                attrs={
+                    "class": "seccion-select w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500",
+                    "x-model": "seccionId",
+                }
+            ),
+        }
+
+
+class FormProfesorMateriaMasivo(forms.Form):
+    instance: "Profesor | None" = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["profesor"].queryset.filter(  # type: ignore
-            usuario__is_active=True
-        ).order_by("apellidos", "nombres")
+        campo_materias: forms.MultipleChoiceField = self.fields[
+            f"{nc(ProfesorMateria.materia)}s"
+        ]  # type: ignore - sí es un MultipleChoiceField
 
-        self.fields["secciones"].label_from_instance = lambda obj: obj.nombre  # type: ignore
+        campo_materias.choices = self.obtener_materias_disponibles()
 
-    secciones = forms.ModelMultipleChoiceField(
-        label="Secciones",
-        queryset=Seccion.objects.order_by("año", "letra") if not MIGRANDO else None,
+    profesor = forms.ModelChoiceField(
+        queryset=Profesor.objects.filter(activo=True),
+        label="Profesor",
+        empty_label="Seleccione un profesor",
+        widget=forms.Select(attrs={"class": "form-control"}),
+        help_text="Solo se incluyen profesores activos.",
     )
 
-    def save(self, commit: bool = True):
-        secciones: "list[Seccion]" = self.cleaned_data.get("secciones", [])
-        materia: "Materia | None" = self.cleaned_data.get(
-            self.Meta.model.materia.field.name
-        )
-        profesor: "Profesor | None" = self.cleaned_data.get(
-            self.Meta.model.profesor.field.name
+    materias = forms.MultipleChoiceField(
+        label="Materias y secciones",
+        widget=forms.SelectMultiple(),
+    )
+
+    def obtener_materias_disponibles(self) -> "list[tuple[str, str]]":
+        """
+        Obtiene todas las combinaciones posibles de (sección, materia) que están:
+        1. Disponibles en AñoMateria (materias asignadas a algún año)
+        2. NO están ya asignadas en ProfesorMateria
+        """
+
+        asignaciones_existentes = ProfesorMateria.objects.values(
+            "seccion_id", "materia_id"
         )
 
-        if secciones:
-            ProfesorMateria.objects.bulk_create(
-                tuple(
-                    ProfesorMateria(profesor=profesor, materia=materia, seccion=seccion)
-                    for seccion in secciones
-                )
+        # Construimos una subconsulta para excluir asignaciones existentes
+        combinaciones_excluir = [
+            (asignacion["seccion_id"], asignacion["materia_id"])
+            for asignacion in asignaciones_existentes
+        ]
+
+        # Construimos una subconsulta para excluir asignaciones existentes
+        combinaciones_excluir = [
+            (asignacion["seccion_id"], asignacion["materia_id"])
+            for asignacion in asignaciones_existentes
+        ]
+
+        # Obtenemos todas las secciones con sus años y materias disponibles
+        materias_disponibles = []
+
+        # Primero obtenemos todas las materias por año
+        años_materias = AñoMateria.objects.select_related(
+            nc(AñoMateria.año), nc(AñoMateria.materia)
+        ).values(
+            f"{nc(AñoMateria.año)}_id",
+            f"{nc(AñoMateria.materia)}_id",
+            f"{nc(AñoMateria.materia)}__nombre",
+        )
+
+        for año_materia in años_materias:
+            # Obtenemos todas las secciones de este año
+            secciones = Seccion.objects.values("id", "nombre").filter(
+                año__id=año_materia["año_id"]
             )
+
+            for seccion in secciones:
+                # Verificamos si esta combinación ya está asignada
+                if (
+                    seccion["id"],
+                    año_materia["materia_id"],
+                ) not in combinaciones_excluir:
+                    opcion_id = f"{seccion['id']}_{año_materia['materia_id']}"
+                    label = f"{año_materia['materia__nombre']}_{seccion['nombre']}"
+                    materias_disponibles.append((opcion_id, label))
+
+        # Ordenamos por label
+        materias_disponibles.sort(key=lambda x: x[1])
+
+        return materias_disponibles
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if not cleaned_data:
+            raise forms.ValidationError("No se obtuvieron los datos")
+
+        profesor = cleaned_data.get(nc(ProfesorMateria.profesor))
+        materias = cleaned_data.get(f"{nc(ProfesorMateria.materia)}s", ())
+
+        if profesor and materias:
+            # Verificamos nuevamente que las materias seleccionadas sigan disponibles
+            materias_disponibles_dict = dict(self.obtener_materias_disponibles())
+
+            for materia_opcion in materias:
+                if materia_opcion not in materias_disponibles_dict:
+                    nombre_materia = materias_disponibles_dict.get(
+                        str(materia_opcion), "NOMBRE MATERIA"
+                    )
+
+                    self.add_error(
+                        "materias",
+                        f"La materia '{nombre_materia}' ya está asignada a otro profesor",
+                    )
+
+        return cleaned_data
+
+    def save(self, commit: bool = True):
+        """
+        Guarda todas las asignaciones seleccionadas
+        """
+        profesor = self.cleaned_data["profesor"]
+        materias_seleccionadas = self.cleaned_data["materias"]
+
+        combos_seccion_materia = tuple(
+            # Obtener los ID del compuesto (seccion_id, materia_id)
+            tuple(map(int, materia_opcion.split("_")))
+            for materia_opcion in materias_seleccionadas
+        )
+
+        # Agregamos todas las asignaciones de una vez
+        asignaciones = ProfesorMateria.objects.bulk_create(
+            tuple(
+                ProfesorMateria(
+                    profesor=profesor, seccion_id=seccion_id, materia_id=materia_id
+                )
+                for seccion_id, materia_id in combos_seccion_materia
+            ),
+            ignore_conflicts=True,
+        )
+
+        return asignaciones
+
+
+class FormTransferirProfesorMateria(forms.Form):
+    class Campos:
+        PROFESOR = "profesor"
+        MATERIAS = "pms"
+
+    profesor = forms.ModelChoiceField(
+        queryset=Profesor.objects.filter(**{nc(Profesor.activo): True}).all(),
+        label="Profesor para transferirle las asignaciones",
+    )
+
+    pms = forms.ModelMultipleChoiceField(ProfesorMateria.objects.all(), initial=None)

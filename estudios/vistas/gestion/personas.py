@@ -1,10 +1,14 @@
+from functools import reduce
 from typing import Type
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db import transaction
+from django.db import models
 from django.db.models.functions.datetime import TruncMinute
 from django.urls import reverse
 from django.http import (
     HttpRequest,
+    HttpResponseBadRequest,
+    QueryDict,
 )
 from django.shortcuts import redirect
 from django.db.models import (
@@ -12,29 +16,35 @@ from django.db.models import (
     Q,
     F,
     Count,
+    Prefetch,
     Value,
     When,
 )
-from django.views.generic import CreateView, FormView, UpdateView
+from django.views.generic import CreateView, FormView, ListView, UpdateView
 from app import HTTPResponseHXRedirect
 from app.util import mn, nc, nombre_url_lista_auto, obtener_filtro_bool_o_nulo
 from app.vistas import (
     VistaActualizarObjeto,
     VistaCrearObjeto,
+    VistaForm,
     VistaListaObjetos,
 )
 from estudios.forms.gestion.personas import (
     FormMatricula,
     FormProfesor,
+    FormProfesorMateriaMasivo,
+    FormTransferirProfesorMateria,
 )
 from estudios.forms.gestion.busqueda import (
     MatriculaBusquedaForm,
     ProfesorBusquedaForm,
+    ProfesorMateriaBusquedaForm,
 )
 from estudios.modelos.gestion.personas import (
     MatriculaEstados,
     Matricula,
     Profesor,
+    ProfesorMateria,
 )
 from estudios.modelos.parametros import Lapso
 from django.db.models.functions import Concat
@@ -362,3 +372,198 @@ class ActualizarProfesor(ProfesorFormMixin, UpdateView):
     def post(self, *args, **kwargs):
         self.object = self.get_object()
         return super().post(*args, **kwargs)
+
+
+class ListaProfesoresMaterias(VistaListaObjetos):
+    model = ProfesorMateria
+    form_filtros = ProfesorMateriaBusquedaForm  # type: ignore
+    form_transferencia = FormTransferirProfesorMateria  # type: ignore
+    genero_sustantivo_objeto = "F"
+    template_name = "gestion/profesores_materias/index.html"
+    plantilla_lista = "gestion/profesores_materias/lista.html"
+    # igual al nombre del campo del form de transferencia, para pasarle la lista y que verifique
+    ids_objetos_kwarg = FormTransferirProfesorMateria.Campos.MATERIAS
+
+    def get_queryset(self, *args, **kwargs):
+        profesores = (
+            Profesor.objects.filter(activo=True, profesormateria__isnull=False)
+            .annotate(cantidad_materias=Count("profesormateria"))
+            .order_by("apellidos", "nombres")
+        )
+
+        return super().get_queryset(profesores)
+
+    def aplicar_filtros(self, queryset: models.QuerySet, datos_form):
+        queryset = super().aplicar_filtros(queryset, datos_form)
+
+        # subconsulta que obtiene las materias de cada profesor
+        pm_queryset = ProfesorMateria.objects.select_related("materia", "seccion__año")
+
+        # filtrar ambas consultas para que coincidan y se muestren los resultados correctamente
+        if materias := datos_form.get("materias"):
+            pm_queryset = pm_queryset.filter(materia__in=materias)
+            queryset = queryset.filter(profesormateria__materia__in=materias)
+
+        if años := datos_form.get("anios"):
+            pm_queryset = pm_queryset.filter(seccion__año__in=años)
+            queryset = queryset.filter(profesormateria__seccion__año__in=años)
+
+        if secciones := datos_form.get("secciones"):
+            pm_queryset = pm_queryset.filter(seccion__in=secciones)
+            queryset = queryset.filter(profesormateria__seccion__in=secciones)
+
+        return queryset.prefetch_related(
+            Prefetch(
+                "profesormateria_set",
+                queryset=pm_queryset,
+                to_attr="materias_asignadas",
+            )
+        )
+
+    def get(self, request: HttpRequest, *args, **kwargs):
+        r = super(ListView, self).get(request, *args, **kwargs)
+
+        self.total = ProfesorMateria.objects.count()
+
+        return r
+
+    def actualizar(
+        self, request: HttpRequest, ids: "list[str]", datos: QueryDict, *args, **kwargs
+    ):
+        form = self.form_transferencia(datos)
+
+        if not form.is_valid():
+            return HttpResponseBadRequest("El profesor escogido es inválido")
+
+        profesor: Profesor = form.cleaned_data[
+            FormTransferirProfesorMateria.Campos.PROFESOR
+        ]
+        # lista de profesores_materias ya existentes
+        pms: "list[ProfesorMateria]" = form.cleaned_data[
+            FormTransferirProfesorMateria.Campos.MATERIAS
+        ]
+
+        # ya que se puede seleccionar al mismo profesor que contiene las materias, se lleva la cuenta para evitar la transferencia
+        a_transferir: "list[ProfesorMateria]" = []
+
+        for pm in pms:
+            if pm.profesor != profesor:
+                pm.profesor = profesor
+                a_transferir.append(pm)
+
+        # No hay materias para transferir
+        if len(a_transferir) == 0:
+            messages.error(
+                request,
+                f"Todas las materias seleccionadas ya están asignadas a {profesor.nombre_completo}.",
+                "retraso=8000",
+            )
+        else:
+            cantidad = ProfesorMateria.objects.bulk_update(
+                a_transferir,
+                fields=[nc(ProfesorMateria.profesor)],
+            )
+
+            if cantidad:
+                messages.success(
+                    request,
+                    f"Se transfiri{'eron' if cantidad > 1 else 'o'} {cantidad} materia{'s' if cantidad > 1 else ''} a {profesor.nombre_completo}.",
+                    "retraso=7000",
+                )
+            else:
+                messages.error(
+                    request,
+                    f"No se pud{'ieron' if cantidad > 1 else 'o'} transferir {cantidad} materia{'s' if cantidad > 1 else ''} a {profesor.nombre_completo}.",
+                    "retraso=7000",
+                )
+
+    def mensaje_luego_eliminar(
+        self, request: HttpRequest, eliminados: int, ids_eliminados: "dict[str, int]"
+    ):
+        n = eliminados
+
+        if n > 0:
+            messages.success(
+                request,
+                f"Se elimin{'aron' if n > 1 else 'o'} {'las' if n > 1 else 'la'} {n if n > 1 else ''} materia{'s'} asignada{'s' if n > 1 else ''} de los profesores seleccionados.",
+                "retraso=10000",
+            )
+        else:
+            messages.error(
+                request,
+                f"No se pud{'ieron' if n > 1 else 'o'} eliminar {'las' if n > 1 else 'la'} {n if n > 1 else ''} materia{'s' if n > 1 else ''} asignada{'s' if n > 1 else ''} de los profesores seleccionados.",
+            )
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super().get_context_data(*args, **kwargs)
+
+        if self.request.method == "GET":
+            # mostrar la lista de profesores para escoger a la hora de transferir materias
+            ctx["form_transferencia"] = self.form_transferencia()
+
+            ctx["profesores_faltantes"] = Profesor.objects.filter(
+                activo=True, profesormateria__isnull=True
+            ).count()
+
+        self.cantidad_filtradas = reduce(
+            lambda x, y: x + len(y.materias_asignadas), ctx["object_list"], 0
+        )
+
+        return ctx
+
+
+class CrearProfesorMateria(VistaForm, FormView):
+    tipo_permiso = "add"
+    tipo_accion_palabra = "cread"
+    model = ProfesorMateria
+    form_class = FormProfesorMateriaMasivo
+    template_name = "gestion/profesores_materias/form.html"
+    genero_sustantivo_objeto = "F"
+
+    def get_initial(self):
+        """Seleccionar un profesor específico por defecto si se proporciona el id por GET"""
+        if profesor_id := self.request.GET.get("profesor_id"):
+            if profesor_id.isdigit() and (
+                profesor := Profesor.objects.filter(id=profesor_id).first()
+            ):
+                return {"profesor": profesor}
+
+        return {}
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+
+        ctx["miniaturas"] = list(
+            map(
+                lambda x: (str(x[0]), x[1]),
+                Profesor.objects.values_list("id", "usuario__miniatura_foto").filter(
+                    ~Q(usuario__miniatura_foto__isnull=True)
+                    & ~Q(usuario__miniatura_foto="")
+                ),
+            )
+        )
+
+        form: FormProfesorMateriaMasivo = ctx["form"]
+
+        materias_disponibles_agrupadas = {}
+
+        for materia in form.fields[f"{nc(ProfesorMateria.materia)}s"].choices:  # type: ignore - sí es un MultipleChoiceField
+            label_opcion = materia[1].split("_", maxsplit=1)
+            nombre_materia, nombre_seccion = label_opcion
+
+            if nombre_materia not in materias_disponibles_agrupadas:
+                materias_disponibles_agrupadas[nombre_materia] = []
+
+            materias_disponibles_agrupadas[nombre_materia].append(
+                {
+                    "id": str(materia[0]),
+                    "label": nombre_seccion,
+                }
+            )
+
+        ctx["materias_disponibles_agrupadas"] = [
+            {"label": pm[0], "opciones": pm[1]}
+            for pm in materias_disponibles_agrupadas.items()
+        ]
+
+        return ctx

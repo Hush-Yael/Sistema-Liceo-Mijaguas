@@ -1,0 +1,190 @@
+{% extends "componentes/vista-lista/lista.html" %}
+{% load sekizai_tags %}
+{% load l10n %}
+{% load utilidades %}
+{% load grupos_variantes %}
+
+{% block acciones %}
+  {{ block.super }}
+
+  <button
+    role="menuitem"
+    class="{{ accion_btn_class|add:' deshabilitar-al-subir' }}"
+    :disabled="filasSeleccionadas.size === 0"
+    aria-haspopup="dialog"
+    :aria-expanded="modalAbierto === 'transferir'"
+    @click="modalAbierto = 'transferir'"
+  >
+    <svg
+      class="size-4"
+      stroke-width="2"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      viewBox="0 0 24 24"
+    >
+      <path
+        d="M4 18a2 2 0 1 0 4 0 2 2 0 1 0-4 0M16 18a2 2 0 1 0 4 0 2 2 0 1 0-4 0M6 12v-2a6 6 0 1 1 12 0v2"
+      ></path>
+      <path d="m15 9 3 3 3-3"></path>
+    </svg>
+    transferir materias al profesor...
+  </button>
+{% endblock acciones %}
+
+{% block lista %}
+  <div
+    x-bind="eventosLista"
+    class="col gap-y-4"
+    @click="{{
+      '
+        if ($event.target.closest("[data-foto-url]")) {
+          const url = $event.target.closest("[data-foto-url]").getAttribute("data-foto-url");
+
+          if (url !== null) {
+            urlFotoSeleccionada = url;
+
+            const id = $event.target.closest("[data-foto-url]").getAttribute("data-id");
+            modalAbierto = "foto";
+          }
+        }
+      '|reemplazar_espacios:''
+    }}"
+  >
+    {% for profesor in lista_objetos %}
+      <div class="ui-elevado rounded-xl">
+        {# Cabecera con datos del profesor #}
+        <div
+          class="flex aic gap-4 p-2 px-3 rounded-t-xl bg-fondo-700 border-b border-[--transparente-1]"
+        >
+          {% with c="size-16 size-min-16 lh-16 aspect-square rounded-full" %}
+            {% if profesor.usuario.miniatura_foto %}
+              <button
+                class="align-middle"
+                data-foto-url="{{ profesor.usuario.foto_perfil.url }}"
+                aria-label="Inspeccionar foto de perfil"
+              >
+                <img
+                  class="{{ c|add:' object-cover border-2 border-[--transparente-3]' }}"
+                  src="{{ profesor.usuario.miniatura_foto.url }}"
+                  alt="foto de perfil"
+                />
+              </button>
+            {% else %}
+              <span
+                class="{{ c|add:' tac bg-[--transparente-1] text-texto-semi-sutil text-[1.7rem] font-bold' }}"
+              >
+                {{ profesor.nombres|slice:"0:1" }}{{ profesor.apellidos|slice:"0:1" }}
+              </span>
+            {% endif %}
+          {% endwith %}
+
+          <hgroup>
+            <h2 class="font-bold min-[500px]:text-lg">
+              {{ profesor.nombre_completo }}
+            </h2>
+            <p class="text-sm text-texto-semi-sutil tracking-wider">
+              <span class="text-texto-sutil">C.I:</span>
+              {{ profesor.cedula|default:'?'|localize }}
+            </p>
+          </hgroup>
+        </div>
+
+        <ul
+          class="{{ 'grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] supports-[not(grid-template-columns:repeat(auto-fill,minmax(140px,1fr)))]:(flex flex-wrap) gap-2 p-3 min-[600px]:py-4'|expandir_variantes }}"
+        >
+          {% for asignacion in profesor.materias_asignadas %}
+            <li class="relative">
+              {% if permisos.editar or permisos.eliminar %}
+                {%
+                  with
+                  indice=forloop.counter0|add:forloop.parentloop.counter0
+                  id_l1=forloop.counter0|stringformat:"s"|add:'_'
+                  id_l2=forloop.parentloop.counter0|stringformat:"s"
+                  objeto=asignacion
+                  input_class="peer/input sr-only"
+                  label_class="peer/label opacity-0 absolute inset-0 z-1 size-full select-none"
+                  sin_indicador=1
+                %}
+                  {% if not forloop.parentloop.first %}
+                    {# empezar conteo desde uno a partir de la segunda iteración de profesores #}
+                    {%
+                      include "componentes/vista-lista/objeto-check.html" with
+                      id_fila=id_l1|add:id_l2
+                      indice=forloop.counter|add:forloop.parentloop.counter0
+                    %}
+                  {% else %}
+                    {%
+                      include "componentes/vista-lista/objeto-check.html" with
+                      id_fila=id_l1|add:id_l2
+                    %}
+                  {% endif %}
+                {% endwith %}
+              {% endif %}
+
+              <article
+                class="{{
+                  '
+                    group col gap-y-1 p-2 ui-elevado-2 border-[--transparente-2] rounded-lg transition-[background-color,color] select-none
+                    peer-focus-visible/input:outline-2
+                    peer-not-checked/input:peer-hover/label:bg-fondo-800
+                    dark:peer-not-checked/input:peer-hover/label:bg-fondo-500
+                    [.peer\/input:checked~&]:(bg-secundario-400 border-[#fff2]
+                    text-secundario-texto)
+                    dark:peer-checked/input:bg-secundario/50
+                  '
+                  |reemplazar_espacios:" "
+                  |expandir_variantes
+                }}"
+              >
+                <h2 class="font-medium">{{ asignacion.materia.nombre }}</h2>
+
+                <div class="flex jb aic gap-4">
+                  <span
+                    class="{{ 'text-sm text-texto-sutil [.peer\/input:checked~.group_&]:(text-secundario-texto opacity-85)'|expandir_variantes }}"
+                  >
+                    {{ asignacion.seccion.año.nombre_corto }}
+                  </span>
+                  <span
+                    class="{{ 'px-3 py-1 bg-primario-100 dark:bg-primario-800/50 [.peer\/input:checked~.group_&]:(bg-secundario-texto text-secundario-300) rounded-full text-xs font-semibold'|expandir_variantes }}"
+                  >
+                    {{ asignacion.seccion.letra }}
+                  </span>
+                </div>
+              </article>
+            </li>
+          {% endfor %}
+        </ul>
+
+        {# Total y enlace #}
+        <div
+          class="flex jb aic gap-x-5 bg-fondo-700 px-3 py-2 rounded-b-xl border-t border-[--transparente-1]"
+        >
+          <span class="flex aic gap-x-1.5 text-sm text-texto-sutil">
+            {% include "componentes/iconos/mensajes.html#info" with class="size-4" %}
+            {% with n=profesor.materias_asignadas|length %}
+              <span>
+                Total: <b>{{ n }}</b> materia{{ n|pluralize:'s' }}
+                asignada{{ n|pluralize:'s' }}
+              </span>
+            {% endwith %}
+          </span>
+
+          {% if permisos.crear %}
+            <div class="flex gap-2">
+              <a
+                {# href="{% url 'asignar_materias_profesor' %}?profesor={{ profesor.id }}" #}
+                class="{{ 'ui-btn ui-btn/secundario dark:bg-secundario-600 p-1 rounded-full max-[600px]:(size-6 aspect-square) min-[600px]:(text-sm px-4)'|expandir_variantes }}"
+              >
+                {% include "componentes/iconos/edicion.html#suma" with class="min-[600px]:hidden" %}
+                {% include "componentes/iconos/edicion.html#suma_circulo" with class="max-[600px]:hidden size-4.5" %}
+                <span class="max-[600px]:sr-only">Añadir materia</span>
+              </a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock lista %}

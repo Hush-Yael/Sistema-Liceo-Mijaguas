@@ -26,11 +26,15 @@ urlpatterns = (
         vistas_personas.CrearProfesor,
         vistas_personas.ActualizarProfesor,
     ),
-    *crear_crud_urls(
-        ProfesorMateria,
-        vistas_personas.ListaProfesoresMaterias,
-        vistas_personas.CrearProfesorMateria,
-        vistas_personas.ActualizarProfesorMateria,
+    path(
+        f"{ProfesorMateria._meta.verbose_name_plural}/",
+        vistas_personas.ListaProfesoresMaterias.as_view(),
+        name=nombre_url_lista_auto(ProfesorMateria),
+    ),
+    path(
+        f"{ProfesorMateria._meta.verbose_name_plural}/crear/",
+        vistas_personas.CrearProfesorMateria.as_view(),
+        name=nombre_url_crear_auto(ProfesorMateria),
     ),
     *crear_crud_urls(
         Matricula,
