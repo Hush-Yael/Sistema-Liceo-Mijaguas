@@ -85,7 +85,10 @@
             <span class="opacity-80">seleccionadas</span>
           </span>
 
-          <span x-show="filasSeleccionadas.size === {% partial total %}">
+          <span
+            class="truncate"
+            x-show="filasSeleccionadas.size === {% partial total %}"
+          >
             Todas las filas seleccionadas
           </span>
 
