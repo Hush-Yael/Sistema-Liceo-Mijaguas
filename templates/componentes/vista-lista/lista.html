@@ -57,7 +57,7 @@
         class="{{ contenedor_lista_class|default:''|add:' col gap-y-4 h-full flex-1 overflow-y-auto' }}"
       >
         <div
-          class="{{ 'fixed top-0 left-0 z-5 w-full flex flex-wrap aic justify-between gap-y-2 gap-x-6 p-2 px-3 bg-secundario text-secundario-texto transition-[transform,opacity] duration-200 ease-in-out max-[500px]:text-sm max-sidebar:h-[--altura-header] sidebar:(left-[--ancho-barra-lateral] w-[calc(100%-var(--ancho-barra-lateral))])'|expandir_variantes }}"
+          class="{{ 'fixed top-0 left-0 z-5 w-full flex aic justify-between gap-y-2 gap-x-6 p-2 px-3 bg-secundario text-secundario-texto transition-[transform,opacity] duration-200 ease-in-out max-[500px]:text-sm max-sidebar:h-[--altura-header] sidebar:(left-[--ancho-barra-lateral] w-[calc(100%-var(--ancho-barra-lateral))])'|expandir_variantes }}"
           x-cloak
           x-show="filasSeleccionadas.size > 0"
           x-transition:enter-start="opacity-0 -translate-y-full"
