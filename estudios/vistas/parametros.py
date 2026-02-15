@@ -2,11 +2,8 @@ from typing import Any, Mapping
 from django.db import models
 from django.db.models.functions.datetime import TruncMinute
 from django.http import (
-    HttpRequest,
     HttpResponseBadRequest,
 )
-from django.http.request import QueryDict
-from django.shortcuts import render
 from django.db.models import Case, Count, Q, F, Value, When
 from app.campos import FiltrosConjuntoOpciones
 from app.forms import ConjuntoOpcionesForm
@@ -177,12 +174,7 @@ class ListaMaterias(VistaListaObjetos):
         )
         return ctx
 
-    def put(self, request: HttpRequest, *args, **kwargs):
-        datos = QueryDict(request.body)  # type: ignore
-
-        if not (ids := datos.getlist("ids")):
-            return HttpResponseBadRequest("No se indicó una lista de ids")
-
+    def actualizar(self, request, ids, datos, *args, **kwargs):
         form = self.form_asignaciones(datos)
 
         if not form.is_valid():
@@ -199,18 +191,6 @@ class ListaMaterias(VistaListaObjetos):
                 AñoMateria.objects.bulk_create(
                     [AñoMateria(año=año, materia=materia) for año in años]
                 )
-
-        self.object_list = self.get_queryset()
-
-        ctx = self.get_context_data(*args, **kwargs)
-        ctx["lista_reemplazada_por_htmx"] = 1  # indicar que solo se cambia la tabla
-        ctx["mensajes_recibidos"] = 1  # mostrar mensajes
-
-        return render(
-            request,
-            self.plantilla_lista,
-            ctx,
-        )
 
 
 class CrearMateria(VistaCrearObjeto):

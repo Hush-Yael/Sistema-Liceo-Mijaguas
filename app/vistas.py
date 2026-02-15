@@ -307,7 +307,7 @@ class VistaListaObjetos(Vista, ListView):
         return dato
 
     def get_context_data(self, *args, **kwargs):
-        ctx = super().get_context_data()
+        ctx = super().get_context_data(*args, **kwargs)
 
         try:
             ctx["modelos_relacionados"] = list(
@@ -371,6 +371,38 @@ class VistaListaObjetos(Vista, ListView):
 
         return HttpResponse("No se indicó un form de filtros", status=405)
 
+    def put(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        """Actualizar un registro con PUT. Por defecto, si no tiene permisos, devuelve un HttpResponseForbidden. Si tiene permisos, obtiene una tupla con (los datos, los ids) de la petición. Debe implementarse la funcionalidad en la clase que hereda."""
+
+        if not request.user.has_perm(  # type: ignore - sí se puede verificar el permiso al usuario
+            f"{self.nombre_app_modelo}.change_{self.nombre_modelo}"
+        ):
+            return HttpResponseForbidden(
+                f"No tienes permisos para editar {self.nombre_objeto_plural}"
+            )
+
+        datos = QueryDict(request.body)  # type: ignore - sí se obtienen los datos
+
+        if not (ids := datos.getlist(self.ids_objetos_kwarg)):
+            return HttpResponseBadRequest(
+                f"No se indicó una lista de {self.ids_objetos_kwarg}"
+            )
+
+        respuesta = self.actualizar(request, ids, datos, *args, **kwargs)
+
+        if isinstance(respuesta, HttpResponse):
+            return respuesta
+
+        return self.actualizar_lista(request, *args, **kwargs)
+
+    def actualizar(
+        self, request: HttpRequest, ids: "list[str]", datos: QueryDict, *args, **kwargs
+    ) -> "HttpResponse | None":
+        """Se usa para implementar la funcionalidad del método PUT en la clase que hereda"""
+        raise NotImplementedError(
+            "El metodo 'actualizar' debe ser implementado en la clase que hereda"
+        )
+
     def delete(self, request: HttpRequest, *args, **kwargs):
         if not request.user.has_perm(  # type: ignore
             f"{self.nombre_app_modelo}.delete_{self.nombre_modelo}"
@@ -382,25 +414,59 @@ class VistaListaObjetos(Vista, ListView):
         ids = request.GET.getlist("ids")
 
         if not ids or not isinstance(ids, list):
-            return HttpResponseBadRequest("No se indicó una lista de ids")
+            return HttpResponseBadRequest(
+                "No se indicó una lista de ids"
+            )
 
-        eliminados, _ = self.eliminar_seleccionados(ids)
+        respuesta = self.eliminar(request, ids)
 
-        self.incluir_eliminados_mensajes(request, eliminados)
+        if isinstance(respuesta, HttpResponse):
+            return respuesta
 
-        self.object_list = self.get_queryset(queryset=self.queryset)  # type: ignore
+        cantidad_eliminados, ids_eliminados = respuesta
 
-        ctx = self.get_context_data(self, *args, **kwargs)
-        ctx["lista_reemplazada_por_htmx"] = 1  # indicar que solo se cambia la tabla
-        ctx["mensajes_recibidos"] = 1  # mostrar mensajes
+        self.mensaje_luego_eliminar(request, cantidad_eliminados, ids_eliminados)
+
+        return self.actualizar_lista(
+            request,
+        )
+
+    def eliminar(
+        self, request: HttpRequest, ids: "list[str]"
+    ) -> "HttpResponse | tuple[int, dict[str, int]]":
+        """Se usa para implementar la funcionalidad del método DELETE en la clase que hereda. Por defecto, se eliminan los objetos del modelo indicado con los ids indicados. Necesita retornar la cantidad de registros eliminados y la lista de ids eliminados para indicarlo al usuario en el mensaje"""
+
+        return self.model.objects.filter(id__in=ids).delete()
+
+    def actualizar_lista(
+        self,
+        request: HttpRequest,
+        *args,
+        **kwargs,
+    ) -> HttpResponse:
+        """Se usa para actualizar la vista cambiando la lista de registros mostrados (por ejemplo, cuando se eliminan registros)"""
+
+        self.object_list = self.get_queryset(queryset=self.queryset)  # type: ignore - el tipo del queryset es correcto
+
+        contexto = self.get_context_data(*args, **kwargs)
+
+        contexto["lista_reemplazada_por_htmx"] = (
+            True  # indicar que solo se cambia la lista de objetos
+        )
+
+        contexto["mensajes_recibidos"] = True  # mostrar mensajes al actualizar
 
         return render(
             request,
             self.plantilla_lista,
-            ctx,
+            contexto,
         )
 
-    def incluir_eliminados_mensajes(self, request: HttpRequest, eliminados: int):
+    def mensaje_luego_eliminar(
+        self, request: HttpRequest, eliminados: int, ids_eliminados: "dict[str, int]"
+    ):
+        """Enviar el mensaje del resultado en la petición de eliminación de registros (llamado desde el método "eliminar" luego de las operaciones de eliminación)"""
+
         if eliminados > 0:
             messages.success(
                 request,
@@ -411,9 +477,6 @@ class VistaListaObjetos(Vista, ListView):
                 request,
                 f"No se pudieron eliminar {self.articulo_sustantivo_plural} {self.nombre_objeto_plural} seleccionad{self.vocal_del_genero}s",
             )
-
-    def eliminar_seleccionados(self, ids: "list[str]") -> "tuple[int, dict[str, int]]":
-        return self.model.objects.filter(id__in=ids).delete()  # type: ignore
 
     def render_to_response(self, context, **response_kwargs):
         response = super().render_to_response(context, **response_kwargs)
