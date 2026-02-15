@@ -87,7 +87,7 @@
             :disabled="!{{ cuales_opciones }}.length"
           {% endif %}
           class="w-full outline-none text-sm focus-visible:border-primario "
-          id="busqueda-{{ cual_lista }}"
+          id="busqueda-{{ cual_lista }}-{{ campo.name }}"
           @input="
             clearTimeout(this.timeoutBusqueda);
             this.timeoutBusqueda = setTimeout(() => {
