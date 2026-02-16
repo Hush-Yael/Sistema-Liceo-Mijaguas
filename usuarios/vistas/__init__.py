@@ -3,7 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import PasswordChangeView
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.db.models.functions.datetime import TruncMinute
 from django.forms import ModelMultipleChoiceField
 from django.contrib.admin.models import LogEntry

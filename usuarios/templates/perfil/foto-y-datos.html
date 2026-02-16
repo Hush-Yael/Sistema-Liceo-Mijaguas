@@ -29,6 +29,8 @@
       {% else %}
         {% for grupo in request.user.grupos.all %}
           {{ grupo }}{% if not forloop.last %},{% endif %}
+          {% empty %}
+          no asignado a ningún grupo
         {% endfor %}
       {% endif %}
     </p>

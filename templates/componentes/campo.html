@@ -18,57 +18,59 @@
     {{ campo.label_tag }}
   {% endif %}
 
-  {% with wrapper_class="contra-wrapper flex aic jb gap-x-2 outline-2 -outline-offset-1 outline-#0000 focus-within:outline-current focus-within:has-[button:focus-visible]:outline-0" error_id=campo.name|add:'-error' ic=input_class|default:''|add:' peer' %}
-    {% if 'contraseña' in campo.name or 'password' in campo.name %}
-      <div
-        {% if campo.errors %}
-          data-invalido="true"
-          class="{{ wrapper_class|add:' '|add:ic|add:' animate-head-shake animate-delay-200' }}"
-        {% else %}
-          class="{{ wrapper_class|add:' '|add:ic }}"
-        {% endif %}
-      >
-        {% with input_class="flex-1 outline-none" x_bind_type="visible ? 'text' : 'password'" %}
+  {% partialdef campo inline %}
+    {% with wrapper_class="contra-wrapper flex aic jb gap-x-2 outline-2 -outline-offset-1 outline-#0000 focus-within:outline-current focus-within:has-[button:focus-visible]:outline-0" error_id=campo.name|add:'-error' ic=input_class|default:''|add:' peer' %}
+      {% if 'contraseña' in campo.name or 'password' in campo.name %}
+        <div
           {% if campo.errors %}
-            {% render_field campo class=input_class aria-errormessage=error_id aria-invalid="true" x-bind::type=x_bind_type %}
+            data-invalido="true"
+            class="{{ wrapper_class|add:' '|add:ic|add:' animate-head-shake animate-delay-200' }}"
           {% else %}
-            {% render_field campo class=input_class x-bind::type=x_bind_type %}
+            class="{{ wrapper_class|add:' '|add:ic }}"
           {% endif %}
-        {% endwith %}
-        {% partial btn_mostrar %}
-      </div>
-    {% else %}
-      {% if campo.errors %}
-        {% with eic=ic|add:' animate-head-shake animate-delay-200' %}
-          {% render_field campo class=eic aria-errormessage=error_id aria-invalid="true" %}
-        {% endwith %}
-      {% else %}
-        {% render_field campo class=ic %}
-      {% endif %}
-    {% endif %}
-
-    {% partialdef campo_error inline %}
-      {% if campo.errors %}
-        {% for error in campo.errors %}
-          <p
-            id="{{ error_id }}"
-            class="{{ error_class|default:''|add:' ui-input-error' }}"
-            {% if data_form %}
-              data-form="{{ data_form }}"
+        >
+          {% with input_class="flex-1 outline-none" x_bind_type="visible ? 'text' : 'password'" %}
+            {% if campo.errors %}
+              {% render_field campo class=input_class aria-errormessage=error_id aria-invalid="true" x-bind::type=x_bind_type %}
+            {% else %}
+              {% render_field campo class=input_class x-bind::type=x_bind_type %}
             {% endif %}
-          >
-            {{ error }}
-          </p>
-        {% endfor %}
+          {% endwith %}
+          {% partial btn_mostrar %}
+        </div>
+      {% else %}
+        {% if campo.errors %}
+          {% with eic=ic|add:' animate-head-shake animate-delay-200' %}
+            {% render_field campo class=eic aria-errormessage=error_id aria-invalid="true" %}
+          {% endwith %}
+        {% else %}
+          {% render_field campo class=ic %}
+        {% endif %}
       {% endif %}
-    {% endpartialdef campo_error %}
 
-    {% partialdef desc inline %}
-      {% if campo.help_text %}
-        <p class="text-sm text-texto-sutil mt-1">{{ campo.help_text }}</p>
-      {% endif %}
-    {% endpartialdef desc %}
-  {% endwith %}
+      {% partialdef campo_error inline %}
+        {% if campo.errors %}
+          {% for error in campo.errors %}
+            <p
+              id="{{ error_id }}"
+              class="{{ error_class|default:''|add:' ui-input-error' }}"
+              {% if data_form %}
+                data-form="{{ data_form }}"
+              {% endif %}
+            >
+              {{ error }}
+            </p>
+          {% endfor %}
+        {% endif %}
+      {% endpartialdef campo_error %}
+
+      {% partialdef desc inline %}
+        {% if campo.help_text %}
+          <p class="text-sm text-texto-sutil mt-1">{{ campo.help_text }}</p>
+        {% endif %}
+      {% endpartialdef desc %}
+    {% endwith %}
+  {% endpartialdef campo %}
 </div>
 
 {% partialdef btn_mostrar %}

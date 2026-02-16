@@ -38,13 +38,11 @@
               superusuario
             {% else %}
               {% with roles=request.user.grupos.all %}
-                {% if roles %}
-                  {% for rol in roles %}
-                    {{ rol }}{% if not forloop.last %},{% endif %}
-                  {% endfor %}
-                {% else %}
+                {% for rol in roles %}
+                  {{ rol }}{% if not forloop.last %},{% endif %}
+                  {% empty %}
                   sin grupos
-                {% endif %}
+                {% endfor %}
               {% endwith %}
             {% endif %}
           </p>

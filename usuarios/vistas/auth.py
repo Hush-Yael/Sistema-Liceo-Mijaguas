@@ -2,6 +2,7 @@ from django.http import HttpRequest
 from django.urls import reverse_lazy
 from app.vistas import VistaParaNoLogueados
 from usuarios.forms.auth import (
+    RegistroForm,
     RecuperarContraseñaForm,
 )
 from django.contrib.auth.views import (
@@ -12,6 +13,8 @@ from django.contrib.auth.views import (
     PasswordResetDoneView,
     PasswordResetView,
 )
+from django.views.generic import CreateView
+from django.contrib.messages.views import SuccessMessageMixin
 
 
 class Login(VistaParaNoLogueados, LoginView):
@@ -22,6 +25,13 @@ def cerrar_sesion(request: HttpRequest):
     return LogoutView.as_view(
         next_page="/",
     )(request)
+
+
+class Registro(VistaParaNoLogueados, SuccessMessageMixin, CreateView):
+    form_class = RegistroForm
+    template_name = "auth/registro.html"
+    success_url = reverse_lazy("inicio")
+    success_message = "Registrado correctamente, ahora puedes iniciar sesión"
 
 
 class RecuperarContraseña(VistaParaNoLogueados, PasswordResetView):

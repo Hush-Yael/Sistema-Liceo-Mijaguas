@@ -17,6 +17,11 @@ urlpatterns = [
         name="logout",
     ),
     path(
+        "registro/",
+        vistas_auth.Registro.as_view(),
+        name="registro",
+    ),
+    path(
         "perfil",
         vistas.config_perfil,
         name="perfil",

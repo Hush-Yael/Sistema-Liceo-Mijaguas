@@ -12,22 +12,27 @@
 
 {% block contenido %}
   <main class="flex-1 col fc gap-y-6 p-2 py-6">
-    <img
-      id="logo-claro"
-      class="dark:hidden size-200px m-[0_auto]"
-      src="{% static 'img/logo-letras-negras.png' %}"
-      alt="logo"
-    />
-    <img
-      id="logo-oscuro"
-      class="hidden dark:block size-200px m-[0_auto]"
-      src="{% static 'img/logo-letras-blancas.png' %}"
-      alt="logo"
-    />
+    {% block logo %}
+      <img
+        id="logo-claro"
+        class="dark:hidden size-200px m-[0_auto]"
+        src="{% static 'img/logo-letras-negras.png' %}"
+        alt="logo"
+      />
+      <img
+        id="logo-oscuro"
+        class="hidden dark:block size-200px m-[0_auto]"
+        src="{% static 'img/logo-letras-blancas.png' %}"
+        alt="logo"
+      />
+    {% endblock logo %}
 
     {% block form %}
       <form
-        class="ui-caja max-w-350px w-90% p-4"
+        {% block form_attrs %}
+        {% endblock form_attrs %}
+        class="ui-caja max-w-350px w-90% p-4 {{ form_class }}"
+        novalidate
         {% if id %}
           id="{{ id }}"
         {% endif %}
