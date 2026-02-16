@@ -37,21 +37,20 @@
 
 {% block sin_objetos %}
   {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
-    <h2 class="font-bold text-xl">No se han añadido
-
+    <h2 class="font-bold text-xl">
       {% if not hay_matriculas %}
-        matrículas</h2>
+        Hace falta crear matrículas</h2>
         <p class="text-texto-sutil">
           estas son necesarias para poder asignar notas
         </p>
       {% elif not hay_materias %}
-        asignaturas</h2>
+        Hace falta crear materias</h2>
         <p class="text-texto-sutil">
           estas son necesarias para poder asignar notas
         </p>
         
       {% else %}
-        notas</h2>
+        No se han añadido notas</h2>
         <p class="text-texto-sutil">
           Parece que las actividades escolares no han iniciado
         </p>
