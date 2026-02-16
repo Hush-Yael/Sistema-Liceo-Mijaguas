@@ -125,19 +125,10 @@
                 {% with activo=usuario.is_active %}
                   <span
                     role="status"
-                    class="{{ c }} {% if activo %}
-                      bg-exito-200 border-exito text-exito-900
-                    {% else %}
-                      bg-peligro-200 border-peligro text-peligro-900
-                      dark:bg-peligro-300
-                    {% endif %}"
+                    class="{{ c }} {{ activo|yesno:'bg-exito-200 border-exito text-exito-900 , bg-peligro-200 border-peligro text-peligro-900 dark:bg-peligro-300' }}"
                   >
                     <span
-                      class="size-3 rounded-full {% if activo %}
-                        bg-exito-400
-                      {% else %}
-                        bg-peligro-400
-                      {% endif %}"
+                      class="size-3 rounded-full {{ activo|yesno:'bg-exito-400 ,bg-peligro-400' }}"
                     ></span>
                     {{ activo|yesno:'Activo,Inactivo' }}
                   </span>
