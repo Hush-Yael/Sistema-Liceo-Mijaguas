@@ -61,7 +61,7 @@ class ListaMatriculas(VistaTablaAdaptable):
     plantilla_lista = "gestion/matriculas/lista.html"
     model = Matricula
     genero_sustantivo_objeto = "F"
-    form_filtros = MatriculaBusquedaForm  # type: ignore
+    form_filtros = MatriculaBusquedaForm
     paginate_by = 50
     columnas_totales = (
         {"titulo": "Estudiante", "clave": "estudiante_nombres"},
@@ -162,7 +162,7 @@ class ListaProfesores(VistaListaObjetos):
     model = Profesor
     template_name = "gestion/profesores/index.html"
     plantilla_lista = "gestion/profesores/lista.html"
-    form_filtros = ProfesorBusquedaForm  # type: ignore
+    form_filtros = ProfesorBusquedaForm
 
     def get_queryset(self, *args, **kwargs):
         q = Profesor.objects.annotate(
@@ -376,8 +376,8 @@ class ActualizarProfesor(ProfesorFormMixin, UpdateView):
 
 class ListaProfesoresMaterias(VistaListaObjetos):
     model = ProfesorMateria
-    form_filtros = ProfesorMateriaBusquedaForm  # type: ignore
-    form_transferencia = FormTransferirProfesorMateria  # type: ignore
+    form_filtros = ProfesorMateriaBusquedaForm
+    form_transferencia = FormTransferirProfesorMateria
     genero_sustantivo_objeto = "F"
     template_name = "gestion/profesores_materias/index.html"
     plantilla_lista = "gestion/profesores_materias/lista.html"

@@ -18,7 +18,7 @@ class ListaNotas(VistaTablaAdaptable):
     template_name = "gestion/notas/index.html"
     plantilla_lista = "gestion/notas/lista.html"
     paginate_by = 50
-    form_filtros = NotasBusquedaForm  # type: ignore
+    form_filtros = NotasBusquedaForm
     columnas_a_evitar = set()
     columnas_totales = (
         {"titulo": "Estudiante", "clave": "estudiante_nombres", "anotada": True},

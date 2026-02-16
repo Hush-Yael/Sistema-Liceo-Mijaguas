@@ -42,7 +42,7 @@ class ListaLapsos(VistaListaObjetos):
     template_name = "parametros/lapsos/index.html"
     plantilla_lista = "parametros/lapsos/lista.html"
     model = Lapso
-    form_filtros = LapsoBusquedaForm  # type: ignore
+    form_filtros = LapsoBusquedaForm
 
     def get_queryset(self, *args, **kwargs) -> "list[dict]":
         lapso_actual = obtener_lapso_actual()
@@ -73,7 +73,7 @@ class ListaMaterias(VistaListaObjetos):
     template_name = "parametros/materias/index.html"
     plantilla_lista = "parametros/materias/lista.html"
     model = Materia
-    form_filtros = MateriaBusquedaForm  # type: ignore
+    form_filtros = MateriaBusquedaForm
     form_asignaciones = FormAsignaciones
     genero_sustantivo_objeto = "F"
     lista_años: "list[dict]"
@@ -312,7 +312,7 @@ class ListaSecciones(VistaTablaAdaptable):
     model = Seccion
     paginate_by = 50
     genero_sustantivo_objeto = "F"
-    form_filtros = SeccionBusquedaForm  # type: ignore
+    form_filtros = SeccionBusquedaForm
     columnas_a_evitar = set()
     columnas_totales = (
         {"titulo": "Nombre", "clave": "nombre"},

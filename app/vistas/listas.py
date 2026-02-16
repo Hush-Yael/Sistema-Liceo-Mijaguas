@@ -29,7 +29,7 @@ class VistaListaObjetos(Vista, ListView):
     model: Type[models.Model]  # type: ignore
     tipo_permiso = "view"
     context_object_name = "lista_objetos"
-    form_filtros: BusquedaFormMixin
+    form_filtros: Type[BusquedaFormMixin]
     total: "int | None" = None
     cantidad_filtradas: "int | None" = None
     plantilla_lista: str
@@ -96,7 +96,7 @@ class VistaListaObjetos(Vista, ListView):
                 datos, request=self.request
             )
 
-        if self.form_filtros.is_valid():
+        if self.form_filtros.is_valid():  # type: ignore - sí se pasa "self"
             return self.form_filtros.cleaned_data
         else:
             return self.form_filtros.initial
@@ -259,8 +259,8 @@ class VistaListaObjetos(Vista, ListView):
             respuesta.template_name = self.plantilla_lista  # type: ignore
 
             # Validar el formulario y guardar en cookies los valores
-            if self.form_filtros.is_valid():
-                self.form_filtros.guardar_en_cookies(respuesta)
+            if self.form_filtros.is_valid():  # type: ignore - sí se pasa "self"
+                self.form_filtros.guardar_en_cookies(respuesta)  # type: ignore - sí se pasa "self"
 
             return respuesta
 

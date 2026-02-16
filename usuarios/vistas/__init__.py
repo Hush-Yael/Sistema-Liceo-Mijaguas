@@ -82,7 +82,7 @@ class ListaUsuarios(VistaListaObjetos):
     model = Usuario
     template_name = "usuarios/index.html"
     plantilla_lista = "usuarios/lista.html"
-    form_filtros = UsuarioBusquedaForm  # type: ignore
+    form_filtros = UsuarioBusquedaForm
     paginate_by = 4
     columnas_totales = (
         {"titulo": "Nombre", "clave": "username"},
