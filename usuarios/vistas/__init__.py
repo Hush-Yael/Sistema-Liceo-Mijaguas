@@ -11,7 +11,8 @@ from django.contrib.sessions.models import Session
 from django.views.generic import UpdateView
 from django_group_model.models import Permission
 from app.util import nc, obtener_filtro_bool_o_nulo
-from app.vistas import VistaActualizarObjeto, VistaCrearObjeto, VistaListaObjetos
+from app.vistas.forms import VistaActualizarObjeto, VistaCrearObjeto
+from app.vistas.listas import VistaListaObjetos
 from usuarios.forms.auth import CambiarContraseñaForm
 from usuarios.forms.busqueda import UsuarioBusquedaForm
 from usuarios.models import Usuario, Grupo

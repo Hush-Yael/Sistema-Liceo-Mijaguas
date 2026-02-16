@@ -1,8 +1,6 @@
 from django.db.models.functions.datetime import TruncMinute
 from django.db.models import F, Value
-from app.vistas import (
-    VistaListaObjetos,
-)
+from app.vistas.listas import VistaListaObjetos
 from estudios.forms.gestion.busqueda import (
     NotasBusquedaForm,
 )

@@ -2,7 +2,7 @@ from typing import Any, Mapping
 from django.db import models
 from django.http import HttpRequest
 from django.shortcuts import render
-from app.vistas import VistaListaObjetos
+from app.vistas.listas import VistaListaObjetos
 from django.contrib.auth.decorators import login_required
 
 

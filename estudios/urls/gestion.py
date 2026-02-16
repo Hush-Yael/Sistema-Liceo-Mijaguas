@@ -1,6 +1,5 @@
 from django.urls import path
-from app.vistas import crear_crud_urls
-from app.util import nombre_url_lista_auto, nombre_url_crear_auto
+from app.vistas import crear_crud_urls, nombre_url_lista_auto, nombre_url_crear_auto
 from estudios.vistas.gestion import inicio
 import estudios.vistas.gestion.personas as vistas_personas
 import estudios.vistas.gestion.calificaciones as vistas_calificaciones

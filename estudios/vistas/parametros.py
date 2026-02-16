@@ -9,11 +9,11 @@ from django.db.models import Case, Count, Q, F, Prefetch, Value, When
 from app.campos import FiltrosConjuntoOpciones
 from app.forms import ConjuntoOpcionesForm
 from app.util import obtener_filtro_bool_o_nulo
-from app.vistas import (
+from app.vistas.forms import (
     VistaActualizarObjeto,
     VistaCrearObjeto,
-    VistaListaObjetos,
 )
+from app.vistas.listas import VistaListaObjetos
 from estudios.forms.parametros import (
     FormAsignaciones,
     FormLapso,

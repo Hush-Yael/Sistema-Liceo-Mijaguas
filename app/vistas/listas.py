@@ -1,8 +1,19 @@
-from typing import Literal, Mapping, Type, Any, TypedDict
-from typing_extensions import NotRequired
-from django import forms
-from django.contrib import messages
+from typing import Mapping, Type, Any
 from django.db import models
+from django.shortcuts import render
+from django.views.generic import ListView
+from app.forms import BusquedaFormMixin, DireccionesOrden, OrdenFormMixin
+from app.vistas._tipos import (
+    Columna,
+    ColumnaFija,
+    VistaListaContexto,
+)
+from app.vistas import (
+    Vista,
+    nombre_url_crear_auto,
+    nombre_url_editar_auto,
+)
+from django.contrib import messages
 from django.http import (
     HttpRequest,
     HttpResponse,
@@ -10,94 +21,6 @@ from django.http import (
     HttpResponseForbidden,
     QueryDict,
 )
-from django.shortcuts import redirect, render
-from django.urls import path, reverse
-from django.views.generic import ListView, View
-from django.views.generic.detail import SingleObjectTemplateResponseMixin
-from django.views.generic.edit import CreateView, UpdateView
-from app import HTTPResponseHXRedirect
-from django.contrib.auth.mixins import PermissionRequiredMixin
-from app.forms import BusquedaFormMixin, DireccionesOrden, OrdenFormMixin
-from app.util import (
-    nombre_url_crear_auto,
-    nombre_url_editar_auto,
-    nombre_url_lista_auto,
-)
-
-
-class Vista(PermissionRequiredMixin):
-    """Vista básica para todas las vistas de la app. Se encarga de validar los permisos pertinentes al modelo de la vista y de obtener datos relacionados al nombre de sus objetos."""
-
-    tipo_permiso: Literal["add", "change", "delete", "view"]
-    nombre_modelo: str
-    nombre_app_modelo: str
-    nombre_objeto: str
-    nombre_objeto_plural: str
-    genero_sustantivo_objeto: "Literal['M', 'F']" = "M"
-    articulo_sustantivo: str
-    articulo_sustantivo_plural: str
-    vocal_del_genero: Literal["a", "o"]
-    model: Type[models.Model]
-
-    def __init__(self):
-        self.nombre_modelo = self.model._meta.model_name  # type: ignore
-        self.nombre_app_modelo = self.model._meta.app_label
-        self.nombre_objeto = self.model._meta.verbose_name  # type: ignore
-        self.nombre_objeto_plural = self.model._meta.verbose_name_plural  # type: ignore
-
-        genero = self.genero_sustantivo_objeto
-
-        if genero == "M":
-            self.articulo_sustantivo = "el"
-            self.articulo_sustantivo_plural = "los"
-            self.vocal_del_genero = "o"
-
-        elif genero == "F":
-            self.articulo_sustantivo = "la"
-            self.articulo_sustantivo_plural = "las"
-            self.vocal_del_genero = "a"
-
-        self.permission_required = (
-            f"{self.nombre_app_modelo}.{self.tipo_permiso}_{self.nombre_modelo}"
-        )
-
-        super().__init__()
-
-
-class VistaParaNoLogueados(View):
-    """Clase para vistas a las que solo deben acceder los usuarios que no han iniciado sesión"""
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return redirect("inicio")
-
-        return super().dispatch(request, *args, **kwargs)
-
-
-class Columna(TypedDict):
-    clave: str
-    titulo: str
-    alinear: NotRequired[Literal["derecha", "centro"]]
-
-
-class ColumnaFija(Columna):
-    anotada: NotRequired[bool]
-
-
-class PermisosVistaLista(TypedDict):
-    crear: bool
-    editar: bool
-    eliminar: bool
-
-
-class VistaListaContexto(TypedDict):
-    form_filtros: "forms.Form | None"
-    form_con_orden: bool
-    permisos: PermisosVistaLista
-    no_hay_objetos: bool
-    modelos_relacionados: "list[str]"
-    lista_reemplazada_por_htmx: NotRequired[bool]
-    mensajes_recibidos: NotRequired[bool]
 
 
 class VistaListaObjetos(Vista, ListView):
@@ -509,91 +432,3 @@ class VistaListaObjetos(Vista, ListView):
             self.establecer_columnas()
 
         return response
-
-
-class VistaForm(SingleObjectTemplateResponseMixin, Vista):
-    model: Type[models.Model]  # type: ignore
-    tipo_accion_palabra: str
-    invalido_url = "objeto-form.html#invalido"
-
-    def __init__(self) -> None:
-        super().__init__()
-
-        self.permission_required = (
-            f"{self.nombre_app_modelo}.add_{self.model._meta.model_name}"
-        )
-
-    def form_invalid(self, form: forms.ModelForm) -> HttpResponse:
-        if not (errores_generales := form.non_field_errors()):
-            messages.error(self.request, "Corrige los errores en el formulario")
-        else:
-            for error in errores_generales:
-                messages.error(self.request, error)  # type: ignore
-
-        return super().form_invalid(form)  # type: ignore
-
-    def render_to_response(self, context, **response_kwargs):
-        r = super().render_to_response(context, **response_kwargs)
-
-        if context["form"].errors:
-            r.template_name = self.invalido_url  # type: ignore
-
-        return r
-
-    def form_valid(self, form: forms.ModelForm) -> HttpResponse:
-        self.object = form.save()
-
-        nombre_modelo: str = self.model._meta.verbose_name  # type: ignore - sí es una string
-
-        messages.success(
-            self.request,
-            f"{nombre_modelo.capitalize()} {self.tipo_accion_palabra}{self.vocal_del_genero} correctamente",
-        )
-
-        # ya que la petición se hace por HTMX, se debe usar la clase que permite redireccionar con este
-        return HTTPResponseHXRedirect(reverse(nombre_url_lista_auto(self.model)))  # type: ignore
-
-
-class VistaCrearObjeto(VistaForm, CreateView):
-    model: Type[models.Model]  # type: ignore
-    tipo_permiso = "add"
-    tipo_accion_palabra = "cread"
-
-
-class VistaActualizarObjeto(VistaForm, UpdateView):
-    model: Type[models.Model]  # type: ignore
-    tipo_permiso = "change"
-    tipo_accion_palabra = "editad"
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx["editando"] = 1
-        return ctx
-
-
-def crear_crud_urls(
-    modelo: Type[models.Model],
-    vista_lista: Type[View],
-    vista_crear: Type[View],
-    vista_actualizar: Type[View],
-):
-    nombre_objeto_plural = f"{modelo._meta.verbose_name_plural}/"
-
-    """Crear urls para el CRUD de un modelo"""
-    return (
-        path(
-            nombre_objeto_plural,
-            vista_lista.as_view(),
-            name=nombre_url_lista_auto(modelo),
-        ),
-        path(
-            f"{nombre_objeto_plural}crear/",
-            vista_crear.as_view(),
-            name=nombre_url_crear_auto(modelo),
-        ),
-        path(
-            f"{nombre_objeto_plural}editar/<int:pk>/",
-            vista_actualizar.as_view(),
-            name=nombre_url_editar_auto(modelo),
-        ),
-    )

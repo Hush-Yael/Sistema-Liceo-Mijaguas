@@ -22,13 +22,14 @@ from django.db.models import (
 )
 from django.views.generic import CreateView, FormView, ListView, UpdateView
 from app import HTTPResponseHXRedirect
-from app.util import mn, nc, nombre_url_lista_auto, obtener_filtro_bool_o_nulo
-from app.vistas import (
+from app.util import mn, nc, obtener_filtro_bool_o_nulo
+from app.vistas import nombre_url_lista_auto
+from app.vistas.forms import (
     VistaActualizarObjeto,
     VistaCrearObjeto,
     VistaForm,
-    VistaListaObjetos,
 )
+from app.vistas.listas import VistaListaObjetos
 from estudios.forms.gestion.personas import (
     FormMatricula,
     FormProfesor,

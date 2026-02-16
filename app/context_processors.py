@@ -3,7 +3,7 @@ from typing_extensions import NotRequired
 from django.http import HttpRequest
 from django.conf import settings
 from django.urls import reverse_lazy
-from app.util import nombre_url_crear_auto, nombre_url_lista_auto
+from app.vistas import nombre_url_crear_auto, nombre_url_lista_auto
 from estudios.modelos.gestion.calificaciones import Nota
 from estudios.modelos.gestion.personas import Profesor, ProfesorMateria, Matricula
 from estudios.modelos.parametros import Lapso, Materia, Seccion, Año
