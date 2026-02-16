@@ -110,6 +110,7 @@ class VistaListaObjetos(Vista, ListView):
     columnas_ocultables: "list[str]"
     form_filtros: BusquedaFormMixin
     total: "int | None" = None
+    cantidad_filtradas: "int | None" = None
     plantilla_lista: str
     id_lista_objetos: str = "lista-objetos"
     tabla: bool = True
@@ -546,7 +547,7 @@ class VistaForm(SingleObjectTemplateResponseMixin, Vista):
 
         messages.success(
             self.request,
-            f"{nombre_modelo} {self.tipo_accion_palabra}{self.vocal_del_genero} correctamente",
+            f"{nombre_modelo.capitalize()} {self.tipo_accion_palabra}{self.vocal_del_genero} correctamente",
         )
 
         # ya que la petición se hace por HTMX, se debe usar la clase que permite redireccionar con este
@@ -572,9 +573,9 @@ class VistaActualizarObjeto(VistaForm, UpdateView):
 
 def crear_crud_urls(
     modelo: Type[models.Model],
-    vista_lista: Type[VistaListaObjetos],
-    vista_crear: Type[VistaCrearObjeto],
-    vista_actualizar: Type[VistaActualizarObjeto],
+    vista_lista: Type[View],
+    vista_crear: Type[View],
+    vista_actualizar: Type[View],
 ):
     nombre_objeto_plural = f"{modelo._meta.verbose_name_plural}/"
 
