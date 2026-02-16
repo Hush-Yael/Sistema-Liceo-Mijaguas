@@ -1,8 +1,8 @@
 from typing import Literal, Type
-from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db import models
 from django.urls import path
 from django.views.generic import View
+from app.vistas.auth import VistaProtegidaMixin
 
 
 def nombre_url_crear_auto(modelo: Type[models.Model]) -> str:
@@ -45,25 +45,22 @@ def crear_crud_urls(
     )
 
 
-class Vista(PermissionRequiredMixin):
-    """Vista básica para todas las vistas de la app. Se encarga de validar los permisos pertinentes al modelo de la vista y de obtener datos relacionados al nombre de sus objetos."""
+class VistaLocalizadaMixin:
+    """Mixin para vistas que muestran información localizada acerca del modelo usado."""
 
-    tipo_permiso: Literal["add", "change", "delete", "view"]
-    nombre_modelo: str
-    nombre_app_modelo: str
+    model: Type[models.Model]
     nombre_objeto: str
     nombre_objeto_plural: str
     genero_sustantivo_objeto: "Literal['M', 'F']" = "M"
     articulo_sustantivo: str
     articulo_sustantivo_plural: str
     vocal_del_genero: Literal["a", "o"]
-    model: Type[models.Model]
 
     def __init__(self):
-        self.nombre_modelo = self.model._meta.model_name  # type: ignore
-        self.nombre_app_modelo = self.model._meta.app_label
-        self.nombre_objeto = self.model._meta.verbose_name  # type: ignore
-        self.nombre_objeto_plural = self.model._meta.verbose_name_plural  # type: ignore
+        """Establece los atributos de la clase con los valores obtenidos de la información del modelo."""
+
+        self.nombre_objeto = str(self.model._meta.verbose_name)
+        self.nombre_objeto_plural = str(self.model._meta.verbose_name_plural)
 
         genero = self.genero_sustantivo_objeto
 
@@ -77,8 +74,6 @@ class Vista(PermissionRequiredMixin):
             self.articulo_sustantivo_plural = "las"
             self.vocal_del_genero = "a"
 
-        self.permission_required = (
-            f"{self.nombre_app_modelo}.{self.tipo_permiso}_{self.nombre_modelo}"
-        )
 
-        super().__init__()
+class Vista(VistaProtegidaMixin, VistaLocalizadaMixin):
+    """Vista genérica que combina el mixin de vistas localizadas y de vistas protegidas."""
