@@ -92,7 +92,6 @@ class ListaUsuarios(VistaListaObjetos):
         {"titulo": "último inicio de sesión", "clave": "last_login"},
         {"titulo": "Fecha de añadido", "clave": "fecha_añadido", "anotada": True},
     )
-    tabla = False
 
     def get_queryset(self, *args, **kwargs):
         q = (

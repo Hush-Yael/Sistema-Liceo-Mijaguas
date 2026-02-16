@@ -24,29 +24,23 @@ from django.http import (
 
 
 class VistaListaObjetos(Vista, ListView):
+    """Clase base para vistas que muestran una lista de objetos."""
+
     model: Type[models.Model]  # type: ignore
     tipo_permiso = "view"
     context_object_name = "lista_objetos"
-    columnas_totales: "tuple[ColumnaFija, ...]"
-    columnas_mostradas: "list[Columna]"
-    columnas_a_evitar: "set[str]"
-    columnas_ocultables: "list[str]"
     form_filtros: BusquedaFormMixin
     total: "int | None" = None
     cantidad_filtradas: "int | None" = None
     plantilla_lista: str
     id_lista_objetos: str = "lista-objetos"
-    tabla: bool = True
     url_crear: str
     url_editar: str
     # nombre del campo o atributo que contiene los ids de los objetos seleccionados
     ids_objetos_kwarg = "ids"
 
     def __init__(self):
-        setattr(self, "nombre_modelo_plural", self.model._meta.verbose_name_plural)
-
-        if not hasattr(self, "columnas_mostradas") or not self.columnas_mostradas:
-            self.establecer_columnas()
+        """Establece automáticamente los atributos url_crear y url_editar si no se han establecido. Estos se usan en el html de la vista para indicar los enlaces para crear y editar el tipo de objeto de la vista en cuestión."""
 
         if not hasattr(self, "url_crear"):
             self.url_crear = nombre_url_crear_auto(self.model)
@@ -56,47 +50,8 @@ class VistaListaObjetos(Vista, ListView):
 
         super().__init__()
 
-    def establecer_columnas(self):
-        tiene_columnas_totales = (
-            hasattr(self, "columnas_totales") and self.columnas_totales
-        )
-        tiene_columnas_a_evitar = hasattr(self, "columnas_a_evitar")
-
-        if not tiene_columnas_totales:
-            if tiene_columnas_a_evitar:
-                self.columnas_mostradas = [  # type: ignore
-                    {"clave": col.name, "titulo": col.verbose_name}
-                    for col in self.model._meta.fields
-                    if col.name != "id" and col.name not in self.columnas_a_evitar
-                ]
-            else:
-                self.columnas_mostradas = [  # type: ignore
-                    {"clave": col.name, "titulo": col.verbose_name}
-                    for col in self.model._meta.fields
-                    if col.name != "id"
-                ]
-        else:
-            if tiene_columnas_a_evitar:
-                self.columnas_mostradas = [
-                    col
-                    for col in self.columnas_totales
-                    if col.get("clave") not in self.columnas_a_evitar
-                ]
-            else:
-                if isinstance(self.columnas_totales, tuple):
-                    self.columnas_mostradas = list(self.columnas_totales)
-                else:
-                    self.columnas_mostradas = self.columnas_totales
-
-        self.establecer_columnas_ocultables()
-
-    def establecer_columnas_ocultables(self):
-        self.columnas_ocultables = list(
-            map(lambda col: col["titulo"], self.columnas_mostradas[1:])
-        )
-
-    def get_queryset(self, queryset: models.QuerySet) -> "list[dict]":  # type: ignore
-        """Transforma el queryset en una lista, ya que esto permite utilizar cierto filtros específicos en la plantilla. Si se indica un form de filtros, se modifican los datos de acuerdo a los filtros indicados en el form."""
+    def get_queryset(self, queryset: "models.QuerySet" = None) -> "list[dict]":  # type: ignore
+        """Transforma el queryset en una lista. Si se indica un form de orden, se ordenan los datos de acuerdo a los valores indicados. Si se indica un form de filtros, se filtran los datos de acuerdo a los valores indicados."""
 
         if queryset:
             # se indicó un form de filtros
@@ -120,7 +75,7 @@ class VistaListaObjetos(Vista, ListView):
             return []
 
     def establecer_form_filtros(self):
-        """Establece el form de filtros para esta vista y retorna los datos del form"""
+        """Establece los datos del form de filtros según el método de la request, los valida y, si son válidos los retorna, si no retorna los valores por defecto."""
 
         # al crear el form de filtros, se debe distinguir entre GET y los otros métodos, ya que por alguna razón GET no funciona correctamente (evita que se recuperen los datos de las cookies) si se le pasan los datos
         if self.request.method == "GET":
@@ -137,7 +92,7 @@ class VistaListaObjetos(Vista, ListView):
             else:
                 datos = {}
 
-            self.form_filtros = self.form_filtros(  # type: ignore
+            self.form_filtros = self.form_filtros(  # type: ignore - sí es una clase
                 datos, request=self.request
             )
 
@@ -149,7 +104,11 @@ class VistaListaObjetos(Vista, ListView):
     def modificar_paginacion_por_filtro(
         self, datos_form: "dict[str, Any] | Mapping[str, Any]"
     ):
-        # ya que la paginación se hace por post, se debe modificar el kwarg que se usa para ella
+        """Modifica la paginación de acuerdo a los campos "pagina" y "cantidad_por_pagina" """
+
+        # Ya que la paginación se hace por POST con HTMX, se debe modificar el kwarg que la vista usa para ella
+
+        # En caso de pasar la página actual desde el componente de la paginación (Por defecto)
         if self.form_filtros.fields.get("pagina"):
             self.kwargs[self.page_kwarg] = int(
                 datos_form.get(
@@ -157,9 +116,14 @@ class VistaListaObjetos(Vista, ListView):
                     "1",
                 )
             )
+
+        # Si se pasa la página actual desde un formulario
         elif p := self.request.POST.get("page"):
             self.kwargs[self.page_kwarg] = int(p)
 
+        # Modificar la cantidad de registros por pagina
+
+        # Se debe pasar por el form de filtros
         if self.form_filtros.fields.get("cantidad_por_pagina"):
             try:
                 cantidad_por_pagina = int(
@@ -179,9 +143,11 @@ class VistaListaObjetos(Vista, ListView):
         queryset: models.QuerySet,
         datos_form: "dict[str, Any] | Mapping[str, Any]",
     ):
-        """Modifica el queryset de acuerdo a los filtros indicados en el form de filtros"""
+        """Modifica el queryset de acuerdo a los filtros indicados en el form de filtros. Por defecto, verifica si se trata de un form de busqueda textual y aplica las búsquedas si es necesario."""
+
         if isinstance(self.form_filtros, BusquedaFormMixin):
             for campo in self.form_filtros:
+                # cada campo debe tener el atributo "nombre_columna_db" que indica el nombre de la columna de la base de datos
                 if not hasattr(campo.field, "nombre_columna_db"):
                     continue
 
@@ -192,11 +158,13 @@ class VistaListaObjetos(Vista, ListView):
                 if not nombre_columna_db:
                     continue
 
+                # obtener el valor de la búsqueda
                 q: "str | None" = datos_form.get(campo.name)
 
                 if not q:
                     continue
 
+                # cada campo debe tener el atributo "tipo_" + nombre del campo. Este indica el tipo de búsqueda a realizar
                 tipo_q = datos_form.get(f"tipo_{campo.name}")
 
                 if not tipo_q:
@@ -214,6 +182,8 @@ class VistaListaObjetos(Vista, ListView):
         return queryset
 
     def aplicar_orden(self, queryset: models.QuerySet, datos_form: "dict[str, Any]"):
+        """Ordena el queryset de acuerdo a los filtros de orden indicados en el form de filtros"""
+
         for nombre, _ in self.form_filtros.campos_orden:  # type: ignore
             if direccion := datos_form.get(nombre):
                 columna = nombre.split("-")[0]
@@ -225,41 +195,20 @@ class VistaListaObjetos(Vista, ListView):
 
         return queryset
 
-    def alternar_col_por_filtro(self, valor_filtro: "Any | None", columna: str):
-        if valor_filtro:
-            # no se deben ocultar columnas con un queryset de más de un elemento, pues esto evitaría distinguir entre objetos
-            if (
-                isinstance(valor_filtro, models.QuerySet)
-                or isinstance(valor_filtro, list)
-            ) and len(valor_filtro) != 1:
-                return self.columnas_a_evitar.discard(columna)
-
-            self.columnas_a_evitar.add(columna)
-        else:
-            self.columnas_a_evitar.discard(columna)
-
-    def obtener_y_alternar(
-        self,
-        nombre_campo: str,
-        datos_form: "dict[str, Any] | Mapping[str, Any]",
-        nombre_columna: str,
-    ):
-        dato = datos_form.get(nombre_campo)
-        self.alternar_col_por_filtro(dato, nombre_columna)
-        return dato
-
     def get_context_data(self, *args, **kwargs):
+        """Agrega los datos necesarios al context para la vista. Por defecto obtiene la instancia del form de filtros, los modelos relacionados, los permisos del usuario en relación al modelo y una variable que indica si no hay objetos del modelo indicado en la base de datos"""
+
         ctx = super().get_context_data(*args, **kwargs)
 
         try:
-            ctx["modelos_relacionados"] = list(
+            ctx["modelos_relacionados"] = tuple(
                 map(
                     lambda obj: obj.related_model._meta.verbose_name_plural,
                     self.model._meta.related_objects,  # type: ignore
                 )
             )
         except Exception:
-            ctx["modelos_relacionados"] = []
+            ctx["modelos_relacionados"] = ()
 
         ctx.update(
             VistaListaContexto(
@@ -308,6 +257,10 @@ class VistaListaObjetos(Vista, ListView):
 
             respuesta.context_data["lista_reemplazada_por_htmx"] = 1  # type: ignore
             respuesta.template_name = self.plantilla_lista  # type: ignore
+
+            # Validar el formulario y guardar en cookies los valores
+            if self.form_filtros.is_valid():
+                self.form_filtros.guardar_en_cookies(respuesta)
 
             return respuesta
 
@@ -420,15 +373,99 @@ class VistaListaObjetos(Vista, ListView):
                 f"No se pudieron eliminar {self.articulo_sustantivo_plural} {self.nombre_objeto_plural} seleccionad{self.vocal_del_genero}s",
             )
 
-    def render_to_response(self, context, **response_kwargs):
-        response = super().render_to_response(context, **response_kwargs)
 
-        # Guardar filtros en cookies si el formulario es válido
-        if self.request.method == "POST" and hasattr(self, "form_filtros"):
-            if self.form_filtros.is_valid():
-                self.form_filtros.guardar_en_cookies(response)
+class VistaTablaAdaptable(VistaListaObjetos):
+    """Vista especializada para mostrar listas de registros usado el componente de la tabla adaptable. Se encarga de establecer los elementos necesarios para su correcto funcionamiento."""
 
+    columnas_totales: "tuple[ColumnaFija, ...]"  # Columnas fijas
+    columnas_mostradas: "list[Columna]"
+    columnas_a_evitar: "set[str]"
+    columnas_ocultables: "list[str]"
+
+    def __init__(self):
+        """Establece automáticamente los atributos "columnas_mostradas" y "columnas_ocultables", si no se indicaron al instanciar la clase. Estos se usan en el HTML de la vista para indicar las columnas de la tabla mostrada."""
+
+        if not hasattr(self, "columnas_mostradas") or not self.columnas_mostradas:
+            self.establecer_columnas()
+
+        super().__init__()
+
+    def establecer_columnas(self):
+        """Establece las columnas mostradas y las columnas ocultables. Estas corresponden a las columnas de la tabla en el HTML. Verifica si no se definieron las columnas al instanciar para hacerlo automáticamente a partir del modelo. En cualquier caso se encarga de evitar incluir las columnas que se quieran ocultar"""
+
+        tiene_columnas_totales = (
+            hasattr(self, "columnas_totales") and self.columnas_totales
+        )
+        tiene_columnas_a_evitar = hasattr(self, "columnas_a_evitar")
+
+        if not tiene_columnas_totales:
+            if tiene_columnas_a_evitar:
+                self.columnas_mostradas = [  # type: ignore
+                    {"clave": col.name, "titulo": col.verbose_name}
+                    for col in self.model._meta.fields
+                    if col.name != "id" and col.name not in self.columnas_a_evitar
+                ]
+            else:
+                self.columnas_mostradas = [  # type: ignore
+                    {"clave": col.name, "titulo": col.verbose_name}
+                    for col in self.model._meta.fields
+                    if col.name != "id"
+                ]
+        else:
+            if tiene_columnas_a_evitar:
+                self.columnas_mostradas = [
+                    col
+                    for col in self.columnas_totales
+                    if col.get("clave") not in self.columnas_a_evitar
+                ]
+            else:
+                if isinstance(self.columnas_totales, tuple):
+                    self.columnas_mostradas = list(self.columnas_totales)
+                else:
+                    self.columnas_mostradas = self.columnas_totales
+
+        self.establecer_columnas_ocultables()
+
+    def establecer_columnas_ocultables(self):
+        """Establece las columnas que no se debe mostrar cuando la tabla adaptable no mide el ancho indicado. Por defecto oculta todas menos la segunda, por lo que quedan (#, nombre / identificador y  el campo X)"""
+
+        self.columnas_ocultables = list(
+            map(lambda col: col["titulo"], self.columnas_mostradas[1:])
+        )
+
+    def alternar_col_por_filtro(self, valor_filtro: "Any | None", columna: str):
+        """Indica que una columna de la tabla debe o no mostrarse según un filtros usado"""
+
+        if valor_filtro:
+            # no se deben ocultar columnas con un queryset de más de un elemento, pues esto evitaría distinguir entre objetos
+            if (
+                isinstance(valor_filtro, models.QuerySet)
+                or isinstance(valor_filtro, list)
+            ) and len(valor_filtro) != 1:
+                return self.columnas_a_evitar.discard(columna)
+
+            self.columnas_a_evitar.add(columna)
+        else:
+            self.columnas_a_evitar.discard(columna)
+
+    def obtener_y_alternar(
+        self,
+        nombre_campo: str,
+        datos_form: "dict[str, Any] | Mapping[str, Any]",
+        nombre_columna: str,
+    ):
+        """Devuelve el dato de un campo de un formulario al mismo tiempo que alterna la visibilidad de una columna de la tabla mostrada."""
+
+        dato = datos_form.get(nombre_campo)
+        self.alternar_col_por_filtro(dato, nombre_columna)
+
+        return dato
+
+    def post(self, request: HttpRequest, *args, **kwargs):
+        r = super().post(request, *args, **kwargs)
+
+        if hasattr(self, "form_filtros"):
             # Recalcular las columnas mostradas, pues pueden haberse ocultado o vuelto a mostrarse algunas
             self.establecer_columnas()
 
-        return response
+        return r

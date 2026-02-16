@@ -1,6 +1,6 @@
 from django.db.models.functions.datetime import TruncMinute
 from django.db.models import F, Value
-from app.vistas.listas import VistaListaObjetos
+from app.vistas.listas import VistaListaObjetos, VistaTablaAdaptable
 from estudios.forms.gestion.busqueda import (
     NotasBusquedaForm,
 )
@@ -13,7 +13,7 @@ from estudios.modelos.gestion.calificaciones import Nota
 from estudios.vistas.gestion import aplicar_filtros_secciones_y_lapsos
 
 
-class ListaNotas(VistaListaObjetos):
+class ListaNotas(VistaTablaAdaptable):
     model = Nota
     template_name = "gestion/notas/index.html"
     plantilla_lista = "gestion/notas/lista.html"

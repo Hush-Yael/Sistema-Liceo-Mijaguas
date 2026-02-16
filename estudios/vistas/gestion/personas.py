@@ -29,7 +29,7 @@ from app.vistas.forms import (
     VistaCrearObjeto,
     VistaForm,
 )
-from app.vistas.listas import VistaListaObjetos
+from app.vistas.listas import VistaListaObjetos, VistaTablaAdaptable
 from estudios.forms.gestion.personas import (
     FormMatricula,
     FormProfesor,
@@ -56,7 +56,7 @@ from usuarios.models import Grupo, GruposBase, Usuario
 from usuarios.forms import FormUsuario
 
 
-class ListaMatriculas(VistaListaObjetos):
+class ListaMatriculas(VistaTablaAdaptable):
     template_name = "gestion/matriculas/index.html"
     plantilla_lista = "gestion/matriculas/lista.html"
     model = Matricula
@@ -163,7 +163,6 @@ class ListaProfesores(VistaListaObjetos):
     template_name = "gestion/profesores/index.html"
     plantilla_lista = "gestion/profesores/lista.html"
     form_filtros = ProfesorBusquedaForm  # type: ignore
-    tabla = False
 
     def get_queryset(self, *args, **kwargs):
         q = Profesor.objects.annotate(

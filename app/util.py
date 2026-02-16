@@ -15,18 +15,6 @@ def obtener_filtro_bool_o_nulo(
         return None
 
 
-def nombre_url_crear_auto(modelo: Type[models.Model]) -> str:
-    return f"crear_{modelo._meta.model_name}"
-
-
-def nombre_url_editar_auto(modelo: Type[models.Model]) -> str:
-    return f"editar_{modelo._meta.model_name}"
-
-
-def nombre_url_lista_auto(modelo: Type[models.Model]) -> str:
-    return str(modelo._meta.model_name)
-
-
 if TYPE_CHECKING:
     from django.db.models.fields import _FieldDescriptor
     from django.db.models.fields.files import ImageFileDescriptor

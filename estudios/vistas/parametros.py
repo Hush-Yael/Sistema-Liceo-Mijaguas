@@ -13,7 +13,7 @@ from app.vistas.forms import (
     VistaActualizarObjeto,
     VistaCrearObjeto,
 )
-from app.vistas.listas import VistaListaObjetos
+from app.vistas.listas import VistaListaObjetos, VistaTablaAdaptable
 from estudios.forms.parametros import (
     FormAsignaciones,
     FormLapso,
@@ -43,7 +43,6 @@ class ListaLapsos(VistaListaObjetos):
     plantilla_lista = "parametros/lapsos/lista.html"
     model = Lapso
     form_filtros = LapsoBusquedaForm  # type: ignore
-    tabla = False
 
     def get_queryset(self, *args, **kwargs) -> "list[dict]":
         lapso_actual = obtener_lapso_actual()
@@ -83,7 +82,6 @@ class ListaMaterias(VistaListaObjetos):
         {"clave": "asignaciones", "titulo": "Años asignados", "anotada": True},
         {"clave": "fecha", "titulo": "Fecha de creación", "anotada": True},
     )
-    tabla = False
 
     def get_queryset(self, *args, **kwargs) -> "list[dict]":
         queryset = (
@@ -291,7 +289,6 @@ class ListaAños(VistaListaObjetos):
     template_name = "parametros/años/index.html"
     plantilla_lista = "parametros/años/lista.html"
     model = Año
-    tabla = False
 
     def get_queryset(self, *args, **kwargs):
         return super().get_queryset(Año.objects.all())
@@ -309,7 +306,7 @@ class ActualizarAño(VistaActualizarObjeto):
     form_class = FormAño
 
 
-class ListaSecciones(VistaListaObjetos):
+class ListaSecciones(VistaTablaAdaptable):
     template_name = "parametros/secciones/index.html"
     plantilla_lista = "parametros/secciones/lista.html"
     model = Seccion
