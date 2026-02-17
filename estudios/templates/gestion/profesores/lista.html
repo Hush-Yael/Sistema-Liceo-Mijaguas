@@ -172,15 +172,7 @@
         class="{{ c|add:' gap-x-2.5 border border-[--transparente-3] has-checked:bg-fondo-900 cursor-pointer select-none' }}"
       >
         {% include "componentes/vista-lista/objeto-check.html" with objeto=profesor %}
-        #
-        {% if page_obj.paginator.num_pages > 1 %}
-          {% with total_anterior=page_obj.number|add:-1|multiplicar:view.paginate_by %}
-            {# se multiplica la cantidad por página de acuerdo a la cantidad recorrida y la cantidad de objetos por página y se le añade cada valor del ciclo actual #}
-            {{ total_anterior|add:forloop.counter }}
-          {% endwith %}
-        {% else %}
-          {{ forloop.counter }}
-        {% endif %}
+        #{% include "componentes/vista-lista/indice-objeto.html" %}
       </label>
     </div>
   {% endwith %}
