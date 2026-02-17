@@ -14,7 +14,7 @@ from usuarios.models import Grupo, Usuario
 
 
 class ArgumentosPersonasMixin(BaseComandos):
-    def añadir_argumentos_gestion(self, parser):
+    def añadir_argumentos_personas(self, parser):
         parser.add_argument(
             "--profesores",
             type=int,

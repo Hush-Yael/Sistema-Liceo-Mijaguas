@@ -34,6 +34,7 @@ class Command(
 
     def add_arguments(self, parser):
         super().añadir_argumentos_parametros(parser)
+        super().añadir_argumentos_personas(parser)
         super().añadir_argumentos_gestion(parser)
 
         parser.add_argument(
