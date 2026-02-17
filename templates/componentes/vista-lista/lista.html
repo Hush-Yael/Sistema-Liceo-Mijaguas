@@ -3,7 +3,7 @@
 {% load grupos_variantes %}
 
 {# no hay objetos con los filtros seleccionados #}
-{% if lista_objetos|length == 0 %}
+{% if sin_resultados %}
   <div
     id="{{ view.id_lista_objetos }}"
     role="alert"
