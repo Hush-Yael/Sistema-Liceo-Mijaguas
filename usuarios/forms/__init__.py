@@ -118,8 +118,6 @@ class FormGrupo(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["permissions"].label = "Permisos asignados"
-
     class Meta:
         model = Grupo
         fields = "__all__"
