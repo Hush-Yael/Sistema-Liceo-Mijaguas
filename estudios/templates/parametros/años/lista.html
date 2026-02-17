@@ -13,13 +13,7 @@
             class="flex aic jb gap-x-3 rounded-t-xl border-b border-[--transparente-1] p-2 px-4 bg-fondo-700"
           >
             <h2 class="font-bold">
-              {% with dato=año.nombre %}
-                {% if permisos.editar %}
-                  {% include "componentes/tabla-adaptable/enlace-editar.html" with objeto=año %}
-                {% else %}
-                  {{ dato }}
-                {% endif %}
-              {% endwith %}
+              {% include "componentes/tabla-adaptable/enlace-editar.html" with dato=año.nombre objeto=año %}
             </h2>
             {% if permisos.crear or permisos.editar or permisos.eliminar %}
               {% include "componentes/vista-lista/objeto-check.html" with objeto=año indicador_class="bg-[#0001]! dark:bg-[#ffffff1a]!" %}

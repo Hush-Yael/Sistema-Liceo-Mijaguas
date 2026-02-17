@@ -13,13 +13,7 @@
             class="flex aic jb gap-x-3 rounded-t-xl border-b border-[--transparente-1] p-2 px-4 bg-fondo-700"
           >
             <h2 class="font-bold">
-              {% with dato=grupo.name %}
-                {% if permisos.editar %}
-                  {% include "componentes/tabla-adaptable/enlace-editar.html" with objeto=grupo %}
-                {% else %}
-                  {{ dato }}
-                {% endif %}
-              {% endwith %}
+              {% include "componentes/tabla-adaptable/enlace-editar.html" with dato=grupo.name objeto=grupo %}
             </h2>
             {% if permisos.eliminar %}
               {% include "componentes/vista-lista/objeto-check.html" with objeto=grupo indicador_class="bg-[#0001]! dark:bg-[#ffffff1a]!" %}
