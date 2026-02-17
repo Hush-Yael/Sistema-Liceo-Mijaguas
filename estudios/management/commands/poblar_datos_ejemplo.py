@@ -1,8 +1,9 @@
 import argparse
 from app import settings
 from estudios.management.commands import BaseComandos, obtener_todos_los_modelos
-from estudios.management.commands.gestion import ArgumentosGestionMixin
+from estudios.management.commands.calificaciones import ArgumentosCalificacionesMixin
 from estudios.management.commands.parametros import ArgumentosParametrosMixin
+from estudios.management.commands.personas import ArgumentosPersonasMixin
 from estudios.modelos.gestion.personas import (
     Bachiller,
     Profesor,
@@ -23,7 +24,12 @@ class GuardarPresencia(argparse.Action):
         setattr(namespace, self.dest + "_presente", True)
 
 
-class Command(ArgumentosParametrosMixin, ArgumentosGestionMixin, BaseComandos):
+class Command(
+    ArgumentosParametrosMixin,
+    ArgumentosPersonasMixin,
+    ArgumentosCalificacionesMixin,
+    BaseComandos,
+):
     help = "LLena la base de datos con datos de ejemplo usando Faker"
 
     def add_arguments(self, parser):
@@ -86,7 +92,8 @@ class Command(ArgumentosParametrosMixin, ArgumentosGestionMixin, BaseComandos):
             )
 
         self.handle_parametros(options)
-        self.handle_gestion(options)
+        self.handle_personas(options)
+        self.handle_calificaciones(options)
 
     def limpiar_datos(self):
         self.stdout.write("Eliminando todos los datos dinámicos existentes...")

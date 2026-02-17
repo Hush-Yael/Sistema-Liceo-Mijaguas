@@ -1,20 +1,19 @@
-from typing import Any, OrderedDict
 import random
+from typing import Any, OrderedDict
 from estudios.management.commands import BaseComandos, quitar_diacriticos
-from estudios.modelos.parametros import Lapso, Año, Materia, Seccion
-from usuarios.models import Grupo, Usuario
 from estudios.modelos.gestion.personas import (
+    Matricula,
+    MatriculaEstados,
     Persona,
     Profesor,
     Estudiante,
     ProfesorMateria,
-    Matricula,
-    MatriculaEstados,
 )
-from estudios.modelos.gestion.calificaciones import Nota
+from estudios.modelos.parametros import Materia, Seccion
+from usuarios.models import Grupo, Usuario
 
 
-class ArgumentosGestionMixin(BaseComandos):
+class ArgumentosPersonasMixin(BaseComandos):
     def añadir_argumentos_gestion(self, parser):
         parser.add_argument(
             "--profesores",
@@ -35,27 +34,21 @@ class ArgumentosGestionMixin(BaseComandos):
         )
 
         parser.add_argument(
-            "--notas",
-            type=int,
-            help="Crear solo notas",
-        )
-
-        parser.add_argument(
             "--asignar-materias",
             action="store_true",
             help="Crear solo asignaciones de materias y profesores",
         )
 
-    def handle_gestion(self, options: "dict[str, Any]") -> None:
+    def handle_personas(self, options: "dict[str, Any]"):
         if self.si_accion("profesores"):
             self.crear_profesores(options["profesores"])
-
-        if self.si_accion("estudiantes"):
-            self.crear_estudiantes(options["estudiantes"])
 
         if self.si_accion("asignar_materias"):
             profesores = Profesor.objects.all()
             self.asignar_profesores_a_materias(profesores)
+
+        if self.si_accion("estudiantes"):
+            self.crear_estudiantes(options["estudiantes"])
 
         if self.si_accion("matriculas"):
             estudiantes = Estudiante.objects.all()
@@ -71,16 +64,26 @@ class ArgumentosGestionMixin(BaseComandos):
                 options["seccion"],
             )
 
-        if self.si_accion("notas"):
-            estudiantes = Estudiante.objects.all()
+    def crear_datos_persona(self):
+        cedula = self.faker.random_int(min=1, max=32_000_000)
+        sexo = self.faker.random_element(Persona.OpcionesSexo.values)
 
-            if estudiantes.first() is None:
-                return self.stdout.write(
-                    self.style.ERROR("No se han añadido estudiantes")
-                )
+        nombre = (
+            self.faker.first_name_female()
+            if sexo == Persona.OpcionesSexo.FEMENINO
+            else self.faker.first_name_male()
+        )
 
-            cantidad = options["notas"]
-            self.crear_notas(estudiantes, cantidad, options["lapso"])
+        if nombre.find(" ") == -1:
+            nombre += " " + (
+                self.faker.first_name_female()
+                if sexo == Persona.OpcionesSexo.FEMENINO
+                else self.faker.first_name_male()
+            )
+
+        apellido = f"{self.faker.last_name()} {self.faker.last_name()}"
+
+        return cedula, sexo, nombre, apellido
 
     def crear_estudiantes(self, cantidad):
         self.stdout.write(f"Creando {cantidad} estudiantes...")
@@ -113,45 +116,6 @@ class ArgumentosGestionMixin(BaseComandos):
                 self.stdout.write(f"✓ Creados {estudiantes_creados} estudiantes...")
 
         self.stdout.write(f"✓ Total estudiantes creados: {estudiantes_creados}")
-
-    def obtener_año_id(self, año_id: "int | None"):
-        if año_id is None:
-            return self.stdout.write(
-                self.style.ERROR(
-                    "Debes proporcionar el número del año objetivo para esta operación."
-                )
-            )
-
-        try:
-            return Año.objects.get(id=año_id)
-        except Año.DoesNotExist:
-            return self.stdout.write(
-                self.style.ERROR(
-                    f"No existe el año número {año_id}. "
-                    f"Ejecuta primero poblar_datos_estudios para crear los años por defecto."
-                )
-            )
-
-    def crear_datos_persona(self):
-        cedula = self.faker.random_int(min=1, max=32_000_000)
-        sexo = self.faker.random_element(Persona.OpcionesSexo.values)
-
-        nombre = (
-            self.faker.first_name_female()
-            if sexo == Persona.OpcionesSexo.FEMENINO
-            else self.faker.first_name_male()
-        )
-
-        if nombre.find(" ") == -1:
-            nombre += " " + (
-                self.faker.first_name_female()
-                if sexo == Persona.OpcionesSexo.FEMENINO
-                else self.faker.first_name_male()
-            )
-
-        apellido = f"{self.faker.last_name()} {self.faker.last_name()}"
-
-        return cedula, sexo, nombre, apellido
 
     def crear_profesores(self, cantidad):
         self.stdout.write(f"Creando {cantidad} profesores...")
@@ -212,6 +176,14 @@ class ArgumentosGestionMixin(BaseComandos):
 
         self.stdout.write(f"✓ Total profesores creados: {profesores_creados}")
 
+    def eliminar_usuarios_profesores(self):
+        usuarios_profesores = Profesor.objects.values_list("usuario", flat=True)
+
+        if len(usuarios_profesores) > 0:
+            self.stdout.write("Eliminando usuarios de profesores...")
+            Usuario.objects.filter(id__in=usuarios_profesores).delete()
+            self.stdout.write("✓ Usuarios de profesores eliminados")
+
     def asignar_profesores_a_materias(self, profesores):
         if (año := self.obtener_año_id(self.año_id)) is None:
             return
@@ -247,27 +219,6 @@ class ArgumentosGestionMixin(BaseComandos):
                         )
 
         self.stdout.write(f"✓ Total asignaciones creadas: {asignaciones_creadas}")
-
-    def eliminar_usuarios_profesores(self):
-        usuarios_profesores = Profesor.objects.values_list("usuario", flat=True)
-
-        if len(usuarios_profesores) > 0:
-            self.stdout.write("Eliminando usuarios de profesores...")
-            Usuario.objects.filter(id__in=usuarios_profesores).delete()
-            self.stdout.write("✓ Usuarios de profesores eliminados")
-
-    def obtener_lapso_objetivo(self, lapso_objetivo: "int | None"):
-        if lapso_objetivo is None:
-            return self.stdout.write(
-                self.style.ERROR("No se proporcionó un lapso para la operación.")
-            )
-
-        try:
-            return Lapso.objects.get(pk=lapso_objetivo)
-        except Lapso.DoesNotExist:
-            return self.stdout.write(
-                self.style.ERROR("No se encontró el lapso con el id proporcionado.")
-            )
 
     def matricular_estudiantes(
         self,
@@ -372,57 +323,3 @@ class ArgumentosGestionMixin(BaseComandos):
             )
         if matriculas_creadas > 0:
             self.stdout.write(f"✓ Total matriculas creadas: {matriculas_creadas}")
-
-    def crear_notas(self, estudiantes, cantidad_notas: int, lapso_objetivo: int):
-        self.stdout.write("Creando notas por sección...")
-
-        if (año := self.obtener_año_id(self.año_id)) is None or (
-            lapso := self.obtener_lapso_objetivo(lapso_objetivo)
-        ) is None:
-            return
-
-        materias = Materia.objects.all()
-        notas_creadas = 0
-        no_matriculados = 0
-
-        for estudiante in estudiantes:
-            # Obtener la matrícula del estudiante para saber su sección
-            try:
-                matricula = Matricula.objects.get(
-                    estudiante=estudiante,
-                    seccion__año=año,
-                    lapso=lapso,
-                )
-            except Matricula.DoesNotExist:
-                no_matriculados += 1
-                continue
-
-            for materia in materias:
-                for _ in range(cantidad_notas):
-                    # Generar calificación realista
-                    if random.random() < 0.1:  # 10% de probabilidad de nota baja
-                        nota = round(random.uniform(1.0, 9.0), 1)
-                    else:
-                        nota = round(random.uniform(10.0, 20.0), 1)
-
-                    Nota.objects.create(
-                        matricula=matricula,
-                        materia=materia,
-                        valor=nota,
-                    )
-
-                    notas_creadas += 1
-
-                    if notas_creadas % 100 == 0:  # Mostrar progreso
-                        self.stdout.write(f"✓ Creadas {notas_creadas} notas...")
-
-        if no_matriculados > 0:
-            mensaje = f"No se pudieron crear notas para los {no_matriculados} estudiantes, pues no se encontraron matriculados con los parámetros proporcionados."
-            self.stdout.write(
-                self.style.ERROR(mensaje)
-                if notas_creadas < 1
-                else self.style.WARNING(mensaje)
-            )
-
-        if notas_creadas > 0:
-            self.stdout.write(f"✓ Total notas creadas: {notas_creadas}")

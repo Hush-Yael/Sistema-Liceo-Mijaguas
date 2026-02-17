@@ -36,6 +36,37 @@ class BaseComandos(BaseCommand):
     def si_accion(self, accion: str) -> bool:
         return self.hacer_todo or self.acciones[accion]
 
+    def obtener_año_id(self, año_id: "int | None"):
+        if año_id is None:
+            return self.stdout.write(
+                self.style.ERROR(
+                    "Debes proporcionar el número del año objetivo para esta operación."
+                )
+            )
+
+        try:
+            return ModelosParametros.Año.objects.get(id=año_id)
+        except ModelosParametros.Año.DoesNotExist:
+            return self.stdout.write(
+                self.style.ERROR(
+                    f"No existe el año número {año_id}. "
+                    f"Ejecuta primero poblar_datos_estudios para crear los años por defecto."
+                )
+            )
+
+    def obtener_lapso_objetivo(self, lapso_objetivo: "int | None"):
+        if lapso_objetivo is None:
+            return self.stdout.write(
+                self.style.ERROR("No se proporcionó un lapso para la operación.")
+            )
+
+        try:
+            return ModelosParametros.Lapso.objects.get(pk=lapso_objetivo)
+        except ModelosParametros.Lapso.DoesNotExist:
+            return self.stdout.write(
+                self.style.ERROR("No se encontró el lapso con el id proporcionado.")
+            )
+
 
 def obtener_modelos_modulo(modulo: ModuleType) -> "tuple[models.Model, ...]":
     return tuple(
