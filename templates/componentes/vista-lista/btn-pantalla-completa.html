@@ -4,11 +4,10 @@
   type="button"
   class="ui-btn ui-elevado min-h-full min-w-8"
   aria-label="Ver lista en pantalla completa"
-  x-data="{ pantallaCompleta: false }"
   @click="{{
     "
       if (!document.fullscreenElement) {
-        window.$('.tabla-contenido').requestFullscreen()
+        $refs.main.requestFullscreen()
           .then(() => {
             pantallaCompleta = true;
             document.onfullscreenchange = () => (

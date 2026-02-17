@@ -13,9 +13,7 @@
   {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
 {% endblock cabeza %}
 
-{% block cabecera %}
-  {{ block.super }}
-
+{% block filtros %}
   {% if permisos.editar and profesores_faltantes > 0 %}
     <div
       class="relative z-3 flex aic jb gap-x-3 p-1.5 pl-3 pr-2 rounded-b bg-advertencia text-advertencia-texto max-[500px]:text-sm"
@@ -44,7 +42,9 @@
       </a>
     </div>
   {% endif %}
-{% endblock cabecera %}
+
+  {{ block.super }}
+{% endblock filtros %}
 
 {% block titulo_lista %}
   {{ view.nombre_objeto_plural|capfirst }}
@@ -82,8 +82,6 @@
   {%
     with
     texto_sin_objetos_btn='Empieza a asignar'
-    lista_clase="max-w-1000px p-5 min-[500px]:p-6 min-[600px]:px-8 sidebar_full:py-8"
-    cabecera_clase="max-w-1000px mxa p-2 px-5 min-[500px]:px-6 min-[600px]:px-8 sidebar_full:px-10"
   %}
     {{ block.super }}
   {% endwith %}

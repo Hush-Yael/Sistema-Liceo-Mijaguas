@@ -4,3 +4,9 @@
 {% block cabeza %}
   {{ block.super }}
 {% endblock cabeza %}
+
+{% block contenido %}
+  {% with py="py-4" %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock contenido %}

@@ -34,12 +34,21 @@
     <script defer src="{% static 'js/alpine-dialog.min.js' %}"></script>
     <script defer src="{% static 'js/componentes/lista-objetos.js' %}"></script>
     <script src="{% static 'js/componentes/dropdown.js' %}"></script>
+    <style>
+      main:fullscreen {
+        background: var(--color-fondo-300);
+      }
+
+      main:fullscreen .aa {
+        display: none;
+      }
+    </style>
   {% endif %}
 {% endblock cabeza %}
 
 {% block contenido %}
   <main
-    class="col flex-1 w-full supports-[not(height:1dvh)]:(max-h-[calc(100vh-var(--altura-header))] h-[calc(100vh-var(--altura-header))]) max-h-[calc(100dvh-var(--altura-header))] h-[calc(100dvh-var(--altura-header))] {{ main_class }}"
+    class="group/main col flex-1 w-full [@media_all_and_(display-mode:fullscreen)]:bg-fondo-300 {{ main_class }}"
     |expandir_variantes
     {% if not no_hay_objetos %}
       hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
@@ -47,9 +56,11 @@
       {% if form_filtros %}
         hx-indicator="#indicador-busqueda"
       {% endif %}
-      x-data="new ListaObjetos({ {% block x_data %}{% endblock x_data %} })"
-      x-bind="eventos"
+      x-data="new ListaObjetos({ pantallaCompleta: false,
+      {% block x_data %}{% endblock x_data %} })" x-bind="eventos"
     {% endif %}
+    :data-pantalla-completa="pantallaCompleta"
+    x-ref="main"
   >
     {% if no_hay_objetos %}
       <div
@@ -67,7 +78,6 @@
               viewBox="0 0 384 512"
             >
               <path
-                fill="currentColor"
                 d="M55.1 73.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L147.2 256 9.9 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l137.3-137.4 137.4 137.3c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.8 256l137.3-137.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192.5 210.7 55.1 73.4z"
               ></path>
             </svg>
@@ -99,192 +109,202 @@
     {% else %}
       {% block cabecera %}
         <header
-          class="bg-primario-600 dark:bg-primario-400 text-primario-texto border-b-2 border-t-[#fff2] border-b-[#fff3] shadow-lg max-sidebar:border-t-1"
+          class="{{ cabecera_clase }} cabecera sticky z-4 top-[--altura-header] col w-full group-[[data-pantalla-completa]]/main:top-0"
         >
           <div
-            class="{{ cabecera_clase|default:'p-2 px-4 min-[500px]:px-5 sidebar:max-sidebar_full:px-6 min-[1000px]:px-8' }} {{ 'max-[700px]:col gap-y-2 min-[700px]:(flex gap-x-5 aic jb)'|expandir_variantes }}"
+            class="aa bg-primario-600 dark:bg-primario-400 text-primario-texto border-b-2 border-t-[#fff2] border-b-[#fff3] shadow-lg max-sidebar:border-t-1 group-[[data-pantalla-completa]]/main:hidden"
           >
-            {# Título, separador y enlace #}
             <div
-              {% with c="flex aic gap-x-4" %}
-                {% if view.total is not None or is_paginated %}
-                  class="{{ c|add:' max-[700px]:jb min-[700px]:flex-row-reverse' }}"
-                {% else %}
-                  class="{{ c|add:' flex-1 jb' }}"
-                {% endif %}
-              {% endwith %}
+              class="{{ 'gap-y-2 p-2 px-4 min-[500px]:px-5 max-[700px]:col min-[700px]:(flex gap-x-5 aic jb)'|expandir_variantes }}"
             >
-              <h1
-                {% with c="text-lg font-500 min-[500px]:text-xl truncate" %}
-                  {% if view.total is None and not is_paginated %}
-                    class="{{ c|add:' flex-1' }}"
+              {# Título, separador y enlace #}
+              <div
+                {% with c="flex aic gap-x-4" %}
+                  {% if view.total is not None or is_paginated %}
+                    class="{{ c|add:' max-[700px]:jb min-[700px]:flex-row-reverse' }}"
                   {% else %}
-                    class="{{ c }}"
+                    class="{{ c|add:' flex-1 jb' }}"
                   {% endif %}
                 {% endwith %}
               >
-                {% block titulo_lista %}
-                  Lista de {{ view.nombre_objeto_plural }}
-                {% endblock titulo_lista %}
-              </h1>
-
-              {% if permisos.crear and view.url_crear %}
-                <hr class="max-[700px]:hidden h-6 w-1px border-0 bg-[#fff4]" />
-
-                <a
-                  class="ui-btn size-6 rounded-full p-1 text-sm bg-primario-texto text-primario-600 pover:bg-primario-50 dark:pover:bg-primario-950 shadow-[inset_0_-1px_1px_1px_#00000018]"
-                  href="{% url view.url_crear %}"
-                  aria-label="Añadir {{ view.nombre_objeto }}"
+                <h1
+                  {% with c="text-lg font-500 min-[500px]:text-xl truncate" %}
+                    {% if view.total is None and not is_paginated %}
+                      class="{{ c|add:' flex-1' }}"
+                    {% else %}
+                      class="{{ c }}"
+                    {% endif %}
+                  {% endwith %}
                 >
-                  {% include "componentes/iconos/edicion.html#suma" with class="" %}
-                </a>
+                  {% block titulo_lista %}
+                    Lista de {{ view.nombre_objeto_plural }}
+                  {% endblock titulo_lista %}
+                </h1>
+
+                {% if permisos.crear and view.url_crear %}
+                  <hr
+                    class="max-[700px]:hidden h-6 w-1px border-0 bg-[#fff4]"
+                  />
+
+                  <a
+                    class="ui-btn size-6 rounded-full p-1 text-sm bg-primario-texto text-primario-600 pover:bg-primario-50 dark:pover:bg-primario-950 shadow-[inset_0_-1px_1px_1px_#00000018]"
+                    href="{% url view.url_crear %}"
+                    aria-label="Añadir {{ view.nombre_objeto }}"
+                  >
+                    {% include "componentes/iconos/edicion.html#suma" with class="" %}
+                  </a>
+                {% endif %}
+              </div>
+
+              {# Contadores #}
+              {% if view.total is not None or is_paginated %}
+                <div
+                  class="{{ 'flex gap-x-1 max-[700px]:(gap-x-1.5 pt-2 border-t border-t-[#fff3])'|expandir_variantes }}"
+                >
+                  {% with label="Totales:" icono='total' %}
+                    {% if view.total is not None %}
+                      {% with dato=view.total %}
+                        {% partial cantidad %}
+                      {% endwith %}
+                    {% else %}
+                      {% with dato=page_obj.paginator.count %}
+                        {% partial cantidad %}
+                      {% endwith %}
+                    {% endif %}
+                  {% endwith %}
+
+                  {% if form_filtros %}
+                    {% with cantidad_paginador=page_obj.paginator.count %}
+                      {% with label="Filtrad"|add:view.vocal_del_genero|add:"s:" dato_id="filtrados-cantidad" dato=view.cantidad_filtradas|default_if_none:cantidad_paginador icono='filtros' %}
+                        {% partial cantidad %}
+                      {% endwith %}
+                    {% endwith %}
+                  {% endif %}
+                </div>
               {% endif %}
             </div>
 
-            {# Contadores #}
-            {% if view.total is not None or is_paginated %}
-              <div
-                class="{{ 'flex gap-x-1 max-[700px]:(gap-x-1.5 pt-2 border-t border-t-[#fff3])'|expandir_variantes }}"
-              >
-                {% with label="Totales:" icono='total' %}
-                  {% if view.total is not None %}
-                    {% with dato=view.total %}
-                      {% partial cantidad %}
-                    {% endwith %}
-                  {% else %}
-                    {% with dato=page_obj.paginator.count %}
-                      {% partial cantidad %}
-                    {% endwith %}
-                  {% endif %}
-                {% endwith %}
-
-                {% if form_filtros %}
-                  {% with cantidad_paginador=page_obj.paginator.count %}
-                    {% with label="Filtrad"|add:view.vocal_del_genero|add:"s:" dato_id="filtrados-cantidad" dato=view.cantidad_filtradas|default_if_none:cantidad_paginador icono='filtros' %}
-                      {% partial cantidad %}
-                    {% endwith %}
-                  {% endwith %}
-                {% endif %}
-              </div>
-            {% endif %}
+            {# Indicador de búsqueda HTMX #}
+            <div
+              id="indicador-busqueda"
+              role="status"
+              aria-label="Cargando"
+              {% with pseudo_c="before:content-[''] after:content-[''] " %}
+                class="
+                {{
+                  pseudo_c|add:'
+                  htmx-indicator relative h-1.25 w-full overflow-hidden rounded-xs
+                  before:(absolute top-0 left-0 size-full bg-[#fff2] rounded-xs)
+                  after:(
+                    absolute top-0 left-0 size-full bg-primario-texto rounded-xs transform translate-x-[-100%] animate-[moverIzquierdaDerecha_1s_linear_infinite]
+                  )
+                  max-[600px]:mt-2
+                  '
+                  |reemplazar_espacios:" "
+                  |expandir_variantes
+                }}"
+              {% endwith %}
+            ></div>
           </div>
 
-          {# Indicador de búsqueda HTMX #}
-          <div
-            id="indicador-busqueda"
-            role="status"
-            aria-label="Cargando"
-            {% with pseudo_c="before:content-[''] after:content-[''] " %}
-              class="
-              {{
-                pseudo_c|add:'
-                htmx-indicator relative h-1.25 w-full overflow-hidden rounded-xs
-                before:(absolute top-0 left-0 size-full bg-[#fff2] rounded-xs)
-                after:(
-                  absolute top-0 left-0 size-full bg-primario-texto rounded-xs transform translate-x-[-100%] animate-[moverIzquierdaDerecha_1s_linear_infinite]
-                )
-                max-[600px]:mt-2
-                '
-                |reemplazar_espacios:" "
-                |expandir_variantes
-              }}"
-            {% endwith %}
-          ></div>
+          {% if form_filtros %}
+            {% block filtros %}
+              <div
+                class="col gap-y-2 {{ cpy|default:'py-3' }} {{ px|default:'px-4 min-[500px]:px-5 sidebar:max-sidebar_full:px-6 min-[1000px]:px-8' }} bg-fondo-300"
+                x-data="{ filtrosAplicados: {} }"
+              >
+                {% include "componentes/vista-lista/filtros/_lista.html" %}
+
+                <form
+                  class="flex aic gap-x-1 h-8 min-[400px]:gap-x-2 max-[600px]:text-sm"
+                  hx-post
+                  x-ref="form"
+                  {% if is_paginated %}
+                    hx-include="[name=pagina]"
+                  {% endif %}
+                >
+                  {# indicar al servidor que solo se quiere la tabla al momento de reemplazar el contenido #}
+                  <input type="hidden" name="solo_tabla" value="true" />
+
+                  {%
+                    with
+                    submenu_class="ui-elevado absolute col gap-y-4 w-max max-w-200px py-2 px-3  shadow-xl"
+                    trigger_class="rounded p-1 px-2 w-full text-left pover:bg-[--transparente-1] aria-expanded:bg-[--transparente-1] aria-expanded:pover:bg-[--transparente-2] transition-[background-color] list-none"
+                    aplicar_btn_class="ui-btn ui-btn/primario p-0.5 px-4 flex-1"
+                    radio_label_class="group/label flex aic gap-x-2"
+                    radio_class="ui-opcion ui-opcion/radio z-2 size-4.5 size-min-4.5"
+                  %}
+                    {% include "componentes/vista-lista/filtros/menu-busqueda.html" %}
+
+                    <div
+                      class="relative h-full"
+                      x-data="dropdown({ {% if filtros_abiertos %}abierto: true{% endif %} })"
+                      x-ref="menuFiltros"
+                    >
+                      <button
+                        x-bind="trigger"
+                        class="ui-btn ui-btn/secundario h-full px-2 rounded"
+                        aria-label="Añadir filtros"
+                      >
+                        {% include "componentes/iconos/tabla.html#filtros" with class="size-5" %}
+                      </button>
+
+                      <div
+                        class="absolute z-5 top-[calc(100%+4px)] left-0 ui-elevado col gap-y-1 p-1 min-w-max shadow-xl text-base"
+                        x-cloak
+                        x-bind="menu"
+                        x-show="abierto || abiertoPorTeclado"
+                      >
+                        {% block opciones_filtros %}
+                          {% for campo in form_filtros %}
+                            {% if campo.field.campo_booleano %}
+                              {% include "componentes/vista-lista/filtros/yesno.html" %}
+                            {% endif %}
+                          {% endfor %}
+                        {% endblock opciones_filtros %}
+                      </div>
+                    </div>
+                  {% endwith %}
+
+                  {% if form_con_orden %}
+                    {% include "componentes/vista-lista/orden.html" %}
+                  {% endif %}
+                  {% include "componentes/vista-lista/btn-pantalla-completa.html" %}
+
+                  {% if not view.tabla %}
+                    <button
+                      type="button"
+                      class="ui-btn ui-elevado h-full rounded px-1"
+                      @click="alternarSeleccionTodo()"
+                    >
+                      {% include "componentes/iconos/edicion.html#seleccionar_todo" with class="size-5.5" %}
+                      <span class="sr-only">Seleccionar todo</span>
+                    </button>
+                  {% endif %}
+
+                  {% if form_filtros.cantidad_por_pagina %}
+                    <label
+                      class="ui-elevado fc gap-x-2 h-full rounded-campo px-2"
+                      hx-vals='{"solo_tabla": true}'
+                      @change="$refs.form.requestSubmit()"
+                    >
+                      {% render_field form_filtros.cantidad_por_pagina class="py-0! ui-elevado-2" data-filtro="" %}
+                      <span class="sr-only">
+                        {{ view.nombre_objeto_plural }}
+                      </span>
+                      <span class="min-w-max"> por página </span>
+                    </label>
+                  {% endif %}
+                </form>
+              </div>
+            {% endblock filtros %}
+          {% endif %}
         </header>
       {% endblock cabecera %}
 
       <div
-        class="{{ lista_clase|default:'p-3 min-[500px]:(p-4 px-5) sidebar:max-sidebar_full:px-6 min-[1000px]:(p-5 px-8)'|add:' tabla-contenido col gap-y-2 flex-1 mxa size-full overflow-y-auto [@media_all_and_(display-mode:fullscreen)]:(p-4 bg-fondo-300)'|expandir_variantes }}"
+        class="{{ lista_clase }} {{ py|default:'p-2' }} {{ px|default:'px-4 min-[500px]:px-5 sidebar:max-sidebar_full:px-6 min-[1000px]:px-8' }} tabla-contenido col gap-y-2 flex-1 mxa size-full [@media_all_and_(display-mode:fullscreen)]:p-4'|expandir_variantes }}"
       >
-        {% if form_filtros %}
-          {% block filtros %}
-            <div class="top-0 col gap-y-2" x-data="{ filtrosAplicados: {} }">
-              {% include "componentes/vista-lista/filtros/_lista.html" %}
-
-              <form
-                class="flex aic gap-x-1 h-8 min-[400px]:gap-x-2 max-[600px]:text-sm"
-                hx-post
-                x-ref="form"
-                {% if is_paginated %}
-                  hx-include="[name=pagina]"
-                {% endif %}
-              >
-                {# indicar al servidor que solo se quiere la tabla al momento de reemplazar el contenido #}
-                <input type="hidden" name="solo_tabla" value="true" />
-
-                {%
-                  with
-                  submenu_class="ui-elevado absolute left-[calc(100%+6px)] top-0 col gap-y-4 w-max max-w-200px py-2 px-3  shadow-xl"
-                  trigger_class="rounded p-1 px-2 w-full text-left pover:bg-[--transparente-1] aria-expanded:bg-[--transparente-1] aria-expanded:pover:bg-[--transparente-2] transition-[background-color] list-none"
-                  aplicar_btn_class="ui-btn ui-btn/primario p-0.5 px-4 flex-1"
-                  radio_label_class="group/label flex aic gap-x-2"
-                  radio_class="ui-opcion ui-opcion/radio z-2 size-4.5 size-min-4.5"
-                %}
-                  {% include "componentes/vista-lista/filtros/menu-busqueda.html" %}
-
-                  <div
-                    class="relative h-full"
-                    x-data="dropdown({ {% if filtros_abiertos %}abierto: true{% endif %} })"
-                    x-ref="menuFiltros"
-                  >
-                    <button
-                      x-bind="trigger"
-                      class="ui-btn ui-btn/secundario h-full px-2 rounded"
-                      aria-label="Añadir filtros"
-                    >
-                      {% include "componentes/iconos/tabla.html#filtros" with class="size-5" %}
-                    </button>
-
-                    <div
-                      class="absolute z-5 top-[calc(100%+4px)] left-0 ui-elevado col gap-y-1 p-1 min-w-max shadow-xl text-base"
-                      x-cloak
-                      x-bind="menu"
-                      x-show="abierto || abiertoPorTeclado"
-                    >
-                      {% block opciones_filtros %}
-                        {% for campo in form_filtros %}
-                          {% if campo.field.campo_booleano %}
-                            {% include "componentes/vista-lista/filtros/yesno.html" %}
-                          {% endif %}
-                        {% endfor %}
-                      {% endblock opciones_filtros %}
-                    </div>
-                  </div>
-                {% endwith %}
-
-                {% if form_con_orden %}
-                  {% include "componentes/vista-lista/orden.html" %}
-                {% endif %}
-                {% include "componentes/vista-lista/btn-pantalla-completa.html" %}
-
-                {% if not view.tabla %}
-                  <button
-                    type="button"
-                    class="ui-btn ui-elevado h-full rounded px-1"
-                    @click="alternarSeleccionTodo()"
-                  >
-                    {% include "componentes/iconos/edicion.html#seleccionar_todo" with class="size-5.5" %}
-                    <span class="sr-only">Seleccionar todo</span>
-                  </button>
-                {% endif %}
-
-                {% if form_filtros.cantidad_por_pagina %}
-                  <label
-                    class="ui-elevado fc gap-x-2 h-full rounded-campo px-2"
-                    hx-vals='{"solo_tabla": true}'
-                    @change="$refs.form.requestSubmit()"
-                  >
-                    {% render_field form_filtros.cantidad_por_pagina class="py-0! ui-elevado-2" data-filtro="" %}
-                    <span class="sr-only">
-                      {{ view.nombre_objeto_plural }}
-                    </span>
-                    <span class="min-w-max"> por página </span>
-                  </label>
-                {% endif %}
-              </form>
-            </div>
-          {% endblock filtros %}
-        {% endif %}
         {% include view.plantilla_lista %}
       </div>
 
