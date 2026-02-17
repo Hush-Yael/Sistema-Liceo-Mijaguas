@@ -80,7 +80,7 @@
               No se encontraron {{ view.nombre_objeto_plural }}
             </h1>
           {% endblock sin_objetos %}
-          {% if permisos.crear %}
+          {% if permisos.crear and view.url_crear %}
             <a
               href="{% url view.url_crear %}"
               class="ui-btn ui-btn/primario p-1.5 px-4 mt-4 mxa"
