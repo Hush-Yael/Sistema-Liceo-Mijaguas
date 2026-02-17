@@ -65,6 +65,6 @@ class ArgumentosParametrosMixin(BaseComandos):
 
         self.stdout.write(f"✓ Total lapsos creados: {lapsos_creados}")
 
-    def handle_gestion(self, options: "dict[str, Any]"):
+    def handle_parametros(self, options: "dict[str, Any]"):
         if self.si_accion("lapsos"):
             self.crear_lapsos(options["lapsos_año"])

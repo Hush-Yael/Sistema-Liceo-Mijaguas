@@ -46,7 +46,7 @@ class ArgumentosGestionMixin(BaseComandos):
             help="Crear solo asignaciones de materias y profesores",
         )
 
-    def handle_parametros(self, options: "dict[str, Any]") -> None:
+    def handle_gestion(self, options: "dict[str, Any]") -> None:
         if self.si_accion("profesores"):
             self.crear_profesores(options["profesores"])
 
