@@ -77,6 +77,7 @@
 
           <span
             x-show="filasSeleccionadas.size < {% partial total %}"
+            role="status"
             class="tracking-wide space-x-0.5"
           >
             <span class="font-500" x-text="filasSeleccionadas.size"></span>
@@ -86,6 +87,7 @@
           </span>
 
           <span
+            role="status"
             class="truncate"
             x-show="filasSeleccionadas.size === {% partial total %}"
           >
