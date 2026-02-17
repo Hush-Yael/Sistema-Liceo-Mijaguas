@@ -6,6 +6,7 @@ from app.forms import BusquedaFormMixin, DireccionesOrden, OrdenFormMixin
 from app.vistas._tipos import (
     Columna,
     ColumnaFija,
+    Metodo,
     VistaListaContexto,
 )
 from app.vistas import (
@@ -19,6 +20,7 @@ from django.http import (
     HttpResponse,
     HttpResponseBadRequest,
     HttpResponseForbidden,
+    HttpResponseNotAllowed,
     QueryDict,
 )
 
@@ -38,6 +40,12 @@ class VistaListaObjetos(Vista, ListView):
     url_editar: str
     # nombre del campo o atributo que contiene los ids de los objetos seleccionados
     ids_objetos_kwarg = "ids"
+    http_method_names: "list[Metodo] | tuple[Metodo, ...]" = (  # type: ignore - cualquier string sirve
+        "get",
+        "post",
+        "put",
+        "delete",
+    )
 
     def __init__(self):
         """Establece automáticamente los atributos url_crear y url_editar si no se han establecido. Estos se usan en el html de la vista para indicar los enlaces para crear y editar el tipo de objeto de la vista en cuestión."""
@@ -249,6 +257,13 @@ class VistaListaObjetos(Vista, ListView):
             self.total = self.model.objects.count()
 
         return respuesta
+
+    def http_method_not_allowed(self, request, *args, **kwargs):
+        # Customize the response for unsupported methods
+        return HttpResponseNotAllowed(
+            permitted_methods=self.http_method_names,
+            content=f"Se usó un método no permitido. Solo se acepta {', '.join(self.http_method_names)}",
+        )
 
     # aplicación de filtros por POST
     def post(self, request: HttpRequest, *args, **kwargs):

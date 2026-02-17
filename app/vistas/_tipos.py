@@ -27,3 +27,6 @@ class VistaListaContexto(TypedDict):
     modelos_relacionados: "list[str]"
     lista_reemplazada_por_htmx: NotRequired[bool]
     mensajes_recibidos: NotRequired[bool]
+
+
+Metodo = Literal["get", "post", "put", "delete", "patch", "head", "options"]
