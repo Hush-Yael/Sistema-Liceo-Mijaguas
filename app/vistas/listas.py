@@ -240,11 +240,19 @@ class VistaListaObjetos(Vista, ListView):
                 },
                 no_hay_objetos=self.total == 0
                 if self.total is not None
-                else not self.model.objects.exists(),
+                else not self.al_menos_uno(),
             )
         )
 
         return ctx
+
+    def obtener_total(self):
+        """Obtiene el total de objetos del modelo indicado en la base de datos"""
+        self.total = self.model.objects.count()
+
+    def al_menos_uno(self):
+        """Verifica si hay al menos un objeto del modelo indicado en la base de datos. Se usa cuando no se define el atributo "total" """
+        return self.model.objects.exists()
 
     def get(self, request: HttpRequest, *args, **kwargs):
         respuesta = super().get(request, *args, **kwargs)
@@ -254,7 +262,7 @@ class VistaListaObjetos(Vista, ListView):
             respuesta.context_data["lista_reemplazada_por_htmx"] = 1  # type: ignore
             respuesta.template_name = self.plantilla_lista  # type: ignore
         elif self.paginate_by:
-            self.total = self.model.objects.count()
+            self.obtener_total()
 
         return respuesta
 
