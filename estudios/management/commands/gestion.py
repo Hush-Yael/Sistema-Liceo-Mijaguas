@@ -1,6 +1,6 @@
 from typing import Any, OrderedDict
 import random
-from estudios.management.commands import BaseComandos
+from estudios.management.commands import BaseComandos, quitar_diacriticos
 from estudios.modelos.parametros import Lapso, Año, Materia, Seccion
 from usuarios.models import Grupo, Usuario
 from estudios.modelos.gestion.personas import (
@@ -158,48 +158,56 @@ class ArgumentosGestionMixin(BaseComandos):
 
         profesores_creados = 0
         for i in range(cantidad):
-            # Verificar si ya existe
-            if Profesor.objects.filter(cedula=i + 1).exists():
-                continue
-
             # Generar datos con Faker
-            sexo, nombre, apellido = self.crear_datos_persona()
+            cedula, sexo, nombre, apellido = self.crear_datos_persona()
 
-            email = f"{nombre.lower()}.{apellido.lower()}@colegio.edu"
+            d = {
+                "sexo": sexo,
+                "nombres": nombre,
+                "apellidos": apellido,
+                "telefono": self.faker.random_element(
+                    [None, "", self.faker.phone_number()]
+                ),
+                "activo": self.faker.boolean(chance_of_getting_true=90),
+            }
 
-            # Asegurar que el email sea único
-            usuarios_con_email = Usuario.objects.filter(email=email).count()
+            no_debe_usarse_otra_cedula = False
+            profesor = None
 
-            # Si hay usuarios con el mismo email agregar un número al final según la cantidad + 1
-            if usuarios_con_email > 0:
-                email = f"{email.split('@')[0]}{usuarios_con_email}@colegio.edu"
+            while not no_debe_usarse_otra_cedula:
+                profesor, creado = Profesor.objects.get_or_create(
+                    cedula=cedula,
+                    defaults=d,
+                )
+
+                if creado:
+                    no_debe_usarse_otra_cedula = True
+                else:
+                    cedula = self.faker.random_int(min=1, max=32_000_000)
+
+            if not profesor:
+                raise Exception("No se pudo crear el profesor")
+
+            email = f"{quitar_diacriticos(nombre.lower().split(' ')[0])}.{quitar_diacriticos(apellido.lower().split(' ')[0])}@liceo.edu"
 
             grupo_prof = Grupo.objects.get(name="Profesor")
 
-            prof_usuario = Usuario.objects.create(
+            prof_usuario, creado = Usuario.objects.get_or_create(
                 username=email.split("@")[0],
-                email=email,
-                is_staff=True,
+                defaults={
+                    "email": email,
+                    "is_staff": True,
+                },
             )
 
             prof_usuario.set_password("1234")
             prof_usuario.save()
 
-            Profesor.objects.create(
-                cedula=cedula,
-                sexo=sexo,
-                nombres=nombre,
-                apellidos=apellido,
-                telefono=self.faker.random_element(
-                    [None, "", self.faker.phone_number()]
-                ),
-                esta_activo=self.faker.boolean(chance_of_getting_true=90),
-                usuario=prof_usuario,
-            )
-
             prof_usuario.grupos.add(grupo_prof)
 
+            profesor.save()
             profesores_creados += 1
+
             self.stdout.write(f"✓ Creado profesor: {nombre} {apellido} ({i})")
 
         self.stdout.write(f"✓ Total profesores creados: {profesores_creados}")

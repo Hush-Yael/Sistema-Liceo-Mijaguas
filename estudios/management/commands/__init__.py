@@ -9,6 +9,7 @@ import estudios.modelos.parametros as ModelosParametros
 import usuarios.models as ModelosUsuarios
 import inspect
 import itertools
+from unicodedata import normalize
 
 
 class Acciones(TypedDict):
@@ -62,3 +63,14 @@ def obtener_todos_los_modelos():
             modelo for modelo in (modelos for modelos in lista_tuplas_modelos)
         )
     )
+
+
+def quitar_diacriticos(texto):
+    # Normaliza la cadena en forma descompuesta (NFD)
+    texto_nfd = normalize("NFD", texto)
+    # Elimina los caracteres diacríticos (rangos U+0300 a U+036F)
+    texto_sin_diacriticos = "".join(
+        char for char in texto_nfd if ord(char) < 0x0300 or ord(char) > 0x036F
+    )
+    # Vuelve a normalizar a forma compuesta (NFC)
+    return normalize("NFC", texto_sin_diacriticos)
