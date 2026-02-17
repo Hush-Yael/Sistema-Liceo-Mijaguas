@@ -241,6 +241,7 @@ class VistaListaObjetos(Vista, ListView):
                 no_hay_objetos=self.total == 0
                 if self.total is not None
                 else not self.al_menos_uno(),
+                sin_resultados=self.sin_resultados(),
             )
         )
 
@@ -254,15 +255,20 @@ class VistaListaObjetos(Vista, ListView):
         """Verifica si hay al menos un objeto del modelo indicado en la base de datos. Se usa cuando no se define el atributo "total" """
         return self.model.objects.exists()
 
+    def sin_resultados(self):
+        """Verifica si la búsqueda no arroja resultados."""
+        return len(self.object_list) == 0
+
     def get(self, request: HttpRequest, *args, **kwargs):
         respuesta = super().get(request, *args, **kwargs)
 
         # cambio de página
-        if self.paginate_by is not None and request.GET.get("solo_tabla"):
-            respuesta.context_data["lista_reemplazada_por_htmx"] = 1  # type: ignore
-            respuesta.template_name = self.plantilla_lista  # type: ignore
-        elif self.paginate_by:
-            self.obtener_total()
+        if self.paginate_by is not None:
+            if request.GET.get("solo_tabla"):
+                respuesta.context_data["lista_reemplazada_por_htmx"] = 1  # type: ignore
+                respuesta.template_name = self.plantilla_lista  # type: ignore
+
+        self.obtener_total()
 
         return respuesta
 

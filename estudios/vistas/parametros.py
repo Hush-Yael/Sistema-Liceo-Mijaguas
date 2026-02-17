@@ -1,3 +1,4 @@
+from functools import reduce
 from typing import Any, Mapping
 from django.contrib import messages
 from django.db import models
@@ -5,7 +6,7 @@ from django.db.models.functions.datetime import TruncMinute
 from django.http import (
     HttpResponseBadRequest,
 )
-from django.db.models import Case, Count, Q, F, Prefetch, Value, When
+from django.db.models import Case, Count, Q, F, Prefetch, When
 from app.campos import FiltrosConjuntoOpciones
 from app.forms import ConjuntoOpcionesForm
 from app.util import obtener_filtro_bool_o_nulo
@@ -13,7 +14,7 @@ from app.vistas.forms import (
     VistaActualizarObjeto,
     VistaCrearObjeto,
 )
-from app.vistas.listas import VistaListaObjetos, VistaTablaAdaptable
+from app.vistas.listas import VistaListaObjetos
 from estudios.forms.parametros import (
     FormAsignaciones,
     FormLapso,
@@ -35,7 +36,6 @@ from estudios.modelos.parametros import (
     AñoMateria,
     obtener_lapso_actual,
 )
-from django.db.models.functions import Concat
 
 
 class ListaLapsos(VistaListaObjetos):
@@ -306,67 +306,26 @@ class ActualizarAño(VistaActualizarObjeto):
     form_class = FormAño
 
 
-class ListaSecciones(VistaTablaAdaptable):
+class ListaSecciones(VistaListaObjetos):
     template_name = "parametros/secciones/index.html"
     plantilla_lista = "parametros/secciones/lista.html"
     model = Seccion
-    paginate_by = 50
     genero_sustantivo_objeto = "F"
     form_filtros = SeccionBusquedaForm
-    columnas_a_evitar = set()
-    columnas_totales = (
-        {"titulo": "Nombre", "clave": "nombre"},
-        {"titulo": "Año", "clave": "nombre_año", "anotada": True},
-        {"titulo": "Letra", "clave": "letra"},
-        {"titulo": "Capacidad", "clave": "capacidad", "alinear": "derecha"},
-        {
-            "titulo": "Alumnos",
-            "clave": "cantidad_matriculas",
-            "alinear": "derecha",
-            "anotada": True,
-        },
-        {"titulo": "Vocero", "clave": "vocero_nombre", "anotada": True},
-    )
-    opciones_columnas_texto = tuple(
-        o[0] for o in OpcionesFormSeccion.ColumnasTexto._value2member_map_
-    )
 
     def get_queryset(self, *args, **kwargs) -> "list[dict]":
-        return super().get_queryset(
-            Seccion.objects.annotate(
-                nombre_año=F("año__nombre"),
-                vocero_nombre=Case(
-                    When(
-                        vocero__isnull=False,
-                        then=Concat(
-                            F("vocero__nombres"), Value(" "), F("vocero__apellidos")
-                        ),
-                    ),
-                    default=None,
-                ),
-                cantidad_matriculas=Count(
-                    "matricula", filter=Q(matricula__estado="activo")
-                ),
-            ).only(
-                *(
-                    col["clave"]
-                    for col in self.columnas_mostradas
-                    if not col.get("anotada", False)
-                )
-            )
+        q = Seccion.objects.annotate(
+            cantidad_matriculas=Count(
+                "matricula", filter=Q(matricula__estado="activo")
+            ),
         )
+
+        return super().get_queryset(q)
 
     def aplicar_filtros(self, queryset, datos_form):
         queryset = super().aplicar_filtros(queryset, datos_form)
 
-        if año := self.obtener_y_alternar(
-            SeccionBusquedaForm.Campos.ANIO, datos_form, "año"
-        ):
-            queryset = queryset.filter(año__in=año)
-
-        if letra := self.obtener_y_alternar(
-            SeccionBusquedaForm.Campos.LETRA, datos_form, "letra"
-        ):
+        if letra := datos_form.get(SeccionBusquedaForm.Campos.LETRA):
             queryset = queryset.filter(letra__in=letra)
 
         if (
@@ -380,7 +339,6 @@ class ListaSecciones(VistaTablaAdaptable):
                 queryset = queryset.exclude(valor_filtro)
             else:
                 queryset = queryset.filter(valor_filtro)
-        self.alternar_col_por_filtro(vocero, "vocero")
 
         if disponibilidad := datos_form.get(SeccionBusquedaForm.Campos.DISPONIBILIDAD):
             if disponibilidad == OpcionesFormSeccion.Disponibilidad.LLENA.value[0]:
@@ -392,7 +350,30 @@ class ListaSecciones(VistaTablaAdaptable):
             elif disponibilidad == OpcionesFormSeccion.Disponibilidad.VACIA.value[0]:
                 queryset = queryset.filter(cantidad_matriculas=0)
 
-        return queryset
+        return (
+            Año.objects.annotate(Count("seccion"))
+            .filter(seccion__isnull=False)
+            .prefetch_related(
+                Prefetch(
+                    "seccion_set",
+                    queryset=queryset,
+                    to_attr="secciones",
+                )
+            )
+        )
+
+    def sin_resultados(self):
+        """Ya que se usa Prefetch, hay que comprobar si hay al menos un año con una lista secciones no vacía"""
+        return not len(getattr(self.object_list[0], "secciones"))
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super().get_context_data(*args, **kwargs)
+
+        self.cantidad_filtradas = reduce(
+            lambda x, y: x + len(y.secciones), ctx["object_list"], 0
+        )
+
+        return ctx
 
 
 class CrearSeccion(VistaCrearObjeto):
@@ -400,6 +381,15 @@ class CrearSeccion(VistaCrearObjeto):
     model = Seccion
     form_class = FormSeccion
     genero_sustantivo_objeto = "F"
+
+    def get_initial(self):
+        if (año := self.request.GET.get("año")) and año.isdecimal():
+            if año := Año.objects.filter(id=año).first():
+                return {
+                    "año": año,
+                }
+
+        return {}
 
 
 class ActualizarSeccion(VistaActualizarObjeto):

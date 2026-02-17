@@ -64,7 +64,6 @@ class OpcionesFormSeccion:
 class SeccionBusquedaForm(BusquedaFormMixin, forms.Form):
     class Campos:
         LETRA = "letra"
-        ANIO = "anio"
         VOCERO = "tiene_vocero"
         DISPONIBILIDAD = "disponibilidad"
 
@@ -88,14 +87,8 @@ class SeccionBusquedaForm(BusquedaFormMixin, forms.Form):
         if not MIGRANDO
         else ()
     )
-    campos_prefijo_cookie = "secciones"
 
-    anio = forms.ModelMultipleChoiceField(
-        label="Año",
-        initial=None,
-        queryset=Año.objects.all() if not MIGRANDO else None,
-        required=False,
-    )
+    campos_prefijo_cookie = "secciones"
 
     letra = forms.MultipleChoiceField(
         label="Letra",

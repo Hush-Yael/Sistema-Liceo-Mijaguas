@@ -1,17 +1,187 @@
-{% extends "componentes/tabla-adaptable/index.html" %}
+{% extends "componentes/vista-lista/lista.html" %}
+{% load utilidades %}
+{% load grupos_variantes %}
 
-{% block td %}
-  {% if 'vocero' in clave %}
-    {% if dato is not None %}
-      <a {# href="{% url 'estudiantes' objeto.vocero.id %}" #}> {{ dato }} </a>
-    {% else %}
-      <i class="text-texto-sutil">Sin vocero</i>
-    {% endif %}
-  {% elif clave == 'cantidad_matriculas' %}
-    {{ dato }}
-  {% elif 'fecha' in clave %}
-    {{ dato|date:"d M. Y, h:i A" }}
-  {% else %}
-    {{ dato }}
-  {% endif %}
-{% endblock td %}
+{% block lista %}
+  <ul x-bind="eventosLista" class="col gap-y-6 w-full overflow-auto">
+    {% for año in lista_objetos %}
+      <li class="w-full">
+        <details class="group col gap-y-2" open>
+          <summary
+            class="flex aic gap-x-3 pb-2 border-b border-[--transparente-2] "
+          >
+            <svg
+              class="size-3.5 rotate-90 group-open:rotate-180 group-open:text-texto-sutil transition-[transform,color] ease-in-out duration-150"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="m12.866 3 9.526 16.5a1 1 0 0 1-.866 1.5H2.474a1 1 0 0 1-.866-1.5L11.134 3a1 1 0 0 1 1.732 0Z"
+              ></path>
+            </svg>
+
+            <span class="flex jb aic flex-1 font-bold">
+              <h2>{{ año.nombre }}</h2>
+              <span
+                class="p-1 px-4 bg-[--transparente-1] rounded-full text-sm text-texto-sutil tracking-widest"
+              >
+                #{{ forloop.counter }}
+              </span>
+            </span>
+          </summary>
+
+          <div class="ui-elevado w-full rounded">
+            <div class="overflow-auto w-full">
+              <table
+                class="overflow-hidden w-full rounded-t"
+                x-data="{
+                ids: [{% for seccion in año.secciones %}'{{ seccion.id }}',{% endfor %}],
+
+                alternarSeleccionTodo() {
+                  if (this.ids.every((id) => this.filasSeleccionadas.has(id))) {
+                    this.ids.forEach((id) => this.filasSeleccionadas.delete(id));
+                  } else {
+                    this.ids.forEach((id) => this.filasSeleccionadas.add(id));
+                  }
+                  
+                  this.ultimaSeleccionadaIndice = null;
+                }
+              }"
+              >
+                <caption class="sr-only">
+                  Lista de materias asignadas
+                </caption>
+
+                <thead
+                  class="sticky top-0 bg-fondo-600 border-b border-[--transparente-1] rounded-t"
+                >
+                  {% with class="px-4 py-3 text-xs font-medium text-texto-sutil text-left uppercase tracking-wider" %}
+                    <tr>
+                      {% if permisos.eliminar %}
+                        <th class="{{ class }}">
+                          <button
+                            class="z-1"
+                            type="checkbox"
+                            autocomplete="off"
+                            id="seleccionar-todos"
+                            aria-label="Seleccionar todas las filas"
+                            @click="alternarSeleccionTodo()"
+                          >
+                            {% include "componentes/iconos/edicion.html#seleccionar_todo" with class="size-5" %}
+                          </button>
+                        </th>
+                      {% endif %}
+
+                      <th class="{{ class }}">nombre</th>
+                      <th class="{{ class }}">letra</th>
+                      <th class="{{ class }} text-right">capacidad</th>
+                      <th class="{{ class }} text-right">matrículas</th>
+                      <th class="{{ class }} tac!">vocero</th>
+                      <th class="{{ class }}">fecha de creación</th>
+                    </tr>
+                  {% endwith %}
+                </thead>
+
+                <tbody class="divide-y divide-[--transparente-1]">
+                  {% with class="px-4 py-2 whitespace-nowrap" %}
+                    {% for seccion in año.secciones %}
+                      <tr>
+                        {% if permisos.eliminar %}
+                          <td class="{{ class }}">
+                            <div class="flex justify-end pr-0.5">
+                              {%
+                                with
+                                indice=forloop.counter0|add:forloop.parentloop.counter0
+                                id_l1=forloop.counter0|stringformat:"s"|add:'_'
+                                id_l2=forloop.parentloop.counter0|stringformat:"s"
+                                objeto=seccion
+                              %}
+                                {% if not forloop.parentloop.first %}
+                                  {# empezar conteo desde uno a partir de la segunda iteración de profesores #}
+                                  {%
+                                    include "componentes/vista-lista/objeto-check.html" with
+                                    id_fila=id_l1|add:id_l2
+                                    indice=forloop.counter|add:forloop.parentloop.counter0
+                                  %}
+                                {% else %}
+                                  {%
+                                    include "componentes/vista-lista/objeto-check.html" with
+                                    id_fila=id_l1|add:id_l2
+                                  %}
+                                {% endif %}
+                              {% endwith %}
+                            </div>
+                          </td>
+                        {% endif %}
+
+                        <td class="{{ class }}">{{ seccion.nombre }}</td>
+                        <td class="{{ class }}">{{ seccion.letra }}</td>
+
+                        <td class="{{ class }} text-right">
+                          {{ seccion.capacidad }}
+                        </td>
+
+                        <td class="{{ class }} text-right">
+                          {{ seccion.cantidad_matriculas }}
+                        </td>
+
+                        {% with dato=seccion.vocero %}
+                          <td class="{{ class }} {{ dato|yesno:' , tac' }}">
+                            {% if dato is not None %}
+                              <a
+                                {# href="{% url 'estudiantes' objeto.vocero.id %}" #}
+                              >
+                                {{ dato }}
+                              </a>
+                            {% else %}
+                              <span class="opacity-40">-</span>
+                            {% endif %}
+                          </td>
+                        {% endwith %}
+
+                        <td class="{{ class }}">
+                          {{ seccion.fecha_creacion }}
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  {% endwith %}
+                </tbody>
+              </table>
+            </div>
+
+            <div
+              class="flex jb aic gap-x-5 bg-fondo-600 px-3 py-2 rounded-b border-t border-[--transparente-1]"
+            >
+              <span class="flex aic gap-x-1.5 text-sm text-texto-sutil">
+                {% include "componentes/iconos/mensajes.html#info" with class="size-3.5" %}
+                {% with n=año.secciones|length %}
+                  <span>
+                    Total: <b>{{ n }}</b>
+                    {% if n == 1 %}
+                      {{ view.nombre_objeto }}
+                    {% else %}
+                      {{ view.nombre_objeto_plural }}
+                    {% endif %}
+                  </span>
+                {% endwith %}
+              </span>
+
+              {% if permisos.crear %}
+                <div class="flex gap-2">
+                  <a
+                    href="{% url view.url_crear %}?año={{ año.id }}"
+                    class="{{ 'ui-btn ui-btn/secundario dark:bg-secundario-600 p-1 rounded-full max-[600px]:(size-6 aspect-square) min-[600px]:(text-sm px-4)'|expandir_variantes }}"
+                  >
+                    {% include "componentes/iconos/edicion.html#suma" with class="min-[600px]:hidden" %}
+                    {% include "componentes/iconos/edicion.html#suma_circulo" with class="max-[600px]:hidden size-4.5" %}
+                    <span class="max-[600px]:sr-only">Añadir sección</span>
+                  </a>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </details>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock lista %}

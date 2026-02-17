@@ -33,7 +33,7 @@
 {% endblock acciones %}
 
 {% block lista %}
-  <div
+  <ul
     x-bind="eventosLista"
     class="col gap-y-4"
     @click="{{
@@ -52,7 +52,7 @@
     }}"
   >
     {% for profesor in lista_objetos %}
-      <div class="ui-elevado rounded-xl">
+      <li class="ui-elevado rounded-xl">
         {# Cabecera con datos del profesor #}
         <div
           class="flex aic gap-4 p-2 px-3 rounded-t-xl bg-fondo-700 border-b border-[--transparente-1]"
@@ -183,7 +183,7 @@
             </div>
           {% endif %}
         </div>
-      </div>
+      </li>
     {% endfor %}
-  </div>
+  </ul>
 {% endblock lista %}

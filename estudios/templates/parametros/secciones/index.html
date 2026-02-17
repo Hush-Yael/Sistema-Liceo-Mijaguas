@@ -7,13 +7,7 @@
 
 {% block cabeza %}
   {{ block.super }}
-  {% include "componentes/tabla-adaptable/cabeza.html" %}
-
-  <link
-    rel="stylesheet"
-    href="{% static 'css/componentes/htmx-indicator.css' %}"
-  />
-  {% include "componentes/combobox.html#scripts" %}
+  <script defer src="{% static 'js/componentes/combobox.js' %}"></script>
 {% endblock cabeza %}
 
 {% block opciones_filtros %}
