@@ -135,11 +135,20 @@ class ArgumentosGestionMixin(BaseComandos):
     def crear_datos_persona(self):
         cedula = self.faker.random_int(min=1, max=32_000_000)
         sexo = self.faker.random_element(Persona.OpcionesSexo.values)
+
         nombre = (
-            f"{self.faker.first_name_female()} {self.faker.first_name_female()}"
+            self.faker.first_name_female()
             if sexo == Persona.OpcionesSexo.FEMENINO
-            else f"{self.faker.first_name_male()} {self.faker.first_name_male()}"
+            else self.faker.first_name_male()
         )
+
+        if nombre.find(" ") == -1:
+            nombre += " " + (
+                self.faker.first_name_female()
+                if sexo == Persona.OpcionesSexo.FEMENINO
+                else self.faker.first_name_male()
+            )
+
         apellido = f"{self.faker.last_name()} {self.faker.last_name()}"
 
         return cedula, sexo, nombre, apellido
