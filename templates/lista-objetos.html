@@ -11,11 +11,11 @@
 {% endblock %}
 
 {% block cabeza %}
-  <link
-    rel="stylesheet"
-    href="{% static 'css/componentes/htmx-indicator.css' %}"
-  />
   {% if not no_hay_objetos %}
+    <link
+      rel="stylesheet"
+      href="{% static 'css/componentes/htmx-indicator.css' %}"
+    />
     <link rel="stylesheet" href="{% static 'css/componentes/dialog.css' %}" />
     <style>
       @keyframes moverIzquierdaDerecha {
@@ -33,9 +33,8 @@
     <script defer src="{% static 'js/alpine-focus.min.js' %}"></script>
     <script defer src="{% static 'js/alpine-dialog.min.js' %}"></script>
     <script defer src="{% static 'js/componentes/lista-objetos.js' %}"></script>
+    <script src="{% static 'js/componentes/dropdown.js' %}"></script>
   {% endif %}
-
-  <script src="{% static 'js/componentes/dropdown.js' %}"></script>
 {% endblock cabeza %}
 
 {% block contenido %}
