@@ -145,10 +145,13 @@
         </div>
 
         {% block lista %}{% endblock lista %}
-        {% include "componentes/tabla-adaptable/paginacion.html" with id=None %}
       </div>
     </div>
   {% endblock contenedor %}
+
+  {% if lista_reemplazada_por_htmx %}
+    {% include "componentes/tabla-adaptable/paginacion.html" with class="z-4" id="paginacion" swap=1 %}
+  {% endif %}
 
   {# mostrar errores en la petición (put, delete, etc.) #}
   {% if mensajes_recibidos %}
