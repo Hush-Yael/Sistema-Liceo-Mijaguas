@@ -61,8 +61,8 @@ from usuarios.forms import FormUsuario
 
 
 class ListaMatriculas(VistaTablaAdaptable):
-    template_name = "gestion/matriculas/index.html"
-    plantilla_lista = "gestion/matriculas/lista.html"
+    template_name = "personas/matriculas/index.html"
+    plantilla_lista = "personas/matriculas/lista.html"
     model = Matricula
     genero_sustantivo_objeto = "F"
     form_filtros = MatriculaBusquedaForm
@@ -125,14 +125,14 @@ class ListaMatriculas(VistaTablaAdaptable):
 
 
 class CrearMatricula(VistaCrearObjeto):
-    template_name = "gestion/matriculas/form.html"
+    template_name = "personas/matriculas/form.html"
     model = Matricula
     form_class = FormMatricula
     genero_sustantivo_objeto = "F"
 
 
 class ActualizarMatricula(VistaActualizarObjeto):
-    template_name = "gestion/matriculas/form.html"
+    template_name = "personas/matriculas/form.html"
     model = Matricula
     form_class = FormMatricula
     genero_sustantivo_objeto = "F"
@@ -164,8 +164,8 @@ class ActualizarMatricula(VistaActualizarObjeto):
 
 class ListaProfesores(VistaListaObjetos):
     model = Profesor
-    template_name = "gestion/profesores/index.html"
-    plantilla_lista = "gestion/profesores/lista.html"
+    template_name = "personas/profesores/index.html"
+    plantilla_lista = "personas/profesores/lista.html"
     form_filtros = ProfesorBusquedaForm
 
     def get_queryset(self, *args, **kwargs):
@@ -220,7 +220,7 @@ class ProfesorFormMixin(PermissionRequiredMixin, FormView):
     usuario_form_class: Type[FormUsuario] = FormUsuario
     model = Profesor
     object: "Profesor | None"
-    template_name = "gestion/profesores/form/index.html"
+    template_name = "personas/profesores/form/index.html"
     invalido_url = "objeto-form.html#invalido"
     mensaje_exito_con_usuario: str
     mensaje_exito: str
@@ -383,8 +383,8 @@ class ListaProfesoresMaterias(VistaListaObjetos):
     form_filtros = ProfesorMateriaBusquedaForm
     form_transferencia = FormTransferirProfesorMateria
     genero_sustantivo_objeto = "F"
-    template_name = "gestion/profesores_materias/index.html"
-    plantilla_lista = "gestion/profesores_materias/lista.html"
+    template_name = "personas/profesores_materias/index.html"
+    plantilla_lista = "personas/profesores_materias/lista.html"
     # igual al nombre del campo del form de transferencia, para pasarle la lista y que verifique
     ids_objetos_kwarg = FormTransferirProfesorMateria.Campos.MATERIAS
 
@@ -521,7 +521,7 @@ class CrearProfesorMateria(VistaForm, FormView):
     tipo_accion_palabra = "cread"
     model = ProfesorMateria
     form_class = FormProfesorMateriaMasivo
-    template_name = "gestion/profesores_materias/form.html"
+    template_name = "personas/profesores_materias/form.html"
     genero_sustantivo_objeto = "F"
 
     def get_initial(self):
