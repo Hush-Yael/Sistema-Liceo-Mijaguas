@@ -122,7 +122,7 @@
       <form
         class="{{ div_class }}"
         hx-put
-        hx-indicator="#indicador-eliminar"
+        hx-indicator="#indicador-transferir"
         hx-disabled-elt=".deshabilitar-al-subir"
         hx-vals="js:{
           {{ view.ids_objetos_kwarg }}: Array.from(Alpine.$data(this).filasSeleccionadas),
@@ -183,7 +183,7 @@
 
           <div
             role="alert"
-            id="indicador-eliminar"
+            id="indicador-transferir"
             class="htmx-indicator peer sr-only"
           >
             Transfiriendo...

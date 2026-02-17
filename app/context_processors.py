@@ -5,7 +5,12 @@ from django.conf import settings
 from django.urls import reverse_lazy
 from app.vistas import nombre_url_crear_auto, nombre_url_lista_auto
 from estudios.modelos.gestion.calificaciones import Nota, Tarea, TipoTarea
-from estudios.modelos.gestion.personas import Profesor, ProfesorMateria, Matricula
+from estudios.modelos.gestion.personas import (
+    Estudiante,
+    Profesor,
+    ProfesorMateria,
+    Matricula,
+)
 from estudios.modelos.parametros import Lapso, Materia, Seccion, Año
 from usuarios.models import Usuario, Grupo
 from app.settings import MEDIA_URL
@@ -59,11 +64,19 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
             "enlaces": [
                 si_permitido(
                     "estudios.add_estudiante",
-                    {"label": "Añadir estudiante", "icono_nombre": "añadir"},
+                    {
+                        "label": "Añadir estudiante",
+                        "icono_nombre": "añadir",
+                        "href": reverse_lazy(nombre_url_crear_auto(Estudiante)),
+                    },
                 ),
                 si_permitido(
                     "estudios.view_estudiante",
-                    {"label": "Lista de estudiantes", "icono_nombre": "tabla"},
+                    {
+                        "label": "Lista de estudiantes",
+                        "icono_nombre": "tabla",
+                        "href": reverse_lazy(nombre_url_lista_auto(Estudiante)),
+                    },
                 ),
                 si_permitido(
                     "estudios.view_seccion",

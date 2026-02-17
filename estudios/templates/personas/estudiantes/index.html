@@ -1,0 +1,135 @@
+{% extends "lista-objetos.html" %}
+{% load static %}
+{% load utilidades %}
+{% load grupos_variantes %}
+
+{% block cabeza %}
+  {{ block.super }}
+  <script defer src="{% static 'js/componentes/combobox.js' %}"></script>
+  {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+    <script>
+      opcionesSecciones = {{ form_matricular.seccion|obtener_lista_opciones|json|safe }}
+    </script>
+  {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+{% endblock cabeza %}
+
+{% block contenido %}
+  {% with py="pt-1 pb-3" %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock contenido %}
+
+{% block icono_sin_objetos %}
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path
+      d="M8.65 5.82a3.999 3.999 0 1 1 5.53 5.53L8.65 5.82zM20 17.17c-.02-1.1-.63-2.11-1.61-2.62-.54-.28-1.13-.54-1.77-.76L20 17.17zm1.19 4.02L2.81 2.81 1.39 4.22l8.89 8.89c-1.81.23-3.39.79-4.67 1.45A2.97 2.97 0 0 0 4 17.22V20h13.17l2.61 2.61 1.41-1.42z"
+    ></path>
+  </svg>
+{% endblock icono_sin_objetos %}
+
+{% block opciones_filtros %}
+  {{ block.super }}
+  {%
+    include "componentes/vista-lista/filtros/conjunto-opciones.html" with
+    campo=form_filtros.secciones
+    opciones=form_filtros.secciones.field.choices|obtener_lista_opciones
+    opciones_seleccionadas=form_filtros.secciones.value
+    busqueda_activa=1
+  %}
+{% endblock opciones_filtros %}
+
+{% block modales %}
+  {{ block.super }}
+
+  {% if puede_matricular %}
+    <dialog
+      class="{{ dialog_class }} overflow-visible"
+      x-show="modalAbierto === 'matricular'"
+      {# x-show="!modalAbierto" #}
+      x-htmldialog="modalAbierto = null"
+      @click="$event.target === $event.currentTarget && (modalAbierto = null)"
+    >
+      <form
+        class="{{ div_class }}"
+        hx-put
+        hx-indicator="#indicador-matricular"
+        hx-disabled-elt=".deshabilitar-al-subir"
+        hx-vals="js:{
+          {{ view.ids_objetos_kwarg }}: Array.from(Alpine.$data(this).filasSeleccionadas),
+          seccion: Alpine.$data(this).seccion_id
+        }"
+        x-data="{ seccion_id: undefined }"
+        @change="
+          const input = $event.target
+          if (input.hasAttribute('data-btn-reiniciar')) seccion_id = undefined
+          else if (input.name === '{{ form_matricular.seccion.name }}') seccion_id = $event.target.value
+        "
+        @htmx:after-request.window="{{
+          '
+            if ($event.target === $el) {
+              modalAbierto = null;
+
+              if ($event.detail.successful)
+                limpiarSeleccion();
+            }
+          '|reemplazar_espacios:''
+        }}"
+      >
+        <h1 class="{{ titulo_class }}">Matricular estudiantes</h1>
+
+        <div class="{{ contenido_class }} gap-y-4 overflow-y-unset!">
+          <p>
+            <b x-text="filasSeleccionadas.size"></b>
+            <span
+              x-text="
+              filasSeleccionadas.size === 1 
+                ? `{{ view.nombre_objeto }} seleccionad{{ view.vocal_del_genero }}`
+                : `{{ view.nombre_objeto_plural }} seleccionad{{ view.vocal_del_genero }}s`
+            "
+            ></span>
+          </p>
+
+          {# obtener los ids de las filas seleccionadas desde el componente de la lista #}
+          {%
+            include "componentes/combobox.html" with
+              lista_clase=""
+              name=form_matricular.seccion.name
+              campo=form_matricular.seccion
+              opciones_por_script="opcionesSecciones"
+              seleccionada=form_matricular.seccion.value
+              multiple=0
+              busqueda_activa=1
+              mostrar_cantidad=1
+            lista_contenedor_clase="max-h-40dvh!"
+          %}
+        </div>
+
+        <div class="{{ btns_class }}" role="group">
+          <button
+            type="button"
+            class="{{ cancelar_class }}"
+            @click="modalAbierto = null"
+          >
+            Cancelar
+          </button>
+
+          <div
+            role="alert"
+            id="indicador-matricular"
+            class="htmx-indicator peer sr-only"
+          >
+            Transfiriendo...
+          </div>
+
+          <button
+            class="{{ subir_class|add:' ui-btn/peligro' }}"
+            :disabled="!filasSeleccionadas.size || seccion_id === undefined"
+          >
+            <div class="ui-loader ui-loader/blanco"></div>
+            Matricular
+          </button>
+        </div>
+      </form>
+    </dialog>
+  {% endif %}
+{% endblock modales %}

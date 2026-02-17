@@ -1,9 +1,16 @@
 from django.db import models
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, RegexValidator
 from django.forms import ValidationError
 from django.utils import timezone
 from app import settings
 from estudios.modelos.parametros import Seccion, Materia, Lapso
+
+
+validador_alfa = RegexValidator(
+    regex=r"^[a-zA-Z\s]+$",
+    message="Solo se permiten letras y espacios.",
+    code="invalid_alpha",
+)
 
 
 class Persona(models.Model):
@@ -16,8 +23,8 @@ class Persona(models.Model):
         unique=True,
         verbose_name="cédula",
     )
-    nombres = models.CharField(max_length=128)
-    apellidos = models.CharField(max_length=128)
+    nombres = models.CharField(max_length=128, validators=(validador_alfa,))
+    apellidos = models.CharField(max_length=128, validators=(validador_alfa,))
     sexo = models.CharField(max_length=1, choices=OpcionesSexo.choices)
     fecha_ingreso = models.DateTimeField(
         default=timezone.now, verbose_name="fecha de ingreso"

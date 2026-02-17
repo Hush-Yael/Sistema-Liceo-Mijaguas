@@ -1,0 +1,157 @@
+{% extends "componentes/vista-lista/lista.html" %}
+{% load grupos_variantes %}
+{% load utilidades %}
+{% load partials %}
+{% load l10n %}
+
+{% block contenedor %}
+  {% with contenedor_class="col jb flex-1 overflow-y-auto" %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock contenedor %}
+
+{% block acciones %}
+  {{ block.super }}
+
+  <button
+    role="menuitem"
+    class="{{ accion_btn_class|add:' deshabilitar-al-subir' }}"
+    :disabled="filasSeleccionadas.size === 0"
+    aria-haspopup="dialog"
+    :aria-expanded="modalAbierto === 'matricular'"
+    @click="modalAbierto = 'matricular'"
+  >
+    {% include "componentes/iconos/nav.html#matriculas" with class="size-4" %}
+    Matricular...
+  </button>
+{% endblock acciones %}
+
+{% block lista %}
+  <ul
+    x-bind="eventosLista"
+    class="col min-[500px]:grid grid-cols-[repeat(auto-fill,minmax(325px,1fr))] gap-4 flex-1"
+  >
+    {% for estudiante in lista_objetos %}
+      <li class="max-h-max">
+        <article class="ui-caja col gap-y-4 p-3">
+          <div class="flex aic gap-x-3 ">
+            <div
+              class="relative size-16 size-min-16 lh-16 aspect-square tac text-[1.7rem] font-bold select-none"
+            >
+              {% if permisos.editar or permisos.eliminar or puede_matricular %}
+                {%
+                  include "componentes/vista-lista/objeto-check.html"
+                  with
+                  objeto=estudiante
+                  input_class="peer/input sr-only"
+                  label_class="peer/label absolute inset-0 outline-2 outline-offset-2 outline-secundario rounded-full size-full select-none peer-not-checked/input:opacity-0"
+                  sin_indicador=1
+                %}
+              {% endif %}
+
+              <span
+                class="block size-full rounded-full bg-fondo-950 text-texto-semi-sutil peer-checked/input:bg-secundario-600 peer-checked/input:text-secundario-texto"
+              >
+                {{ estudiante.nombres|slice:"0:1" }}{{ estudiante.apellidos|slice:"0:1" }}
+              </span>
+            </div>
+
+            <hgroup class="col jb gap-y-1 w-full">
+              <h3
+                id="{{ estudiante.id }}-nombre"
+                class="font-bold min-[500px]:text-lg"
+              >
+                {% include "componentes/tabla-adaptable/enlace-editar.html" with objeto=estudiante dato=estudiante.nombre_completo %}
+              </h3>
+
+              <p class="text-sm text-texto-semi-sutil tracking-wider">
+                <span class="text-texto-sutil mr-1">C.I:</span>
+                {{ estudiante.cedula|default:'?'|localize }}
+              </p>
+            </hgroup>
+          </div>
+
+          <div class="col gap-y-4 border-t border-[--borde-caja] pt-3">
+            {% partial datos %}
+          </div>
+        </article>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock lista %}
+
+{% partialdef datos %}
+  {% with c="flex gap-x-2 jb aic" dtc="flex gap-x-2 aic font-500" ic="ui-contenedor-icono size-4.5 bg-[--transparente-2] text-texto-sutil" %}
+    <dl class="col gap-y-3">
+      <div class="{{ c }}">
+        <dt class="{{ dtc }}">
+          <span class="{{ ic }} p-0.5">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path
+                d="M19 4h-2V2h-2v2H9V2H7v2H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2V6c0-1.103-.897-2-2-2zm-1 15h-6v-6h6v6zm1-10H5V7h14v2z"
+              ></path>
+            </svg>
+          </span>
+          Fecha nacimiento:
+        </dt>
+        <dd class="text-texto-sutil max-sidebar:text-sm">
+          {{ estudiante.fecha_nacimiento|date:"d M. Y" }} ({{ estudiante.edad }}
+          años)
+        </dd>
+      </div>
+
+      <div class="{{ c }}">
+        <dt class="{{ dtc }}">
+          <span class="{{ ic }} p-0.5">
+            {% include "componentes/iconos/fecha.html#creacion" %}
+          </span>
+          Fecha ingreso:
+        </dt>
+        <dd class="text-texto-sutil max-sidebar:text-sm">
+          {{ estudiante.fecha_ingreso|date:"d M. Y, h:i A" }}
+        </dd>
+      </div>
+
+      {% with matricula=estudiante.matricula_actual.0 %}
+        <div class="{{ c }}">
+          <dt class="{{ dtc }}">
+            <span class="{{ ic }} p-0.5">
+              {% include "componentes/iconos/nav.html#matriculas" %}
+            </span>
+
+            Matricula actual:
+          </dt>
+
+          <dd
+            class="py-0.5 p-4 rounded-full border-peligro {{ matricula|yesno:'bg-exito-200 border-exito text-exito-900 , bg-peligro-200 text-peligro-900 dark:bg-peligro-300' }} max-sidebar:text-sm"
+          >
+            {% if matricula %}
+              {{ matricula.seccion.nombre }}
+            {% else %}
+              No tiene
+            {% endif %}
+          </dd>
+        </div>
+
+        {% with matricula_anterior=estudiante.matricula_anterior.0 %}
+          {% if not matricula and matricula_anterior %}
+            <div class="{{ c }}">
+              <dt class="{{ dtc }}">
+                <span class="{{ ic }} p-0.5">
+                  {% include "componentes/iconos/nav.html#matriculas" %}
+                </span>
+                Matricula anterior:
+              </dt>
+
+              <dd
+                class="py-0.5 p-4 rounded-full border-peligro bg-[--transparente-1] text-texto-sutil max-sidebar:text-sm"
+              >
+                {{ matricula_anterior.seccion.nombre }}
+              </dd>
+            </div>
+          {% endif %}
+        {% endwith %}
+      {% endwith %}
+    </dl>
+  {% endwith %}
+{% endpartialdef datos %}

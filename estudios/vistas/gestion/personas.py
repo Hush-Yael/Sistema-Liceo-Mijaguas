@@ -31,17 +31,21 @@ from app.vistas.forms import (
 )
 from app.vistas.listas import VistaListaObjetos, VistaTablaAdaptable
 from estudios.forms.gestion.personas import (
+    FormEstudiante,
     FormMatricula,
+    FormMatricularEstudiantes,
     FormProfesor,
     FormProfesorMateriaMasivo,
     FormTransferirProfesorMateria,
 )
 from estudios.forms.gestion.busqueda import (
+    EstudianteBusquedaForm,
     MatriculaBusquedaForm,
     ProfesorBusquedaForm,
     ProfesorMateriaBusquedaForm,
 )
 from estudios.modelos.gestion.personas import (
+    Estudiante,
     MatriculaEstados,
     Matricula,
     Profesor,
@@ -567,3 +571,131 @@ class CrearProfesorMateria(VistaForm, FormView):
         ]
 
         return ctx
+
+
+class ListaEstudiantes(VistaListaObjetos):
+    model = Estudiante
+    paginate_by = 20
+    form_filtros = EstudianteBusquedaForm
+    form_matricular = FormMatricularEstudiantes
+    template_name = "personas/estudiantes/index.html"
+    plantilla_lista = "personas/estudiantes/lista.html"
+    # igual al nombre del campo del form de matricular, para pasarle la lista y que verifique
+    ids_objetos_kwarg = "estudiantes"
+
+    def get_queryset(self, *args, **kwargs):
+        q = self.model.objects.all().annotate()
+
+        lapsos = Lapso.objects.order_by("-id")
+
+        try:
+            lapso_actual = self.lapso_actual = lapsos[0]
+        except IndexError:
+            lapso_actual = self.lapso_actual = None
+
+        if lapso_actual:
+            matriculas_actuales = Matricula.objects.filter(lapso=lapso_actual).only(
+                "seccion__nombre"
+            )
+            """ promedios_actuales = Nota.objects.annotate(promedio=Avg("valor")).filter(
+                matricula__in=matriculas_actuales
+            ) """
+
+            q = q.prefetch_related(
+                Prefetch(
+                    "matricula_set",
+                    queryset=matriculas_actuales,
+                    to_attr="matricula_actual",
+                )
+            )
+
+        try:
+            lapso_anterior = lapsos[1]
+        except IndexError:
+            lapso_anterior = None
+
+        if lapso_anterior:
+            matriculas_anteriores = Matricula.objects.filter(lapso=lapso_anterior).only(
+                "seccion__nombre"
+            )
+
+            q = q.prefetch_related(
+                Prefetch(
+                    "matricula_set",
+                    queryset=matriculas_anteriores,
+                    to_attr="matricula_anterior",
+                )
+            )
+
+        return super().get_queryset(q)
+
+    def aplicar_filtros(self, queryset: models.QuerySet, datos_form):
+        q = super().aplicar_filtros(queryset, datos_form)
+
+        if (
+            matricula_actual := obtener_filtro_bool_o_nulo(
+                EstudianteBusquedaForm.Campos.MATRICULA_ACTUAL, datos_form
+            )
+        ) is not None:
+            if matricula_actual:
+                q = q.filter(
+                    matricula__isnull=False, matricula__lapso=self.lapso_actual
+                )
+            else:
+                q = q.filter(matricula__isnull=True).exclude(
+                    matricula__lapso=self.lapso_actual
+                )
+
+        if secciones := datos_form.get(EstudianteBusquedaForm.Campos.SECCIONES):
+            q = q.filter(matricula__seccion__in=secciones)
+
+        return q
+
+    def actualizar(
+        self, request: HttpRequest, ids: "list[str]", datos: QueryDict, *args, **kwargs
+    ):
+        form = self.form_matricular(datos)
+
+        if form.is_valid():
+            matriculas = form.save()
+
+            if matriculas:
+                messages.success(
+                    request,
+                    f"{len(matriculas)} estudiantes matriculados correctamente.",
+                )
+            else:
+                return HttpResponseBadRequest("No se matricularon los estudiantes.")
+        else:
+            if form.has_error("estudiantes"):
+                return HttpResponseBadRequest(
+                    "Algunos estudiantes seleccionados ya están matriculados."
+                )
+            else:
+                return HttpResponseBadRequest("El formulario no es válido.")
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super().get_context_data(*args, **kwargs)
+
+        if self.request.method == "GET":
+            ctx["form_matricular"] = self.form_matricular()
+
+        ctx["puede_matricular"] = self.request.user.has_perm(  # type: ignore - sí existe "has_perm" como atributo
+            f"{Matricula._meta.app_label}.add_{Matricula._meta.model_name}"
+        )
+
+        return ctx
+
+
+class EstudianteVistaForm(VistaForm, FormView):
+    model = Estudiante
+    form_class = FormEstudiante
+    template_name = "personas/estudiantes/form.html"
+
+
+class CrearEstudiante(EstudianteVistaForm, VistaCrearObjeto):
+    pass
+
+
+class ActualizarEstudiante(EstudianteVistaForm, VistaActualizarObjeto):
+    pass

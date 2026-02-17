@@ -256,3 +256,38 @@ class TareaProfesorMateriaBusquedaForm(TareaBusquedaForm):
         queryset=Seccion.objects.all() if not MIGRANDO else None,
         required=False,
     )
+
+
+class EstudianteBusquedaForm(BusquedaFormMixin):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["secciones"].label_from_instance = lambda obj: obj.nombre  # type: ignore
+
+    class Campos:
+        MATRICULA_ACTUAL = "matricula_actual"
+        SECCIONES = "secciones"
+
+    columnas_busqueda = (
+        {"columna_db": nc(Estudiante.nombres), "nombre_campo": "nombres"},
+        {"columna_db": nc(Estudiante.apellidos), "nombre_campo": "apellidos"},
+        {
+            "columna_db": nc(Estudiante.cedula),
+            "nombre_campo": "cedula",
+            "label_campo": "Cedula",
+        },
+    )
+
+    campos_prefijo_cookie = "estudiantes"
+
+    matricula_actual = CampoBooleanoONulo(
+        label="Matriculado actualmente",
+        label_no_escogido="NO matriculado actualmente",
+        label_si_escogido="matriculado actualmente",
+    )
+
+    secciones = forms.ModelMultipleChoiceField(
+        label="Secciones",
+        queryset=Seccion.objects.all() if not MIGRANDO else None,
+        required=False,
+    )

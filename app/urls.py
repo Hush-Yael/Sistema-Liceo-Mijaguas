@@ -9,6 +9,7 @@ urlpatterns = [
     path("", include("estudios.urls.parametros")),
     path("", include("estudios.urls.gestion")),
     path("", include("estudios.urls.calificaciones")),
+    path("", include("estudios.urls.personas")),
 ]
 
 if settings.DEBUG:

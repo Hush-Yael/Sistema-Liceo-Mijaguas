@@ -315,3 +315,64 @@ class FormTransferirProfesorMateria(forms.Form):
     )
 
     pms = forms.ModelMultipleChoiceField(ProfesorMateria.objects.all(), initial=None)
+
+
+class FormEstudiante(forms.ModelForm):
+    class Meta:
+        model = Estudiante
+        fields = (
+            nc(Estudiante.nombres),
+            nc(Estudiante.apellidos),
+            nc(Estudiante.cedula),
+            nc(Estudiante.cedula),
+            nc(Estudiante.sexo),
+            nc(Estudiante.fecha_nacimiento),
+        )
+
+        widgets = {
+            nc(Estudiante.fecha_nacimiento): forms.DateInput(attrs={"type": "date"}),
+        }
+
+    field_order = (
+        nc(Estudiante.nombres),
+        nc(Estudiante.apellidos),
+        nc(Estudiante.cedula),
+        nc(Estudiante.sexo),
+        nc(Estudiante.fecha_nacimiento),
+    )
+
+
+class FormMatricularEstudiantes(forms.Form):
+    """Usado en la sección de estudiantes por medio del modal"""
+
+    lapso_actual = obtener_lapso_actual()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if self.lapso_actual:
+            # No se pueden matricular estudiantes que ya estén matriculados en el lapso actual
+            self.fields["estudiantes"].queryset = Estudiante.objects.exclude(  # type: ignore - sí se puede asignar el queryset
+                matricula__lapso=self.lapso_actual
+            )
+
+    estudiantes = forms.ModelMultipleChoiceField(
+        queryset=Estudiante.objects.none() if not MIGRANDO else None
+    )
+
+    seccion = forms.ModelChoiceField(
+        queryset=Seccion.objects.all() if not MIGRANDO else None
+    )
+
+    def save(self):
+        estudiantes = self.cleaned_data["estudiantes"]
+        seccion = self.cleaned_data["seccion"]
+
+        return Matricula.objects.bulk_create(
+            tuple(
+                Matricula(
+                    estudiante=estudiante, seccion=seccion, lapso=self.lapso_actual
+                )
+                for estudiante in estudiantes
+            )
+        )

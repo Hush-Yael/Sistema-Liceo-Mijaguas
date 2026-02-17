@@ -11,6 +11,7 @@ from estudios.modelos.gestion.personas import (
 )
 from estudios.modelos.parametros import Materia, Seccion
 from usuarios.models import Grupo, Usuario
+from django.utils import timezone
 
 
 class ArgumentosPersonasMixin(BaseComandos):
@@ -89,27 +90,30 @@ class ArgumentosPersonasMixin(BaseComandos):
         self.stdout.write(f"Creando {cantidad} estudiantes...")
 
         estudiantes_creados = 0
-        for i in range(cantidad):
-            # Verificar si ya existe
-            if Estudiante.objects.filter(cedula=i + 1).exists():
-                continue
 
+        for _ in range(cantidad):
             # Generar datos con Faker (edades entre 13-18 años para secundaria)
             cedula, sexo, nombre, apellido = self.crear_datos_persona()
+            # Verificar si ya existe
 
             # Fecha de nacimiento para estudiantes de secundaria (13-18 años)
             fecha_nacimiento = self.faker.date_of_birth(minimum_age=13, maximum_age=18)
 
-            Estudiante.objects.create(
-                cedula=cedula,
-                sexo=sexo,
-                nombres=nombre,
-                apellidos=apellido,
-                fecha_nacimiento=fecha_nacimiento,
-                fecha_ingreso=self.faker.date_between(
-                    start_date="-2y", end_date="today"
+            datos = {
+                "sexo": sexo,
+                "nombres": nombre,
+                "apellidos": apellido,
+                "fecha_nacimiento": fecha_nacimiento,
+                "fecha_ingreso": timezone.make_aware(
+                    self.faker.date_time_between(start_date="-2y"),
+                    timezone=timezone.get_current_timezone(),
                 ),
-            )
+            }
+
+            _, creado = Estudiante.objects.get_or_create(cedula=cedula, defaults=datos)
+
+            if not creado:
+                continue
 
             estudiantes_creados += 1
             if estudiantes_creados % 10 == 0:  # Mostrar progreso cada 10 estudiantes
