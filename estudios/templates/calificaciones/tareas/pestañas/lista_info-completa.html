@@ -1,0 +1,82 @@
+{% extends "componentes/vista-lista/lista.html" %}
+{% load utilidades %}
+{% load grupos_variantes %}
+
+{% block lista %}
+  <ul
+    x-bind="eventosLista"
+    class="{{ 'grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] grid-cols-[repeat(auto-fill,minmax(140px,1fr))] supports-[not(grid-template-columns:repeat(auto-fill,minmax(140px,1fr)))]:(flex flex-wrap) gap-5'|expandir_variantes }}"
+  >
+    {% for tarea in lista_objetos %}
+      <li>
+        <article class="col ui-elevado rounded-xl overflow-hidden">
+          <header
+            class="flex aic jb gap-x-3 rounded-t-xl border-b border-[--transparente-1] p-2 px-4 bg-fondo-700"
+          >
+            <span class="flex aic gap-x-3">
+              <h2 class="font-bold">
+                {% include "componentes/tabla-adaptable/enlace-editar.html" with dato=tarea.nombre objeto=tarea %}
+              </h2>
+            </span>
+
+            <span
+              class="flex aic gap-x-3 p-1 px-4 tac bg-[--transparente-1] text-texto-semi-sutil text-sm rounded-full tracking-wider"
+            >
+              {% if permisos.eliminar %}
+                {% include "componentes/vista-lista/objeto-check.html" with objeto=tarea indicador_class="bg-[#0001]! dark:bg-[#ffffff1a]!" %}
+              {% endif %}
+              <span><span class="mr-1">#</span> {{ forloop.counter }}</span>
+            </span>
+          </header>
+
+          <dl class="flex-1 divide-y divide-[--transparente-1] overflow-y-auto">
+            {% with class="p-2 px-3.5 bg-fondo-600" %}
+              <div class="flex aic jb gap-x-2 text-sm {{ class }}">
+                <dt class="flex aic gap-x-1.5">
+                  <span
+                    class="ui-contenedor-icono size-5 bg-[--transparente-2] text-texto-sutil p-1"
+                  >
+                    {% include "componentes/iconos/fecha.html#creacion" with class="" %}
+                  </span>
+                  Añadid{{ view.vocal_del_genero }} el:
+                </dt>
+                <dd class=" text-texto-sutil">
+                  {{ tarea.fecha_añadida|date:"D. d M. Y, h:i A" }}
+                </dd>
+              </div>
+
+              <div class="flex aic jb gap-x-2 text-sm {{ class }}">
+                <dt class="flex aic gap-x-1.5">
+                  <span
+                    class="ui-contenedor-icono size-5 bg-[--transparente-2] text-texto-sutil p-1"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                      <path
+                        d="M5 4v16zv5zm2 10h3.675q.275-.55.638-1.062T12.1 12H7zm0 4h3.05q-.05-.5-.05-1t.05-1H7zm-4 4V2h10l6 6v2.3q-.5-.125-1-.213T17 10V9h-5V4H5v16h5.675q.275.575.638 1.075T12.1 22zm14-10q2.075 0 3.538 1.463T22 17t-1.463 3.538T17 22t-3.537-1.463T12 17t1.463-3.537T17 12m0 8q.275 0 .463-.187t.187-.463t-.187-.462T17 18.7t-.462.188t-.188.462t.188.463T17 20m-.45-1.9h.9v-.25q0-.275.15-.488t.35-.412q.35-.3.55-.575t.2-.775q0-.725-.475-1.162T17 14q-.575 0-1.037.338t-.663.912l.8.35q.075-.3.313-.525T17 14.85q.375 0 .588.188t.212.562q0 .275-.15.463t-.35.387q-.15.15-.312.3t-.288.35q-.075.15-.112.3t-.038.35z"
+                      />
+                    </svg>
+                  </span>
+                  Tipo de {{ view.nombre_objeto }}:
+                </dt>
+                <dd class=" text-texto-sutil">{{ tarea.tipo }}</dd>
+              </div>
+
+              <div
+                class="max-h-[150px] {{ class }} text-texto-sutil text-sm lh-[1.6] overflow-y-auto"
+              >
+                <dt class="sr-only">Descripción</dt>
+                <dd>
+                  {% if tarea.descripcion %}
+                    {{ tarea.descripcion }}
+                  {% else %}
+                    <i>Sin descripción</i>
+                  {% endif %}
+                </dd>
+              </div>
+            {% endwith %}
+          </dl>
+        </article>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock lista %}

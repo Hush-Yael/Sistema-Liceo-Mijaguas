@@ -8,6 +8,7 @@ urlpatterns = [
     path("", include("usuarios.urls")),
     path("", include("estudios.urls.parametros")),
     path("", include("estudios.urls.gestion")),
+    path("", include("estudios.urls.calificaciones")),
 ]
 
 if settings.DEBUG:

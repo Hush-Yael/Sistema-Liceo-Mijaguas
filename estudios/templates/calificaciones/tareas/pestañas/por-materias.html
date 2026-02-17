@@ -1,0 +1,42 @@
+{% extends "calificaciones/tareas/pestañas/_index.html" %}
+{% load utilidades %}
+
+{% block sin_objetos %}
+  {% if request.user.profesor %}
+    <h1 class="font-bold text-xl">
+      No has asignado ninguna tarea a alguna materia
+    </h1>
+  {% else %}
+    {{ block.super }}
+  {% endif %}
+
+  <p class="text-lg text-texto-semi-sutil">
+    {% if request.user.profesor %}
+      no podrás añadir notas
+    {% else %}
+      Sin estas, los profesores no podrán añadir notas
+    {% endif %}
+  </p>
+{% endblock sin_objetos %}
+
+{% block opciones_filtros %}
+  {%
+    include "componentes/vista-lista/filtros/conjunto-opciones.html" with
+    campo=form_filtros.tipos
+    opciones=form_filtros.tipos|obtener_lista_opciones
+    opciones_seleccionadas=form_filtros.tipos.value
+    busqueda_activa=1
+  %}
+  {%
+    include "componentes/vista-lista/filtros/conjunto-opciones.html" with
+    campo=form_filtros.anios
+    opciones=form_filtros.anios|obtener_lista_opciones
+    opciones_seleccionadas=form_filtros.anios.value
+  %}
+  {%
+    include "componentes/vista-lista/filtros/conjunto-opciones.html" with
+    campo=form_filtros.secciones
+    opciones=form_filtros.secciones|obtener_lista_opciones
+    opciones_seleccionadas=form_filtros.secciones.value
+  %}
+{% endblock opciones_filtros %}

@@ -1,0 +1,83 @@
+{% extends "objeto-form.html" %}
+{% load partials %}
+{% load static %}
+{% load utilidades %}
+{% load grupos_variantes %}
+
+{% block cabeza %}
+  {{ block.super }}
+  {% include "componentes/combobox.html#scripts" %}
+  {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+     <script>
+       const opcionesProfesorMaterias = {{ pms_agrupadas|safe }}
+     </script>
+  {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+{% endblock cabeza %}
+
+{% block campos %}
+  <div
+    class="{{ 'ui-elevado col gap-y-6 p-4 rounded-lg w-full max-w-600px min-[600px]:(p-6 gap-y-8)'|expandir_variantes }}"
+  >
+    <div id="campos" class="{{ 'col gap-y-6 gap-x-10'|expandir_variantes }}">
+      {% partialdef campos inline %}
+        {% include "componentes/campo.html" with campo=form.nombre input_class="deshabilitar-al-subir ui-elevado-2" %}
+        {% include "componentes/campo.html" with campo=form.descripcion input_class="deshabilitar-al-subir ui-elevado-2 min-h-20" %}
+        {%
+          include "componentes/combobox.html" with
+          name=form.tipo.name
+          campo=form.tipo
+          opciones=form.tipo|obtener_lista_opciones
+          seleccionada=form.tipo.value
+          multiple=0
+          busqueda_activa=1
+          btn_class="bg-fondo-700"
+          caret_class="bg-fondo-900"
+          sin_opciones_msj="No se han registrado tipos de tareas"
+        %}
+
+        {% with campo=form.profesormateria %}
+          {%
+            include "componentes/lista-dual/index.html" with
+            class="min-[600px]:col-span-2"
+            opciones_por_script="opcionesProfesorMaterias"
+            seleccionadas=campo|obtener_ids_seleccionadas|json|safe
+            ancho_cambio=650
+            opciones_agrupadas=1
+            busqueda_activa=1
+            lista_contenedor_class="ui-elevado-2"
+            label_cantidad_seleccionadas="asignados"
+            msg_sin_opciones_disponibles="No hay materias para escoger"
+            msg_sin_opciones_seleccionadas="La tarea no se asignó a ninguna materia"
+          %}
+        {% endwith %}
+      {% endpartialdef campos %}
+    </div>
+
+    {% with c="p-2 px-3 rounded" icc="ui-contenedor-icono size-6 p-1 bg-[--transparente-2]" ic="size-5" %}
+      {% if no_es_usuario_profesor %}
+        <div role="alert" class=" {{ c|add:' bg-peligro text-peligro-texto' }}">
+          <span class="sr-only">Error</span>
+          <p class="flex gap-x-3">
+            <span class="{{ icc }}">
+              {% include "componentes/iconos/mensajes.html#error" with class=ic %}
+            </span>
+            Tu usuario no corresponde a un profesor, no puedes crear tareas
+          </p>
+        </div>
+      {% elif no_tiene_materias_asignadas %}
+        <div
+          role="alert"
+          class=" {{ c|add:' bg-advertencia text-advertencia-texto' }}"
+        >
+          <span class="sr-only">Advertencia</span>
+          <p class="flex gap-x-3">
+            <span class="{{ icc }}">
+              {% include "componentes/iconos/mensajes.html#alerta" with class=ic %}
+            </span>
+            No tienes materias asignadas
+          </p>
+        </div>
+      {% endif %}
+    {% endwith %}
+  </div>
+{% endblock campos %}

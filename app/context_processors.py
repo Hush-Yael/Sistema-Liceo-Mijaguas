@@ -4,7 +4,7 @@ from django.http import HttpRequest
 from django.conf import settings
 from django.urls import reverse_lazy
 from app.vistas import nombre_url_crear_auto, nombre_url_lista_auto
-from estudios.modelos.gestion.calificaciones import Nota
+from estudios.modelos.gestion.calificaciones import Nota, Tarea, TipoTarea
 from estudios.modelos.gestion.personas import Profesor, ProfesorMateria, Matricula
 from estudios.modelos.parametros import Lapso, Materia, Seccion, Año
 from usuarios.models import Usuario, Grupo
@@ -110,6 +110,49 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
                 si_permitido(
                     "estudios.view_nota",
                     {"label": "Boletines", "icono_nombre": "boletines"},
+                ),
+            ],
+        },
+        {
+            "label": "Tareas",
+            "icono_nombre": "tareas",
+            "enlaces": [
+                si_permitido(
+                    "estudios.add_tarea",
+                    {
+                        "label": "Añadir tarea",
+                        "icono_nombre": "añadir",
+                        "href": reverse_lazy(nombre_url_crear_auto(Tarea)),
+                    },
+                )
+                if hasattr(request.user, "profesor")
+                else None,
+                si_permitido(
+                    "estudios.view_tarea",
+                    {
+                        "label": "Mis tareas",
+                        "icono_nombre": "tabla",
+                        # "href": reverse_lazy("mis_tareas"),
+                        "href": reverse_lazy(nombre_url_lista_auto(Tarea)),
+                    },
+                )
+                if hasattr(request.user, "profesor")
+                else None,
+                # si_permitido(
+                #     "estudios.view_tarea",
+                #     {
+                #         "label": "Todas las tareas",
+                #         "icono_nombre": "tabla",
+                #         "href": reverse_lazy(nombre_url_lista_auto(Tarea)),
+                #     },
+                # ),
+                si_permitido(
+                    "estudios.view_tipotarea",
+                    {
+                        "label": "Tipos de tareas",
+                        "icono_nombre": "tabla",
+                        "href": reverse_lazy(nombre_url_lista_auto(TipoTarea)),
+                    },
                 ),
             ],
         },

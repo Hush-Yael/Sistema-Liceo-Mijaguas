@@ -7,6 +7,7 @@ from app.forms import (
 from app.settings import MIGRANDO
 from app.util import mn, nc, vn
 from estudios.forms.parametros.busqueda import LapsoYSeccionFormMixin
+from estudios.modelos.gestion.calificaciones import Tarea, TipoTarea
 from estudios.modelos.parametros import Materia, Seccion, Año
 from estudios.modelos.gestion.personas import (
     Estudiante,
@@ -178,6 +179,65 @@ class ProfesorMateriaBusquedaForm(ProfesorBusquedaFormMixin):
         SECCIONES = "secciones"
 
     campos_prefijo_cookie = "pm"
+
+    materias = forms.ModelMultipleChoiceField(
+        label="Materias",
+        queryset=Materia.objects.all() if not MIGRANDO else None,
+        required=False,
+    )
+
+    anios = forms.ModelMultipleChoiceField(
+        label="Años",
+        queryset=Año.objects.all() if not MIGRANDO else None,
+        required=False,
+    )
+
+    secciones = forms.ModelMultipleChoiceField(
+        label="Secciones",
+        queryset=Seccion.objects.all() if not MIGRANDO else None,
+        required=False,
+    )
+
+
+class TareaBusquedaForm(BusquedaFormMixin):
+    class Campos:
+        TIPOS = "tipos"
+
+    columnas_busqueda = (
+        {
+            "columna_db": nc(Tarea.nombre),
+            "nombre_campo": "titulo",
+        },
+        {
+            "columna_db": nc(Tarea.descripcion),
+            "nombre_campo": "descripcion",
+        },
+    )
+
+    campos_prefijo_cookie = "tareas"
+
+    tipos = forms.ModelMultipleChoiceField(
+        label="Tipo",
+        queryset=TipoTarea.objects.all().order_by(nc(TipoTarea.nombre))
+        if not MIGRANDO
+        else None,
+        required=False,
+    )
+
+
+class TareaProfesorMateriaBusquedaForm(TareaBusquedaForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["secciones"].label_from_instance = lambda obj: obj.nombre  # type: ignore
+
+    class Campos:  # type: ignore
+        TIPOS = "tipos"
+        MATERIAS = "materias"
+        AÑOS = "anios"
+        SECCIONES = "secciones"
+
+    campos_prefijo_cookie = "tpm"
 
     materias = forms.ModelMultipleChoiceField(
         label="Materias",

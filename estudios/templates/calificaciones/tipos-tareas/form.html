@@ -1,0 +1,22 @@
+{% extends "objeto-form.html" %}
+{% load partials %}
+{% load static %}
+{% load utilidades %}
+{% load grupos_variantes %}
+
+{% block campos %}
+  <div
+    id="campos"
+    class="{{ 'ui-elevado col gap-y-6 p-4 rounded-lg w-full max-w-600px min-[600px]:(p-6 gap-y-8)'|expandir_variantes }}"
+  >
+    {% partialdef campos inline %}
+      {% for campo in form %}
+        {% if campo == form.descripcion %}
+          {% include "componentes/campo.html" with input_class="deshabilitar-al-subir ui-elevado-2 min-h-20" %}
+        {% else %}
+          {% include "componentes/campo.html" with input_class="deshabilitar-al-subir ui-elevado-2" %}
+        {% endif %}
+      {% endfor %}
+    {% endpartialdef campos %}
+  </div>
+{% endblock campos %}

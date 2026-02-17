@@ -9,6 +9,7 @@ from estudios.management.commands import (
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.db.utils import IntegrityError
+from estudios.modelos.gestion.calificaciones import TipoTarea
 
 AÑOS = [
     ("Primer Año", "1ero"),
@@ -34,6 +35,19 @@ MATERIAS = [
 
 MATERIAS_PUNTUALES = {"Premilitar": (5,), "Física": (3, 4, 5), "Química": (3, 4, 5)}
 
+TAREAS = [
+    "taller",
+    "examen escrito",
+    "examen oral",
+    "defensa",
+    "exposición",
+    "trabajo completo",
+    "trabajo de campo",
+    "análisis",
+    "ensayo",
+    "presentación",
+    "proyecto",
+]
 
 
 class Command(BaseCommand):
@@ -46,12 +60,14 @@ class Command(BaseCommand):
 
         self.crear_materias_por_defecto()
 
+        self.crear_tareas_por_defecto()
+
         self.crear_grupos_por_defecto()
 
         self.stdout.write(
             self.style.SUCCESS(
                 f"¡Datos estáticos creados exitosamente! "
-                f"({self.años_creados} años, {self.materias_creadas} materias creadas, {self.materias_asignadas} materias asignadas, {self.secciones_creadas} secciones, {self.grupos_creados} grupos)"
+                f"({self.años_creados} años, {self.materias_creadas} materias, {self.materias_asignadas} materias asignadas, {self.tareas_creadas} tipos de tareas, {self.secciones_creadas} secciones, {self.grupos_creados} grupos)"
             )
         )
 
@@ -150,6 +166,8 @@ class Command(BaseCommand):
                     # evitar asignar permisos que no sean de lectura para los modelos de calificaciones
                     if (
                         modelo in modelos_calificaciones
+                        # para los tipos de tareas sí tienen permisos
+                        and modelo != TipoTarea
                         and not permiso.codename.startswith("view_")
                     ):
                         continue
@@ -173,7 +191,10 @@ class Command(BaseCommand):
 
                     permisos = Permission.objects.filter(
                         content_type=content_type,
-                    ).all()
+                    )
+
+                    if modelo == TipoTarea:
+                        permisos = permisos.filter(codename__startswith="view_")
 
                     for permiso in permisos:
                         grupo_profesor.permissions.add(permiso)
@@ -209,9 +230,21 @@ class Command(BaseCommand):
         except IntegrityError:
             self.stdout.write("Admin ya creado")
 
-        self.stdout.write(
-            self.style.SUCCESS(
-                f"¡Datos estáticos creados exitosamente! "
-                f"({años_creados} años, {materias_creadas} materias creadas, {materias_asignadas} materias asignadas, {secciones_creadas} secciones, {grupos_creados} grupos)"
+        self.grupos_creados = grupos_creados
+
+    def crear_tareas_por_defecto(self):
+        self.stdout.write("Creando tareas por defecto...")
+        tareas_creadas = 0
+
+        if ModelosCalificaciones.TipoTarea.objects.count() > 0:
+            self.stdout.write("Tareas por defecto ya creadas")
+        else:
+            t = ModelosCalificaciones.TipoTarea.objects.bulk_create(
+                (ModelosCalificaciones.TipoTarea(nombre=tarea) for tarea in TAREAS),
+                ignore_conflicts=True,
             )
-        )
+
+            tareas_creadas = len(t)
+
+            self.stdout.write(f"✓ {tareas_creadas} Tareas por defecto creadas")
+        self.tareas_creadas = tareas_creadas
