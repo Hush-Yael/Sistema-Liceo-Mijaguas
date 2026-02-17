@@ -98,10 +98,18 @@ const msg = {
   ["ui-msg/info"]: "bg-info text-info-texto [&>button]:bg-#0002",
 } satisfies Config["shortcuts"];
 
+const pestañas = {
+  ["ui-lista-pestañas"]: "flex flex-wrap text-sm -mb-px font-500 text-center",
+
+  ["ui-pestaña"]:
+    "inline-flex items-center justify-center p-2 px-4 border-b border-#0000 text-texto-semi-sutil transition-colors cursor-pointer select-none",
+};
+
 export default {
   ...util,
   ...elems,
   ...btn,
   ...input,
   ...msg,
+  ...pestañas,
 } satisfies UserShortcuts<ConfigThemePreset>;
