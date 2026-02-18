@@ -616,6 +616,9 @@ class ListaMatriculas(VistaListaObjetos):
             self, queryset, datos_form, "seccion"
         )
 
+        if años := datos_form.get("anios"):
+            queryset = queryset.filter(seccion__año__in=años)
+
         if estado := datos_form.get("estado"):
             queryset = queryset.filter(estado=estado)
 

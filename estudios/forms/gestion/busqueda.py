@@ -76,7 +76,14 @@ class MatriculaBusquedaForm(OrdenFormMixin, LapsoYSeccionFormMixin):
             "Cedula",
         ),
     )
+
     campos_prefijo_cookie = "matriculas"
+
+    anios = forms.ModelMultipleChoiceField(
+        label="Año",
+        queryset=Año.objects.all() if not MIGRANDO else None,
+        required=False,
+    )
 
     estado = forms.ChoiceField(
         label="Estado",
