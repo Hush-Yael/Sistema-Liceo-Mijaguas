@@ -83,7 +83,8 @@ def obtener_lista_opciones(campo):
             for value, label in opciones
             if value  # Ignorar opciones vacías
         ]
-    except Exception:
+    except Exception as e:
+        print("------->", e)
         return "[]"
 
 
@@ -96,7 +97,8 @@ def obtener_ids_seleccionadas(campo):
             seleccionadas = campo.value()
             return [str(id) for id in seleccionadas]
         return []
-    except Exception:
+    except Exception as e:
+        print("------->", e)
         return []
 
 
