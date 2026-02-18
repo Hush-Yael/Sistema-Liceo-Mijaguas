@@ -173,7 +173,7 @@
           {% if permisos.crear %}
             <div class="flex gap-2">
               <a
-                {# href="{% url 'asignar_materias_profesor' %}?profesor={{ profesor.id }}" #}
+                href="{% url view.url_crear %}?profesor_id={{ profesor.id }}"
                 class="{{ 'ui-btn ui-btn/secundario dark:bg-secundario-600 p-1 rounded-full max-[600px]:(size-6 aspect-square) min-[600px]:(text-sm px-4)'|expandir_variantes }}"
               >
                 {% include "componentes/iconos/edicion.html#suma" with class="min-[600px]:hidden" %}

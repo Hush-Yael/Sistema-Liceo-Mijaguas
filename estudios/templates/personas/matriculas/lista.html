@@ -1,12 +1,187 @@
-{% extends "componentes/tabla-adaptable/index.html" %}
+{% extends "componentes/vista-lista/lista.html" %}
 {% load utilidades %}
+{% load grupos_variantes %}
+{% load l10n %}
 
-{% block td %}
-  {% if 'fecha' in columna.clave %}
-    {{ dato|date:"d M. Y, h:i A" }}
-  {% elif columna.clave == 'estado' %}
-    {{ view.estados_opciones|valor_por_clave:dato }}
-  {% else %}
-    {{ dato|default_if_none:'' }}
-  {% endif %}
-{% endblock td %}
+{% block lista %}
+  <ul x-bind="eventosLista" class="col gap-y-6 w-full overflow-auto">
+    {% for seccion in lista_objetos %}
+      <li class="w-full">
+        <details class="group col gap-y-2" open>
+          <summary
+            class="flex aic gap-x-3 pb-2 border-b border-[--transparente-2]"
+          >
+            <svg
+              class="size-3.5 rotate-90 group-open:rotate-180 group-open:text-texto-sutil transition-[transform,color] ease-in-out duration-150"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="m12.866 3 9.526 16.5a1 1 0 0 1-.866 1.5H2.474a1 1 0 0 1-.866-1.5L11.134 3a1 1 0 0 1 1.732 0Z"
+              ></path>
+            </svg>
+
+            <span class="flex jb aic flex-1 font-bold">
+              <h2>{{ seccion.nombre }}</h2>
+
+              {% if permisos.crear %}
+                <a
+                  href="{% url view.url_crear %}?seccion={{ seccion.id }}"
+                  class="{{ 'ui-btn ui-btn/secundario dark:bg-secundario-600 p-1 rounded-full max-[600px]:(size-6 aspect-square) min-[600px]:(text-sm px-4)'|expandir_variantes }}"
+                >
+                  {% include "componentes/iconos/edicion.html#suma" with class="min-[600px]:hidden" %}
+                  {% include "componentes/iconos/edicion.html#suma_circulo" with class="max-[600px]:hidden size-4.5" %}
+                  <span class="max-[600px]:sr-only">Añadir matrícula</span>
+                </a>
+              {% endif %}
+            </span>
+          </summary>
+
+          <div class="ui-elevado rounded">
+            <div class="overflow-auto w-full">
+              <table
+                class="overflow-hidden w-full rounded-t"
+                x-data="{
+                ids: [{% for seccion in seccion.matriculas %}'{{ seccion.id }}',{% endfor %}],
+
+                alternarSeleccionTodo() {
+                  if (this.ids.every((id) => this.filasSeleccionadas.has(id))) {
+                    this.ids.forEach((id) => this.filasSeleccionadas.delete(id));
+                  } else {
+                    this.ids.forEach((id) => this.filasSeleccionadas.add(id));
+                  }
+                  
+                  this.ultimaSeleccionadaIndice = null;
+                }
+              }"
+              >
+                <caption class="sr-only">
+                  Lista de materias asignadas
+                </caption>
+
+                <thead
+                  class="sticky top-0 bg-fondo-600 border-b border-[--transparente-2] rounded-t"
+                >
+                  {% with class="px-4 py-3 text-xs font-medium text-texto-sutil text-left uppercase tracking-wider" %}
+                    <tr>
+                      {% if permisos.editar or permisos.eliminar %}
+                        <th class="{{ class }} [&+th]:pl-0!">
+                          <button
+                            id="seleccionar-todos"
+                            aria-label="Seleccionar todas las filas"
+                            @click="alternarSeleccionTodo()"
+                          >
+                            {% include "componentes/iconos/edicion.html#seleccionar_todo" with class="size-5" %}
+                          </button>
+                        </th>
+                      {% endif %}
+                      <th class="{{ class }}">Estudiante</th>
+                      <th class="{{ class }} text-right">cedula</th>
+                      <th class="{{ class }} tac!">estado</th>
+                      <th class="{{ class }}">fecha de añadida</th>
+                    </tr>
+                  {% endwith %}
+                </thead>
+
+                <tbody class="divide-y divide-[--transparente-1]">
+                  {% with class="px-4 py-2 whitespace-nowrap" %}
+                    {% for matricula in seccion.matriculas %}
+                      <tr>
+                        {% if permisos.editar or permisos.eliminar %}
+                          <td class="{{ class }} [&+td]:pl-0!">
+                            <div class="flex">
+                              {%
+                                with
+                                indice=forloop.counter0|add:forloop.parentloop.counter0
+                                id_l1=forloop.counter0|stringformat:"s"|add:'_'
+                                id_l2=forloop.parentloop.counter0|stringformat:"s"
+                                objeto=matricula
+                              %}
+                                {% if not forloop.parentloop.first %}
+                                  {# empezar conteo desde uno a partir de la segunda iteración de profesores #}
+                                  {%
+                                    include "componentes/vista-lista/objeto-check.html" with
+                                    id_fila=id_l1|add:id_l2
+                                    indice=forloop.counter|add:forloop.parentloop.counter0
+                                  %}
+                                {% else %}
+                                  {%
+                                    include "componentes/vista-lista/objeto-check.html" with
+                                    id_fila=id_l1|add:id_l2
+                                  %}
+                                {% endif %}
+                              {% endwith %}
+                            </div>
+                          </td>
+                        {% endif %}
+                        <td class="{{ class }}">
+                          {% with dato=matricula.estudiante.nombres|add:' '|add:matricula.estudiante.apellidos %}
+                            {% if permisos.editar %}
+                              <a href="{% url view.url_editar matricula.id %}">
+                                {{ dato }}
+                              </a>
+                            {% else %}
+                              {{ dato }}
+                            {% endif %}
+                          {% endwith %}
+                        </td>
+
+                        <td class="{{ class }} text-right">
+                          {{ matricula.estudiante.cedula|localize }}
+                        </td>
+
+                        <td class="{{ class }} tac">
+                          {% with dato=matricula.estado class="p-0.5 px-3 rounded text-sm" %}
+                            {% with dato=view.estados_opciones|valor_por_clave:dato %}
+                              <span
+                                {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+                                  {% if dato == view.estados_opciones.A %}
+                                    class="{{ class }} bg-exito text-exito-texto"
+                                  {% elif dato == view.estados_opciones.I %}
+                                    class="{{ class }} bg-advertencia-300 text-advertencia-800"
+                                  {% elif dato == view.estados_opciones.S %}
+                                    class="{{ class }} bg-peligro text-peligro-texto"
+                                  {% else %}
+                                    class="{{ class }} bg-[--transparente-1] text-texto-sutil"
+                                  {% endif %}
+                                {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+                              >
+                                {{ dato }}
+                              </span>
+                            {% endwith %}
+                          {% endwith %}
+                        </td>
+
+                        <td class="{{ class }}">
+                          {{ matricula.fecha_añadida }}
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  {% endwith %}
+                </tbody>
+              </table>
+            </div>
+
+            <footer
+              class="flex jb aic gap-x-5 px-3 py-2 bg-fondo-600 px-3 py-2 rounded-b border-t border-[--transparente-1]"
+            >
+              <span class="flex aic gap-x-1.5 text-sm text-texto-sutil">
+                {% include "componentes/iconos/mensajes.html#info" with class="size-3.5" %}
+                {% with n=seccion.matriculas|length %}
+                  <span>
+                    Total: <b>{{ n }}</b>
+                    {% if n == 1 %}
+                      {{ view.nombre_objeto }}
+                    {% else %}
+                      {{ view.nombre_objeto_plural }}
+                    {% endif %}
+                  </span>
+                {% endwith %}
+              </span>
+            </footer>
+          </div>
+        </details>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock lista %}
