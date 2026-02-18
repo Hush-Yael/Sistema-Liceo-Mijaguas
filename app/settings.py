@@ -69,6 +69,7 @@ TEMPLATES = [
             ],
             "libraries": {
                 "utilidades": "templatetags.utilidades",
+                "debug": "templatetags.debug",
                 "grupos_variantes": "templatetags.grupos_variantes.tags",
             },
         },
