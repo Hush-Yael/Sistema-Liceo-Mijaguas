@@ -46,6 +46,9 @@ class VistaListaObjetos(Vista, ListView):
         "put",
         "delete",
     )
+    ordering = "id"
+    # si se quiere agrupar los resultados
+    agrupados = False
 
     def __init__(self):
         """Establece automáticamente los atributos url_crear y url_editar si no se han establecido. Estos se usan en el html de la vista para indicar los enlaces para crear y editar el tipo de objeto de la vista en cuestión."""
@@ -58,8 +61,12 @@ class VistaListaObjetos(Vista, ListView):
 
         super().__init__()
 
-    def get_queryset(self, queryset: "models.QuerySet" = None) -> "list[dict]":  # type: ignore
-        """Transforma el queryset en una lista. Si se indica un form de orden, se ordenan los datos de acuerdo a los valores indicados. Si se indica un form de filtros, se filtran los datos de acuerdo a los valores indicados."""
+    def get_queryset(
+        self, queryset: "models.QuerySet | None" = None
+    ) -> "models.QuerySet":
+        """Retorna el queryset. Si se indica un form de orden, se ordenan los datos de acuerdo a los valores indicados. Si se indica un form de filtros, se filtran los datos de acuerdo a los valores indicados."""
+        if queryset is None:
+            raise ValueError("Se debe indicar un queryset")
 
         if queryset:
             # se indicó un form de filtros
@@ -78,9 +85,7 @@ class VistaListaObjetos(Vista, ListView):
                     datos_form=datos_form,
                 )
 
-            return list(queryset)
-        else:
-            return []
+        return queryset
 
     def establecer_form_filtros(self):
         """Establece los datos del form de filtros según el método de la request, los valida y, si son válidos los retorna, si no retorna los valores por defecto."""
@@ -203,6 +208,10 @@ class VistaListaObjetos(Vista, ListView):
 
         return queryset
 
+    def agrupar_queryset(self, lista_objetos: models.QuerySet) -> models.QuerySet:
+        """Agrupa el queryset de acuerdo otro modelo relacionado. Retorna una lista con los objetos del modelo principal para cada objeto del modelo relacionado"""
+        raise NotImplementedError
+
     def get_context_data(self, *args, **kwargs):
         """Agrega los datos necesarios al context para la vista. Por defecto obtiene la instancia del form de filtros, los modelos relacionados, los permisos del usuario en relación al modelo y una variable que indica si no hay objetos del modelo indicado en la base de datos"""
 
@@ -217,6 +226,12 @@ class VistaListaObjetos(Vista, ListView):
             )
         except Exception:
             ctx["modelos_relacionados"] = ()
+
+        if self.agrupados:
+            """ Al agrupar el queryset, se debe cambiar la lista de objetos del contexto"""
+            ctx[self.context_object_name or "object_list"] = self.agrupar_queryset(
+                self.object_list  # type: ignore - sí es un queryset
+            )
 
         ctx.update(
             VistaListaContexto(

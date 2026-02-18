@@ -18,7 +18,7 @@
             <h2 class="font-bold line-clamp-4">
               {% include "componentes/tabla-adaptable/enlace-editar.html" with dato=tarea.nombre objeto=tarea %}
             </h2>
-            {% with n=tarea.cantidad_asignadas %}
+            {% with n=tarea.materias_asignadas|length %}
               <span
                 class="text-sm rounded-full mt-0.5 p-0.5 px-4 bg-secundario dark:bg-secundario-600 text-secundario-texto text-xs font-semibold"
                 role="status"

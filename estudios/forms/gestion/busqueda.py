@@ -1,5 +1,5 @@
 from django import forms
-from app.campos import CampoBooleanoONulo
+from app.campos import OPCIONES_TIPO_BUSQUEDA_CANTIDADES, CampoBooleanoONulo
 from app.forms import (
     BusquedaFormMixin,
     OrdenFormMixin,
@@ -157,12 +157,14 @@ class ProfesorBusquedaForm(ProfesorBusquedaFormMixin):
 # Se usa ProfesorBusquedaFormMixin ya que el queryset también es del modelo Profesor (las materias se añaden con Prefetch)
 class ProfesorMateriaBusquedaForm(ProfesorBusquedaFormMixin):
     def __init__(self, *args, **kwargs) -> None:
+
         self.columnas_busqueda = (
             *(self.columnas_busqueda),
             {
                 "columna_db": "cantidad_materias",
                 "nombre_campo": "cantidad_materias",
                 "label_campo": "Cantidad de materias",
+                "opciones_tipo_busqueda": OPCIONES_TIPO_BUSQUEDA_CANTIDADES,
             },
         )
 
@@ -207,10 +209,12 @@ class TareaBusquedaForm(BusquedaFormMixin):
         {
             "columna_db": nc(Tarea.nombre),
             "nombre_campo": "titulo",
+            "label_campo": "Título",
         },
         {
             "columna_db": nc(Tarea.descripcion),
             "nombre_campo": "descripcion",
+            "label_campo": "Descripción",
         },
     )
 
@@ -225,7 +229,7 @@ class TareaBusquedaForm(BusquedaFormMixin):
     )
 
 
-class TareaProfesorMateriaBusquedaForm(TareaBusquedaForm):
+class TareaProfesorMateriaBusquedaForm(BusquedaFormMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -236,6 +240,19 @@ class TareaProfesorMateriaBusquedaForm(TareaBusquedaForm):
         MATERIAS = "materias"
         AÑOS = "anios"
         SECCIONES = "secciones"
+
+    columnas_busqueda = (
+        {
+            "columna_db": f"{mn(Tarea)}__{nc(Tarea.nombre)}",
+            "nombre_campo": "titulo",
+            "label_campo": "Título",
+        },
+        {
+            "columna_db": f"{mn(Tarea)}__{nc(Tarea.descripcion)}",
+            "nombre_campo": "descripcion",
+            "label_campo": "Descripción",
+        },
+    )
 
     campos_prefijo_cookie = "tpm"
 

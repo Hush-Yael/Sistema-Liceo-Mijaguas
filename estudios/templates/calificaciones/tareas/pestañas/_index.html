@@ -11,8 +11,7 @@
   <script defer src="{% static 'js/componentes/combobox.js' %}"></script>
 {% endblock cabeza %}
 
-{% block cabecera %}
-  {{ block.super }}
+{% block filtros %}
   <nav class="border-b border-[#fff2] bg-primario-700 dark:bg-primario-500">
     <ul class="ui-lista-pestañas">
       {% with class="inline-flex items-center justify-center p-2 px-4 border-b border-#0000 text-primario-texto flex-1 pover:bg-primario-600 dark:pover:bg-primario-400 aria-[current=true]:border-b border-primario-600! transition-colors" %}
@@ -40,7 +39,8 @@
       {% endwith %}
     </ul>
   </nav>
-{% endblock cabecera %}
+  {{ block.super }}
+{% endblock filtros %}
 
 {% block contenido %}
   {% with lista_clase="p-3 min-[500px]:(p-4 px-5) sidebar:max-sidebar_full:px-6 min-[1000px]:(p-5 px-8) gap-y-4" %}

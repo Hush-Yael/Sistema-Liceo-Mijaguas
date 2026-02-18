@@ -1,4 +1,3 @@
-from functools import reduce
 from typing import Any, Mapping
 from django.contrib import messages
 from django.db import models
@@ -44,7 +43,7 @@ class ListaLapsos(VistaListaObjetos):
     model = Lapso
     form_filtros = LapsoBusquedaForm
 
-    def get_queryset(self, *args, **kwargs) -> "list[dict]":
+    def get_queryset(self, *args, **kwargs):
         lapso_actual = obtener_lapso_actual()
 
         q = Lapso.objects.order_by("-id", "numero")
@@ -83,7 +82,7 @@ class ListaMaterias(VistaListaObjetos):
         {"clave": "fecha", "titulo": "Fecha de creación", "anotada": True},
     )
 
-    def get_queryset(self, *args, **kwargs) -> "list[dict]":
+    def get_queryset(self, *args, **kwargs):
         queryset = (
             Materia.objects.annotate(
                 fecha=TruncMinute("fecha_creacion"),
@@ -102,7 +101,6 @@ class ListaMaterias(VistaListaObjetos):
         queryset: models.QuerySet,
         datos_form: "dict[str, Any] | Mapping[str, Any]",
     ):
-        am_queryset = AñoMateria.objects.select_related("materia", "año")
         queryset = super().aplicar_filtros(queryset, datos_form)
 
         if años_asignados := datos_form.get(MateriaBusquedaForm.Campos.ANIOS_ASIGNADOS):
@@ -151,7 +149,7 @@ class ListaMaterias(VistaListaObjetos):
         return queryset.prefetch_related(
             Prefetch(
                 "añomateria_set",
-                queryset=am_queryset,
+                queryset=AñoMateria.objects.all(),
                 to_attr="asignaciones",
             )
         )
@@ -312,14 +310,10 @@ class ListaSecciones(VistaListaObjetos):
     model = Seccion
     genero_sustantivo_objeto = "F"
     form_filtros = SeccionBusquedaForm
+    agrupados = True
 
-    def get_queryset(self, *args, **kwargs) -> "list[dict]":
-        q = Seccion.objects.annotate(
-            cantidad_matriculas=Count(
-                "matricula", filter=Q(matricula__estado="activo")
-            ),
-        )
-
+    def get_queryset(self, *args, **kwargs):
+        q = self.model.objects.annotate(cantidad_matriculas=Count("matricula")).all()
         return super().get_queryset(q)
 
     def aplicar_filtros(self, queryset, datos_form):
@@ -350,30 +344,20 @@ class ListaSecciones(VistaListaObjetos):
             elif disponibilidad == OpcionesFormSeccion.Disponibilidad.VACIA.value[0]:
                 queryset = queryset.filter(cantidad_matriculas=0)
 
+        return queryset
+
+    def agrupar_queryset(self, lista_objetos):
         return (
             Año.objects.annotate(Count("seccion"))
-            .filter(seccion__isnull=False)
+            .filter(seccion__in=lista_objetos.values("id"))
             .prefetch_related(
                 Prefetch(
                     "seccion_set",
-                    queryset=queryset,
+                    queryset=lista_objetos,
                     to_attr="secciones",
                 )
             )
         )
-
-    def sin_resultados(self):
-        """Ya que se usa Prefetch, hay que comprobar si hay al menos un año con una lista secciones no vacía"""
-        return not len(getattr(self.object_list[0], "secciones"))
-
-    def get_context_data(self, *args, **kwargs):
-        ctx = super().get_context_data(*args, **kwargs)
-
-        self.cantidad_filtradas = reduce(
-            lambda x, y: x + len(y.secciones), ctx["object_list"], 0
-        )
-
-        return ctx
 
 
 class CrearSeccion(VistaCrearObjeto):

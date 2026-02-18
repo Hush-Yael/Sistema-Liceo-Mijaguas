@@ -1,11 +1,9 @@
-from functools import reduce
 from django.db.models.functions.datetime import TruncMinute
 from django.http import (
     HttpRequest,
     HttpResponseForbidden,
 )
 from django.db.models import F, Count, Prefetch, QuerySet, Value
-from app.util import nc
 from app.vistas import nombre_url_editar_auto
 from app.vistas.forms import (
     VistaActualizarObjeto,
@@ -203,12 +201,13 @@ class ListaTareasProfesor(
     """Vista dedicada a las tareas propias de cada profesor"""
 
     form_filtros = TareaBusquedaForm
+    paginate_by = 50
     http_method_names = ("get", "post", "delete")
 
     def get_queryset(self, *args, **kwargs):
         q = self.model.objects.all().filter(profesor=self.request.user.profesor)  # type: ignore - sí existe "profesor" como atributo
 
-        return super().get_queryset(q)
+        return super().get_queryset(q.order_by("nombre"))
 
     def aplicar_filtros(self, queryset, datos_form):
         """Además filtrar solo las tareas propias del profesor"""
@@ -248,54 +247,36 @@ class ListaTareasProfesorMateriaMixin(VistaListaObjetos):
     url_crear = None  # type: ignore
     form_filtros = TareaProfesorMateriaBusquedaForm
     http_method_names = ("get", "post")
+    agrupados = True
 
     def aplicar_filtros(self, queryset, datos_form):
-        tpm_queryset = TareaProfesorMateria.objects.select_related("tarea").only(
-            nc(TareaProfesorMateria.tarea)
-        )
-
-        if hasattr(self.request.user, "profesor"):
-            queryset = queryset.filter(profesor=self.request.user.profesor)  # type: ignore - sí existe "profesor" como atributo
-            tpm_queryset = tpm_queryset.filter(
-                profesormateria__profesor=self.request.user.profesor  # type: ignore - sí existe "profesor" como atributo
-            )
-
         queryset = super().aplicar_filtros(queryset, datos_form)
 
         if tipos := datos_form.get(TareaProfesorMateriaBusquedaForm.Campos.TIPOS):
-            queryset = queryset.filter(tipo__in=tipos)
-            tpm_queryset = tpm_queryset.filter(tarea__tipo__in=tipos)
+            queryset.filter(tarea__tipo__in=tipos)
 
         if anios := datos_form.get(TareaProfesorMateriaBusquedaForm.Campos.AÑOS):
-            queryset = queryset.filter(
-                tareaprofesormateria__profesormateria__seccion__año__in=anios
-            )
-            tpm_queryset = tpm_queryset.filter(profesormateria__seccion__año__in=anios)
+            queryset.filter(profesormateria__seccion__año__in=anios)
 
         if secciones := datos_form.get(
             TareaProfesorMateriaBusquedaForm.Campos.SECCIONES
         ):
-            queryset = queryset.filter(
-                tareaprofesormateria__profesormateria__seccion__in=secciones
-            )
-            tpm_queryset = tpm_queryset.filter(profesormateria__seccion__in=secciones)
+            queryset.filter(profesormateria__seccion__in=secciones)
 
-        return queryset.prefetch_related(
-            Prefetch(
-                "tareaprofesormateria_set",
-                queryset=tpm_queryset,
-                to_attr="materias_asignadas",
+        return queryset
+
+    def agrupar_queryset(self, lista_objetos):
+        return (
+            Tarea.objects.distinct()
+            .filter(tareaprofesormateria__in=lista_objetos)
+            .prefetch_related(
+                Prefetch(
+                    "tareaprofesormateria_set",
+                    queryset=lista_objetos,
+                    to_attr="materias_asignadas",
+                )
             )
         )
-
-    def get_context_data(self, *args, **kwargs):
-        ctx = super().get_context_data(*args, **kwargs)
-
-        self.cantidad_filtradas = reduce(
-            lambda x, y: x + len(y.materias_asignadas), ctx["object_list"], 0
-        )
-
-        return ctx
 
 
 class ListaTareasProfesorMateriaPropias(
@@ -306,18 +287,14 @@ class ListaTareasProfesorMateriaPropias(
     """Vista dedicada a la visualización de tareas propias de cada profesor asociadas a sus materias."""
 
     def get_queryset(self, *args, **kwargs):
-        q = (
-            Tarea.objects.annotate(cantidad_asignadas=Count("tareaprofesormateria"))
-            .only(nc(Tarea.nombre))
-            .filter(cantidad_asignadas__gt=0, profesor=self.request.user.profesor)  # type: ignore - sí existe "profesor" como atributo
-        )
+        q = self.model.objects.all()
+
+        if hasattr(self.request.user, "profesor"):
+            q = q.filter(
+                profesormateria__profesor=self.request.user.profesor  # type: ignore - sí existe "profesor" como atributo
+            )
 
         return super().get_queryset(q)
-
-    def obtener_total(self):
-        self.total = self.model.objects.filter(
-            profesormateria__profesor=self.request.user.profesor  # type: ignore - sí existe "profesor" como atributo
-        ).count()
 
     def eliminar(self, request: HttpRequest, ids: "list[str]"):
         return self.model.objects.filter(
