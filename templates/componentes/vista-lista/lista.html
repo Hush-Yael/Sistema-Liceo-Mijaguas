@@ -37,6 +37,11 @@
       {% endblock sin_resultados %}
     </hgroup>
   </div>
+
+  {% if lista_reemplazada_por_htmx %}
+    {# Ya que no hay resultados, la cantidad del indicador de filtrados es 0 #}
+    <span hx-swap-oob="innerHTML:#filtrados-cantidad"> 0 </span>
+  {% endif %}
 {% else %}
   {# al cambiar la lista, actualizar la cantidad de resultados #}
   {% if view.form_filtros and lista_reemplazada_por_htmx %}
