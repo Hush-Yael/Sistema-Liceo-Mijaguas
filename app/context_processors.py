@@ -95,13 +95,6 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
                         "href": reverse_lazy(nombre_url_lista_auto(Matricula)),
                     },
                 ),
-                si_permitido(
-                    "estudios.view_bachiller",
-                    {
-                        "label": "Bachilleres",
-                        "icono_nombre": "bachilleres",
-                    },
-                ),
             ],
         },
         {
@@ -229,15 +222,6 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
                 ),
             ],
         },
-        (
-            {
-                "label": "Panel de administración",
-                "icono_nombre": "panel",
-                "href": "/admin/",
-            }
-            if request.user.is_staff  # type: ignore
-            else None
-        ),
     ]
 
 
