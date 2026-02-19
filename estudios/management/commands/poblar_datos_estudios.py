@@ -120,6 +120,7 @@ class Command(BaseCommand):
 
         for materia in MATERIAS:
             for num in range(len(AÑOS)):
+                num += 1
                 # evitar asignar ciertas materias a todos los años, solo a algunos
                 if (
                     materia in MATERIAS_PUNTUALES
