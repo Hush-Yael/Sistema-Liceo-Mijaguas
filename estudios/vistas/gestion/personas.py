@@ -413,10 +413,12 @@ class CrearProfesorMateria(VistaForm, FormView):
 
     def get_initial(self):
         """Seleccionar un profesor específico por defecto si se proporciona el id por GET"""
-        if profesor_id := self.request.GET.get("profesor_id"):
-            if profesor_id.isdigit() and (
-                profesor := Profesor.objects.filter(id=profesor_id).first()
-            ):
+        if (
+            profesor_id := self.request.GET.get("profesor_id", "")
+        ) and profesor_id.isdigit():
+            profesor = Profesor.objects.filter(id=profesor_id).first()
+
+            if profesor and profesor.activo:
                 return {"profesor": profesor}
 
         return {}
