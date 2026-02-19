@@ -5,8 +5,7 @@
 
 <div
   class="{{ 'ui-elevado col gap-6 p-4 rounded-lg min-[700px]:(grid grid-cols-2 p-6)'|expandir_variantes }}"
-  {# x-data="{ asignacionUsuario: {% if form.usuario_manual.value %}'manual'{% else %}'existente'{% endif %} }" #}
-  x-data="{ asignacionUsuario: 'manual'}"
+  x-data="{ asignacionUsuario: {% if form.usuario_manual.value %}'manual'{% else %}'existente'{% endif %} }"
 >
   {% render_field form.usuario_manual class="sr-only" %}
 
