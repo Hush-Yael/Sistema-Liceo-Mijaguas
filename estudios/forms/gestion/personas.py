@@ -212,12 +212,6 @@ class FormProfesorMateriaMasivo(forms.Form):
             for asignacion in asignaciones_existentes
         ]
 
-        # Construimos una subconsulta para excluir asignaciones existentes
-        combinaciones_excluir = [
-            (asignacion["seccion_id"], asignacion["materia_id"])
-            for asignacion in asignaciones_existentes
-        ]
-
         # Obtenemos todas las secciones con sus años y materias disponibles
         materias_disponibles = []
 
