@@ -5,9 +5,8 @@
 
 {% block cabeza %}
   {{ block.super }}
-  {% include "componentes/combobox.html#scripts" %}
+  <script defer src="{% static 'js/componentes/combobox.js' %}"></script>
   <script defer src="{% static 'js/alpine-focus.min.js' %}"></script>
-  <script src="{% static 'js/componentes/lista-objetos.js' %}"></script>
 {% endblock cabeza %}
 
 {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
