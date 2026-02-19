@@ -47,6 +47,7 @@ TAREAS = [
     "ensayo",
     "presentación",
     "proyecto",
+    "otra",
 ]
 
 
