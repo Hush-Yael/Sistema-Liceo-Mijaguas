@@ -40,7 +40,7 @@
 {% block lista %}
   <ul
     x-bind="eventosLista"
-    class="{{ 'grid grid-cols-[repeat(auto-fill,minmax(325px,1fr))] grid-cols-[repeat(auto-fill,minmax(140px,1fr))] supports-[not(grid-template-columns:repeat(auto-fill,minmax(140px,1fr)))]:(flex flex-wrap) gap-5'|expandir_variantes }}"
+    class="{{ 'grid grid-cols-[repeat(auto-fill,minmax(325px,1fr))] supports-[not(grid-template-columns:repeat(auto-fill,minmax(140px,1fr)))]:(flex flex-wrap) gap-5'|expandir_variantes }}"
   >
     {% for materia in lista_objetos %}
       <li>
