@@ -35,7 +35,7 @@
 {% block lista %}
   <ul
     x-bind="eventosLista"
-    class="col gap-y-4"
+    class="col min-[500px]:grid cols-[repeat(auto-fill,minmax(325px,1fr))] rows-[repeat(auto-fill,_minmax(auto,350px))] gap-4 flex-1 min-[500px]:gap-y-5"
     @click="{{
       '
         if ($event.target.closest("[data-foto-url]")) {
@@ -52,7 +52,7 @@
     }}"
   >
     {% for profesor in lista_objetos %}
-      <li class="ui-elevado rounded-xl">
+      <li class="col ui-elevado rounded-xl">
         {# Cabecera con datos del profesor #}
         <div
           class="flex aic gap-4 p-2 px-3 rounded-t-xl bg-fondo-700 border-b border-[--transparente-1]"
@@ -90,71 +90,94 @@
           </hgroup>
         </div>
 
-        <ul
-          class="{{ 'grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] supports-[not(grid-template-columns:repeat(auto-fill,minmax(140px,1fr)))]:(flex flex-wrap) gap-2 p-3 min-[600px]:py-4'|expandir_variantes }}"
-        >
-          {% for asignacion in profesor.materias_asignadas %}
-            <li class="relative">
-              {% if permisos.editar or permisos.eliminar %}
-                {%
-                  with
-                  indice=forloop.counter0|add:forloop.parentloop.counter0
-                  id_l1=forloop.counter0|stringformat:"s"|add:'_'
-                  id_l2=forloop.parentloop.counter0|stringformat:"s"
-                  objeto=asignacion
-                  input_class="peer/input sr-only"
-                  label_class="peer/label opacity-0 absolute inset-0 z-1 size-full select-none"
-                  sin_indicador=1
-                %}
-                  {% if not forloop.parentloop.first %}
-                    {# empezar conteo desde uno a partir de la segunda iteración de profesores #}
-                    {%
-                      include "componentes/vista-lista/objeto-check.html" with
-                      id_fila=id_l1|add:id_l2
-                      indice=forloop.counter|add:forloop.parentloop.counter0
-                    %}
-                  {% else %}
-                    {%
-                      include "componentes/vista-lista/objeto-check.html" with
-                      id_fila=id_l1|add:id_l2
-                    %}
+        <div class="overflow-y-auto flex-1">
+          <table
+            class="size-full table-fixed"
+            x-data="{
+                ids: [{% for asignacion in profesor.materias_asignadas %}'{{ asignacion.id }}',{% endfor %}],
+
+                alternarSeleccionTodo() {
+                  if (this.ids.every((id) => this.filasSeleccionadas.has(id))) {
+                    this.ids.forEach((id) => this.filasSeleccionadas.delete(id));
+                  } else {
+                    this.ids.forEach((id) => this.filasSeleccionadas.add(id));
+                  }
+                  
+                  this.ultimaSeleccionadaIndice = null;
+                }
+              }"
+          >
+            <thead
+              class="sticky z-1 top-0 bg-fondo-600 border-b border-[--transparente-1] rounded-t"
+            >
+              <tr>
+                {% with class="px-4 py-3 text-xs font-medium text-texto-sutil uppercase tracking-wider" %}
+                  {% if permisos.eliminar %}
+                    <th class="{{ class }} w-10">
+                      <button
+                        type="checkbox"
+                        autocomplete="off"
+                        id="seleccionar-todos"
+                        aria-label="Seleccionar todas las filas"
+                        @click="alternarSeleccionTodo()"
+                      >
+                        {% include "componentes/iconos/edicion.html#seleccionar_todo" with class="size-5" %}
+                      </button>
+                    </th>
                   {% endif %}
+
+                  <th class="{{ class }} text-left">materia</th>
+                  <th class="{{ class }} text-right">sección</th>
                 {% endwith %}
-              {% endif %}
+              </tr>
+            </thead>
 
-              <article
-                class="{{
-                  '
-                    group col gap-y-1 p-2 ui-elevado-2 border-[--transparente-2] rounded-lg transition-[background-color,color] select-none
-                    peer-focus-visible/input:outline-2
-                    peer-not-checked/input:peer-hover/label:bg-fondo-800
-                    dark:peer-not-checked/input:peer-hover/label:bg-fondo-500
-                    [.peer\/input:checked~&]:(bg-secundario-400 border-[#fff2]
-                    text-secundario-texto)
-                    dark:peer-checked/input:bg-secundario/50
-                  '
-                  |reemplazar_espacios:" "
-                  |expandir_variantes
-                }}"
-              >
-                <h2 class="font-medium">{{ asignacion.materia.nombre }}</h2>
+            <tbody class="divide-y divide-[--transparente-1]">
+              {% with class="px-4 py-2 whitespace-nowrap min-[500px]:p-4" %}
+                {% for asignacion in profesor.materias_asignadas %}
+                  <tr>
+                    {% if permisos.eliminar %}
+                      <td class="{{ class }} pr-0!">
+                        <div class="flex ">
+                          {%
+                            with
+                            indice=forloop.counter0|add:forloop.parentloop.counter0
+                            id_l1=forloop.counter0|stringformat:"s"|add:'_'
+                            id_l2=forloop.parentloop.counter0|stringformat:"s"
+                            objeto=asignacion
+                          %}
+                            {% if not forloop.parentloop.first %}
+                              {# empezar conteo desde uno a partir de la segunda iteración de profesores #}
+                              {%
+                                include "componentes/vista-lista/objeto-check.html" with
+                                id_fila=id_l1|add:id_l2
+                                indice=forloop.counter|add:forloop.parentloop.counter0
+                              %}
+                            {% else %}
+                              {%
+                                include "componentes/vista-lista/objeto-check.html" with
+                                id_fila=id_l1|add:id_l2
+                              %}
+                            {% endif %}
+                          {% endwith %}
+                        </div>
+                      </td>
+                    {% endif %}
 
-                <div class="flex jb aic gap-4">
-                  <span
-                    class="{{ 'text-sm text-texto-sutil [.peer\/input:checked~.group_&]:(text-secundario-texto opacity-85)'|expandir_variantes }}"
-                  >
-                    {{ asignacion.seccion.año.nombre_corto }}
-                  </span>
-                  <span
-                    class="{{ 'px-3 py-1 bg-primario-100 dark:bg-primario-800/50 [.peer\/input:checked~.group_&]:(bg-secundario-texto text-secundario-300) rounded-full text-xs font-semibold'|expandir_variantes }}"
-                  >
-                    {{ asignacion.seccion.letra }}
-                  </span>
-                </div>
-              </article>
-            </li>
-          {% endfor %}
-        </ul>
+                    <td class="{{ class }}">{{ asignacion.materia.nombre }}</td>
+                    <td class="{{ class }} text-right">
+                      <span
+                        class="{{ 'px-3 py-1 min-w-max bg-primario-100 dark:bg-primario-800/50 [.peer\/input:checked~.group_&]:(bg-secundario-texto text-secundario-300) rounded-full text-xs font-semibold'|expandir_variantes }}"
+                      >
+                        {{ asignacion.seccion.nombre }}
+                      </span>
+                    </td>
+                  </tr>
+                {% endfor %}
+              {% endwith %}
+            </tbody>
+          </table>
+        </div>
 
         {# Total y enlace #}
         <div
@@ -174,11 +197,10 @@
             <div class="flex gap-2">
               <a
                 href="{% url view.url_crear %}?profesor_id={{ profesor.id }}"
-                class="{{ 'ui-btn ui-btn/secundario dark:bg-secundario-600 p-1 rounded-full max-[600px]:(size-6 aspect-square) min-[600px]:(text-sm px-4)'|expandir_variantes }}"
+                class="ui-btn ui-btn/secundario dark:bg-secundario-600 p-1 rounded-full size-6 aspect-square"
+                aria-label="Añadir materia"
               >
-                {% include "componentes/iconos/edicion.html#suma" with class="min-[600px]:hidden" %}
-                {% include "componentes/iconos/edicion.html#suma_circulo" with class="max-[600px]:hidden size-4.5" %}
-                <span class="max-[600px]:sr-only">Añadir materia</span>
+                {% include "componentes/iconos/edicion.html#suma" %}
               </a>
             </div>
           {% endif %}
