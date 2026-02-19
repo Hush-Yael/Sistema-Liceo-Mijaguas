@@ -165,7 +165,10 @@
         role="status"
         class="{{ c }} bg-secundario border border-secundario-600 text-secundario-texto"
       >
-        {{ profesor.materias_asignadas }} Materias
+        {% with n=profesor.materias_asignadas %}
+          {{ n }}
+          Materia{{ n|pluralize }}
+        {% endwith %}
       </span>
 
       <label

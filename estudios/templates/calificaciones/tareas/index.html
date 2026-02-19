@@ -1,0 +1,66 @@
+{% extends "lista-objetos.html" %}
+{% load static %}
+{% load grupos_variantes %}
+{% load utilidades %}
+
+{% block cabeza %}
+  {{ block.super }}
+  <script defer src="{% static 'js/componentes/combobox.js' %}"></script>
+  {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+  <script>
+    const opcionesSecciones = {{ form_filtros.secciones|obtener_lista_opciones|json|safe }}
+  </script>
+  {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+{% endblock cabeza %}
+
+{% block titulo_lista %}
+  Mis {{ view.nombre_objeto_plural }}
+{% endblock titulo_lista %}
+
+{% block sin_objetos %}
+  {% if request.user.profesor %}
+    <h1 class="font-bold text-xl">No has creado ninguna tarea</h1>
+  {% else %}
+    {{ block.super }}
+  {% endif %}
+
+  <p class="text-lg text-texto-semi-sutil">
+    {% if request.user.profesor %}
+      no podrás añadir notas
+    {% else %}
+      sin estas, los profesores no podrán añadir notas
+    {% endif %}
+  </p>
+{% endblock sin_objetos %}
+
+{% block icono_sin_objetos %}
+  <svg class="m-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path
+      d="M16.83 14H18v-2h-3.17l-1-1H18V9h-6.17l-1-1H18V6H8.83l-4-4H20c1.1 0 2 .9 2 2v15.17L16.83 14zM2.1 2.1.69 3.51 2 4.83V16c0 1.1.9 2 2 2h11.17l5.31 5.31 1.41-1.41L2.1 2.1zM6 9h.17l2 2H6V9zm0 5v-2h3.17l2 2H6z"
+    ></path>
+  </svg>
+{% endblock icono_sin_objetos %}
+
+{% block opciones_filtros %}
+  {%
+    include "componentes/vista-lista/filtros/conjunto-opciones.html" with
+    campo=form_filtros.tipos
+    opciones=form_filtros.tipos|obtener_lista_opciones
+    opciones_seleccionadas=form_filtros.tipos.value
+    busqueda_activa=1
+  %}
+  {%
+    include "componentes/vista-lista/filtros/conjunto-opciones.html" with
+    campo=form_filtros.secciones
+    opciones_por_script="opcionesSecciones"
+    opciones_seleccionadas=form_filtros.secciones.value
+    busqueda_activa=1
+  %}
+  {%
+    include "componentes/vista-lista/filtros/conjunto-opciones.html" with
+    campo=form_filtros.materias
+    opciones=form_filtros.materias|obtener_lista_opciones
+    opciones_seleccionadas=form_filtros.materias.value
+    busqueda_activa=1
+  %}
+{% endblock opciones_filtros %}

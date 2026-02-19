@@ -1,0 +1,117 @@
+{% extends "componentes/vista-lista/lista.html" %}
+{% load utilidades %}
+{% load grupos_variantes %}
+{% load debug %}
+
+{% block lista %}
+  <ul
+    x-bind="eventosLista"
+    class="col min-[500px]:grid cols-[repeat(auto-fill,minmax(400px,1fr))] auto-rows-[repeat(auto-fill,_minmax(auto,350px))] gap-y-8 flex-1 min-[500px]:gap-x-6"
+  >
+    {% for pm in lista_objetos %}
+      <li class="col gap-y-2">
+        <hgroup
+          class="flex jb aic gap-x-4 pb-2 border-b border-[--transparente-1]"
+        >
+          <h2 class="font-bold text-lg">{{ pm.materia.nombre }}</h2>
+          <p
+            class="px-3 py-1 bg-primario-100 dark:bg-primario-800/50 text-primario-700 dark:text-white rounded-full text-sm font-semibold"
+          >
+            {{ pm.seccion.nombre }}
+          </p>
+        </hgroup>
+
+        <div class="overflow-y-auto ui-elevado flex-1 rounded">
+          <table
+            class="size-full"
+            x-data="{
+                ids: [{% for tpm in pm.tareas_asignadas %}'{{ tpm.id }}',{% endfor %}],
+
+                alternarSeleccionTodo() {
+                  if (this.ids.every((id) => this.filasSeleccionadas.has(id))) {
+                    this.ids.forEach((id) => this.filasSeleccionadas.delete(id));
+                  } else {
+                    this.ids.forEach((id) => this.filasSeleccionadas.add(id));
+                  }
+                  
+                  this.ultimaSeleccionadaIndice = null;
+                }
+              }"
+          >
+            <thead
+              class="sticky z-1 top-0 bg-fondo-600 border-b border-[--transparente-1] rounded-t"
+            >
+              <tr>
+                {% with class="px-4 py-3 text-xs font-medium text-texto-sutil uppercase tracking-wider rounded-t" %}
+                  {% if permisos.eliminar %}
+                    <th class="{{ class }} w-10 [&+th]:pl-0">
+                      <button
+                        type="checkbox"
+                        autocomplete="off"
+                        id="seleccionar-todos"
+                        aria-label="Seleccionar todas las filas"
+                        @click="alternarSeleccionTodo()"
+                      >
+                        {% include "componentes/iconos/edicion.html#seleccionar_todo" with class="size-5" %}
+                      </button>
+                    </th>
+                  {% endif %}
+
+                  <th class="{{ class }} text-right">#</th>
+
+                  <th class="{{ class }} text-left">tipo</th>
+
+                  <th class="{{ class }} text-left">fecha de añadida</th>
+                {% endwith %}
+              </tr>
+            </thead>
+
+            <tbody class="divide-y divide-[--transparente-1]">
+              {% with class="px-4 py-2 whitespace-nowrap min-[500px]:p-4" %}
+                {% for tpm in pm.tareas_asignadas %}
+                  <tr>
+                    {% if permisos.eliminar %}
+                      <td class="{{ class }} pr-0! [&+td]:pl-0">
+                        <div class="flex">
+                          {%
+                            with
+                            indice=forloop.counter0|add:forloop.parentloop.counter0
+                            id_l1=forloop.counter0|stringformat:"s"|add:'_'
+                            id_l2=forloop.parentloop.counter0|stringformat:"s"
+                            objeto=tpm
+                          %}
+                            {% if not forloop.parentloop.first %}
+                              {# empezar conteo desde uno a partir de la segunda iteración de profesores #}
+                              {%
+                                include "componentes/vista-lista/objeto-check.html" with
+                                id_fila=id_l1|add:id_l2
+                                indice=forloop.counter|add:forloop.parentloop.counter0
+                              %}
+                            {% else %}
+                              {%
+                                include "componentes/vista-lista/objeto-check.html" with
+                                id_fila=id_l1|add:id_l2
+                              %}
+                            {% endif %}
+                          {% endwith %}
+                        </div>
+                      </td>
+                    {% endif %}
+
+                    <td class="{{ class }} text-right">
+                      {{ forloop.counter }}
+                    </td>
+                    <td class="{{ class }}">{{ tpm.tarea.tipo }}</td>
+                    <td class="{{ class }}">
+                      {{ tpm.tarea.fecha_añadida|date:"d M. Y, h:i A" }}
+                    </td>
+                  </tr>
+                {% endfor %}
+              {% endwith %}
+            </tbody>
+          </table>
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock lista %}

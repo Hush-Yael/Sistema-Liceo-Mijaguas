@@ -28,9 +28,4 @@ urlpatterns = (
         vistas.CrearTarea,
         vistas.ActualizarTarea,
     ),
-    path(
-        "tareas-por-materia/",
-        vistas.ListaTareasProfesorMateriaPropias.as_view(),
-        name="tareas_por_materia",
-    ),
 )

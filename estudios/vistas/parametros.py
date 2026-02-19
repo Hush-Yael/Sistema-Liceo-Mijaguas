@@ -75,7 +75,6 @@ class ListaMaterias(VistaListaObjetos):
     form_filtros = MateriaBusquedaForm
     form_asignaciones = FormAsignaciones
     genero_sustantivo_objeto = "F"
-    lista_años: "list[dict]"
     columnas_totales = (
         {"titulo": "Nombre", "clave": "nombre"},
         {"clave": "asignaciones", "titulo": "Años asignados", "anotada": True},

@@ -17,7 +17,6 @@ from estudios.forms.gestion.calificaciones import (
 from estudios.forms.gestion.busqueda import (
     NotasBusquedaForm,
     TareaBusquedaForm,
-    TareaProfesorMateriaBusquedaForm,
 )
 from estudios.modelos.gestion.personas import (
     Matricula,
@@ -166,15 +165,21 @@ class ListaTareasMixin(VistaListaObjetos):
     """Clase base para las listas de tareas"""
 
     model = Tarea
-    template_name = "calificaciones/tareas/pestañas/info-completa.html"
-    plantilla_lista = "calificaciones/tareas/pestañas/lista_info-completa.html"
+    template_name = "calificaciones/tareas/index.html"
+    plantilla_lista = "calificaciones/tareas/lista.html"
     genero_sustantivo_objeto = "F"
 
     def aplicar_filtros(self, queryset, datos_form):
         queryset = super().aplicar_filtros(queryset, datos_form)
 
         if tipos := datos_form.get(TareaBusquedaForm.Campos.TIPOS):
-            queryset = queryset.filter(tipo__in=tipos)
+            queryset = queryset.filter(tareaprofesormateria__tarea__tipo__in=tipos)
+
+        if materias := datos_form.get(TareaBusquedaForm.Campos.MATERIAS):
+            queryset = queryset.filter(materia__in=materias)
+
+        if secciones := datos_form.get(TareaBusquedaForm.Campos.SECCIONES):
+            queryset = queryset.filter(seccion__in=secciones)
 
         return queryset
 
@@ -200,30 +205,50 @@ class ListaTareasProfesor(
 ):
     """Vista dedicada a las tareas propias de cada profesor"""
 
-    form_filtros = TareaBusquedaForm
-    paginate_by = 50
+    form_filtros = TareaBusquedaForm  # type: ignore
+    paginate_by = 10
     http_method_names = ("get", "post", "delete")
+    lapso_actual: "Lapso | None"
 
     def get_queryset(self, *args, **kwargs):
-        q = self.model.objects.all().filter(profesor=self.request.user.profesor)  # type: ignore - sí existe "profesor" como atributo
+        lapso_actual = self.lapso_actual = obtener_lapso_actual()
 
-        return super().get_queryset(q.order_by("nombre"))
+        q = ProfesorMateria.objects.filter(
+            profesor=self.request.user.profesor,  # type: ignore - sí existe "profesor" como atributo
+            tareaprofesormateria__tarea__lapso=lapso_actual,
+        )
+
+        return super().get_queryset(q)
 
     def aplicar_filtros(self, queryset, datos_form):
         """Además filtrar solo las tareas propias del profesor"""
         queryset = super().aplicar_filtros(queryset, datos_form)
 
-        queryset = queryset.filter(profesor=self.request.user.profesor)  # type: ignore - sí existe "profesor" como atributo
+        return queryset.distinct().prefetch_related(
+            Prefetch(
+                "tareaprofesormateria_set",
+                TareaProfesorMateria.objects.filter(
+                    profesormateria__profesor=self.request.user.profesor,  # type: ignore - sí existe "profesor" como atributo
+                    tarea__lapso=self.lapso_actual,
+                ),
+                to_attr="tareas_asignadas",
+            )
+        )
 
-        return queryset
+    def establecer_form_filtros(self):
+        return super().establecer_form_filtros()
 
     def obtener_total(self):
         self.total = self.model.objects.filter(
-            profesor=self.request.user.profesor  # type: ignore
+            profesor=self.request.user.profesor,  # type: ignore - sí existe "profesor" como atributo
+            lapso=self.lapso_actual,
         ).count()
 
     def al_menos_uno(self):
-        return self.model.objects.filter(profesor=self.request.user.profesor).exists()  # type: ignore - sí existe "profesor" como atributo
+        return self.model.objects.filter(
+            profesor=self.request.user.profesor,  # type: ignore - sí existe "profesor" como atributo
+            lapso=self.lapso_actual,
+        ).exists()  # type: ignore - sí existe "profesor" como atributo
 
     def delete(self, request: HttpRequest, *args, **kwargs):
         if not self.es_profesor():
@@ -238,69 +263,10 @@ class ListaTareasProfesor(
             id__in=ids, profesor=getattr(request.user, "profesor", None)
         ).delete()
 
+    def get_context_data(self, *args, **kwargs):
+        ctx = super().get_context_data(*args, **kwargs)
 
-class ListaTareasProfesorMateriaMixin(VistaListaObjetos):
-    model = TareaProfesorMateria
-    template_name = "calificaciones/tareas/pestañas/por-materias.html"
-    plantilla_lista = "calificaciones/tareas/pestañas/lista_por-materias.html"
-    genero_sustantivo_objeto = "F"
-    url_crear = None  # type: ignore
-    form_filtros = TareaProfesorMateriaBusquedaForm
-    http_method_names = ("get", "post")
-    agrupados = True
-
-    def aplicar_filtros(self, queryset, datos_form):
-        queryset = super().aplicar_filtros(queryset, datos_form)
-
-        if tipos := datos_form.get(TareaProfesorMateriaBusquedaForm.Campos.TIPOS):
-            queryset.filter(tarea__tipo__in=tipos)
-
-        if anios := datos_form.get(TareaProfesorMateriaBusquedaForm.Campos.AÑOS):
-            queryset.filter(profesormateria__seccion__año__in=anios)
-
-        if secciones := datos_form.get(
-            TareaProfesorMateriaBusquedaForm.Campos.SECCIONES
-        ):
-            queryset.filter(profesormateria__seccion__in=secciones)
-
-        return queryset
-
-    def agrupar_queryset(self, lista_objetos):
-        return (
-            Tarea.objects.distinct()
-            .filter(tareaprofesormateria__in=lista_objetos)
-            .prefetch_related(
-                Prefetch(
-                    "tareaprofesormateria_set",
-                    queryset=lista_objetos,
-                    to_attr="materias_asignadas",
-                )
-            )
-        )
-
-
-class ListaTareasProfesorMateriaPropias(
-    ListaTareasProfesorMateriaMixin, ProfesorPropioMixin
-):
-    url_editar = nombre_url_editar_auto(Tarea)
-
-    """Vista dedicada a la visualización de tareas propias de cada profesor asociadas a sus materias."""
-
-    def get_queryset(self, *args, **kwargs):
-        q = self.model.objects.all()
-
-        if hasattr(self.request.user, "profesor"):
-            q = q.filter(
-                profesormateria__profesor=self.request.user.profesor  # type: ignore - sí existe "profesor" como atributo
-            )
-
-        return super().get_queryset(q)
-
-    def eliminar(self, request: HttpRequest, ids: "list[str]"):
-        return self.model.objects.filter(
-            id__in=ids,
-            profesormateria__profesor=getattr(request.user, "profesor", None),
-        ).delete()
+        return ctx
 
 
 class VistaFormTarea:

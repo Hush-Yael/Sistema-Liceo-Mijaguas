@@ -1,13 +1,15 @@
 from django import forms
+from django.http import HttpRequest
 from app.campos import OPCIONES_TIPO_BUSQUEDA_CANTIDADES, CampoBooleanoONulo
 from app.forms import (
     BusquedaFormMixin,
+    CookieFormMixin,
     OrdenFormMixin,
 )
 from app.settings import MIGRANDO
 from app.util import mn, nc, vn
 from estudios.forms.parametros.busqueda import LapsoYSeccionFormMixin
-from estudios.modelos.gestion.calificaciones import Tarea, TipoTarea
+from estudios.modelos.gestion.calificaciones import TipoTarea
 from estudios.modelos.parametros import Materia, Seccion, Año
 from estudios.modelos.gestion.personas import (
     Estudiante,
@@ -208,17 +210,37 @@ class ProfesorMateriaBusquedaForm(ProfesorBusquedaFormMixin):
     )
 
 
-class TareaBusquedaForm(BusquedaFormMixin):
+class TareaBusquedaForm(CookieFormMixin, forms.Form):
+    def __init__(self, *args, **kwargs):
+        request: HttpRequest = kwargs["request"]
+
+        if not hasattr(request.user, "profesor"):
+            raise TypeError("El usuario debe tener un profesor asociado")
+
+        profesor = request.user.profesor  # type: ignore - sí existe "profesor" como atributo
+
+        super().__init__(*args, **kwargs)
+
+        self.fields[TareaBusquedaForm.Campos.MATERIAS].queryset = (  # type: ignore - sí se puede cambiar la queryset
+            Materia.objects.filter(profesormateria__profesor=profesor)
+            .order_by(nc(Seccion.nombre))
+            .distinct()
+        )
+
+        self.fields[TareaBusquedaForm.Campos.SECCIONES].label_from_instance = (  # type: ignore - sí se puede cambiar el label
+            lambda seccion: seccion.nombre
+        )
+
+        self.fields[
+            TareaBusquedaForm.Campos.SECCIONES
+        ].queryset = Seccion.objects.filter(  # type: ignore - sí se puede cambiar la queryset
+            profesormateria__profesor=profesor
+        ).order_by(nc(Materia.nombre))
+
     class Campos:
         TIPOS = "tipos"
-
-    columnas_busqueda = (
-        {
-            "columna_db": nc(Tarea.descripcion),
-            "nombre_campo": "descripcion",
-            "label_campo": "Descripción",
-        },
-    )
+        SECCIONES = "secciones"
+        MATERIAS = "materias"
 
     campos_prefijo_cookie = "tareas"
 
@@ -230,44 +252,15 @@ class TareaBusquedaForm(BusquedaFormMixin):
         required=False,
     )
 
-
-class TareaProfesorMateriaBusquedaForm(BusquedaFormMixin):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields["secciones"].label_from_instance = lambda obj: obj.nombre  # type: ignore
-
-    class Campos:  # type: ignore
-        TIPOS = "tipos"
-        MATERIAS = "materias"
-        AÑOS = "anios"
-        SECCIONES = "secciones"
-
-    columnas_busqueda = (
-        {
-            "columna_db": f"{mn(Tarea)}__{nc(Tarea.descripcion)}",
-            "nombre_campo": "descripcion",
-            "label_campo": "Descripción",
-        },
+    secciones = forms.ModelMultipleChoiceField(
+        label="Sección",
+        queryset=Seccion.objects.none() if not MIGRANDO else None,
+        required=False,
     )
-
-    campos_prefijo_cookie = "tpm"
 
     materias = forms.ModelMultipleChoiceField(
-        label="Materias",
-        queryset=Materia.objects.all() if not MIGRANDO else None,
-        required=False,
-    )
-
-    anios = forms.ModelMultipleChoiceField(
-        label="Años",
-        queryset=Año.objects.all() if not MIGRANDO else None,
-        required=False,
-    )
-
-    secciones = forms.ModelMultipleChoiceField(
-        label="Secciones",
-        queryset=Seccion.objects.all() if not MIGRANDO else None,
+        label="Materia",
+        queryset=Materia.objects.none() if not MIGRANDO else None,
         required=False,
     )
 
