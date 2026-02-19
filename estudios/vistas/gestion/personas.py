@@ -276,40 +276,34 @@ class ListaProfesoresMaterias(VistaListaObjetos):
     form_filtros = ProfesorMateriaBusquedaForm
     form_transferencia = FormTransferirProfesorMateria
     genero_sustantivo_objeto = "F"
+    paginate_by = 10
     template_name = "personas/profesores_materias/index.html"
     plantilla_lista = "personas/profesores_materias/lista.html"
     # igual al nombre del campo del form de transferencia, para pasarle la lista y que verifique
     ids_objetos_kwarg = FormTransferirProfesorMateria.Campos.MATERIAS
 
     def get_queryset(self, *args, **kwargs):
-        profesores = (
-            Profesor.objects.filter(activo=True, profesormateria__isnull=False)
-            .annotate(cantidad_materias=Count("profesormateria"))
-            .order_by("apellidos", "nombres")
-        )
+        q = Profesor.objects.annotate(cantidad_materias=Count("profesormateria"))
 
-        return super().get_queryset(profesores)
+        return super().get_queryset(q)
 
     def aplicar_filtros(self, queryset: models.QuerySet, datos_form):
         queryset = super().aplicar_filtros(queryset, datos_form)
 
         # subconsulta que obtiene las materias de cada profesor
-        pm_queryset = ProfesorMateria.objects.select_related("materia", "seccion__año")
+        pm_queryset = self.model.objects.all()
 
         # filtrar ambas consultas para que coincidan y se muestren los resultados correctamente
         if materias := datos_form.get("materias"):
             pm_queryset = pm_queryset.filter(materia__in=materias)
-            queryset = queryset.filter(profesormateria__materia__in=materias)
 
         if años := datos_form.get("anios"):
             pm_queryset = pm_queryset.filter(seccion__año__in=años)
-            queryset = queryset.filter(profesormateria__seccion__año__in=años)
 
         if secciones := datos_form.get("secciones"):
             pm_queryset = pm_queryset.filter(seccion__in=secciones)
-            queryset = queryset.filter(profesormateria__seccion__in=secciones)
 
-        return queryset.prefetch_related(
+        return queryset.filter(profesormateria__in=pm_queryset).prefetch_related(
             Prefetch(
                 "profesormateria_set",
                 queryset=pm_queryset,

@@ -98,7 +98,6 @@ class ProfesorBusquedaFormMixin(OrdenFormMixin, BusquedaFormMixin):
         (nc(Profesor.nombres), "Nombres"),
         (nc(Profesor.apellidos), "Apellidos"),
         (nc(Profesor.cedula), "Cédula"),
-        (f"{mn(Usuario)}__{nc(Usuario.username)}", "Nombre de usuario"),
     )
 
     columnas_busqueda = (
@@ -130,6 +129,7 @@ class ProfesorBusquedaForm(ProfesorBusquedaFormMixin):
 
         self.opciones_orden = (
             *(self.opciones_orden),
+            (f"{mn(Usuario)}__{nc(Usuario.username)}", "Nombre de usuario"),
             (nc(Profesor.telefono), "Telefono"),
         )
 
@@ -214,11 +214,6 @@ class TareaBusquedaForm(BusquedaFormMixin):
 
     columnas_busqueda = (
         {
-            "columna_db": nc(Tarea.nombre),
-            "nombre_campo": "titulo",
-            "label_campo": "Título",
-        },
-        {
             "columna_db": nc(Tarea.descripcion),
             "nombre_campo": "descripcion",
             "label_campo": "Descripción",
@@ -249,11 +244,6 @@ class TareaProfesorMateriaBusquedaForm(BusquedaFormMixin):
         SECCIONES = "secciones"
 
     columnas_busqueda = (
-        {
-            "columna_db": f"{mn(Tarea)}__{nc(Tarea.nombre)}",
-            "nombre_campo": "titulo",
-            "label_campo": "Título",
-        },
         {
             "columna_db": f"{mn(Tarea)}__{nc(Tarea.descripcion)}",
             "nombre_campo": "descripcion",
