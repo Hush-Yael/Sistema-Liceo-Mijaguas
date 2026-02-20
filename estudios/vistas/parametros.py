@@ -221,15 +221,18 @@ class CrearMateria(VistaCrearObjeto):
     genero_sustantivo_objeto = "F"
 
     def form_valid(self, form):
+        r = super().form_valid(form)
+
+        materia: Materia = self.object  # type: ignore - sí es una materia
+
         años_seleccionados: list[Año] = list(form.cleaned_data["asignaciones"])
-        materia: Materia = self.object  # type: ignore
 
         if len(años_seleccionados):
             AñoMateria.objects.bulk_create(
                 [AñoMateria(año=año, materia=materia) for año in años_seleccionados]
             )
 
-        return super().form_valid(form)
+        return r
 
 
 class ActualizarMateria(VistaActualizarObjeto):
