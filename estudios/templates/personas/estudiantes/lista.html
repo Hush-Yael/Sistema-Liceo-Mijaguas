@@ -126,14 +126,22 @@
             class="py-0.5 p-4 rounded-full border-peligro {{ matricula|yesno:'bg-exito-200 border-exito text-exito-900 , bg-peligro-200 text-peligro-900 dark:bg-peligro-300' }} max-sidebar:text-sm"
           >
             {% if matricula %}
-              {{ matricula.seccion.nombre }}
+              <span class="flex aic gap-x-3">
+                {{ matricula.seccion.nombre }}
+                <hr
+                  class="h-4 w-[1px] border-0 bg-exito-500"
+                  aria-orientation="vertical"
+                />
+                {{ matricula.lapso.nombre }}
+              </span>
             {% else %}
               {% with t="No tiene" %}
                 {% if perms.estudios.add_matricula %}
                   <a
                     href="{% url 'crear_matricula' %}?estudiante_id={{ estudiante.id }}"
-                    >{{ t }}</a
                   >
+                    {{ t }}
+                  </a>
                 {% else %}
                   {{ t }}
                 {% endif %}
@@ -153,9 +161,14 @@
               </dt>
 
               <dd
-                class="py-0.5 p-4 rounded-full border-peligro bg-[--transparente-1] text-texto-sutil max-sidebar:text-sm"
+                class="flex aic gap-x-3 py-0.5 p-4 rounded-full bg-[--transparente-1] text-texto-sutil max-sidebar:text-sm"
               >
                 {{ matricula_anterior.seccion.nombre }}
+                <hr
+                  class="h-4 w-[1px] border-0 bg-[--transparente-2]"
+                  aria-orientation="vertical"
+                />
+                {{ matricula_anterior.lapso.nombre }}
               </dd>
             </div>
           {% endif %}
