@@ -70,15 +70,15 @@ class NotasBusquedaForm(OrdenFormMixin, LapsoYSeccionFormMixin):
 class MatriculaBusquedaForm(OrdenFormMixin, LapsoYSeccionFormMixin):
     columnas_busqueda = (
         {
-            "columna_db": f"{vn(Estudiante)}__{nc(Estudiante.nombres)}",
+            "columna_db": f"{mn(Estudiante)}__{nc(Estudiante.nombres)}",
             "nombre_campo": "nombres",
         },
         {
-            "columna_db": f"{vn(Estudiante)}__{nc(Estudiante.apellidos)}",
+            "columna_db": f"{mn(Estudiante)}__{nc(Estudiante.apellidos)}",
             "nombre_campo": "apellidos",
         },
         {
-            "columna_db": f"{vn(Estudiante)}__{nc(Estudiante.cedula)}",
+            "columna_db": f"{mn(Estudiante)}__{nc(Estudiante.cedula)}",
             "nombre_campo": "cedula",
         },
     )

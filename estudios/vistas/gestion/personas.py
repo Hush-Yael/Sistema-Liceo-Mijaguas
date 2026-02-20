@@ -1,6 +1,7 @@
 from functools import reduce
-from typing import Type
+from typing import Any, Type
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.core.paginator import Paginator
 from django.db import transaction
 from django.db import models
 from django.urls import reverse
@@ -13,8 +14,10 @@ from django.shortcuts import redirect
 from django.db.models import (
     Q,
     F,
+    Case,
     Count,
     Prefetch,
+    When,
 )
 from django.views.generic import CreateView, FormView, ListView, UpdateView
 from app import HTTPResponseHXRedirect
@@ -50,7 +53,6 @@ from estudios.modelos.gestion.personas import (
 from estudios.modelos.parametros import Lapso, Seccion
 from django.contrib import messages
 from estudios.modelos.parametros import obtener_lapso_actual
-from estudios.vistas.gestion import aplicar_filtros_secciones_y_lapsos
 from usuarios.models import Grupo, GruposBase, Usuario
 from usuarios.forms import FormUsuario
 
@@ -594,21 +596,48 @@ class ListaMatriculas(VistaListaObjetos):
     template_name = "personas/matriculas/index.html"
     plantilla_lista = "personas/matriculas/lista.html"
     model = Matricula
+    paginate_by = 5
     genero_sustantivo_objeto = "F"
     form_filtros = MatriculaBusquedaForm
     estados_opciones = dict(MatriculaEstados.choices)
     lapso_actual: "Lapso | None" = None
 
+    def setup(self, request: HttpRequest, *args, **kwargs):
+        self.lapso_actual = obtener_lapso_actual()
+        return super().setup(request, *args, **kwargs)
+
     def get_queryset(self, *args, **kwargs):
-        q = self.model.objects.all()
-        return super().get_queryset(q)
+        datos_form = self.inicializar_form_filtros()
+
+        # Obtener todas las combinaciones únicas de sección y lapso con sus conteos
+        queryset = (
+            Matricula.objects.values(
+                "seccion__id",
+                "seccion__nombre",
+                "seccion__letra",
+                "seccion__año__nombre",
+                "lapso__id",
+                "lapso__nombre",
+                "lapso__numero",
+            )
+            .annotate(total_matriculas=Count("id"))
+            .order_by("seccion__año__id", "seccion__letra", "lapso__numero")
+        )
+
+        self.modificar_paginacion(datos_form)
+
+        queryset = self.aplicar_filtros(queryset, datos_form)
+
+        return self.procesar_secciones(queryset, datos_form)
 
     def aplicar_filtros(self, queryset, datos_form):
         queryset = super().aplicar_filtros(queryset, datos_form)
 
-        queryset = aplicar_filtros_secciones_y_lapsos(
-            self, queryset, datos_form, "seccion"
-        )
+        if lapsos := datos_form.get("lapsos"):
+            queryset = queryset.filter(lapso__in=lapsos)
+
+        if secciones := datos_form.get("secciones"):
+            queryset = queryset.filter(seccion__in=secciones)
 
         if años := datos_form.get("anios"):
             queryset = queryset.filter(seccion__año__in=años)
@@ -621,18 +650,91 @@ class ListaMatriculas(VistaListaObjetos):
     def eliminar(self, request: HttpRequest, ids: "list[str]"):
         return Matricula.objects.filter(id__in=ids, lapso=self.lapso_actual).delete()
 
-    def agrupar_queryset(self, lista_objetos):
-        return (
-            Seccion.objects.distinct()
-            .filter(matricula__in=lista_objetos.values("id"))
-            .prefetch_related(
-                Prefetch(
-                    "matricula_set",
-                    queryset=lista_objetos,
-                    to_attr="matriculas",
+    def obtener_total(self, ctx):
+        self.total = self.model.objects.count()
+
+    def paginate_queryset(self, queryset, page_size):
+        """Sobrescribe el método de paginación para trabajar con la lista personalizada"""
+        super().paginate_queryset(queryset, page_size)
+        paginator = Paginator(queryset, page_size)
+
+        page_kwarg = self.page_kwarg
+
+        page = self.kwargs.get(page_kwarg) or self.request.GET.get(page_kwarg) or 1
+
+        try:
+            page_number = int(page)
+        except ValueError:
+            page_number = 1
+
+        page_obj = paginator.get_page(page_number)
+
+        return (paginator, page_obj, page_obj.object_list, page_obj.has_other_pages())
+
+    def procesar_secciones(
+        self, queryset: "models.QuerySet[Matricula, dict[str, Any]]", datos_form
+    ):
+        """Transformar los datos en objetos más fáciles de usar en el template"""
+        grupos_procesados = []
+
+        for grupo in queryset:
+            grupos_procesados.append(
+                {
+                    "seccion": {
+                        "id": grupo["seccion__id"],
+                        "nombre": grupo["seccion__nombre"],
+                        "letra": grupo["seccion__letra"],
+                        "año": grupo["seccion__año__nombre"],
+                    },
+                    "lapso": {
+                        "id": grupo["lapso__id"],
+                        "nombre": grupo["lapso__nombre"],
+                        "numero": grupo["lapso__numero"],
+                    },
+                    "modificable": grupo["lapso__id"] == self.lapso_actual.pk
+                    if isinstance(self.lapso_actual, Lapso)
+                    else False,
+                    "total_matriculas": grupo["total_matriculas"],
+                    "matriculas": self.obtener_detalle_matriculas(
+                        datos_form,
+                        grupo["seccion__id"],
+                        grupo["lapso__id"],
+                    ),
+                }
+            )
+
+        return grupos_procesados
+
+    def obtener_detalle_matriculas(self, datos_form, seccion_id, lapso_id):
+        """
+        Obtiene el detalle de las matrículas para una sección y lapso específicos
+        """
+
+        queryset = (
+            Matricula.objects.annotate(
+                modificable=Case(
+                    When(Q(lapso=self.lapso_actual), then=True), default=False
                 )
             )
+            .filter(seccion_id=seccion_id, lapso_id=lapso_id)
+            .select_related("estudiante", "seccion", "lapso")
+            .order_by("estudiante__apellidos", "estudiante__nombres")
         )
+
+        queryset = self.aplicar_orden(queryset, datos_form)
+
+        queryset = self.aplicar_busqueda(queryset, datos_form)
+
+        return queryset
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super().get_context_data(*args, **kwargs)
+
+        self.cantidad_filtradas = reduce(
+            lambda x, y: x + len(y["matriculas"]), ctx["page_obj"].object_list, 0
+        )
+
+        return ctx
 
 
 class MatriculaVistaForm(VistaForm, FormView):

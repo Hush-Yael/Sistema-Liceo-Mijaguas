@@ -19,7 +19,7 @@
 {% endblock icono_sin_objetos %}
 
 {% block contenido %}
-  {% with cpy="py-2 min-[500px]:py-3 min-[600px]:py-4" py="pt-1 pb-3 min-[1000px]:pb-5"|expandir_variantes px="px-3 min-[500px]:px-5 sidebar:max-sidebar_full:px-6 min-[1000px]:px-8" %}
+  {% with cpy="py-2 min-[500px]:py-3 min-[600px]:py-4" py="pt-3 pb-6 min-[1000px]:pb-5"|expandir_variantes px="px-4 min-[500px]:px-5 sidebar:max-sidebar_full:px-6 min-[1000px]:px-8" %}
     {{ block.super }}
   {% endwith %}
 {% endblock contenido %}
@@ -49,3 +49,34 @@
     campo=form_filtros.estado
   %}
 {% endblock opciones_filtros %}
+
+{% block form_filtros %}
+  {{ block.super }}
+
+  <button
+    x-data="abierto = true"
+    @click="
+      abierto = !abierto;
+      document.getElementById('{{ view.id_lista_objetos }}').querySelectorAll('details').forEach((d) => d.open = abierto);
+    "
+    class="ui-btn ui-elevado h-full rounded-campo px-2"
+    type="button"
+    aria-label="Colapsar alumnos"
+  >
+    <svg
+      stroke-width="0"
+      height="1em"
+      width="1em"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="currentColor"
+      viewBox="0 0 16 16"
+      color="currentColor"
+      style="overflow: visible;"
+    >
+      <path
+        fill-rule="evenodd"
+        d="M1 8a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13A.5.5 0 0 1 1 8m7-8a.5.5 0 0 1 .5.5v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 1 1 .708-.708L7.5 4.293V.5A.5.5 0 0 1 8 0m-.5 11.707-1.146 1.147a.5.5 0 0 1-.708-.708l2-2a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 11.707V15.5a.5.5 0 0 1-1 0z"
+      ></path>
+    </svg>
+  </button>
+{% endblock form_filtros %}
