@@ -51,11 +51,20 @@
           </summary>
 
           <div class="col flex-1 ui-elevado rounded-lg">
+            <p
+              class="flex jb aic gap-x-2 bg-secundario-50 dark:bg-secundario-200/50 rounded-t-lg p-2 px-4"
+            >
+              <span>Promedio general:</span>
+              {% with n=matricula.promedio_general texto="Promedio general" class="jb" %}
+                {% partial promedio %}
+              {% endwith %}
+            </p>
+
             {# Materias y sus notas #}
             {% for materia in matricula.materias_cursadas %}
               <article class="col">
                 <hgroup
-                  class="flex gap-x-4 aic jb p-2 px-4 bg-fondo-700 rounded-lg border-b border-[--transparente-1]"
+                  class="flex gap-x-4 aic jb p-2 px-4 bg-fondo-700 border-b border-[--transparente-1]"
                 >
                   <h3 class="font-semibold">{{ materia.materia.nombre }}</h3>
 
@@ -132,14 +141,6 @@
             {% endfor %}
 
             {# Promedio total #}
-          </div>
-          <div class="pt-2">
-            <p class="flex jb aic gap-x-2 text-lg">
-              <span class="font-bold">Promedio general:</span>
-              {% with n=matricula.promedio_general texto="Promedio general" class="jb" %}
-                {% partial promedio %}
-              {% endwith %}
-            </p>
           </div>
         </details>
       </li>
