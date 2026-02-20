@@ -169,8 +169,11 @@
                 </div>
               </details>
               {% empty %}
-              <p class="p-3 px-4 text-peligro dark:text-peligro-400">
-                El estudiante no está cursando materias en este lapso
+              <p
+                class="p-2 px-4 rounded-lg m-2 bg-peligro text-peligro-texto flex gap-x-3"
+              >
+                {% include "componentes/iconos/mensajes.html#alerta" with class="size-5 mt-0.5" %}
+                El estudiante no tiene notas en este lapso
               </p>
             {% endfor %}
 
