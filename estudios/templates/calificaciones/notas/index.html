@@ -20,7 +20,11 @@
   {{ block.super }}
 
   <button
-    @click="document.getElementById('{{ view.id_lista_objetos }}').querySelectorAll('details').forEach((d) => d.open = !d.open);"
+    x-data="abierto = true"
+    @click="
+      abierto = !abierto;
+      document.getElementById('{{ view.id_lista_objetos }}').querySelectorAll('details').forEach((d) => d.open = abierto);
+    "
     class="ui-btn ui-elevado h-full rounded-campo px-2"
     type="button"
     aria-label="Colapsar alumnos"

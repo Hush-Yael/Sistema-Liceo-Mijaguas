@@ -50,31 +50,65 @@
             </div>
           </summary>
 
-          <div class="col flex-1 ui-elevado rounded-lg">
-            <p
-              class="flex jb aic gap-x-2 bg-secundario-50 dark:bg-secundario-200/50 rounded-t-lg p-2 px-4"
+          <div
+            class="col flex-1 ui-elevado rounded-lg"
+            x-data="{ abierto: true }"
+          >
+            <header
+              class="flex aic gap-x-3 bg-fondo-900 rounded-t-lg p-2 pl-2 pr-4"
             >
-              <span>Promedio general:</span>
-              {% with n=matricula.promedio_general texto="Promedio general" class="jb" %}
-                {% partial promedio %}
-              {% endwith %}
-            </p>
+              <button
+                @click="abierto = !abierto; $el.parentElement.parentElement.querySelectorAll('details').forEach((d) => d.open = abierto); "
+                class="ui-btn ui-elevado p-1"
+                aria-label="Colapsar materia"
+              >
+                <svg
+                  class="size-4"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 16 16"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M1 8a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13A.5.5 0 0 1 1 8m7-8a.5.5 0 0 1 .5.5v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 1 1 .708-.708L7.5 4.293V.5A.5.5 0 0 1 8 0m-.5 11.707-1.146 1.147a.5.5 0 0 1-.708-.708l2-2a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 11.707V15.5a.5.5 0 0 1-1 0z"
+                  ></path>
+                </svg>
+              </button>
+
+              <p class="flex jb aic gap-x-2 flex-1">
+                <span>Promedio general:</span>
+                {% with n=matricula.promedio_general texto="Promedio general" class="jb" %}
+                  {% partial promedio %}
+                {% endwith %}
+              </p>
+            </header>
 
             {# Materias y sus notas #}
             {% for materia in matricula.materias_cursadas %}
-              <article class="col">
-                <hgroup
-                  class="flex gap-x-4 aic jb p-2 px-4 bg-fondo-700 border-b border-[--transparente-1]"
+              <details open class="group/materia col">
+                <summary
+                  class="flex gap-x-2 aic p-2 px-4 bg-fondo-700 border-b border-[--transparente-1]"
                 >
-                  <h3 class="font-semibold">{{ materia.materia.nombre }}</h3>
+                  <svg
+                    class="size-3.5 rotate-90 group-open/materia:rotate-180 opacity-50 z-0 transition-transform ease-in-out duration-150"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="m12.866 3 9.526 16.5a1 1 0 0 1-.866 1.5H2.474a1 1 0 0 1-.866-1.5L11.134 3a1 1 0 0 1 1.732 0Z"
+                    ></path>
+                  </svg>
 
-                  <p class="flex aic gap-x-2 max-[500px]:text-sm">
-                    <span>Promedio:</span>
-                    {% with n=materia.promedio texto="Promedio" class="text-texto-semi-sutil" %}
-                      {% partial promedio %}
-                    {% endwith %}
-                  </p>
-                </hgroup>
+                  <hgroup class="flex gap-x-4 aic jb flex-1">
+                    <h3 class="font-semibold">{{ materia.materia.nombre }}</h3>
+
+                    <p class="flex aic gap-x-2 max-[500px]:text-sm">
+                      <span>Promedio:</span>
+                      {% with n=materia.promedio texto="Promedio" class="text-texto-semi-sutil" %}
+                        {% partial promedio %}
+                      {% endwith %}
+                    </p>
+                  </hgroup>
+                </summary>
 
                 <div
                   class="grid flex-1 overflow-auto justify-start rows-[1fr,1fr,1fr]"
@@ -133,7 +167,7 @@
                     {% endfor %}
                   {% endwith %}
                 </div>
-              </article>
+              </details>
               {% empty %}
               <p class="p-3 px-4 text-peligro dark:text-peligro-400">
                 El estudiante no está cursando materias en este lapso
