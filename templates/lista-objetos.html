@@ -276,14 +276,16 @@
                     {% include "componentes/vista-lista/btn-pantalla-completa.html" %}
 
                     {% if not view.tabla %}
-                      <button
-                        type="button"
-                        class="ui-btn ui-elevado h-full rounded px-1"
-                        @click="alternarSeleccionTodo()"
-                      >
-                        {% include "componentes/iconos/edicion.html#seleccionar_todo" with class="size-5.5" %}
-                        <span class="sr-only">Seleccionar todo</span>
-                      </button>
+                      {% if permisos.editar or permisos.eliminar %}
+                        <button
+                          type="button"
+                          class="ui-btn ui-elevado h-full rounded px-1"
+                          @click="alternarSeleccionTodo()"
+                        >
+                          {% include "componentes/iconos/edicion.html#seleccionar_todo" with class="size-5.5" %}
+                          <span class="sr-only">Seleccionar todo</span>
+                        </button>
+                      {% endif %}
                     {% endif %}
 
                     {% if form_filtros.cantidad_por_pagina %}
