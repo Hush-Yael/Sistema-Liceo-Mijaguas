@@ -1,15 +1,14 @@
-from django.db.models.functions.datetime import TruncMinute
+from django.core.paginator import Page
 from django.http import (
     HttpRequest,
     HttpResponseForbidden,
 )
-from django.db.models import F, Count, Prefetch, QuerySet, Value
-from app.vistas import nombre_url_editar_auto
+from django.db.models import Avg, Count, Prefetch, QuerySet
 from app.vistas.forms import (
     VistaActualizarObjeto,
     VistaCrearObjeto,
 )
-from app.vistas.listas import VistaListaObjetos, VistaTablaAdaptable
+from app.vistas.listas import VistaListaObjetos
 from estudios.forms.gestion.calificaciones import (
     FormTarea,
     FormTipoTarea,
@@ -22,106 +21,14 @@ from estudios.modelos.gestion.personas import (
     Matricula,
     ProfesorMateria,
 )
-from estudios.modelos.parametros import Materia
-from django.db.models.functions import Concat
+from estudios.modelos.parametros import Lapso, obtener_lapso_actual
 from estudios.modelos.gestion.calificaciones import (
     Nota,
     Tarea,
     TareaProfesorMateria,
     TipoTarea,
 )
-from estudios.vistas.gestion import aplicar_filtros_secciones_y_lapsos
 from usuarios.models import GruposBase
-
-
-class ListaNotas(VistaTablaAdaptable):
-    model = Nota
-    template_name = "calificaciones/notas/index.html"
-    plantilla_lista = "calificaciones/notas/lista.html"
-    paginate_by = 50
-    form_filtros = NotasBusquedaForm
-    columnas_a_evitar = set()
-    columnas_totales = (
-        {"titulo": "Estudiante", "clave": "estudiante_nombres", "anotada": True},
-        {
-            "titulo": "Cédula",
-            "clave": "cedula",
-            "alinear": "derecha",
-            "anotada": True,
-        },
-        {"titulo": "Materia", "clave": "materia_nombre", "anotada": True},
-        {"titulo": "Sección", "clave": "seccion_nombre", "anotada": True},
-        {"titulo": "Valor", "clave": "valor", "alinear": "derecha"},
-        {
-            "titulo": "Lapso",
-            "clave": "lapso_nombre",
-            "anotada": True,
-            "alinear": "derecha",
-        },
-        {"titulo": "Fecha de añadida", "clave": "fecha_añadida", "anotada": True},
-    )
-    genero_sustantivo_objeto = "F"
-
-    def get_queryset(self, *args, **kwargs) -> "list[dict]":
-        queryset = Nota.objects.annotate(
-            materia_nombre=F("tarea_profesormateria__profesormateria__materia__nombre"),
-            seccion_nombre=F("matricula__seccion__nombre"),
-            cedula=F("matricula__estudiante__cedula"),
-            lapso_nombre=F("matricula__lapso__nombre"),
-            estudiante_nombres=Concat(
-                "matricula__estudiante__nombres",
-                Value(" "),
-                "matricula__estudiante__apellidos",
-            ),
-            fecha_añadida=TruncMinute("fecha"),
-        ).only(
-            *(
-                col["clave"]
-                for col in self.columnas_totales
-                if not col.get("anotada", False)
-            )
-        )
-
-        return super().get_queryset(queryset)
-
-    def aplicar_filtros(self, queryset, datos_form):
-        queryset = super().aplicar_filtros(queryset, datos_form)
-
-        queryset = aplicar_filtros_secciones_y_lapsos(
-            self,
-            queryset,
-            datos_form,
-            seccion_col_nombre="matricula__seccion",
-            lapso_col_nombre="matricula__lapso",
-        )
-
-        if materias := self.obtener_y_alternar(
-            NotasBusquedaForm.Campos.MATERIAS, datos_form, "materia_nombre"
-        ):
-            queryset = queryset.filter(materia_id__in=materias)
-
-        try:
-            nota_minima = float(datos_form.get("valor_minimo", 0))  # type: ignore
-            nota_maxima = float(datos_form.get("valor_maximo", 20))  # type: ignore
-
-            if nota_minima <= nota_maxima:
-                queryset = queryset.filter(valor__range=(nota_minima, nota_maxima))
-        except (ValueError, TypeError):
-            pass
-
-        return queryset
-
-    def get_context_data(self, *args, **kwargs):
-        ctx = super().get_context_data(*args, **kwargs)
-
-        ctx.update(
-            {
-                "hay_matriculas": Matricula.objects.exists(),
-                "hay_materias": Materia.objects.exists(),
-            }
-        )
-
-        return ctx
 
 
 class ListaTiposTareas(VistaListaObjetos):
@@ -324,3 +231,147 @@ class CrearTarea(VistaFormTarea, VistaCrearObjeto):
 
 class ActualizarTarea(VistaFormTarea, VistaActualizarObjeto):
     pass
+
+
+class ListaNotas(VistaListaObjetos):
+    model = Nota
+    template_name = "calificaciones/notas/index.html"
+    plantilla_lista = "calificaciones/notas/lista.html"
+    paginate_by = 1
+    form_filtros = NotasBusquedaForm
+    genero_sustantivo_objeto = "F"
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = (
+            Matricula.objects.annotate(promedio=Avg("nota__valor"))
+            .select_related("estudiante", "seccion", "seccion__año", "lapso")
+            .order_by("estudiante__apellidos", "estudiante__nombres")
+        )
+
+        notas_qs = Nota.objects.select_related(
+            "tarea_profesormateria__profesormateria__materia",
+            "tarea_profesormateria__tarea",
+        ).order_by("tarea_profesormateria__profesormateria__materia__nombre")
+
+        datos_form = self.establecer_form_filtros()
+
+        self.modificar_paginacion(datos_form)
+
+        # busqueda textual
+        queryset = self.aplicar_filtros(queryset, datos_form)
+        queryset = self.aplicar_orden(queryset, datos_form)
+
+        if secciones := datos_form.get(NotasBusquedaForm.Campos.SECCIONES):
+            notas_qs = notas_qs.filter(
+                tarea_profesormateria__profesormateria__seccion__in=secciones
+            )
+            queryset = queryset.filter(seccion__in=secciones)
+
+        if lapsos := datos_form.get(NotasBusquedaForm.Campos.LAPSOS):
+            notas_qs = notas_qs.filter(tarea_profesormateria__tarea__lapso__in=lapsos)
+            queryset = queryset.filter(lapso__in=lapsos)
+
+        if materias := datos_form.get(NotasBusquedaForm.Campos.MATERIAS):
+            notas_qs = notas_qs.filter(
+                tarea_profesormateria__profesormateria__materia__in=materias
+            )
+
+        # Prefetch optimizado para notas con sus relaciones
+        notas_prefetch = Prefetch(
+            "nota_set",
+            queryset=notas_qs,
+            to_attr="notas_prefetch",
+        )
+
+        # Consulta principal con optimizaciones
+        return queryset.prefetch_related(notas_prefetch)
+
+    def paginate_queryset(self, queryset, page_size):
+        """Sobrescribe el método de paginación para mantener la paginación estándar."""
+        return super().paginate_queryset(queryset, page_size)
+
+    def procesar_matriculas(self, matriculas):
+        """Procesa las matrículas para agrupar notas por materia"""
+        matriculas_procesadas = []
+
+        for matricula in matriculas:
+            # Diccionario para agrupar notas por materia
+            materias_dict = {}
+
+            # Procesar las notas prefetched
+            for nota in getattr(matricula, "notas_prefetch", []):
+                materia = nota.tarea_profesormateria.profesormateria.materia
+                materia_id = materia.id
+
+                if materia_id not in materias_dict:
+                    materias_dict[materia_id] = {
+                        "materia": materia,
+                        "notas": [],
+                        "promedio": 0.0,
+                    }
+
+                # Agregar nota con información relevante
+                materias_dict[materia_id]["notas"].append(
+                    {
+                        "id": nota.id,
+                        "valor": nota.valor,
+                        "fecha": nota.fecha,
+                        "tipo": nota.tarea_profesormateria.tarea.tipo.nombre,
+                        "tarea_id": nota.tarea_profesormateria.tarea.id,
+                    }
+                )
+
+            # Calcular promedios por materia
+            for materia_data in materias_dict.values():
+                notas = [n["valor"] for n in materia_data["notas"]]
+                if notas:
+                    materia_data["promedio"] = sum(notas) / len(notas)
+
+            # Convertir diccionario a lista ordenada por nombre de materia
+            materias_lista = sorted(
+                materias_dict.values(), key=lambda x: x["materia"].nombre
+            )
+
+            # Calcular promedio general
+            promedios_materias = [
+                m["promedio"] for m in materias_lista if m["promedio"] > 0
+            ]
+            promedio_general = (
+                sum(promedios_materias) / len(promedios_materias)
+                if promedios_materias
+                else 0.0
+            )
+
+            # Crear estructura procesada para la matrícula
+            matricula_procesada = {
+                "id": matricula.id,
+                "estudiante": matricula.estudiante,
+                "seccion": matricula.seccion,
+                "lapso": matricula.lapso,
+                "materias_cursadas": materias_lista,
+                "promedio_general": promedio_general,
+                "total_materias": len(materias_lista),
+            }
+
+            matriculas_procesadas.append(matricula_procesada)
+
+        return matriculas_procesadas
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+
+        # Obtener el objeto de paginación del contexto
+        page_obj: "Page | None" = ctx.get("page_obj")
+
+        if page_obj and page_obj.object_list:
+            # Procesar solo las matrículas de la página actual
+            ctx["matriculas_procesadas"] = self.procesar_matriculas(
+                page_obj.object_list
+            )
+        else:
+            ctx["matriculas_procesadas"] = ()
+
+        return ctx
+
+    def obtener_total(self):
+        return super().obtener_total()

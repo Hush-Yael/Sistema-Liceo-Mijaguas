@@ -1,13 +1,171 @@
-{% extends "componentes/tabla-adaptable/index.html" %}
+{% extends "componentes/vista-lista/lista.html" %}
+{% load l10n %}
+{% load utilidades %}
+{% load grupos_variantes %}
+{% load partials %}
 
-{% block td %}
-  {% if clave == 'valor' %}
-    {% with valor=dato|floatformat:"-1" %}
-      {{ valor }}
-    {% endwith %}
-  {% elif 'fecha' in columna.clave %}
-    {{ dato|date:"D. d M. Y, h:i A" }}
-  {% else %}
-    {{ dato }}
-  {% endif %}
-{% endblock td %}
+{% block lista %}
+  <ul x-bind="eventosLista" class="col gap-y-8">
+    {% for matricula in matriculas_procesadas %}
+      <li class="w-full">
+        <details open class="group col rounded-xl w-full">
+          {# Cabecera con datos del matricula #}
+          <summary
+            class="flex gap-x-4 aic mb-2 pb-2 rounded-t-xl group-not-open:rounded-b-xl border-b border-[--transparente-1] bg-fondo-300"
+          >
+            <span
+              class="size-14 size-min-14 lh-14 tac font-bold text-xl aspect-square rounded-full bg-[--transparente-1] min-[700px]:size-10 min-[700px]:size-min-10 min-[700px]:lh-10 min-[700px]:text-lg"
+            >
+              {% include "componentes/vista-lista/indice-objeto.html" %}
+            </span>
+
+            <div class="col gap-y-1.5 min-[700px]:flex-row jb flex-1">
+              <h2 class="font-bold min-[500px]:text-lg truncate">
+                {{ matricula.estudiante.nombre_completo }}
+              </h2>
+
+              <div class="flex gap-x-2 jb items-end min-[500px]:gap-x-4">
+                <p
+                  class="text-xs text-texto-sutil tracking-wider min-[500px]:text-sm"
+                >
+                  C.I: {{ matricula.estudiante.cedula|default:'?'|localize }}
+                </p>
+
+                <div class="flex text-sm">
+                  {% with class="px-3 py-1 min-w-max text-xs font-semibold" %}
+                    <span
+                      class="{{ class }} bg-primario-400 dark:bg-primario-600 text-primario-texto rounded-l"
+                    >
+                      {{ matricula.lapso.nombre }}
+                    </span>
+
+                    <span
+                      class="{{ class }} bg-secundario-400 dark:bg-secundario-600 text-secundario-texto rounded-r"
+                    >
+                      {{ matricula.seccion.nombre }}
+                    </span>
+                  {% endwith %}
+                </div>
+              </div>
+            </div>
+          </summary>
+
+          <div class="col flex-1 ui-elevado rounded-lg">
+            {# Materias y sus notas #}
+            {% for materia in matricula.materias_cursadas %}
+              <article class="col">
+                <hgroup
+                  class="flex gap-x-4 aic jb p-2 px-4 bg-fondo-700 rounded-lg border-b border-[--transparente-1]"
+                >
+                  <h3 class="font-semibold">{{ materia.materia.nombre }}</h3>
+
+                  <p class="flex aic gap-x-2 max-[500px]:text-sm">
+                    <span>Promedio:</span>
+                    {% with n=materia.promedio texto="Promedio" class="text-texto-semi-sutil" %}
+                      {% partial promedio %}
+                    {% endwith %}
+                  </p>
+                </hgroup>
+
+                <div
+                  class="grid flex-1 overflow-auto justify-start rows-[1fr,1fr,1fr]"
+                  role="table"
+                >
+                  {%
+                    with
+                    th_class="flex aic border-b border-[--transparente-1] px-4 p-2 min-[500px]:py-3 text-xs font-medium text-texto-sutil uppercase tracking-wider"
+                    td_class="px-4 p-2 whitespace-nowrap min-[500px]:py-3 border-b border-[--transparente-1]"
+                  %}
+                    <div
+                      role="row"
+                      class="sticky z-1 left-0 h-full col col-[1/2] row-[1/6] bg-fondo-600 *:flex-1"
+                    >
+                      <span role="columnheader" class="{{ th_class }} "
+                        >nota</span
+                      >
+
+                      <span role="columnheader" class="{{ th_class }}">
+                        evaluación
+                      </span>
+
+                      <span role="columnheader" class="{{ th_class }}">
+                        fecha
+                      </span>
+                    </div>
+
+                    {% for nota in materia.notas %}
+                      <div
+                        role="row"
+                        class="col *:flex row-[1/6] border-[--transparente-1] border-r text-texto-semi-sutil"
+                      >
+                        <span role="cell" class="{{ td_class }} ">
+                          {{ nota.valor|floatformat:2 }}
+                        </span>
+
+                        <span
+                          role="cell"
+                          class="{{ td_class }} flex aic gap-x-2 text-sm"
+                        >
+                          <span
+                            class="p-0.5 px-2 bg-[--transparente-1] rounded text-xs"
+                          >
+                            #{{ forloop.counter }}
+                          </span>
+                          {{ nota.tipo }}
+                        </span>
+
+                        <span
+                          role="cell"
+                          class="{{ td_class }} text-xs text-texto-sutil"
+                        >
+                          {{ nota.fecha|date:"d M. Y, h:i A" }}
+                        </span>
+                      </div>
+                    {% endfor %}
+                  {% endwith %}
+                </div>
+              </article>
+              {% empty %}
+              <p class="p-3 px-4 text-peligro dark:text-peligro-400">
+                El estudiante no está cursando materias en este lapso
+              </p>
+            {% endfor %}
+
+            {# Promedio total #}
+          </div>
+          <div class="pt-2">
+            <p class="flex jb aic gap-x-2 text-lg">
+              <span class="font-bold">Promedio general:</span>
+              {% with n=matricula.promedio_general texto="Promedio general" class="jb" %}
+                {% partial promedio %}
+              {% endwith %}
+            </p>
+          </div>
+        </details>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock lista %}
+
+{% partialdef promedio %}
+  <span class="flex aic gap-x-2">
+    <b>{{ n|floatformat:2 }}</b>
+    <span
+      {% with class="rounded-full size-3 min-[500px]:size-4 border border-[--transparente-1] aspect-square" %}
+        {% if n == 0 %}
+          class="{{ class }} bg-red-600"
+        {% elif n < 10 %}
+          class="{{ class }} bg-orange-600"
+        {% elif n == 10 %}
+          class="{{ class }} bg-yellow"
+        {% elif n >= 10 and n < 15 %}
+          class="{{ class }} bg-lime-500"
+        {% elif n >= 15 %}
+          class="{{ class }} bg-green-600"
+        {% elif n >= 20 %}
+          class="{{ class }} bg-teal-600"
+        {% endif %}
+      {% endwith %}
+    ></span>
+  </span>
+{% endpartialdef promedio %}

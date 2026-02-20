@@ -13,38 +13,56 @@ from estudios.modelos.gestion.calificaciones import TipoTarea
 from estudios.modelos.parametros import Materia, Seccion, Año
 from estudios.modelos.gestion.personas import (
     Estudiante,
-    Matricula,
     MatriculaEstados,
     Profesor,
 )
 from usuarios.models import Usuario
 
 
-class NotasBusquedaForm(LapsoYSeccionFormMixin):
+class NotasBusquedaForm(OrdenFormMixin, LapsoYSeccionFormMixin):
     class Campos:
         MATERIAS = "materias"
         LAPSOS = "lapsos"
         SECCIONES = "secciones"
 
     campos_prefijo_cookie = "notas"
+
     columnas_busqueda = (
         {
-            "columna_db": f"{vn(Matricula)}__{vn(Estudiante)}__{nc(Estudiante.nombres)}",
+            "columna_db": f"{mn(Estudiante)}__{nc(Estudiante.nombres)}",
             "nombre_campo": "nombres",
         },
         {
-            "columna_db": f"{vn(Matricula)}__{vn(Estudiante)}__{nc(Estudiante.apellidos)}",
+            "columna_db": f"{mn(Estudiante)}__{nc(Estudiante.apellidos)}",
             "nombre_campo": "apellidos",
         },
         {
-            "columna_db": f"{vn(Matricula)}__{vn(Estudiante)}__{nc(Estudiante.cedula)}",
+            "columna_db": f"{mn(Estudiante)}__{nc(Estudiante.cedula)}",
             "nombre_campo": "cedula",
+            "label_campo": "Cédula",
         },
+    )
+
+    opciones_orden = (
+        (
+            f"{mn(Estudiante)}__{nc(Estudiante.nombres)}",
+            "Nombres",
+        ),
+        (
+            f"{mn(Estudiante)}__{nc(Estudiante.apellidos)}",
+            "Apellidos",
+        ),
+        (
+            f"{mn(Estudiante)}__{nc(Estudiante.cedula)}",
+            "Cédula",
+        ),
     )
 
     materias = forms.ModelMultipleChoiceField(
         label="Materia",
-        queryset=Materia.objects.all().order_by("nombre") if not MIGRANDO else None,
+        queryset=Materia.objects.all().order_by(nc(Materia.nombre))
+        if not MIGRANDO
+        else None,
         required=False,
     )
 
