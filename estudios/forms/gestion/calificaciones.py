@@ -8,6 +8,7 @@ from estudios.modelos.gestion.calificaciones import (
 )
 from estudios.modelos.gestion.personas import Profesor, ProfesorMateria
 from app.settings import MIGRANDO
+from estudios.modelos.parametros import obtener_lapso_actual
 
 
 class FormTipoTarea(forms.ModelForm):
@@ -63,6 +64,7 @@ class FormTarea(LapsoActualForm, forms.ModelForm):
             )
 
         tarea = super().save(commit)
+        tarea.lapso = obtener_lapso_actual()
         tarea.profesor = self.profesor
 
         tarea.save()
