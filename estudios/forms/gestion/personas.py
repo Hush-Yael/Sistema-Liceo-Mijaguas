@@ -339,7 +339,7 @@ class FormEstudiante(forms.ModelForm):
 class FormMatricularEstudiantes(forms.Form):
     """Usado en la sección de estudiantes por medio del modal"""
 
-    lapso_actual = obtener_lapso_actual()
+    lapso_actual = obtener_lapso_actual() if not MIGRANDO else None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
