@@ -58,9 +58,8 @@
                   {% with class="px-4 py-3 text-xs font-medium text-texto-sutil text-left uppercase tracking-wider" %}
                     <tr>
                       {% if permisos.eliminar %}
-                        <th class="{{ class }}">
+                        <th class="{{ class }} w-10 pr-0!">
                           <button
-                            class="z-1"
                             type="checkbox"
                             autocomplete="off"
                             id="seleccionar-todos"
@@ -114,7 +113,18 @@
                           </td>
                         {% endif %}
 
-                        <td class="{{ class }}">{{ seccion.nombre }}</td>
+                        <td class="{{ class }}">
+                          {% with t=seccion.nombre %}
+
+                            {% if permisos.editar %}
+                              <a href="{% url view.url_editar seccion.id %}">
+                                {{ t }}
+                              </a>
+                            {% else %}
+                              {{ t }}
+                            {% endif %}
+                          {% endwith %}
+                        </td>
                         <td class="{{ class }}">{{ seccion.letra }}</td>
 
                         <td class="{{ class }} text-right">

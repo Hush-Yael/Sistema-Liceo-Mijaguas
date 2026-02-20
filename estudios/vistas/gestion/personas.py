@@ -646,6 +646,8 @@ class MatriculaVistaForm(VistaForm, FormView):
 
 class CrearMatricula(MatriculaVistaForm, VistaCrearObjeto):
     def get_initial(self):
+        initial = {}
+
         if (seccion := self.request.GET.get("seccion")) and seccion.isdecimal():
             if seccion := Seccion.objects.filter(id=seccion).first():
                 initial["seccion"] = seccion
