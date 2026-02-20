@@ -223,78 +223,83 @@
                     hx-include="[name=pagina]"
                   {% endif %}
                 >
-                  {# indicar al servidor que solo se quiere la tabla al momento de reemplazar el contenido #}
-                  <input type="hidden" name="solo_tabla" value="true" />
+                  {% block form_filtros %}
 
-                  {%
-                    with
-                    submenu_class="ui-elevado absolute col gap-y-4 w-max max-w-200px py-2 px-3  shadow-xl"
-                    trigger_class="rounded p-1 px-2 w-full text-left pover:bg-[--transparente-1] aria-expanded:bg-[--transparente-1] aria-expanded:pover:bg-[--transparente-2] transition-[background-color] list-none"
-                    aplicar_btn_class="ui-btn ui-btn/primario p-0.5 px-4 flex-1"
-                    radio_label_class="group/label flex aic gap-x-2"
-                    radio_class="ui-opcion ui-opcion/radio z-2 size-4.5 size-min-4.5"
-                  %}
-                    {% include "componentes/vista-lista/filtros/menu-busqueda.html" %}
+                    {# indicar al servidor que solo se quiere la tabla al momento de reemplazar el contenido #}
+                    <input type="hidden" name="solo_tabla" value="true" />
 
-                    <div
-                      class="relative h-full"
-                      x-data="dropdown({ {% if filtros_abiertos %}abierto: true{% endif %} })"
-                      x-ref="menuFiltros"
-                    >
-                      <button
-                        x-bind="trigger"
-                        class="ui-btn ui-btn/secundario h-full px-2 rounded"
-                        aria-label="Añadir filtros"
-                      >
-                        {% include "componentes/iconos/tabla.html#filtros" with class="size-5" %}
-                      </button>
+                    {%
+                      with
+                      submenu_class="ui-elevado absolute col gap-y-4 w-max max-w-200px py-2 px-3  shadow-xl"
+                      trigger_class="rounded p-1 px-2 w-full text-left pover:bg-[--transparente-1] aria-expanded:bg-[--transparente-1] aria-expanded:pover:bg-[--transparente-2] transition-[background-color] list-none"
+                      aplicar_btn_class="ui-btn ui-btn/primario p-0.5 px-4 flex-1"
+                      radio_label_class="group/label flex aic gap-x-2"
+                      radio_class="ui-opcion ui-opcion/radio z-2 size-4.5 size-min-4.5"
+                    %}
+                      {% include "componentes/vista-lista/filtros/menu-busqueda.html" %}
 
                       <div
-                        class="absolute z-5 top-[calc(100%+4px)] left-0 ui-elevado col gap-y-1 p-1 min-w-max shadow-xl text-base"
-                        x-cloak
-                        x-bind="menu"
-                        x-show="abierto || abiertoPorTeclado"
+                        class="relative h-full"
+                        x-data="new Dropdown({ {% if filtros_abiertos %}
+                          abierto: true
+                        {% endif %} })"
+                        x-ref="menuFiltros"
                       >
-                        {% block opciones_filtros %}
-                          {% for campo in form_filtros %}
-                            {% if campo.field.campo_booleano %}
-                              {% include "componentes/vista-lista/filtros/yesno.html" %}
-                            {% endif %}
-                          {% endfor %}
-                        {% endblock opciones_filtros %}
+                        <button
+                          x-bind="trigger"
+                          class="ui-btn ui-btn/secundario h-full px-2 rounded"
+                          aria-label="Añadir filtros"
+                        >
+                          {% include "componentes/iconos/tabla.html#filtros" with class="size-5" %}
+                        </button>
+
+                        <div
+                          class="absolute z-5 top-[calc(100%+4px)] left-0 ui-elevado col gap-y-1 p-1 min-w-max shadow-xl text-base"
+                          x-cloak
+                          x-bind="menu"
+                          x-show="abierto || abiertoPorTeclado"
+                        >
+                          {% block opciones_filtros %}
+                            {% for campo in form_filtros %}
+                              {% if campo.field.campo_booleano %}
+                                {% include "componentes/vista-lista/filtros/yesno.html" %}
+                              {% endif %}
+                            {% endfor %}
+                          {% endblock opciones_filtros %}
+                        </div>
                       </div>
-                    </div>
-                  {% endwith %}
+                    {% endwith %}
 
-                  {% if form_con_orden %}
-                    {% include "componentes/vista-lista/orden.html" %}
-                  {% endif %}
-                  {% include "componentes/vista-lista/btn-pantalla-completa.html" %}
+                    {% if form_con_orden %}
+                      {% include "componentes/vista-lista/orden.html" %}
+                    {% endif %}
+                    {% include "componentes/vista-lista/btn-pantalla-completa.html" %}
 
-                  {% if not view.tabla %}
-                    <button
-                      type="button"
-                      class="ui-btn ui-elevado h-full rounded px-1"
-                      @click="alternarSeleccionTodo()"
-                    >
-                      {% include "componentes/iconos/edicion.html#seleccionar_todo" with class="size-5.5" %}
-                      <span class="sr-only">Seleccionar todo</span>
-                    </button>
-                  {% endif %}
+                    {% if not view.tabla %}
+                      <button
+                        type="button"
+                        class="ui-btn ui-elevado h-full rounded px-1"
+                        @click="alternarSeleccionTodo()"
+                      >
+                        {% include "componentes/iconos/edicion.html#seleccionar_todo" with class="size-5.5" %}
+                        <span class="sr-only">Seleccionar todo</span>
+                      </button>
+                    {% endif %}
 
-                  {% if form_filtros.cantidad_por_pagina %}
-                    <label
-                      class="ui-elevado fc gap-x-2 h-full rounded-campo px-2"
-                      hx-vals='{"solo_tabla": true}'
-                      @change="$refs.form.requestSubmit()"
-                    >
-                      {% render_field form_filtros.cantidad_por_pagina class="py-0! ui-elevado-2" data-filtro="" %}
-                      <span class="sr-only">
-                        {{ view.nombre_objeto_plural }}
-                      </span>
-                      <span class="min-w-max"> por página </span>
-                    </label>
-                  {% endif %}
+                    {% if form_filtros.cantidad_por_pagina %}
+                      <label
+                        class="ui-elevado fc gap-x-2 h-full rounded-campo px-2"
+                        hx-vals='{"solo_tabla": true}'
+                        @change="$refs.form.requestSubmit()"
+                      >
+                        {% render_field form_filtros.cantidad_por_pagina class="py-0! ui-elevado-2" data-filtro="" %}
+                        <span class="sr-only">
+                          {{ view.nombre_objeto_plural }}
+                        </span>
+                        <span class="min-w-max"> por página </span>
+                      </label>
+                    {% endif %}
+                  {% endblock form_filtros %}
                 </form>
               </div>
             {% endblock filtros %}
