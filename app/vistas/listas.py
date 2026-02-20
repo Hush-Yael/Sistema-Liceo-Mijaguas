@@ -25,131 +25,30 @@ from django.http import (
 )
 
 
-class VistaListaObjetos(Vista, ListView):
-    """Clase base para vistas que muestran una lista de objetos."""
-
-    model: Type[models.Model]  # type: ignore
-    tipo_permiso = "view"
-    context_object_name = "lista_objetos"
+class FormFiltrosMixin:
+    request: HttpRequest
     form_filtros: Type[BusquedaFormMixin]
-    total: "int | None" = None
-    cantidad_filtradas: "int | None" = None
-    plantilla_lista: str
-    id_lista_objetos: str = "lista-objetos"
-    url_crear: str
-    url_editar: str
-    # nombre del campo o atributo que contiene los ids de los objetos seleccionados
-    ids_objetos_kwarg = "ids"
-    http_method_names: "list[Metodo] | tuple[Metodo, ...]" = (  # type: ignore - cualquier string sirve
-        "get",
-        "post",
-        "put",
-        "delete",
-    )
-    ordering = "id"
-    # si se quiere agrupar los resultados
-    agrupados = False
+    kwargs: dict
+    page_kwarg: str
 
-    def __init__(self):
-        """Establece automáticamente los atributos url_crear y url_editar si no se han establecido. Estos se usan en el html de la vista para indicar los enlaces para crear y editar el tipo de objeto de la vista en cuestión."""
+    def usar_filtros(self, queryset: models.QuerySet):
+        if not hasattr(self, "form_filtros"):
+            raise ValueError("Se debe indicar un form de filtros")
 
-        if not hasattr(self, "url_crear"):
-            self.url_crear = nombre_url_crear_auto(self.model)
+        datos_form = self.inicializar_form_filtros()
 
-        if not hasattr(self, "url_editar"):
-            self.url_editar = nombre_url_editar_auto(self.model)
+        queryset = self.aplicar_orden(queryset, datos_form)
 
-        super().__init__()
+        # modificar paginación de acuerdo a los filtros
+        self.modificar_paginacion(datos_form)
 
-    def get_queryset(
-        self, queryset: "models.QuerySet | None" = None
-    ) -> "models.QuerySet":
-        """Retorna el queryset. Si se indica un form de orden, se ordenan los datos de acuerdo a los valores indicados. Si se indica un form de filtros, se filtran los datos de acuerdo a los valores indicados."""
-        if queryset is None:
-            raise ValueError("Se debe indicar un queryset")
-
-        if queryset:
-            # se indicó un form de filtros
-            if hasattr(self, "form_filtros"):
-                datos_form = self.establecer_form_filtros()
-
-                if isinstance(self.form_filtros, OrdenFormMixin):
-                    queryset = self.aplicar_orden(queryset, datos_form)  # type: ignore
-
-                # modificar paginación de acuerdo a los filtros
-                self.modificar_paginacion_por_filtro(datos_form)
-
-                # modificar queryset de acuerdo a los filtros
-                queryset = self.aplicar_filtros(
-                    queryset=queryset,
-                    datos_form=datos_form,
-                )
+        # modificar queryset de acuerdo a los filtros
+        queryset = self.aplicar_filtros(
+            queryset=queryset,
+            datos_form=datos_form,
+        )
 
         return queryset
-
-    def establecer_form_filtros(self):
-        """Establece los datos del form de filtros según el método de la request, los valida y, si son válidos los retorna, si no retorna los valores por defecto."""
-
-        # al crear el form de filtros, se debe distinguir entre GET y los otros métodos, ya que por alguna razón GET no funciona correctamente (evita que se recuperen los datos de las cookies) si se le pasan los datos
-        if self.request.method == "GET":
-            self.form_filtros = self.form_filtros(request=self.request)  # type: ignore
-        else:
-            if self.request.method == "POST":
-                datos = self.request.POST
-            elif self.request.method == "PUT" and self.request.body:
-                datos = QueryDict(self.request.body)  # type: ignore
-            elif self.request.method == "DELETE":
-                datos = self.request.GET
-            elif getattr(self.form_filtros, "initial", None):
-                datos = self.form_filtros.initial
-            else:
-                datos = {}
-
-            self.form_filtros = self.form_filtros(  # type: ignore - sí es una clase
-                datos, request=self.request
-            )
-
-        if self.form_filtros.is_valid():  # type: ignore - sí se pasa "self"
-            return self.form_filtros.cleaned_data
-        else:
-            return self.form_filtros.initial
-
-    def modificar_paginacion_por_filtro(
-        self, datos_form: "dict[str, Any] | Mapping[str, Any]"
-    ):
-        """Modifica la paginación de acuerdo a los campos "pagina" y "cantidad_por_pagina" """
-
-        # Ya que la paginación se hace por POST con HTMX, se debe modificar el kwarg que la vista usa para ella
-
-        # En caso de pasar la página actual desde el componente de la paginación (Por defecto)
-        if self.form_filtros.fields.get("pagina"):
-            self.kwargs[self.page_kwarg] = int(
-                datos_form.get(
-                    "pagina",
-                    "1",
-                )
-            )
-
-        # Si se pasa la página actual desde un formulario
-        elif p := self.request.POST.get("page"):
-            self.kwargs[self.page_kwarg] = int(p)
-
-        # Modificar la cantidad de registros por pagina
-
-        # Se debe pasar por el form de filtros
-        if self.form_filtros.fields.get("cantidad_por_pagina"):
-            try:
-                cantidad_por_pagina = int(
-                    datos_form.get(
-                        "cantidad_por_pagina",
-                        "0",
-                    )
-                )
-            except (TypeError, ValueError):
-                cantidad_por_pagina = 0
-
-            if cantidad_por_pagina > 0:
-                self.paginate_by = cantidad_por_pagina
 
     def aplicar_filtros(
         self,
@@ -194,17 +93,150 @@ class VistaListaObjetos(Vista, ListView):
 
         return queryset
 
-    def aplicar_orden(self, queryset: models.QuerySet, datos_form: "dict[str, Any]"):
+    def aplicar_orden(
+        self,
+        queryset: models.QuerySet,
+        datos_form: "dict[str, Any] | Mapping[str, Any]",
+    ):
         """Ordena el queryset de acuerdo a los filtros de orden indicados en el form de filtros"""
+        if isinstance(self.form_filtros, OrdenFormMixin):
+            for nombre, _ in self.form_filtros.campos_orden:  # type: ignore
+                if direccion := datos_form.get(nombre):
+                    columna = nombre.split("-")[0]
 
-        for nombre, _ in self.form_filtros.campos_orden:  # type: ignore
-            if direccion := datos_form.get(nombre):
-                columna = nombre.split("-")[0]
+                    if direccion == DireccionesOrden.ASC.value[0]:
+                        columna = "-" + columna
 
-                if direccion == DireccionesOrden.ASC.value[0]:
-                    columna = "-" + columna
+                    queryset = queryset.order_by(columna)
+        elif self.ordering:
+            queryset = queryset.order_by(*self.ordering)
 
-                queryset = queryset.order_by(columna)
+        return queryset
+
+    def inicializar_form_filtros(self):
+        """Establece los datos del form de filtros según el método de la request, los valida y, si son válidos los retorna, si no retorna los valores por defecto."""
+
+        # al crear el form de filtros, se debe distinguir entre GET y los otros métodos, ya que por alguna razón GET no funciona correctamente (evita que se recuperen los datos de las cookies) si se le pasan los datos
+        if self.request.method == "GET":
+            self.form_filtros = self.form_filtros(request=self.request)  # type: ignore
+        else:
+            if self.request.method == "POST":
+                datos = self.request.POST
+            elif self.request.method == "PUT" and self.request.body:
+                datos = QueryDict(self.request.body)  # type: ignore
+            elif self.request.method == "DELETE":
+                datos = self.request.GET
+            elif getattr(self.form_filtros, "initial", None):
+                datos = self.form_filtros.initial
+            else:
+                datos = {}
+
+            self.form_filtros = self.form_filtros(  # type: ignore - sí es una clase
+                datos, request=self.request
+            )
+
+        if self.form_filtros.is_valid():  # type: ignore - sí se pasa "self"
+            return self.form_filtros.cleaned_data
+        else:
+            return self.form_filtros.initial
+
+    # aplicación de filtros por POST
+    def post(self, request: HttpRequest, *args, **kwargs):
+        if hasattr(self, "form_filtros"):
+            respuesta = super().get(request, *args, **kwargs)  # type: ignore
+
+            respuesta.context_data["lista_reemplazada_por_htmx"] = 1  # type: ignore
+            respuesta.template_name = self.plantilla_lista  # type: ignore
+
+            # Validar el formulario y guardar en cookies los valores
+            if self.form_filtros.is_valid():  # type: ignore - sí se pasa "self"
+                self.form_filtros.guardar_en_cookies(respuesta)  # type: ignore - sí se pasa "self"
+
+            return respuesta
+
+        return HttpResponse("No se indicó un form de filtros", status=405)
+
+    def modificar_paginacion(self, datos_form: "dict[str, Any] | Mapping[str, Any]"):
+        """Modifica la paginación de acuerdo a los campos "pagina" y "cantidad_por_pagina" """
+
+        # Ya que la paginación se hace por POST con HTMX, se debe modificar el kwarg que la vista usa para ella
+
+        # En caso de pasar la página actual desde el componente de la paginación (Por defecto)
+        if self.form_filtros.fields.get("pagina"):
+            self.kwargs[self.page_kwarg] = int(
+                datos_form.get(
+                    "pagina",
+                    "1",
+                )
+            )
+
+        # Si se pasa la página actual desde un formulario
+        elif p := self.request.POST.get("page"):
+            self.kwargs[self.page_kwarg] = int(p)
+
+        # Modificar la cantidad de registros por pagina
+        if self.form_filtros.fields.get("cantidad_por_pagina"):
+            cantidad_por_pagina = datos_form.get(
+                "cantidad_por_pagina",
+            )
+
+            # Si se pasa por el form de filtros
+            if cantidad_por_pagina is not None:
+                try:
+                    cantidad_por_pagina = int(cantidad_por_pagina)
+                except (TypeError, ValueError):
+                    cantidad_por_pagina = 0
+
+                if cantidad_por_pagina > 0:
+                    self.paginate_by = cantidad_por_pagina
+            # no hay un valor por defecto, se usa el de la clase
+            elif self.paginate_by:
+                datos_form["cantidad_por_pagina"] = self.paginate_by  # type: ignore - sí se puede modificar
+
+
+class VistaListaObjetos(Vista, FormFiltrosMixin, ListView):
+    """Clase base para vistas que muestran una lista de objetos."""
+
+    model: Type[models.Model]  # type: ignore
+    tipo_permiso = "view"
+    context_object_name = "lista_objetos"
+    total: "int | None" = None
+    cantidad_filtradas: "int | None" = None
+    plantilla_lista: str
+    id_lista_objetos: str = "lista-objetos"
+    url_crear: str
+    url_editar: str
+    # nombre del campo o atributo que contiene los ids de los objetos seleccionados
+    ids_objetos_kwarg = "ids"
+    http_method_names: "list[Metodo] | tuple[Metodo, ...]" = (  # type: ignore - cualquier string sirve
+        "get",
+        "post",
+        "put",
+        "delete",
+    )
+    ordering = "id"
+    # si se quiere agrupar los resultados
+    agrupados = False
+
+    def __init__(self):
+        """Establece automáticamente los atributos url_crear y url_editar si no se han establecido. Estos se usan en el html de la vista para indicar los enlaces para crear y editar el tipo de objeto de la vista en cuestión."""
+
+        if not hasattr(self, "url_crear"):
+            self.url_crear = nombre_url_crear_auto(self.model)
+
+        if not hasattr(self, "url_editar"):
+            self.url_editar = nombre_url_editar_auto(self.model)
+
+        super().__init__()
+
+    def get_queryset(
+        self, queryset: "models.QuerySet | None" = None
+    ) -> "models.QuerySet":
+        """Retorna el queryset. Si se indica un form de orden, se ordenan los datos de acuerdo a los valores indicados. Si se indica un form de filtros, se filtran los datos de acuerdo a los valores indicados."""
+        if queryset is None:
+            raise ValueError("Se debe indicar un queryset")
+
+        queryset = self.usar_filtros(queryset)
 
         return queryset
 
@@ -293,22 +325,6 @@ class VistaListaObjetos(Vista, ListView):
             permitted_methods=self.http_method_names,
             content=f"Se usó un método no permitido. Solo se acepta {', '.join(self.http_method_names)}",
         )
-
-    # aplicación de filtros por POST
-    def post(self, request: HttpRequest, *args, **kwargs):
-        if hasattr(self, "form_filtros"):
-            respuesta = super().get(request, *args, **kwargs)
-
-            respuesta.context_data["lista_reemplazada_por_htmx"] = 1  # type: ignore
-            respuesta.template_name = self.plantilla_lista  # type: ignore
-
-            # Validar el formulario y guardar en cookies los valores
-            if self.form_filtros.is_valid():  # type: ignore - sí se pasa "self"
-                self.form_filtros.guardar_en_cookies(respuesta)  # type: ignore - sí se pasa "self"
-
-            return respuesta
-
-        return HttpResponse("No se indicó un form de filtros", status=405)
 
     def put(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         """Actualizar un registro con PUT. Por defecto, si no tiene permisos, devuelve un HttpResponseForbidden. Si tiene permisos, obtiene una tupla con (los datos, los ids) de la petición. Debe implementarse la funcionalidad en la clase que hereda."""

@@ -142,9 +142,6 @@ class ListaTareasProfesor(
             )
         )
 
-    def establecer_form_filtros(self):
-        return super().establecer_form_filtros()
-
     def obtener_total(self):
         self.total = self.model.objects.filter(
             profesor=self.request.user.profesor,  # type: ignore - sí existe "profesor" como atributo
@@ -253,7 +250,7 @@ class ListaNotas(VistaListaObjetos):
             "tarea_profesormateria__tarea",
         ).order_by("tarea_profesormateria__profesormateria__materia__nombre")
 
-        datos_form = self.establecer_form_filtros()
+        datos_form = self.inicializar_form_filtros()
 
         self.modificar_paginacion(datos_form)
 
