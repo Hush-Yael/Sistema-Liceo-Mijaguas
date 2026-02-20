@@ -10,6 +10,11 @@
   <script>
     opcionesProfesores = {{ form_transferencia.profesor|obtener_lista_opciones|json|safe }}  
   </script>
+  <style>
+    :root {
+      overflow-x: hidden;
+    }
+  </style>
   {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
 {% endblock cabeza %}
 

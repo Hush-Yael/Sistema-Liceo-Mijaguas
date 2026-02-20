@@ -35,7 +35,7 @@
 {% block lista %}
   <ul
     x-bind="eventosLista"
-    class="col min-[500px]:grid cols-[repeat(auto-fill,minmax(325px,1fr))] rows-[repeat(auto-fill,_minmax(auto,350px))] gap-4 flex-1 min-[500px]:gap-y-5"
+    class="col min-[500px]:grid cols-[repeat(auto-fill,minmax(400px,1fr))] gap-4 flex-1 min-[500px]:gap-y-5"
     @click="{{
       '
         if ($event.target.closest("[data-foto-url]")) {
@@ -52,7 +52,7 @@
     }}"
   >
     {% for profesor in lista_objetos %}
-      <li class="col ui-elevado rounded-xl">
+      <li class="col ui-elevado rounded-xl w-full">
         {# Cabecera con datos del profesor #}
         <div
           class="flex aic gap-4 p-2 px-3 rounded-t-xl bg-fondo-700 border-b border-[--transparente-1]"
@@ -90,10 +90,10 @@
           </hgroup>
         </div>
 
-        <div class="overflow-y-auto flex-1">
-          <table
-            class="size-full table-fixed"
-            x-data="{
+        <div
+          class="grid flex-1 overflow-x-auto justify-start rows-[1fr,1fr] size-full overflow-hidden"
+          role="table"
+          x-data="{
                 ids: [{% for asignacion in profesor.materias_asignadas %}'{{ asignacion.id }}',{% endfor %}],
 
                 alternarSeleccionTodo() {
@@ -106,77 +106,80 @@
                   this.ultimaSeleccionadaIndice = null;
                 }
               }"
-          >
-            <thead
-              class="sticky z-1 top-0 bg-fondo-600 border-b border-[--transparente-1] rounded-t"
+        >
+          {%
+            with
+            th_class="flex aic px-4 p-2 min-[500px]:py-3 text-xs font-medium text-texto-sutil uppercase tracking-wider"
+            td_class="tac px-4 p-2 whitespace-nowrap min-[500px]:py-3"
+          %}
+            <div
+              role="row"
+              class="sticky z-1 left-0 h-full col col-[1/2] row-[1/6] bg-fondo-600 divide-y divide-[--transparente-1] *:flex-1"
             >
-              <tr>
-                {% with class="px-4 py-3 text-xs font-medium text-texto-sutil uppercase tracking-wider" %}
-                  {% if permisos.eliminar %}
-                    <th class="{{ class }} w-10">
-                      <button
-                        type="checkbox"
-                        autocomplete="off"
-                        id="seleccionar-todos"
-                        aria-label="Seleccionar todas las filas"
-                        @click="alternarSeleccionTodo()"
-                      >
-                        {% include "componentes/iconos/edicion.html#seleccionar_todo" with class="size-5" %}
-                      </button>
-                    </th>
-                  {% endif %}
+              <span role="columnheader" class="{{ th_class }} ">materia</span>
 
-                  <th class="{{ class }} text-left">materia</th>
-                  <th class="{{ class }} text-right">sección</th>
-                {% endwith %}
-              </tr>
-            </thead>
+              <span role="columnheader" class="{{ th_class }}"> sección </span>
 
-            <tbody class="divide-y divide-[--transparente-1]">
-              {% with class="px-4 py-2 whitespace-nowrap min-[500px]:p-4" %}
-                {% for asignacion in profesor.materias_asignadas %}
-                  <tr>
-                    {% if permisos.eliminar %}
-                      <td class="{{ class }} pr-0!">
-                        <div class="flex ">
-                          {%
-                            with
-                            indice=forloop.counter0|add:forloop.parentloop.counter0
-                            id_l1=forloop.counter0|stringformat:"s"|add:'_'
-                            id_l2=forloop.parentloop.counter0|stringformat:"s"
-                            objeto=asignacion
-                          %}
-                            {% if not forloop.parentloop.first %}
-                              {# empezar conteo desde uno a partir de la segunda iteración de profesores #}
-                              {%
-                                include "componentes/vista-lista/objeto-check.html" with
-                                id_fila=id_l1|add:id_l2
-                                indice=forloop.counter|add:forloop.parentloop.counter0
-                              %}
-                            {% else %}
-                              {%
-                                include "componentes/vista-lista/objeto-check.html" with
-                                id_fila=id_l1|add:id_l2
-                              %}
-                            {% endif %}
-                          {% endwith %}
-                        </div>
-                      </td>
-                    {% endif %}
+              {% if permisos.eliminar %}
+                <span role="columnheader" class="{{ th_class }} jcc py-2!">
+                  <button
+                    autocomplete="off"
+                    id="seleccionar-todos"
+                    aria-label="Seleccionar todas las filas"
+                    @click="alternarSeleccionTodo()"
+                  >
+                    {% include "componentes/iconos/edicion.html#seleccionar_todo" with class="size-5" %}
+                  </button>
+                </span>
+              {% endif %}
+            </div>
 
-                    <td class="{{ class }}">{{ asignacion.materia.nombre }}</td>
-                    <td class="{{ class }} text-right">
-                      <span
-                        class="{{ 'px-3 py-1 min-w-max bg-primario-50 dark:bg-primario-800/50 [.peer\/input:checked~.group_&]:(bg-secundario-texto text-secundario-300) rounded-full text-xs min-[500px]:text-sm font-semibold'|expandir_variantes }}"
-                      >
-                        {{ asignacion.seccion.nombre }}
-                      </span>
-                    </td>
-                  </tr>
-                {% endfor %}
-              {% endwith %}
-            </tbody>
-          </table>
+            {% for asignacion in profesor.materias_asignadas %}
+              <div
+                role="row"
+                class="col row-[1/4] divide-y divide-[--transparente-1] {{ forloop.last|yesno:' , border-r' }} border-[--transparente-1] text-texto-semi-sutil *:flex-1"
+              >
+                <span role="cell" class="{{ td_class }} text-sm">
+                  {{ asignacion.materia.nombre }}
+                </span>
+
+                <span role="cell" class="{{ td_class }} tac">
+                  <span
+                    class="{{ 'px-3 py-1 bg-primario-50 dark:bg-primario-800/50 [.peer\/input:checked~.group_&]:(bg-secundario-texto text-secundario-300) rounded-full text-xs min-[500px]:text-sm font-semibold'|expandir_variantes }}"
+                  >
+                    {{ asignacion.seccion.nombre }}
+                  </span>
+                </span>
+
+                {% if permisos.eliminar %}
+                  <div class="{{ td_class }} fc py-2!">
+                    {%
+                      with
+                      indice=forloop.counter0|add:forloop.parentloop.counter0
+                      id_l1=forloop.counter0|stringformat:"s"|add:'_'
+                      id_l2=forloop.parentloop.counter0|stringformat:"s"
+                      objeto=asignacion
+                      indicador_class="h-4"
+                    %}
+                      {% if not forloop.parentloop.first %}
+                        {# empezar conteo desde uno a partir de la segunda iteración de profesores #}
+                        {%
+                          include "componentes/vista-lista/objeto-check.html" with
+                          id_fila=id_l1|add:id_l2
+                          indice=forloop.counter|add:forloop.parentloop.counter0
+                        %}
+                      {% else %}
+                        {%
+                          include "componentes/vista-lista/objeto-check.html" with
+                          id_fila=id_l1|add:id_l2
+                        %}
+                      {% endif %}
+                    {% endwith %}
+                  </div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          {% endwith %}
         </div>
 
         {# Total y enlace #}
