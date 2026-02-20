@@ -16,17 +16,14 @@ class TipoTarea(models.Model):
     descripcion = models.CharField(max_length=128, null=True, blank=True)
 
     class Meta:
-        db_table = "tipos_tareas"
-        verbose_name = "tipo de tarea"
-        verbose_name_plural = "tipos de tareas"
+        verbose_name = "tipo de evaluación"
+        verbose_name_plural = "tipos de evaluaciones"
 
     def __str__(self):
         return self.nombre
 
 
 class Tarea(models.Model):
-    nombre = models.CharField(max_length=64)
-    descripcion = models.TextField()
     fecha_añadida = models.DateTimeField(default=timezone.now)
     tipo = models.ForeignKey(TipoTarea, on_delete=models.CASCADE)
     profesor = models.ForeignKey(
@@ -36,12 +33,15 @@ class Tarea(models.Model):
         blank=True,
         related_name="tareas_profesor",
     )
+    lapso = models.ForeignKey(Lapso, on_delete=models.CASCADE)
 
     class Meta:
         db_table = "tareas"
+        verbose_name = "evaluación"
+        verbose_name_plural = "evaluaciones"
 
     def __str__(self):
-        return f"{self.nombre} - {self.profesor}"
+        return f"{self.pk} ({self.tipo}) - {self.profesor}"
 
 
 class TareaProfesorMateria(models.Model):
@@ -55,7 +55,7 @@ class TareaProfesorMateria(models.Model):
         verbose_name_plural = "asignaciones tareas - materias"
 
     def __str__(self):
-        return f"{self.tarea.nombre} - {self.profesormateria.materia.nombre} ({self.profesormateria.seccion.nombre})"
+        return f"{self.tarea} - {self.profesormateria.materia.nombre} ({self.profesormateria.seccion.nombre})"
 
 
 class Nota(models.Model):

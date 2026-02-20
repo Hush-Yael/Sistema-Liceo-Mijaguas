@@ -20,8 +20,6 @@
   >
     <div id="campos" class="{{ 'col gap-y-6 gap-x-10'|expandir_variantes }}">
       {% partialdef campos inline %}
-        {% include "componentes/campo.html" with campo=form.nombre input_class="deshabilitar-al-subir ui-elevado-2" %}
-        {% include "componentes/campo.html" with campo=form.descripcion input_class="deshabilitar-al-subir ui-elevado-2 min-h-20" %}
         {%
           include "componentes/combobox.html" with
           name=form.tipo.name

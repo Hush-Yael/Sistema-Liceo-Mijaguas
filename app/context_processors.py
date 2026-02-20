@@ -3,6 +3,7 @@ from typing_extensions import NotRequired
 from django.http import HttpRequest
 from django.conf import settings
 from django.urls import reverse_lazy
+from app.util import vn, vnp
 from app.vistas import nombre_url_crear_auto, nombre_url_lista_auto
 from estudios.modelos.gestion.calificaciones import Nota, Tarea, TipoTarea
 from estudios.modelos.gestion.personas import (
@@ -120,13 +121,13 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
             ],
         },
         {
-            "label": "Tareas",
+            "label": vnp(Tarea),
             "icono_nombre": "tareas",
             "enlaces": [
                 si_permitido(
                     "estudios.add_tarea",
                     {
-                        "label": "Añadir tarea",
+                        "label": f"Añadir {vn(Tarea)}",
                         "icono_nombre": "añadir",
                         "href": reverse_lazy(nombre_url_crear_auto(Tarea)),
                     },
@@ -136,7 +137,7 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
                 si_permitido(
                     "estudios.view_tarea",
                     {
-                        "label": "Mis tareas",
+                        "label": f"Mis {vnp(Tarea)}",
                         "icono_nombre": "tabla",
                         # "href": reverse_lazy("mis_tareas"),
                         "href": reverse_lazy(nombre_url_lista_auto(Tarea)),
@@ -155,7 +156,7 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
                 si_permitido(
                     "estudios.view_tipotarea",
                     {
-                        "label": "Tipos de tareas",
+                        "label": vnp(TipoTarea),
                         "icono_nombre": "tabla",
                         "href": reverse_lazy(nombre_url_lista_auto(TipoTarea)),
                     },

@@ -23,7 +23,7 @@ class FormTipoTarea(forms.ModelForm):
 class FormTarea(LapsoActualForm, forms.ModelForm):
     class Meta:
         model = Tarea
-        fields = (nc(Tarea.nombre), nc(Tarea.descripcion), nc(Tarea.tipo))
+        fields = (nc(Tarea.tipo),)
 
     def __init__(self, *args, **kwargs):
         profesor: "Profesor | None" = kwargs.pop("profesor", None)
@@ -49,17 +49,6 @@ class FormTarea(LapsoActualForm, forms.ModelForm):
                         tareaprofesormateria__tarea=self.instance
                     )
                 )
-
-    nombre = forms.CharField(
-        label="Nombre",
-        required=True,
-    )
-
-    descripcion = forms.CharField(
-        label="Descripción",
-        required=False,
-        widget=forms.Textarea(attrs={"rows": 3}),
-    )
 
     profesormateria = forms.ModelMultipleChoiceField(
         label="Materias",
