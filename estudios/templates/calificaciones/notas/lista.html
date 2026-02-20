@@ -116,12 +116,12 @@
                 >
                   {%
                     with
-                    th_class="flex aic border-b border-[--transparente-1] px-4 p-2 min-[500px]:py-3 text-xs font-medium text-texto-sutil uppercase tracking-wider"
-                    td_class="px-4 p-2 whitespace-nowrap min-[500px]:py-3 border-b border-[--transparente-1]"
+                    th_class="flex aic px-4 p-2 min-[500px]:py-3 text-xs font-medium text-texto-sutil uppercase tracking-wider"
+                    td_class="px-4 p-2 whitespace-nowrap min-[500px]:py-3"
                   %}
                     <div
                       role="row"
-                      class="sticky z-1 left-0 h-full col col-[1/2] row-[1/6] bg-fondo-600 *:flex-1"
+                      class="sticky z-1 left-0 h-full col col-[1/2] row-[1/6] bg-fondo-600 divide-y divide-[--transparente-1] *:flex-1"
                     >
                       <span role="columnheader" class="{{ th_class }} "
                         >nota</span
@@ -139,7 +139,7 @@
                     {% for nota in materia.notas %}
                       <div
                         role="row"
-                        class="col *:flex row-[1/6] border-[--transparente-1] border-r text-texto-semi-sutil"
+                        class="col *:flex-1 row-[1/6] divide-y divide-[--transparente-1] border-r border-[--transparente-1] text-texto-semi-sutil"
                       >
                         <span role="cell" class="{{ td_class }} ">
                           {{ nota.valor|floatformat:2 }}
