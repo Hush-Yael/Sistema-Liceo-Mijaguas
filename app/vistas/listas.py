@@ -304,7 +304,7 @@ class VistaListaObjetos(Vista, FormFiltrosMixin, ListView):
 
     def sin_resultados(self):
         """Verifica si la búsqueda no arroja resultados."""
-        return len(self.object_list) == 0
+        return self.object_list.count() == 0  # type: ignore - sí es un queryset
 
     def get(self, request: HttpRequest, *args, **kwargs):
         respuesta = super().get(request, *args, **kwargs)
