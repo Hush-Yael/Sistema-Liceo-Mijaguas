@@ -648,11 +648,15 @@ class CrearMatricula(MatriculaVistaForm, VistaCrearObjeto):
     def get_initial(self):
         if (seccion := self.request.GET.get("seccion")) and seccion.isdecimal():
             if seccion := Seccion.objects.filter(id=seccion).first():
-                return {
-                    "seccion": seccion,
-                }
+                initial["seccion"] = seccion
 
-        return {}
+        if (
+            estudiante := self.request.GET.get("estudiante_id")
+        ) and estudiante.isdecimal():
+            if estudiante := Estudiante.objects.filter(id=estudiante).first():
+                initial["estudiante"] = estudiante
+
+        return initial
 
 
 class ActualizarMatricula(MatriculaVistaForm, VistaActualizarObjeto):

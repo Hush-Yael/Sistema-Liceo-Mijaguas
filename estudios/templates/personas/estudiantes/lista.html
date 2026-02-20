@@ -128,7 +128,16 @@
             {% if matricula %}
               {{ matricula.seccion.nombre }}
             {% else %}
-              No tiene
+              {% with t="No tiene" %}
+                {% if perms.estudios.add_matricula %}
+                  <a
+                    href="{% url 'crear_matricula' %}?estudiante_id={{ estudiante.id }}"
+                    >{{ t }}</a
+                  >
+                {% else %}
+                  {{ t }}
+                {% endif %}
+              {% endwith %}
             {% endif %}
           </dd>
         </div>
