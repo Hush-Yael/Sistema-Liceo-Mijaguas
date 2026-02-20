@@ -598,8 +598,6 @@ class ListaMatriculas(VistaListaObjetos):
     form_filtros = MatriculaBusquedaForm
     estados_opciones = dict(MatriculaEstados.choices)
     lapso_actual: "Lapso | None" = None
-    estados_opciones = dict(MatriculaEstados.choices)
-    agrupados = True
 
     def get_queryset(self, *args, **kwargs):
         q = self.model.objects.all()
