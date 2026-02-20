@@ -9,24 +9,12 @@
       {% endif %}
     {% endif %}
     class="{{ class|default:''|add:' sticky bottom-0 flex flex-wrap aic justify-between gap-y-2 gap-x-6 w-full p-2 px-3 border border-[--borde-caja] bg-fondo-500 max-[500px]:text-sm' }}"
-    hx-indicator="#indicador-pagina"
     hx-include="[data-filtro]"
   >
-    <div class="flex aic gap-x-2">
-      <div
-        id="indicador-pagina"
-        class="htmx-indicator fc"
-        role="status"
-        aria-label="Cargando página..."
-      >
-        <div class="ui-loader ui-loader/primario"></div>
-      </div>
-
-      <p class="min-w-max" role="status">
-        Página <b>{{ page_obj.number }}</b> de
-        <b>{{ page_obj.paginator.num_pages }}</b>
-      </p>
-    </div>
+    <p class role="status">
+      Página <b>{{ page_obj.number }}</b> de
+      <b>{{ page_obj.paginator.num_pages }}</b>
+    </p>
 
     <nav>
       <ul
