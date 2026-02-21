@@ -322,7 +322,10 @@ class VistaListaObjetos(Vista, FormFiltrosMixin, ListView):
         """Verifica si hay al menos un objeto del modelo indicado en la base de datos. Se usa cuando no se define el atributo "total" """
         return self.model.objects.exists()
 
-    def sin_resultados(self):
+    def sin_resultados(self) -> bool:
+        if isinstance(self.object_list, list):
+            return len(self.object_list) == 0
+
         """Verifica si la búsqueda no arroja resultados."""
         return self.object_list.count() == 0  # type: ignore - sí es un queryset
 
