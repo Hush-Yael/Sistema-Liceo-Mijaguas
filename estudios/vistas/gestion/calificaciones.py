@@ -264,6 +264,12 @@ class ListaNotas(VistaListaObjetos):
             )
             queryset = queryset.filter(seccion__in=secciones)
 
+        if años := datos_form.get("anios"):
+            notas_qs = notas_qs.filter(
+                tarea_profesormateria__profesormateria__seccion__año__in=años
+            )
+            queryset = queryset.filter(seccion__año__in=años)
+
         if lapsos := datos_form.get(NotasBusquedaForm.Campos.LAPSOS):
             notas_qs = notas_qs.filter(tarea_profesormateria__tarea__lapso__in=lapsos)
             queryset = queryset.filter(lapso__in=lapsos)

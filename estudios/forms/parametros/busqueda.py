@@ -29,6 +29,12 @@ class LapsoYSeccionFormMixin(BusquedaFormMixin):
         required=False,
     )
 
+    anios = forms.ModelMultipleChoiceField(
+        label="Año",
+        queryset=Año.objects.all() if not MIGRANDO else None,
+        required=False,
+    )
+
 
 class OpcionesFormSeccion:
     class ColumnasTexto(Enum):

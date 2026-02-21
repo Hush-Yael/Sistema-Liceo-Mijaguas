@@ -99,12 +99,6 @@ class MatriculaBusquedaForm(OrdenFormMixin, LapsoYSeccionFormMixin):
 
     campos_prefijo_cookie = "matriculas"
 
-    anios = forms.ModelMultipleChoiceField(
-        label="Año",
-        queryset=Año.objects.all() if not MIGRANDO else None,
-        required=False,
-    )
-
     estado = forms.ChoiceField(
         label="Estado",
         initial=None,
