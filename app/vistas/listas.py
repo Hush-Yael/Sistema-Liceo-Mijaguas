@@ -53,6 +53,14 @@ class FormFiltrosMixin:
         queryset: models.QuerySet,
         datos_form: "dict[str, Any] | Mapping[str, Any]",
     ):
+        queryset = self.aplicar_busqueda(queryset, datos_form)
+        return queryset
+
+    def aplicar_busqueda(
+        self,
+        queryset: models.QuerySet,
+        datos_form: "dict[str, Any] | Mapping[str, Any]",
+    ):
         """Modifica el queryset de acuerdo a los filtros indicados en el form de filtros. Por defecto, verifica si se trata de un form de busqueda textual y aplica las búsquedas si es necesario."""
 
         if isinstance(self.form_filtros, BusquedaFormMixin):
