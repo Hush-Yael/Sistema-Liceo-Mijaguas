@@ -153,10 +153,9 @@ class FormFiltrosMixin:
 
     # aplicación de filtros por POST
     def post(self, request: HttpRequest, *args, **kwargs):
-        if hasattr(self, "form_filtros"):
-            respuesta = super().get(request, *args, **kwargs)  # type: ignore
+        respuesta = super().get(request, *args, **kwargs)  # type: ignore
 
-            respuesta.context_data["lista_reemplazada_por_htmx"] = 1  # type: ignore
+        if hasattr(self, "form_filtros"):
             respuesta.template_name = self.plantilla_lista  # type: ignore
 
             # Validar el formulario y guardar en cookies los valores
@@ -203,6 +202,14 @@ class FormFiltrosMixin:
             # no hay un valor por defecto, se usa el de la clase
             elif self.paginate_by:
                 datos_form["cantidad_por_pagina"] = self.paginate_by  # type: ignore - sí se puede modificar
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super().get_context_data(*args, **kwargs)  # type: ignore
+
+        if self.request.method == "POST":
+            ctx["lista_reemplazada_por_htmx"] = 1  # type: ignore
+
+        return ctx
 
 
 class VistaListaObjetos(Vista, FormFiltrosMixin, ListView):
