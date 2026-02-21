@@ -31,9 +31,11 @@
   >
     {% for profesor in lista_objetos %}
       <li class="max-h-max">
-        <article class="ui-caja col gap-y-4 p-3">
-          <div class="flex aic gap-x-3 ">
-            {% with c="size-16 size-min-16 lh-16 aspect-square rounded-full" %}
+        <article class="ui-caja col">
+          <div
+            class="flex aic gap-x-3 p-2 px-3 bg-fondo-700 border-[--transparente-1] rounded-t-caja"
+          >
+            {% with c="size-15 size-min-15 lh-15 aspect-square rounded-full" %}
               {% if profesor.miniatura_foto %}
                 <button
                   data-foto-url="{{ profesor.foto_perfil }}"
@@ -49,7 +51,7 @@
                 </button>
               {% else %}
                 <span
-                  class="{{ c|add:' tac bg-fondo-950 text-texto-semi-sutil text-[1.7rem] font-bold' }}"
+                  class="{{ c|add:' tac bg-[--transparente-1] text-texto-semi-sutil text-[1.7rem] font-bold' }}"
                 >
                   {{ profesor.nombres|slice:"0:1" }}{{ profesor.apellidos|slice:"0:1" }}
                 </span>
@@ -70,7 +72,7 @@
             </hgroup>
           </div>
 
-          <div class="col gap-y-4 border-t border-[--borde-caja] pt-3">
+          <div class="col gap-y-4 p-3">
             {% partial datos %}
             {% partial estados %}
           </div>
@@ -148,7 +150,9 @@
 
 {% partialdef estados %}
   {% with c="fc gap-x-2 p-1 px-4 rounded-full" ic="size-4" %}
-    <div class="flex flex-wrap gap-2 px-0.5 rounded text-sm text-texto-sutil">
+    <div
+      class="flex flex-wrap gap-2 px-0.5 rounded border-t border-[--transparente-1] pt-3 text-sm text-texto-sutil"
+    >
       {% with activo=profesor.activo %}
         <span
           role="status"

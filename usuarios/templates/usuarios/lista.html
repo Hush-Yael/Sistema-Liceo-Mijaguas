@@ -29,9 +29,11 @@
   >
     {% for usuario in lista_objetos %}
       <li class="max-h-max">
-        <article class="ui-caja col gap-y-3 p-3">
-          <div class="flex aic gap-x-3">
-            {% with c="size-18 size-min-18 lh-18 aspect-square rounded-full" %}
+        <article class="ui-caja col">
+          <div
+            class="flex aic gap-x-3 p-2 px-3 bg-fondo-700 border-[--transparente-1] rounded-t-caja"
+          >
+            {% with c="size-16 size-min-16 lh-16 aspect-square rounded-full" %}
               {% if usuario.foto_perfil and usuario.miniatura_foto %}
                 <button
                   data-foto-url="{{ usuario.foto_perfil }}"
@@ -47,7 +49,7 @@
                 </button>
               {% else %}
                 <span
-                  class="{{ c|add:' tac bg-fondo-950 text-texto-semi-sutil text-3xl font-bold' }}"
+                  class="{{ c|add:' tac bg-[--transparente-1] text-texto-semi-sutil text-3xl font-bold' }}"
                 >
                   {{ usuario.username|capfirst|slice:"0:1" }}
                 </span>
@@ -76,7 +78,7 @@
           </div>
 
           <div
-            class="col gap-y-3 border-t border-[--borde-caja] pt-3 text-sm text-texto-sutil"
+            class="col gap-y-3 border-t border-[--borde-caja] p-3 text-sm text-texto-sutil"
           >
             <dl class="col gap-y-2">
               {% with c="flex aic jb" dtc="flex gap-x-2 aic font-500"  icono_contenedor_c="ui-contenedor-icono align-middle p-1 bg-[--transparente-1] text-texto-sutil" icono_class="size-4" %}

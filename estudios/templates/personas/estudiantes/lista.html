@@ -33,10 +33,12 @@
   >
     {% for estudiante in lista_objetos %}
       <li class="max-h-max">
-        <article class="ui-caja col gap-y-4 p-3">
-          <div class="flex aic gap-x-3 ">
+        <article class="ui-caja col">
+          <div
+            class="flex aic gap-x-3 p-2 px-3 bg-fondo-700 border-[--transparente-1] rounded-t-caja"
+          >
             <div
-              class="relative size-16 size-min-16 lh-16 aspect-square tac text-[1.7rem] font-bold select-none"
+              class="relative size-15 size-min-15 lh-15 aspect-square tac text-[1.7rem] font-bold select-none"
             >
               {% if permisos.editar or permisos.eliminar or puede_matricular %}
                 {%
@@ -50,7 +52,7 @@
               {% endif %}
 
               <span
-                class="block size-full rounded-full bg-fondo-950 text-texto-semi-sutil peer-checked/input:bg-secundario-600 peer-checked/input:text-secundario-texto"
+                class="block size-full rounded-full bg-[--transparente-1] text-texto-semi-sutil peer-checked/input:bg-secundario-600 peer-checked/input:text-secundario-texto"
               >
                 {{ estudiante.nombres|slice:"0:1" }}{{ estudiante.apellidos|slice:"0:1" }}
               </span>
@@ -71,9 +73,7 @@
             </hgroup>
           </div>
 
-          <div class="col gap-y-4 border-t border-[--borde-caja] pt-3">
-            {% partial datos %}
-          </div>
+          <div class="col gap-y-4 p-3">{% partial datos %}</div>
         </article>
       </li>
     {% endfor %}
