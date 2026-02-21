@@ -1,4 +1,4 @@
-from typing import Mapping, Type, Any
+from typing import Mapping, Sequence, Type, Any
 from django.db import models
 from django.shortcuts import render
 from django.views.generic import ListView
@@ -114,8 +114,13 @@ class FormFiltrosMixin:
                         columna = "-" + columna
 
                     queryset = queryset.order_by(columna)
-        elif self.ordering:
-            queryset = queryset.order_by(*self.ordering)
+        elif self.ordering:  # type: ignore - sí es del tipo que se espera
+            ordering: str | Sequence[str] = self.ordering  # type: ignore - sí es del tipo que se espera
+
+            if isinstance(ordering, str):
+                queryset = queryset.order_by(ordering)
+            else:
+                queryset = queryset.order_by(*ordering)
 
         return queryset
 
