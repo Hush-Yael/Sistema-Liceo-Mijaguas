@@ -283,7 +283,7 @@ class VistaListaObjetos(Vista, FormFiltrosMixin, ListView):
                 self.object_list  # type: ignore - sí es un queryset
             )
 
-        self.obtener_total(ctx)
+        self.total = self.obtener_total(ctx)
 
         ctx.update(
             VistaListaContexto(
@@ -314,9 +314,12 @@ class VistaListaObjetos(Vista, FormFiltrosMixin, ListView):
 
         return ctx
 
-    def obtener_total(self):
+    def obtener_total(self, ctx: "dict[str, Any]") -> int:
         """Obtiene el total de objetos del modelo indicado en la base de datos"""
-        self.total = self.model.objects.count()
+        if not ctx["is_paginated"]:
+            return self.model.objects.count()
+        else:
+            return ctx["page_obj"].paginator.count
 
     def al_menos_uno(self):
         """Verifica si hay al menos un objeto del modelo indicado en la base de datos. Se usa cuando no se define el atributo "total" """

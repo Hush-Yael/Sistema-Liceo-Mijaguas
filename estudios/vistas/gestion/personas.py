@@ -651,7 +651,7 @@ class ListaMatriculas(VistaListaObjetos):
         return Matricula.objects.filter(id__in=ids, lapso=self.lapso_actual).delete()
 
     def obtener_total(self, ctx):
-        self.total = self.model.objects.count()
+        return self.model.objects.count()
 
     def paginate_queryset(self, queryset, page_size):
         """Sobrescribe el método de paginación para trabajar con la lista personalizada"""

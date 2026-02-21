@@ -142,8 +142,8 @@ class ListaTareasProfesor(
             )
         )
 
-    def obtener_total(self):
-        self.total = self.model.objects.filter(
+    def obtener_total(self, ctx):
+        return self.model.objects.filter(
             profesor=self.request.user.profesor,  # type: ignore - sí existe "profesor" como atributo
             lapso=self.lapso_actual,
         ).count()
