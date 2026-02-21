@@ -1,5 +1,191 @@
 {% extends "base.html" %}
-
 {% block contenido %}
-  <header>Inicio</header>
-{% endblock %}
+  <main class="py-4 w-full flex-1">
+    <div class="px-4 sm:px-6 lg:px-8">
+      {# Título y selector de lapso #}
+      <div
+        class="flex flex-col md:flex-row md:items-center md:justify-between mb-8"
+      >
+        <div class="flex-1 min-w-0">
+          <h1 class="text-xl font-bold leading-tight ">
+            Bienvenido al sistema de administración escolar - Liceo Mijaguas
+          </h1>
+          <p class="mt-1 text-sm text-texto-sutil"></p>
+        </div>
+      </div>
+
+      {# Cards de estadísticas #}
+      <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+        <div class="ui-elevado overflow-hidden  rounded-lg">
+          <div class="p-5">
+            <div class="flex items-center">
+              <div class="flex-shrink-0 bg-[--transparente-1] rounded-md p-3">
+                E
+              </div>
+              <div class="ml-5 w-0 flex-1">
+                <dl>
+                  <dt class="text-sm font-medium text-texto-sutil truncate">
+                    Total Estudiantes
+                  </dt>
+                  <dd class="text-lg font-semibold ">
+                    {{ total_estudiantes }}
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ui-elevado overflow-hidden  rounded-lg">
+          <div class="p-5">
+            <div class="flex items-center">
+              <div class="flex-shrink-0 bg-[--transparente-1] rounded-lg p-3">
+                P
+              </div>
+
+              <div class="ml-5 w-0 flex-1">
+                <dl>
+                  <dt class="text-sm font-medium text-texto-sutil truncate">
+                    Profesores Activos
+                  </dt>
+                  <dd class="text-lg font-semibold ">
+                    {{ profesores_activos }}
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ui-elevado overflow-hidden  rounded-lg">
+          <div class="p-5">
+            <div class="flex items-center">
+              <div class="flex-shrink-0 bg-[--transparente-1] rounded-md p-3">
+                M
+              </div>
+              <div class="ml-5 w-0 flex-1">
+                <dl>
+                  <dt class="text-sm font-medium text-texto-sutil truncate">
+                    Materias
+                  </dt>
+                  <dd class="text-lg font-semibold ">{{ total_materias }}</dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# Gráficos y actividades recientes #}
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        {# Distribución por años #}
+        <div class="ui-elevado  rounded-lg p-6">
+          <h3 class="text-lg font-medium  mb-4">
+            Distribución de estudiantes por año
+          </h3>
+
+          <div class="space-y-4" x-data="{ hovered: null }">
+            {% for d in distribucion_años %}
+              <div class="relative">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-sm font-medium text-texto-semi-sutil"
+                    >{{ d.año.nombre }}</span
+                  >
+                  <span class="text-sm text-texto-sutil"
+                    >{{ d.count }} estudiantes</span
+                  >
+                </div>
+                <div
+                  class="overflow-hidden h-2 text-xs flex rounded bg-[--transparente-2]"
+                >
+                  <div
+                    class="flex flex-col text-center whitespace-nowrap bg-primario-600 text-white justify-center"
+                    style="width: {{ d.porcentaje }}%"
+                  ></div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      {# Secciones y últimas evaluaciones #}
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {# Secciones más pobladas #}
+        <div class="ui-elevado  rounded-lg p-6 lg:col-span-2">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-medium ">
+              Secciones con mayor capacidad ocupada
+            </h3>
+            <a
+              href="{% url 'seccion' %}"
+              class="text-sm text-blue-600 hover:text-blue-800"
+            >
+              Ver todas
+            </a>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-[--transparente-1]">
+              <thead>
+                <tr>
+                  <th
+                    class="px-6 py-3 bg-fondo-700 text-left text-xs font-medium text-texto-sutil uppercase tracking-wider"
+                  >
+                    Sección
+                  </th>
+                  <th
+                    class="px-6 py-3 bg-fondo-700 text-left text-xs font-medium text-texto-sutil uppercase tracking-wider text-right"
+                  >
+                    Capacidad
+                  </th>
+                  <th
+                    class="px-6 py-3 bg-fondo-700 text-left text-xs font-medium text-texto-sutil uppercase tracking-wider text-right"
+                  >
+                    Matriculados
+                  </th>
+                  <th
+                    class="px-6 py-3 bg-fondo-700 text-left text-xs font-medium text-texto-sutil uppercase tracking-wider text-right"
+                  >
+                    Disponibles
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody
+                class="ui-elevado divide-y divide-[--transparente-1]"
+                x-data
+              >
+                {% for seccion in secciones %}
+                  <tr>
+                    <td
+                      class="px-6 py-4 whitespace-nowrap text-sm font-medium "
+                    >
+                      {{ seccion.nombre }}
+                    </td>
+                    <td
+                      class="px-6 py-4 whitespace-nowrap text-sm text-texto-sutil text-right"
+                    >
+                      {{ seccion.capacidad }}
+                    </td>
+                    <td
+                      class="px-6 py-4 whitespace-nowrap text-sm text-texto-sutil text-right"
+                    >
+                      {{ seccion.matriculados }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                      <span
+                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-primario-50 dark:bg-primario-800/50 text-primario-900 dark:text-primario-texto"
+                        x-text="{{ seccion.capacidad }} - {{ seccion.matriculados }}"
+                      >
+                      </span>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+{% endblock contenido %}
