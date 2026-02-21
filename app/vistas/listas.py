@@ -32,21 +32,19 @@ class FormFiltrosMixin:
     page_kwarg: str
 
     def usar_filtros(self, queryset: models.QuerySet):
-        if not hasattr(self, "form_filtros"):
-            raise ValueError("Se debe indicar un form de filtros")
+        if hasattr(self, "form_filtros"):
+            datos_form = self.inicializar_form_filtros()
 
-        datos_form = self.inicializar_form_filtros()
+            queryset = self.aplicar_orden(queryset, datos_form)
 
-        queryset = self.aplicar_orden(queryset, datos_form)
+            # modificar paginación de acuerdo a los filtros
+            self.modificar_paginacion(datos_form)
 
-        # modificar paginación de acuerdo a los filtros
-        self.modificar_paginacion(datos_form)
-
-        # modificar queryset de acuerdo a los filtros
-        queryset = self.aplicar_filtros(
-            queryset=queryset,
-            datos_form=datos_form,
-        )
+            # modificar queryset de acuerdo a los filtros
+            queryset = self.aplicar_filtros(
+                queryset=queryset,
+                datos_form=datos_form,
+            )
 
         return queryset
 
