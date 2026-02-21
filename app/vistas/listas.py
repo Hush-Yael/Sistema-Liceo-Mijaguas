@@ -283,6 +283,8 @@ class VistaListaObjetos(Vista, FormFiltrosMixin, ListView):
                 self.object_list  # type: ignore - sí es un queryset
             )
 
+        self.obtener_total(ctx)
+
         ctx.update(
             VistaListaContexto(
                 form_filtros=self.form_filtros
@@ -332,8 +334,6 @@ class VistaListaObjetos(Vista, FormFiltrosMixin, ListView):
             if request.GET.get("solo_tabla"):
                 respuesta.context_data["lista_reemplazada_por_htmx"] = 1  # type: ignore
                 respuesta.template_name = self.plantilla_lista  # type: ignore
-
-        self.obtener_total()
 
         return respuesta
 
