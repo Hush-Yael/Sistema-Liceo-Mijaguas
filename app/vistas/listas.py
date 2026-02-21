@@ -247,9 +247,9 @@ class VistaListaObjetos(Vista, FormFiltrosMixin, ListView):
 
         super().__init__()
 
-    def get_queryset(
+    def get_queryset(  # type: ignore - el valor retornado sirve
         self, queryset: "models.QuerySet | None" = None
-    ) -> "models.QuerySet":
+    ) -> "models.QuerySet | list[models.Model]":
         """Retorna el queryset. Si se indica un form de orden, se ordenan los datos de acuerdo a los valores indicados. Si se indica un form de filtros, se filtran los datos de acuerdo a los valores indicados."""
         if queryset is None:
             raise ValueError("Se debe indicar un queryset")
