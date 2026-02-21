@@ -10,12 +10,6 @@
   <script defer src="{% static 'js/componentes/combobox.js' %}"></script>
 {% endblock cabeza %}
 
-{% block contenido %}
-  {% with main_class="sidebar:max-w-[calc(100%-var(--ancho-barra-lateral))]" %}
-    {{ block.super }}
-  {% endwith %}
-{% endblock contenido %}
-
 {% block form_filtros %}
   {{ block.super }}
 
@@ -60,6 +54,12 @@
         campo=form_filtros.secciones
         opciones=form_filtros.secciones.field.choices|obtener_lista_opciones
         opciones_seleccionadas=form_filtros.secciones.value
+      %}
+
+      {% include "componentes/vista-lista/filtros/conjunto-opciones.html" with
+        campo=form_filtros.anios
+        opciones=form_filtros.anios|obtener_lista_opciones
+        opciones_seleccionadas=form_filtros.anios.value
       %}
 
       {% include "componentes/vista-lista/filtros/conjunto-opciones.html" with

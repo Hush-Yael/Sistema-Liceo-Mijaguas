@@ -1,0 +1,339 @@
+<!-- templates/calificaciones/cargar_notas.html -->
+{% extends 'base.html' %}
+{% load utilidades %}
+{% load static %}
+{% load grupos_variantes %}
+{% load l10n %}
+
+{% block cabeza %}
+  <link
+    rel="stylesheet"
+    href="{% static 'css/componentes/htmx-indicator.css' %}"
+  />
+
+  <style>
+    @keyframes moverIzquierdaDerecha {
+      0% {
+        transform: translateX(-100%);
+      }
+      100% {
+        transform: translateX(200%);
+      }
+    }
+  </style>
+
+  <script defer src="{% static 'js/htmx.min.js' %}"></script>
+  <script defer src="{% static 'js/form-notas.js' %}"></script>
+{% endblock cabeza %}
+
+{% block contenido %}
+  <main
+    x-data="notasApp()"
+    class="col w-full flex-1"
+    hx-indicator="#indicador-subida"
+    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+    @htmx:after-request.window="
+      const input = $event.target;
+      const exito = $event.detail.successful;
+      datos = JSON.parse($event.detail.xhr.response);
+
+      if (exito) input.setAttribute('data-estado', 'G');
+      else input.setAttribute('data-estado', 'X');
+      
+      notificar(datos.mensaje, exito);
+    "
+  >
+    <header
+      class="sticky top-[--altura-header] z-4 border-b-2 border-[#fff2] bg-primario-600 dark:bg-primario-400 text-primario-texto font-bold"
+    >
+      <div class="flex aic gap-x-4 p-2 px-4">
+        {# Información de navegación #}
+        <a
+          href="{% url view.url_volver %}"
+          class="fc rounded-full aspect-square bg-[#fff2] pover:bg-[#fff3] p-2 transition-colors"
+          aria-label="Volver"
+        >
+          <svg
+            class="size-5 min-[500px]:size-4"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            />
+          </svg>
+        </a>
+
+        <hgroup
+          class="col gap-1 min-[500px]:flex-1 min-[500px]:flex-row min-[500px]:jb min-[500px]:aic"
+        >
+          <h1 class="font-semibold text-lg min-[500px]:text-xl">
+            Carga de notas
+          </h1>
+
+          <div
+            class="flex aic gap-x-2 bg-primario-texto text-primario rounded-full px-4 p-0.5 max-[500px]:text-sm min-[500px]:gap-x-4"
+          >
+            <p class="opacity-90">{{ materia_impartida.materia.nombre }}</p>
+
+            <p class="border-l pl-2 border-[#0002]">
+              {{ materia_impartida.seccion.nombre }}
+            </p>
+          </div>
+        </hgroup>
+      </div>
+
+      {# indicador HTMX #}
+      <div
+        role="status"
+        id="indicador-subida"
+        aria-label="Cargando"
+        {% with pseudo_c="before:content-[''] after:content-[''] " %}
+          class="
+          {{
+            pseudo_c|add:'
+            htmx-indicator relative h-1.25 w-full overflow-hidden rounded-xs
+            before:(absolute top-0 left-0 size-full bg-[#fff2] rounded-xs)
+            after:(
+              absolute top-0 left-0 size-full bg-primario-texto rounded-xs transform translate-x-[-100%] animate-[moverIzquierdaDerecha_1s_linear_infinite]
+            )
+            max-[600px]:mt-2
+            '
+            |reemplazar_espacios:" "
+            |expandir_variantes
+          }}"
+        {% endwith %}
+      ></div>
+    </header>
+
+    {# Contenido principal #}
+    {% with m_class="ui-elevado rounded-xl w-full max-w-[500px] px-6 py-12 text-center ma" %}
+      <div class="col px-4 sm:px-6 lg:px-8 py-8 flex-1">
+        {% if tareas|length == 0 %}
+          {# Tabla de notas #}
+          <div role="alert">
+            <div class="flex flex-col aic">
+              <svg
+                class="size-16 text-texto-sutil"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="m21 6.757-2 2V4h-9v5H5v11h14v-2.757l2-2v5.765a.993.993 0 0 1-.993.992H3.993A1 1 0 0 1 3 20.993V8l6.003-6h10.995C20.55 2 21 2.455 21 2.992v3.765Zm.778 2.05 1.414 1.415L15.414 18l-1.416-.002.002-1.412 7.778-7.778Z"
+                ></path>
+              </svg>
+
+              <h3 class="mt-4 text-lg font-medium ">
+                No has añadido evaluaciones
+              </h3>
+
+              <p class="mt-1 text-sm text-texto-sutil">
+                No podrás asignar notas a esta materia.
+              </p>
+
+              <a
+                class="mt-4 ui-btn ui-btn/primario ui-btn/md"
+                href="{% url 'crear_tarea' %}"
+              >
+                {% include "componentes/iconos/edicion.html#suma_circulo" %}
+                Añade una
+              </a>
+            </div>
+          </div>
+        {% elif tabla_notas|length == 0 %}
+          <div role="alert" class="{{ m_class }}">
+            <div class="flex flex-col aic">
+              <svg
+                class="size-16 text-texto-sutil"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1"
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                />
+              </svg>
+
+              <h3 class="mt-4 text-lg font-medium ">No hay estudiantes</h3>
+
+              <p class="mt-1 text-sm text-texto-sutil">
+                No hay estudiantes matriculados en esta sección.
+              </p>
+            </div>
+          </div>
+        {% else %}
+          <div class="ui-elevado rounded-xl shadow-lg overflow-hidden">
+            <div class="overflow-x-auto w-full">
+              <table
+                class="w-full divide-y divide-[--transparente-1]"
+                @input="marcarCambio()"
+              >
+                <thead class="bg-fondo-700">
+                  <tr>
+                    {% with class="px-4 p-2 min-[500px]:py-3 text-xs font-medium text-texto-sutil uppercase tracking-wider" %}
+                      <th scope="col" class="{{ class }} text-right pr-0">#</th>
+
+                      <th scope="col" class="{{ class }} text-left">
+                        Estudiante
+                      </th>
+
+                      {% for tpm in tareas %}
+                        <th scope="col" class="{{ class }} min-w-[100px]">
+                          <div class="group relative">
+                            <span class="block font-bold">
+                              #{{ forloop.counter }} -
+                              {{ tpm.tarea.tipo.nombre }}
+                            </span>
+
+                            <span class="block text-[10px] text-texto-sutil">
+                              {{ tpm.tarea.fecha_añadida|date:"d/m/Y" }}
+                            </span>
+                          </div>
+                        </th>
+                      {% endfor %}
+                    {% endwith %}
+                  </tr>
+                </thead>
+                <tbody class="ui-elevado divide-y divide-[--transparente-1]">
+                  {% with class="px-4 p-2 whitespace-nowrap min-[500px]:py-3" %}
+                    {% for fila in tabla_notas %}
+                      <tr class="hover:bg-fondo-600 transition-colors">
+                        <td
+                          class="{{ class }} pr-0 text-right text-sm text-texto-sutil font-sans tabular-nums"
+                        >
+                          {{ forloop.counter }}
+                        </td>
+
+                        <td class="{{ class }} nombre">
+                          <div class="flex aic">
+                            <div
+                              class="fc flex-shrink-0 size-10 rounded-full bg-[--transparente-1]"
+                            >
+                              <span class="">
+                                {{ fila.estudiante.nombres|first }}{{ fila.estudiante.apellidos|first }}
+                              </span>
+                            </div>
+
+                            <div class="ml-4">
+                              <div
+                                class="text-sm font-medium text-texto-semi-sutil"
+                              >
+                                {{ fila.estudiante.apellidos }},
+                                {{ fila.estudiante.nombres }}
+                              </div>
+                              <div
+                                class="text-sm text-texto-sutil font-sans tabular-nums"
+                              >
+                                {{ fila.estudiante.cedula|localize }}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+
+                        {% for tarea in tareas %}
+                          {% with nota=fila.notas|valor_por_clave:tarea.id %}
+                            <td class="px-4 py-4 text-center">
+                              <div class="relative inline-block">
+                                <input
+                                  type="number"
+                                  name="nota"
+                                  data-tarea-id="{{ tarea.id }}"
+                                  hx-post="{% url 'guardar_nota_individual' %}"
+                                  hx-trigger="input[!isNaN(parseInt(this.value))] changed delay:1000ms"
+                                  hx-vals="js:{
+                                    tarea_id: {{ tarea.id }},
+                                    matricula_id: {{ fila.matricula.id }},
+                                    valor: parseInt(this.value)
+                                  }"
+                                  value="{{ nota.valor|default:'' }}"
+                                  hx-swap="none"
+                                  step="0.1"
+                                  min="0"
+                                  max="20"
+                                  class="{{
+                                    '
+                                      peer w-20 px-2 py-1 tac text-sm border rounded-lg transition-colors focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+
+                                      data-[estado=N]:(
+                                        border-[--transparente-2] bg-fondo-700
+                                      )
+
+                                      data-[estado=G]:(
+                                        border-green-300 bg-green-50 dark:border-green-600 dark:bg-green-900/30
+                                      )
+
+                                      data-[estado=C]:(border-yellow-300 bg-yellow-50 dark:border-yellow-600 dark:bg-yellow-900/30)
+                                      data-[nada]:(border-[--transparente-2] bg-fondo-700)
+
+                                      data-[estado=X]:(border-peligro-300 bg-peligro-50 dark:border-peligro-600 dark:bg-peligro-900/30)
+                                    '
+                                    |reemplazar_espacios:" "
+                                    |expandir_variantes
+                                  }} "
+                                  data-estado="{{ nota.valor|yesno:'G,N' }}"
+                                />
+
+                                {% with class="absolute -right-6 top-1/2 transform -translate-y-1/2" %}
+
+                                  {# Indicador de guardado #}
+                                  <div
+                                    class="peer-not-[[data-estado=G]]:hidden {{ class }}"
+                                  >
+                                    <svg
+                                      class="size-4 text-green-500"
+                                      fill="currentColor"
+                                      viewBox="0 0 20 20"
+                                    >
+                                      <path
+                                        fill-rule="evenodd"
+                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                        clip-rule="evenodd"
+                                      />
+                                    </svg>
+                                  </div>
+
+                                  <div
+                                    class="peer-not-[[data-estado=X]]:hidden {{ class }}"
+                                  >
+                                    <svg
+                                      class="size-4 text-peligro"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      viewBox="0 0 512 512"
+                                    >
+                                      <path
+                                        d="M400 145.49 366.51 112 256 222.51 145.49 112 112 145.49 222.51 256 112 366.51 145.49 400 256 289.49 366.51 400 400 366.51 289.49 256 400 145.49z"
+                                      ></path>
+                                    </svg>
+                                  </div>
+
+                                  {#  Indicador de cambio pendiente #}
+                                  <div
+                                    class="peer-not-[[data-estado=C]]:hidden {{ class }}"
+                                  >
+                                    <div
+                                      class="size-2 bg-yellow-500 rounded-full animate-pulse"
+                                    ></div>
+                                  </div>
+                                {% endwith %}
+                              </div>
+                            </td>
+                          {% endwith %}
+                        {% endfor %}
+                      </tr>
+                    {% endfor %}
+                  {% endwith %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    {% endwith %}
+  </main>
+{% endblock contenido %}

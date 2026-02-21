@@ -12,9 +12,19 @@ urlpatterns = (
         name=nombre_url_lista_auto(Nota),
     ),
     path(
-        "notas/crear/",
-        vistas.ListaNotas.as_view(),
+        "notas/cargar",
+        vistas.VistaMateriasProfesor.as_view(),
         name=nombre_url_crear_auto(Nota),
+    ),
+    path(
+        "notas/cargar/<int:profesormateria_id>/",
+        vistas.VistaCargarNotas.as_view(),
+        name="cargar_notas",
+    ),
+    path(
+        "api/guardar-nota/",
+        vistas.guardar_nota_individual,
+        name="guardar_nota_individual",
     ),
     *crear_crud_urls(
         TipoTarea,

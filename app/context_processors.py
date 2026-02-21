@@ -104,19 +104,19 @@ def obtener_enlaces(request: HttpRequest, permisos: "set[str]"):
             "enlaces": [
                 si_permitido(
                     "estudios.add_nota",
-                    {"label": "Añadir nota", "icono_nombre": "añadir"},
-                ),
-                si_permitido(
-                    "estudios.view_nota",
                     {
-                        "label": "Lista de notas",
-                        "icono_nombre": "tabla",
-                        "href": reverse_lazy(nombre_url_lista_auto(Nota)),
+                        "label": f"Carga de {vnp(Nota)}",
+                        "icono_nombre": "añadir",
+                        "href": reverse_lazy(nombre_url_crear_auto(Nota)),
                     },
                 ),
                 si_permitido(
                     "estudios.view_nota",
-                    {"label": "Boletines", "icono_nombre": "boletines"},
+                    {
+                        "label": f"Lista de {vnp(Nota)}",
+                        "icono_nombre": "tabla",
+                        "href": reverse_lazy(nombre_url_lista_auto(Nota)),
+                    },
                 ),
             ],
         },

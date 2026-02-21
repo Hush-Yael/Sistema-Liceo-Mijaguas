@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+{% block contenido %}
+  <main
+    class="w-full flex-1 col"
+    x-data='{
+      obtenerColorProgreso(progreso) {
+        if (progreso >= 90) return "#10b981";
+        if (progreso >= 70) return "#f59e0b";
+        if (progreso >= 50) return "#f97316";
+        if (progreso >= 0) return "#ef4444";
+        return "#9ca3af";
+      }
+    }'
+  >
+    <div
+      class="sticky top-[--altura-header] z-4 flex aic jb p-2 px-4 border-b-2 border-[#fff2] bg-primario-600 dark:bg-primario-400 text-primario-texto font-bold min-[500px]:text-lg"
+    >
+      Seleccionar materia para cargar notas
+    </div>
+
+    {% if materias_impartidas %}
+      <nav class="py-8 px-4">
+        <!-- Grid de materias -->
+        <ul class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {% for materia in materias_impartidas %}
+            <li>
+              <a
+                href="{% url 'cargar_notas' profesormateria_id=materia.id %}"
+                class="group block relative ui-elevado rounded-xl hover:shadow transition-all duration-300 overflow-hidden border-1 outline-1 outline-transparent border-[--transparente-1] hover:border-primario dark:hover:border-primario-600 hover:outline-primario dark:hover:outline-primario-600"
+              >
+                <!-- Barra de color superior -->
+                <div
+                  class="h-2 bg-gradient-to-r from-primario-400 to-primario dark:from-primario-600 dark:to-primario"
+                ></div>
+
+                <div class="p-4 px-6">
+                  <div class="flex items-start justify-between">
+                    <div class="col gap-y-3 flex-1">
+                      <div
+                        class="flex aic jb gap-x-3 pb-2 border-b border-[--transparente-1] group-hover:border-primario dark:group-hover:border-primario-600"
+                      >
+                        <h3
+                          class="text-lg font-semibold group-hover:text-primario dark:group-hover:text-primario-900 transition-colors"
+                        >
+                          {{ materia.materia.nombre }}
+                        </h3>
+
+                        <span
+                          class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primario-50 text-primario-800 dark:bg-primario-800/50 dark:text-primario-texto"
+                        >
+                          {{ materia.seccion.nombre }}
+                        </span>
+                      </div>
+
+                      {% with class="flex items-center gap-x-1 text-xs min-[500px]:text-sm text-texto-sutil" ic="size-4 mr-1" %}
+                        <div class="{{ class }}">
+                          <svg class="{{ ic }}" fill="none" viewBox="0 0 24 24">
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                            />
+                          </svg>
+
+                          <span>
+                            {{ materia.estadisticas.total_matriculas }} alumnos
+                          </span>
+                        </div>
+
+                        <div class="{{ class }}">
+                          <svg
+                            class="{{ ic }}"
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              d="m21 6.757-2 2V4h-9v5H5v11h14v-2.757l2-2v5.765a.993.993 0 0 1-.993.992H3.993A1 1 0 0 1 3 20.993V8l6.003-6h10.995C20.55 2 21 2.455 21 2.992v3.765Zm.778 2.05 1.414 1.415L15.414 18l-1.416-.002.002-1.412 7.778-7.778Z"
+                            ></path>
+                          </svg>
+
+                          {% with n=materia.estadisticas.total_tareas %}
+                            {{ n }}
+                            evaluaci{{ n|pluralize:"ón,ones" }}
+                          {% endwith %}
+                        </div>
+
+                        <div class="{{ class }} ">
+                          <svg
+                            class="{{ ic }}"
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              :fill="obtenerColorProgreso({{ materia.estadisticas.progreso_general }})"
+                              d="M12 20v2H3.993A1 1 0 0 1 3 21.008V2.992C3 2.444 3.447 2 3.998 2H16l5 5v7h-2V8h-4V4H5v16h7Zm2.465-.535L18 23l4.95-4.95-1.414-1.414L18 20.172 15.88 18.05l-1.414 1.415Z"
+                            ></path>
+                          </svg>
+
+                          {% with n=materia.estadisticas.estudiantes_tareas_incompletas %}
+                            {{ n }}
+                            nota{{ n|pluralize }} faltante{{ n|pluralize }}
+                          {% endwith %}
+
+                          <span
+                            class="relative mla before:absolute -before:bottom-1 before:block before:content-[''] before:h-[3px] before:rounded before:w-full before:bg-[--c]"
+                            :style="`--c: ${obtenerColorProgreso({{ materia.estadisticas.progreso_general }})}`"
+                          >
+                            {{ materia.estadisticas.progreso_general|floatformat }}%
+                          </span>
+                        </div>
+                      {% endwith %}
+                    </div>
+                  </div>
+
+                  <!-- Indicador de hover -->
+                  <div
+                    class="absolute bottom-0 right-0 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"
+                  >
+                    <div
+                      class="bg-primario dark:bg-primario-600 text-primario-texto px-4 py-1 rounded-tl-xl text-sm font-medium"
+                    >
+                      Cargar Notas →
+                    </div>
+                  </div>
+                </div>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </nav>
+    {% else %}
+      <div class="text-center col gap-y-2 py-12">
+        <svg
+          class="mx-auto size-18 text-texto-sutil"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+        <h3 class="text-xl font-medium">No hay materias asignadas</h3>
+        <p class="mt-1 text-lg text-texto-sutil">
+          No tienes materias asignadas para el lapso actual.
+        </p>
+      </div>
+    {% endif %}
+  </main>
+{% endblock contenido %}

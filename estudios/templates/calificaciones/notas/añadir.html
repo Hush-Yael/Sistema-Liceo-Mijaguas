@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load grupos_variantes %}
+{% load utilidades %}
+{% load static %}
+
+{% block titulo %}
+  Añadir notas
+{% endblock titulo %}
+
+{% block cabeza %}
+  <script defer src="{% static 'js/htmx.min.js' %}"></script>
+  <script defer src="{% static 'js/htmx-error-solicitudes.js' %}"></script>
+  {% include "componentes/combobox.html#scripts" %}
+
+  {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+    <script>
+      const opcionesSecciones = {{ form.seccion|obtener_lista_opciones|json|safe }}
+      const opcionesTareas = {{ form.tarea|obtener_lista_opciones|json|safe }}
+    </script>
+  {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+{% endblock cabeza %}
+
+{% block contenido %}
+  <main class="flex-1 w-full" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    <header
+      class="border-b-2 border-[#fff2] bg-primario-600 dark:bg-primario-400 text-primario-texto p-2 px-4 font-bold"
+    >
+      <h1 class="text-xl">Añadir notas</h1>
+    </header>
+
+    <ul
+      class="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-10 p-4 px-5"
+    >
+      {% for seccion in secciones %}
+        <li class="rounded-xl ">
+          <hgroup
+            class="flex aic jb gap-x-4 pb-2 mb-2 border-b border-[--transparente-2]"
+          >
+            <h3 class=" text-lg font-bold">{{ seccion.nombre }}</h3>
+
+            {% with n=seccion.cantidad_matriculas class="rounded-full text-xs font-semibold p-1 px-3" %}
+              <p
+                {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
+                      {% if n > 0 %}
+                        class="bg-secundario-600 text-secundario-texto {{ class }}"
+                      {% else %}
+                        class="bg-peligro text-peligro-texto {{ class }}"
+                      {% endif %}
+                    {% comment %}<!-- prettier-ignore-end -->{% endcomment %}
+              >
+                {{ n }} matricula{{ n|pluralize }}
+              </p>
+            {% endwith %}
+          </hgroup>
+
+          <nav>
+            <ul
+              class="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-2"
+            >
+              {% for pm in seccion.materias %}
+                <li>
+                  <a
+                    {% if seccion.cantidad_matriculas > 0 %}
+                      href="{% url 'subir_notas' pm.id %}"
+                    {% endif %}
+                    class="col gap-y-1 rounded p-1 px-3 ui-elevado rounded not-[[href]]:cursor-not-allowed"
+                  >
+                    <h3 class="font-bold text-texto-semi-sutil">
+                      {{ pm.materia.nombre }}
+                    </h3>
+
+                    <p class="text-sm text-texto-sutil">
+                      {% with  n=pm.cantidad_tareas %}
+                        {{ n }}
+                        tarea{{ n|pluralize }}
+                      {% endwith %}
+                    </p>
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
+          </nav>
+        </li>
+      {% endfor %}
+    </ul>
+  </main>
+{% endblock contenido %}
