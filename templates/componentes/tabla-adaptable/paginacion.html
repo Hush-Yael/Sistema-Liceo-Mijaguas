@@ -185,4 +185,12 @@
       </ul>
     </nav>
   </div>
+{% else %}
+  <div
+    class="hidden"
+    id="{{ id }}"
+    {% if swap %}
+      hx-swap-oob="outerHTML:#{{ id }}"
+    {% endif %}
+  ></div>
 {% endif %}
