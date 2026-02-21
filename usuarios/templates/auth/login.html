@@ -44,7 +44,7 @@
     {% if campo != form.password %}
       {% include "componentes/campo.html" with input_class="ui-elevado-2" %}
     {% else %}
-      <label class="col gap-y-1">
+      <label class="col gap-y-1" x-data="{ visible: false }">
         <span class="flex aic jb gap-x-4">
           <span>
             {{ campo.label }}
