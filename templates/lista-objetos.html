@@ -224,7 +224,6 @@
                   {% endif %}
                 >
                   {% block form_filtros %}
-
                     {# indicar al servidor que solo se quiere la tabla al momento de reemplazar el contenido #}
                     <input type="hidden" name="solo_tabla" value="true" />
 
@@ -310,7 +309,7 @@
       {% endblock cabecera %}
 
       <div
-        class="{{ lista_clase }} {{ py|default:'p-2' }} {{ px|default:'px-4 min-[500px]:px-5 sidebar:max-sidebar_full:px-6 min-[1000px]:px-8' }} tabla-contenido col gap-y-2 flex-1 mxa size-full [@media_all_and_(display-mode:fullscreen)]:p-4'|expandir_variantes }}"
+        class="{{ lista_clase }} {{ py|default:'p-2' }} {{ px|default:'px-4 min-[500px]:px-5 sidebar:max-sidebar_full:px-6 min-[1000px]:px-8' }} tabla-contenido col gap-y-2 flex-1 size-full [@media_all_and_(display-mode:fullscreen)]:p-4'|expandir_variantes }}"
       >
         {% include view.plantilla_lista %}
       </div>
