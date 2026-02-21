@@ -23,6 +23,8 @@ class VistaForm(SingleObjectTemplateResponseMixin, Vista):
     def __init__(self) -> None:
         super().__init__()
 
+        self.success_url = nombre_url_lista_auto(self.model)
+
         self.permission_required = (
             f"{self.nombre_app_modelo}.add_{self.model._meta.model_name}"
         )
@@ -55,7 +57,7 @@ class VistaForm(SingleObjectTemplateResponseMixin, Vista):
         )
 
         # ya que la petición se hace por HTMX, se debe usar la clase que permite redireccionar con este
-        return HTTPResponseHXRedirect(reverse(nombre_url_lista_auto(self.model)))  # type: ignore
+        return HTTPResponseHXRedirect(reverse(self.success_url))
 
 
 class VistaCrearObjeto(VistaForm, CreateView):
