@@ -33,3 +33,8 @@ def mn(modelo: Type[models.Model]) -> str:
 def vn(modelo: Type[models.Model]) -> str:
     """Retorna el verbose name del modelo"""
     return str(modelo._meta.verbose_name)
+
+
+def vnp(modelo: Type[models.Model]) -> str:
+    """Retorna el verbose name plural del modelo"""
+    return str(modelo._meta.verbose_name_plural)
