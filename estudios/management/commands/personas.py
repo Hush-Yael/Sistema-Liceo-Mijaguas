@@ -46,8 +46,18 @@ class ArgumentosPersonasMixin(BaseComandos):
             self.crear_profesores(options["profesores"])
 
         if self.si_accion("asignar_materias"):
-            profesores = Profesor.objects.all()
-            self.asignar_profesores_a_materias(profesores)
+            if not Materia.objects.exists():
+                return self.stdout.write(self.style.ERROR("No se han creado materias"))
+
+            if not Seccion.objects.exists():
+                return self.stdout.write(self.style.ERROR("No se han creado secciones"))
+
+            elif not Profesor.objects.exists():
+                return self.stdout.write(
+                    self.style.ERROR("No se han creado profesores")
+                )
+
+            self.asignar_profesores_a_materias()
 
         if self.si_accion("estudiantes"):
             self.crear_estudiantes(options["estudiantes"])
@@ -204,41 +214,70 @@ class ArgumentosPersonasMixin(BaseComandos):
             Usuario.objects.filter(id__in=usuarios_profesores).delete()
             self.stdout.write("✓ Usuarios de profesores eliminados")
 
-    def asignar_profesores_a_materias(self, profesores):
-        if (año := self.obtener_año_id(self.año_id)) is None:
-            return
+    def asignar_profesores_a_materias(self):
+        """Asignar profesores a materias por sección. Crea las combinaciones (seccion_id, materia_id) sin especificar el profesor, y luego se asignan aleatoriamente a los profesores."""
 
-        self.stdout.write("Asignando profesores a materias por sección...")
+        self.stdout.write("Asignando profesores a materias por cada sección...")
 
-        materias = Materia.objects.all()
-        secciones = Seccion.objects.filter(año=año)
-        asignaciones_creadas = 0
+        asignaciones_existentes = ProfesorMateria.objects.values(
+            "seccion_id", "materia_id"
+        )
 
-        # Para cada materia y sección, asignar 1-2 profesores
-        for materia in materias:
+        # Construimos una subconsulta para excluir asignaciones existentes
+        combinaciones_excluir = tuple(
+            f"{asignacion['seccion_id']}_{asignacion['materia_id']}"
+            for asignacion in asignaciones_existentes
+        )
+
+        materias_disponibles: "list[str]" = []
+
+        # Primero obtenemos todas las materias por año
+        años_materias = AñoMateria.objects.select_related(
+            nc(AñoMateria.año), nc(AñoMateria.materia)
+        ).values(
+            f"{nc(AñoMateria.año)}_id",
+            f"{nc(AñoMateria.materia)}_id",
+        )
+
+        for año_materia in años_materias:
+            # Obtenemos todas las secciones de este año
+            secciones = Seccion.objects.values("id").filter(
+                año__id=año_materia["año_id"]
+            )
+
             for seccion in secciones:
-                # Seleccionar 1-2 profesores aleatorios
-                num_profesores = random.randint(1, 2)
-                profesores_asignados = random.sample(
-                    list(profesores), min(num_profesores, len(profesores))
+                id_combinacion = f"{seccion['id']}_{año_materia['materia_id']}"
+                # Verificamos si esta combinación ya está asignada
+                if id_combinacion not in combinaciones_excluir:
+                    materias_disponibles.append(id_combinacion)
+
+        if len(materias_disponibles) > 0:
+            profesores_ids = tuple(Profesor.objects.values_list("id", flat=True))
+            asignadas = 0
+
+            while asignadas < len(materias_disponibles):
+                profesor_id = self.faker.random_element(profesores_ids)
+                materia = self.faker.random_element(materias_disponibles)
+                seccion_id, materia_id = materia.split("_")
+
+                _, creado = ProfesorMateria.objects.get_or_create(
+                    seccion_id=seccion_id,
+                    materia_id=materia_id,
+                    defaults={
+                        "profesor_id": profesor_id,
+                    },
                 )
 
-                for i, profesor in enumerate(profesores_asignados):
-                    es_principal = i == 0  # El primero es principal
+                if creado:
+                    asignadas += 1
 
-                    _, created = ProfesorMateria.objects.get_or_create(
-                        profesor=profesor,
-                        materia=materia,
-                        seccion=seccion,
-                    )
-                    if created:
-                        asignaciones_creadas += 1
-                        tipo = "principal" if es_principal else "secundario"
-                        self.stdout.write(
-                            f"✓ {profesor} → {materia.nombre} - {seccion.letra} ({tipo})"
-                        )
-
-        self.stdout.write(f"✓ Total asignaciones creadas: {asignaciones_creadas}")
+            self.stdout.write(
+                f"✓ {asignadas} asignaciones de profesores a materias creadas"
+            )
+        else:
+            self.stdout.write(
+                "✓ No se asignaron profesores a materias, ya que todas ya están asignadas"
+            )
 
     def matricular_estudiantes(
         self,
