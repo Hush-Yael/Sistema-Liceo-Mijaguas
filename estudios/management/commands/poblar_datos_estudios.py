@@ -86,7 +86,7 @@ class Command(BaseCommand):
         self.stdout.write("Creando secciones por defecto...")
 
         años = ModelosParametros.Año.objects.all()
-        letras_secciones = ["A", "B", "C", "D", "E", "F", "G", "H", "U"]
+        letras_secciones = ("A", "B")
 
         secciones_creadas = 0
         for año in años:
