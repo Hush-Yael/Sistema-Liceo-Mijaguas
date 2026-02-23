@@ -9,7 +9,13 @@ class ArgumentosParametrosMixin(BaseComandos):
         parser.add_argument(
             "--año",
             type=int,
-            help="Número del año objetivo, al cual asignar datos específicos",
+            help="id del año objetivo, al cual asignar datos específicos",
+        )
+
+        parser.add_argument(
+            "--seccion",
+            type=int,
+            help="id de la sección objetivo, al cual asignar datos específicos",
         )
 
         parser.add_argument(

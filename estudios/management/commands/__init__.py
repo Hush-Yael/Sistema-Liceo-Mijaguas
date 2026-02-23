@@ -1,4 +1,4 @@
-from typing import TypedDict
+from typing import Type, TypedDict
 from django.core.management.base import BaseCommand
 from faker import Faker
 from types import ModuleType
@@ -10,6 +10,7 @@ import usuarios.models as ModelosUsuarios
 import inspect
 import itertools
 from unicodedata import normalize
+from app.util import nc
 
 
 class Acciones(TypedDict):
@@ -25,7 +26,6 @@ class BaseComandos(BaseCommand):
     limpiar_todo: bool
     limpiar_modelo: str
     hacer_todo: bool
-    año_id: int
     acciones: Acciones
 
     def __init__(self, *args, **kwargs):
@@ -35,36 +35,78 @@ class BaseComandos(BaseCommand):
     def si_accion(self, accion: str) -> bool:
         return self.hacer_todo or self.acciones[accion]
 
-    def obtener_año_id(self, año_id: "int | None"):
-        if año_id is None:
+    def obtener_modelo_objetivo(
+        self,
+        modelo: Type[models.Model],
+        objeto_id: "int | None",
+        campos: "tuple[str, str]",
+        orden: "list[str] | tuple[str, ...]" = (),
+        nulo=False,
+    ):
+        if not modelo.objects.exists():
             return self.stdout.write(
                 self.style.ERROR(
-                    "Debes proporcionar el número del año objetivo para esta operación."
+                    f"No hay objetos para el modelo f{modelo._meta.verbose_name}. "
                 )
             )
 
-        try:
-            return ModelosParametros.Año.objects.get(id=año_id)
-        except ModelosParametros.Año.DoesNotExist:
-            return self.stdout.write(
-                self.style.ERROR(
-                    f"No existe el año número {año_id}. "
-                    f"Ejecuta primero poblar_datos_estudios para crear los años por defecto."
+        if objeto_id is not None:
+            try:
+                return modelo.objects.get(id=objeto_id)
+            except modelo.DoesNotExist:
+                return self.stdout.write(
+                    self.style.ERROR(
+                        f"No existe {modelo._meta.verbose_name} con el id: {objeto_id}. "
+                    )
                 )
+        elif not nulo:
+            # Si no se proporciona un objeto, mostrar los objetos disponibles y continuar
+            self.stdout.write("\n")
+            self.stdout.write(
+                f"No se proporcionó un {modelo._meta.verbose_name} especifico. Escoge uno:"
             )
 
-    def obtener_lapso_objetivo(self, lapso_objetivo: "int | None"):
-        if lapso_objetivo is None:
-            return self.stdout.write(
-                self.style.ERROR("No se proporcionó un lapso para la operación.")
-            )
+            objetos = modelo.objects.values_list(*campos).order_by(*orden)
 
-        try:
-            return ModelosParametros.Lapso.objects.get(pk=lapso_objetivo)
-        except ModelosParametros.Lapso.DoesNotExist:
-            return self.stdout.write(
-                self.style.ERROR("No se encontró el lapso con el id proporcionado.")
-            )
+            for pk, nombre in objetos:
+                self.stdout.write(f"{pk}: {nombre}")
+            self.stdout.write("\n")
+
+            pk_seccion = input("Presiona ENTER para cancelar:")
+
+            if not pk_seccion.isdigit():
+                return self.stdout.write(
+                    self.style.ERROR("No se escogió una opcion valida.")
+                )
+
+            return modelo.objects.get(pk=int(pk_seccion))
+
+    def obtener_seccion_objetivo(self, seccion_id: "int | None" = None, nula=False):
+        return self.obtener_modelo_objetivo(
+            ModelosParametros.Seccion,
+            seccion_id,
+            ("pk", nc(ModelosParametros.Seccion.nombre)),
+            ("año__pk",),
+            nula,
+        )
+
+    def obtener_lapso_objetivo(self, id_lapso: "int | None" = None, nulo=False):
+        return self.obtener_modelo_objetivo(
+            ModelosParametros.Lapso,
+            id_lapso,
+            ("pk", nc(ModelosParametros.Lapso.nombre)),
+            ("pk",),
+            nulo,
+        )
+
+    def obtener_año_objetivo(self, id_año: "int | None" = None, nulo=False):
+        return self.obtener_modelo_objetivo(
+            ModelosParametros.Año,
+            id_año,
+            ("pk", nc(ModelosParametros.Año.nombre)),
+            ("pk",),
+            nulo,
+        )
 
 
 def obtener_modelos_modulo(modulo: ModuleType) -> "tuple[models.Model, ...]":
