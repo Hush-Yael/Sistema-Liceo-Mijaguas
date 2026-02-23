@@ -48,7 +48,7 @@
 
 {% block contenido %}
   <main
-    class="group/main col flex-1 w-full [@media_all_and_(display-mode:fullscreen)]:bg-fondo-300 {{ main_class }}"
+    class="group/main col flex-1 w-full [@media_all_and_(display-mode:fullscreen)]:bg-fondo-300 {{ main_class }} sidebar:max-w-[calc(100%-var(--ancho-barra-lateral))]"
     |expandir_variantes
     {% if not no_hay_objetos %}
       hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
