@@ -7,7 +7,7 @@ from estudios.management.commands.personas import ArgumentosPersonasMixin
 from estudios.modelos.gestion.personas import (
     Profesor,
 )
-from django.db import connection
+from django.db import connection, transaction
 
 
 class GuardarPresencia(argparse.Action):
@@ -49,6 +49,7 @@ class Command(
             help="Crear todos los datos de ejemplo (por defecto si no se especifica nada)",
         )
 
+    @transaction.atomic
     def handle(self, *args, **options):
         self.año_id = options["año"]
         self.limpiar_todo = options["limpiar_todo"]
