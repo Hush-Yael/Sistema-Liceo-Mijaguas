@@ -10,6 +10,7 @@ from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.db.utils import IntegrityError
 from estudios.modelos.gestion.calificaciones import TipoTarea
+from estudios.modelos.parametros import Materia
 
 AÑOS = [
     ("Primer Año", "1ero"),
@@ -110,12 +111,11 @@ class Command(BaseCommand):
         materias_creadas = 0
         materias_asignadas = 0
 
-        for materia in MATERIAS:
-            _, created = ModelosParametros.Materia.objects.get_or_create(nombre=materia)
+        Materia.objects.bulk_create(
+            (Materia(nombre=materia) for materia in MATERIAS), ignore_conflicts=True
+        )
 
-            if created:
-                materias_creadas += 1
-                self.stdout.write(f"✓ Materia creada: {materia}")
+        self.stdout.write("✓ Materias creadas")
 
         self.stdout.write("Asignando materias a años...")
 
