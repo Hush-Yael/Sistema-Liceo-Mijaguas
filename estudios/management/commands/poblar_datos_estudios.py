@@ -221,7 +221,7 @@ class Command(BaseCommand):
         try:
             admin, creado = ModelosUsuarios.Usuario.objects.get_or_create(
                 username="admin",
-                email="",
+                email="admin@liceo.edu",
                 is_staff=True,
             )
             if creado:
