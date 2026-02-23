@@ -30,8 +30,7 @@ class BaseComandos(BaseCommand):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.faker = Faker("es_ES")  # Español de España
-        self.faker.seed_instance(1234)  # Para resultados consistentes
+        self.faker = Faker("es_MX")
 
     def si_accion(self, accion: str) -> bool:
         return self.hacer_todo or self.acciones[accion]
