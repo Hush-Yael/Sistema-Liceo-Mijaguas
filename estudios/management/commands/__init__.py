@@ -20,6 +20,7 @@ class Acciones(TypedDict):
     asignar_materias: bool
     matriculas: bool
     notas: bool
+    tareas: bool
 
 
 class BaseComandos(BaseCommand):

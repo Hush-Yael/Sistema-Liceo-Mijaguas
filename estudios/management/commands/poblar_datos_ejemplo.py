@@ -79,6 +79,7 @@ class Command(
             "asignar_materias": options["asignar_materias"],
             "matriculas": options["matriculas"],
             "notas": options["notas"],
+            "tareas": options["tareas"],
         }
 
         # no se indicaron acciones
