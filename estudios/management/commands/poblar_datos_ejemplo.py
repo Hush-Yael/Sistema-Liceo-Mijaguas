@@ -5,15 +5,7 @@ from estudios.management.commands.calificaciones import ArgumentosCalificaciones
 from estudios.management.commands.parametros import ArgumentosParametrosMixin
 from estudios.management.commands.personas import ArgumentosPersonasMixin
 from estudios.modelos.gestion.personas import (
-    Bachiller,
     Profesor,
-    Estudiante,
-    ProfesorMateria,
-    Matricula,
-)
-from estudios.modelos.gestion.calificaciones import Nota
-from estudios.modelos.parametros import (
-    Lapso,
 )
 from django.db import connection
 
@@ -100,15 +92,7 @@ class Command(
     def limpiar_datos(self):
         self.stdout.write("Eliminando todos los datos dinámicos existentes...")
 
-        modelos_a_limpiar = [
-            Nota,
-            Matricula,
-            ProfesorMateria,
-            Lapso,
-            Estudiante,
-            Profesor,
-            Bachiller,
-        ]
+        modelos_a_limpiar = obtener_todos_los_modelos()
 
         self.eliminar_usuarios_profesores()
 
