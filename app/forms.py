@@ -136,7 +136,6 @@ class PaginacionFormMixin(forms.Form):
     cantidad_por_pagina = forms.IntegerField(
         label="Cantidad por página",
         min_value=1,
-        initial=50,
         required=False,
         widget=forms.NumberInput(
             attrs={
