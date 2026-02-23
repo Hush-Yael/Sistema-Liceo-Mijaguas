@@ -1,4 +1,3 @@
-import random
 from typing import Any, OrderedDict
 from app.util import nc
 from estudios.management.commands import BaseComandos, quitar_diacriticos
@@ -10,7 +9,7 @@ from estudios.modelos.gestion.personas import (
     Estudiante,
     ProfesorMateria,
 )
-from estudios.modelos.parametros import Materia, Seccion
+from estudios.modelos.parametros import Materia, Seccion, AñoMateria
 from usuarios.models import Grupo, GruposBase, Usuario
 from django.utils import timezone
 
@@ -63,17 +62,23 @@ class ArgumentosPersonasMixin(BaseComandos):
             self.crear_estudiantes(options["estudiantes"])
 
         if self.si_accion("matriculas"):
-            estudiantes = Estudiante.objects.all()
-
-            if estudiantes.first() is None:
+            if not Estudiante.objects.exists():
                 return self.stdout.write(
-                    self.style.ERROR("No se han añadido estudiantes")
+                    self.style.ERROR(
+                        "Matriculando estudiantes: No se han añadido estudiantes"
+                    )
+                )
+            elif not Seccion.objects.exists():
+                return self.stdout.write(
+                    self.style.ERROR(
+                        "Matriculando estudiantes: No se han creado secciones"
+                    )
                 )
 
             self.matricular_estudiantes(
-                estudiantes,
                 options["lapso"],
                 options["seccion"],
+                options["año"],
             )
 
     def crear_datos_persona(self):
@@ -281,66 +286,42 @@ class ArgumentosPersonasMixin(BaseComandos):
 
     def matricular_estudiantes(
         self,
-        estudiantes,
-        lapso_objetivo: int,
-        seccion_objetivo: int,
+        lapso_objetivo: "int | None",
+        seccion_objetivo: "int | None",
+        año_objetivo: "int | None",
     ):
-        self.stdout.write(
-            f"Matriculando estudiantes {f'en todas las secciones del año {self.año_id}...' if seccion_objetivo is None else f'en la sección {seccion_objetivo}...'}"
-        )
+        """Matricular a los estudiantes en la sección indicada o, si no se indica, en todas las secciones del año indicado."""
 
+        self.stdout.write("Matriculando estudiantes")
+
+        # siempre se necesita un lapso
         if (lapso := self.obtener_lapso_objetivo(lapso_objetivo)) is None:
             return
 
-        matriculas_creadas = 0
-        ya_matriculados = 0
+        distribuir = input(
+            "Desea distribuir los estudiantes en las secciones? (s/n): "
+        ).lower()
 
-        if seccion_objetivo is not None:
-            if self.año_id is not None:
-                self.stdout.write(
-                    self.style.WARNING(
-                        "Advertencia: al indicar la sección, el año indicado es ignorado."
+        # Distribuir los estudiantes en las secciones existentes equitativamente
+        if distribuir == "s":
+            estudiantes = Estudiante.objects.all()
+
+            secciones = Seccion.objects.all()
+
+            año = self.obtener_año_objetivo(año_objetivo, True)
+
+            if año:
+                self.stdout.write(f"Buscando secciones para el año {año}")
+
+                secciones = Seccion.objects.filter(año=año)
+
+                if not secciones.exists():
+                    self.stdout.write(
+                        self.style.ERROR("No hay secciones creadas para este año.")
                     )
-                )
-
-            if (seccion := Seccion.objects.filter(id=seccion_objetivo).first()) is None:
-                return self.stdout.write(
-                    self.style.ERROR("No se encontró la sección proporcionada.")
-                )
-
-            for estudiante in estudiantes:
-                _, creada = Matricula.objects.get_or_create(
-                    estudiante=estudiante,
-                    seccion=seccion,
-                    lapso=lapso,
-                    defaults={
-                        "estado": self.faker.random_element(
-                            OrderedDict(
-                                [
-                                    (MatriculaEstados.ACTIVO, 0.9),
-                                    (MatriculaEstados.INACTIVO, 0.1),
-                                ]
-                            ),
-                        ),
-                    },
-                )
-
-                if creada:
-                    matriculas_creadas += 1
-                    self.stdout.write(f"✓ Matriculado: {estudiante}")
-                else:
-                    ya_matriculados += 1
-        else:
-            if (año := self.obtener_año_id(self.año_id)) is None:
-                return
-
-            secciones = Seccion.objects.filter(año=año)
-
-            if not secciones.exists():
-                self.stdout.write(
-                    self.style.ERROR("No hay secciones creadas para este año.")
-                )
-                return
+                    return
+            else:
+                self.stdout.write("Matriculando estudiantes en todas las secciones.")
 
             # Distribuir estudiantes entre secciones de manera equitativa
             estudiantes_por_seccion = len(estudiantes) // len(secciones)
@@ -355,13 +336,59 @@ class ArgumentosPersonasMixin(BaseComandos):
                 else:
                     estudiantes_seccion = estudiantes[inicio:fin]
 
-                for estudiante in estudiantes_seccion:
-                    _, creada = Matricula.objects.get_or_create(
-                        estudiante=estudiante,
-                        lapso=lapso,
-                        seccion=seccion,
-                        defaults={
-                            "estado": self.faker.random_element(
+                    matriculas = Matricula.objects.bulk_create(
+                        tuple(
+                            Matricula(
+                                estudiante=estudiante,
+                                lapso=lapso,
+                                seccion=seccion,
+                                estado=self.faker.random_element(
+                                    OrderedDict(
+                                        [
+                                            (MatriculaEstados.ACTIVO, 0.9),
+                                            (MatriculaEstados.INACTIVO, 0.1),
+                                        ]
+                                    ),
+                                ),
+                            )
+                            for estudiante in estudiantes_seccion
+                        )
+                    )
+
+                    self.stdout.write(f"✓ {len(matriculas)} Estudiantes matriculados")
+
+        # Asignar un rango de estudiantes a una sección
+        else:
+            seccion = self.obtener_seccion_objetivo(seccion_objetivo)
+
+            if (seccion := Seccion.objects.filter(id=seccion_objetivo).first()) is None:
+                return self.stdout.write(
+                    self.style.ERROR(
+                        "Matriculando estudiantes: no se encontró la sección proporcionada."
+                    )
+                )
+
+            rango = input(
+                f"Indique el rango de estudiantes a matricular (secciones: {seccion.letra}): "
+            )
+
+            estudiantes = Estudiante.objects.filter(pk__in=rango.split("-"))
+
+            if not estudiantes.exists():
+                return self.stdout.write(
+                    self.style.ERROR(
+                        "Matriculando estudiantes: no se encontraron estudiantes en el rango proporcionado."
+                    )
+                )
+
+            matriculas_creadas = Matricula.objects.bulk_create(
+                tuple(
+                    (
+                        Matricula(
+                            estudiante=estudiante,
+                            seccion=seccion,
+                            lapso=lapso,
+                            estado=self.faker.random_element(
                                 OrderedDict(
                                     [
                                         (MatriculaEstados.ACTIVO, 0.9),
@@ -369,16 +396,11 @@ class ArgumentosPersonasMixin(BaseComandos):
                                     ]
                                 ),
                             ),
-                        },
+                        )
                     )
-                    if creada:
-                        matriculas_creadas += 1
-                    else:
-                        ya_matriculados += 1
-
-        if ya_matriculados > 0:
-            self.stdout.write(
-                f"Ya matriculados con los parámetros indicados: {ya_matriculados}"
+                    for estudiante in estudiantes
+                ),
+                ignore_conflicts=True,
             )
-        if matriculas_creadas > 0:
-            self.stdout.write(f"✓ Total matriculas creadas: {matriculas_creadas}")
+
+            self.stdout.write(f"✓ {len(matriculas_creadas)} Estudiantes matriculados")
