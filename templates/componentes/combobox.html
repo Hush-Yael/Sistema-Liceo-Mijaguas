@@ -68,7 +68,7 @@
 
   <div
     class="{{ btn_contenedor_class|default:''|add:' peer relative flex' }}"
-    x-data="dropdown({ ariaHaspopup: 'listbox' })"
+    x-data="new Dropdown({ ariaHaspopup: 'listbox' })"
     {% if campo.errors %}
       data-invalido="true"
     {% endif %}
@@ -151,7 +151,7 @@
       {% else %}
         aria-multiselectable="true"
       {% endif %}
-      class="{{ lista_contenedor_clase|default:'top-8.5 left-0'|add:' absolute z-10 col max-h-45dvh w-full min-w-max max-w-350px ui-elevado overflow-y-auto empty:hidden ' }}"
+      class="{{ lista_contenedor_clase|default:''|add:' absolute z-10 col max-h-45dvh w-full min-w-250px max-w-full ui-elevado overflow-y-auto empty:hidden ' }}"
       {# al ser reemplazado por htmx, se muestra como si estuviera abierto, por lo que se oculta hasta que se interactúe con el trigger #}
       {% if campos_reemplazados_por_htmx %}
         style="display: none;"

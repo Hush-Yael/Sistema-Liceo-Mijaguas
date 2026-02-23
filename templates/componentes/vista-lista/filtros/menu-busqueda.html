@@ -2,7 +2,7 @@
 {% load utilidades %}
 
 {% if form_filtros.campos_busqueda %}
-  <div class="relative h-full" x-data="dropdown({})" x-ref="menuFiltros">
+  <div class="relative h-full" x-data="new Dropdown({})" x-ref="menuFiltros">
     <button
       x-bind="trigger"
       class="ui-btn ui-btn/secundario h-full px-2 rounded"
@@ -34,7 +34,7 @@
 {% partialdef campos %}
   <div
     {% comment %}<!-- prettier-ignore-start -->{% endcomment %}
-    x-data="dropdown({
+    x-data="new Dropdown({
       {% if campo_tipo_q.value %}
         tipo_busqueda: '{{ campo_tipo_q.value }}',
         nombre_tipo_busqueda: '{{ form_filtros|label_opcion_seleccionada:campo_tipo_q.name }}',

@@ -111,7 +111,7 @@
 
             <div
               class="relative w-fit"
-              x-data="dropdown({ noAjustable: true })"
+              x-data="new Dropdown({ pos_x: 'right: 0;', pos_y: 'top: 100%; margin-top: 12px;' })"
             >
               <button
                 x-bind="trigger"
@@ -124,7 +124,7 @@
               <div
                 x-bind="menu"
                 x-cloak
-                class="absolute top-[calc(100%+12px)] right-0 col py-1 w-fit rounded bg-secundario shadow-xl"
+                class="absolute col py-1 w-fit rounded bg-secundario shadow-xl"
               >
                 {% with accion_btn_class="flex aic gap-x-2 p-2 px-3 cursor-pointer transition-colors select-none text-sm whitespace-nowrap not-[[aria-selected=true],[aria-disabled=true]]:pover:bg-#fff2 aria-disabled:opacity-50 aria-disabled:cursor-not-allowed" %}
                   {% block acciones %}

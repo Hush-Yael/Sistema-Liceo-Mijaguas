@@ -1,5 +1,6 @@
 <div
-  x-data="dropdown({ {% block x_data %}{% endblock x_data %} })"
+  x-data="new Dropdown({ pos_y: 'top: 0;', pos_x: 'left: 100%; margin-left: 8px;', {% block x_data %}
+  {% endblock x_data %} })"
   {% if campo.value %}
     x-init="aplicarFiltro()"
   {% endif %}
