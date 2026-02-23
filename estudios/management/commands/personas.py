@@ -1,5 +1,6 @@
 import random
 from typing import Any, OrderedDict
+from app.util import nc
 from estudios.management.commands import BaseComandos, quitar_diacriticos
 from estudios.modelos.gestion.personas import (
     Matricula,
@@ -10,7 +11,7 @@ from estudios.modelos.gestion.personas import (
     ProfesorMateria,
 )
 from estudios.modelos.parametros import Materia, Seccion
-from usuarios.models import Grupo, Usuario
+from usuarios.models import Grupo, GruposBase, Usuario
 from django.utils import timezone
 
 
@@ -69,22 +70,22 @@ class ArgumentosPersonasMixin(BaseComandos):
         cedula = self.faker.random_int(min=1, max=32_000_000)
         sexo = self.faker.random_element(Persona.OpcionesSexo.values)
 
-        nombre = (
+        nombres = (
             self.faker.first_name_female()
             if sexo == Persona.OpcionesSexo.FEMENINO
             else self.faker.first_name_male()
         )
 
-        if nombre.find(" ") == -1:
-            nombre += " " + (
+        if nombres.find(" ") == -1:
+            nombres += " " + (
                 self.faker.first_name_female()
                 if sexo == Persona.OpcionesSexo.FEMENINO
                 else self.faker.first_name_male()
             )
 
-        apellido = f"{self.faker.last_name()} {self.faker.last_name()}"
+        apellidos = f"{self.faker.last_name()} {self.faker.last_name()}"
 
-        return cedula, sexo, nombre, apellido
+        return cedula, sexo, nombres, apellidos
 
     def crear_estudiantes(self, cantidad):
         self.stdout.write(f"Creando {cantidad} estudiantes...")
@@ -124,61 +125,76 @@ class ArgumentosPersonasMixin(BaseComandos):
     def crear_profesores(self, cantidad):
         self.stdout.write(f"Creando {cantidad} profesores...")
 
-        profesores_creados = 0
+        # Pre-cargar el grupo una sola vez
+        grupo_prof = Grupo.objects.get(name=GruposBase.PROFESOR.value)
+
+        # Listas para bulk_create
+        usuarios_crear = []
+        profesores_crear = []
+
+        # Conjunto para tracking de cédulas
+        cedulas_existentes = set(Profesor.objects.values_list("cedula", flat=True))
+        cedulas_usadas = set()
+
         for i in range(cantidad):
             # Generar datos con Faker
             cedula, sexo, nombre, apellido = self.crear_datos_persona()
 
-            d = {
-                "sexo": sexo,
-                "nombres": nombre,
-                "apellidos": apellido,
-                "telefono": self.faker.random_element(
+            # Validar cédula única
+            while cedula in cedulas_existentes or cedula in cedulas_usadas:
+                cedula = self.faker.random_int(min=1, max=32_000_000)
+
+            cedulas_usadas.add(cedula)
+
+            # Crear email
+            email = f"{quitar_diacriticos(nombre.lower().split(' ')[0])}.{quitar_diacriticos(apellido.lower().split(' ')[0])}@liceo.edu"
+            username = email.split("@")[0]
+
+            # Crear usuario
+            usuario = Usuario(
+                username=username,
+                email=email,
+                is_staff=True,
+            )
+            usuario.set_password("1234")
+            usuarios_crear.append(usuario)
+
+            # Crear profesor
+            profesor = Profesor(
+                cedula=cedula,
+                sexo=sexo,
+                nombres=nombre,
+                apellidos=apellido,
+                telefono=self.faker.random_element(
                     [None, "", self.faker.phone_number()]
                 ),
-                "activo": self.faker.boolean(chance_of_getting_true=90),
-            }
-
-            no_debe_usarse_otra_cedula = False
-            profesor = None
-
-            while not no_debe_usarse_otra_cedula:
-                profesor, creado = Profesor.objects.get_or_create(
-                    cedula=cedula,
-                    defaults=d,
-                )
-
-                if creado:
-                    no_debe_usarse_otra_cedula = True
-                else:
-                    cedula = self.faker.random_int(min=1, max=32_000_000)
-
-            if not profesor:
-                raise Exception("No se pudo crear el profesor")
-
-            email = f"{quitar_diacriticos(nombre.lower().split(' ')[0])}.{quitar_diacriticos(apellido.lower().split(' ')[0])}@liceo.edu"
-
-            grupo_prof = Grupo.objects.get(name="Profesor")
-
-            prof_usuario, creado = Usuario.objects.get_or_create(
-                username=email.split("@")[0],
-                defaults={
-                    "email": email,
-                    "is_staff": True,
-                },
+                activo=self.faker.boolean(chance_of_getting_true=90),
+                usuario=usuario,  # Temporal, se actualizará después del bulk_create
             )
-
-            prof_usuario.set_password("1234")
-            prof_usuario.save()
-
-            prof_usuario.grupos.add(grupo_prof)
-
-            profesor.save()
-            profesores_creados += 1
+            profesores_crear.append(profesor)
 
             self.stdout.write(f"✓ Creado profesor: {nombre} {apellido} ({i})")
 
-        self.stdout.write(f"✓ Total profesores creados: {profesores_creados}")
+        # Bulk create usuarios
+        Usuario.objects.bulk_create(usuarios_crear)
+
+        # Asignar usuarios a profesores y hacer bulk create
+        for i, profesor in enumerate(profesores_crear):
+            profesor.usuario = usuarios_crear[i]
+
+        Profesor.objects.bulk_create(profesores_crear)
+
+        # Asignar grupos usando through model directamente para mejor performance
+        Usuario_grupos = Usuario.grupos.through
+
+        usuario_grupos_crear = [
+            Usuario_grupos(usuario_id=usuario.id, grupo_id=grupo_prof.pk)
+            for usuario in usuarios_crear
+        ]
+
+        Usuario_grupos.objects.bulk_create(usuario_grupos_crear)
+
+        self.stdout.write(f"✓ Total profesores creados: {cantidad}")
 
     def eliminar_usuarios_profesores(self):
         usuarios_profesores = Profesor.objects.values_list("usuario", flat=True)
